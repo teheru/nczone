@@ -1,0 +1,11 @@
+eru_nczone_controller_rmatches:
+    path: /nczone/rmatches
+    defaults: { _controller: eru.nczone.controller:rmatches }
+
+eru_nczone_controller_pmatches:
+    path: /nczone/pmatches
+    defaults: { _controller: eru.nczone.controller:pmatches }
+
+eru_nczone_controller_table:
+    path: /nczone/table
+    defaults: { _controller: eru.nczone.controller:table }

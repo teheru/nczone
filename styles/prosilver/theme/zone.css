@@ -1,0 +1,27 @@
+div.nczone
+{
+	text-align: center;
+}
+
+table.nczone
+{
+	margin: auto;
+}
+
+table.mcp_nczone td, table.mcp_nczone th, table.nczone td, table.nczone th
+{
+	padding: 2px;
+
+	border-width: 1px;
+	border-color: #B4BAC0;
+	border-style: solid;
+
+	text-align: center;
+}
+
+.zone_errorbox
+{
+	color: #D31141;
+	font-weight: bold;
+	text-align: center;
+}

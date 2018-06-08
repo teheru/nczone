@@ -1,0 +1,80 @@
+imports:
+    - { resource: parameters.yml }
+
+services:
+    eru.nczone.controller:
+        class: eru\nczone\controller\main
+        arguments:
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+            - '@auth'
+            - '@eru.nczone.zone.players'
+
+    eru.nczone.listener:
+        class: eru\nczone\event\main_listener
+        arguments:
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+            - '%core.php_ext%'
+        tags:
+            - { name: event.listener }
+
+    eru.nczone.cron.task.demo:
+        class: eru\nczone\cron\task\demo
+        arguments:
+            - '@config'
+        calls:
+            - [set_name, [cron.task.demo]]
+        tags:
+            - { name: cron.task }
+
+    eru.nczone.notification.type.demo:
+        class: eru\nczone\notification\type\demo
+        scope: prototype # scope MUST be prototype for this to work!
+        arguments:
+            - '@user_loader'
+            - '@dbal.conn'
+            - '@cache.driver'
+            - '@user'
+            - '@auth'
+            - '@config'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%tables.notification_types%'
+            - '%tables.notifications%'
+            - '%tables.user_notifications%'
+        calls:
+            - [set_controller_helper, ['@controller.helper']]
+        tags:
+            - { name: notification.type }
+
+    eru.nczone.zone.players:
+      class: eru\nczone\zone\players
+      arguments:
+        - '@dbal.conn'
+        - '@user'
+        - '%tables.eru.nczone.players%'
+        - '%tables.users%'
+
+    eru.nczone.zone.civs:
+      class: eru\nczone\zone\civs
+      arguments:
+        - '@dbal.conn'
+        - '%tables.eru.nczone.civs%'
+        - '%tables.eru.nczone.maps%'
+        - '%tables.eru.nczone.map_civs%'
+
+    eru.nczone.zone.maps:
+      class: eru\nczone\zone\maps
+      arguments:
+        - '@dbal.conn'
+        - '@eru.nczone.zone.civs'
+        - '%tables.eru.nczone.maps%'
+        - '%tables.eru.nczone.map_civs%'
+
+    eru.nczone.zone.draw:
+      class: eru\nczone\zone\draw
+      arguments:

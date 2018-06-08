@@ -1,0 +1,5 @@
+parameters:
+    tables.eru.nczone.players: %core.table_prefix%zone_players
+    tables.eru.nczone.civs: %core.table_prefix%zone_civs
+    tables.eru.nczone.maps: %core.table_prefix%zone_maps
+    tables.eru.nczone.map_civs: %core.table_prefix%zone_map_civs
