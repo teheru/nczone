@@ -11,13 +11,15 @@
 
 namespace eru\nczone\zone;
 
-class matches {
-	// TODO: attributes
-	
-	public function __construct(\phpbb\db\driver\driver_interface $db)
-	{
-		$this->db = $db;
-	}
-}
+use phpbb\db\driver\driver_interface;
 
-?>
+class matches
+{
+    /** @var driver_interface */
+    private $db;
+
+    public function __construct(driver_interface $db)
+    {
+        $this->db = $db;
+    }
+}

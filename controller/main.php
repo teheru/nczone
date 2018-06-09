@@ -70,7 +70,7 @@ class main
 				));
 			}
 
-			$current_player = $this->zone_players->get_player($this->user->data['user_id']);
+			$current_player = $this->zone_players->get_player((int)$this->user->data['user_id']);
 
 			if($this->auth->acl_get('u_zone_login'))
 			{

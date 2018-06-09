@@ -11,95 +11,76 @@
 
 namespace eru\nczone\zone;
 
-class civs {
-	// TODO: attributes
+use eru\nczone\utility\db_util;
+use eru\nczone\utility\zone_util;
+use phpbb\db\driver\driver_interface;
 
-	public function __construct(\phpbb\db\driver\driver_interface $db,
-	$civs_table, $maps_table, $map_civs_table)
-	{
-		$this->db = $db;
+class civs
+{
+    /** @var driver_interface */
+    private $db;
+    /** @var string */
+    private $civs_table;
+    /** @var string */
+    private $map_civs_table;
 
-		$this->civs_table = $civs_table;
-		$this->maps_table = $maps_table;
-		$this->map_civs_table = $map_civs_table;
-	}
+    public function __construct(driver_interface $db, string $civs_table, string $map_civs_table)
+    {
+        $this->db = $db;
+        $this->civs_table = $civs_table;
+        $this->map_civs_table = $map_civs_table;
+    }
 
-	public function get_civs()
-	{
-		$sql_array = array(
-			'SELECT' => 'c.civ_id AS id, c.civ_name AS name',
-			'FROM' => array($this->civs_table => 'c')
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+    public function get_civs(): array
+    {
+        return db_util::get_rows($this->db, [
+            'SELECT' => 'c.civ_id AS id, c.civ_name AS name',
+            'FROM' => [$this->civs_table => 'c']
+        ]);
+    }
 
-		$result = $this->db->sql_query($sql);
-		$rows = $this->db->sql_fetchrowset($result);
-		$this->db->sql_freeresult($result);
+    public function get_civ(int $civ_id)
+    {
+        return db_util::get_row($this->db, [
+            'SELECT' => 'c.civ_name AS name',
+            'FROM' => [$this->civs_table => 'c'],
+            'WHERE' => 'c.civ_id = ' . $civ_id
+        ]);
+    }
 
-		return $rows;
-	}
+    public function edit_civ(int $civ_id, array $civ_info): void
+    {
+        $this->db->sql_query('UPDATE ' . $this->civs_table . ' SET ' . $this->db->sql_build_array('UPDATE', [
+                'civ_name' => $civ_info['name']
+            ]) . ' WHERE civ_id = ' . $civ_id);
+    }
 
-	public function get_civ($civ_id)
-	{
-		$civ_id = (int) $civ_id;
+    public function create_civ($civ_name): string
+    {
+        $civ_id = $this->insert_civ($civ_name);
+        $this->create_civ_maps($civ_id);
+        return $civ_id;
+    }
 
-		$sql_array = array(
-			'SELECT' => 'c.civ_name AS name',
-			'FROM' => array($this->civs_table => 'c'),
-			'WHERE' => 'c.civ_id = ' . $civ_id
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+    private function insert_civ(string $civ_name): string
+    {
+        return db_util::insert($this->db, $this->civs_table, [
+            'civ_id' => 0,
+            'civ_name' => $civ_name
+        ]);
+    }
 
-		$result = $this->db->sql_query($sql);
-		$row = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult($result);
-
-		return $row;
-	}
-
-	public function create_civ($civ_name)
-	{
-		$sql_array = array(
-			'civ_id' => 0,
-			'civ_name' => $civ_name
-		);
-		$this->db->sql_query('INSERT INTO ' . $this->civs_table . ' ' . $this->db->sql_build_array('INSERT', $sql_array));
-		$civ_id = $this->db->sql_nextid();
-
-		$sql_array = array(
-			'SELECT' => 'm.map_id AS map_id',
-			'FROM' => array($this->maps_table => 'm')
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$rows = $this->db->sql_fetchrowset($result);
-		$this->db->sql_freeresult($result);
-
-		foreach($rows as $row)
-		{
-			$sql_array = array(
-				'map_id' => $row['map_id'],
-				'civ_id' => $civ_id,
-				'multiplier' => 0.0,
-				'force_draw' => false,
-				'prevent_draw' => false,
-				'both_teams' => false,
-			);
-			$this->db->sql_query('INSERT INTO ' . $this->map_civs_table . ' ' . $this->db->sql_build_array('INSERT', $sql_array));
-		}
-
-		return $civ_id;
-	}
-
-	public function edit_civ($civ_id, $civ_info)
-	{
-		$civ_id = (int) $civ_id;
-
-		$civ_data = array(
-			'civ_name' => $civ_info['name']
-		);
-		$this->db->sql_query('UPDATE ' . $this->civs_table . ' SET ' . $this->db->sql_build_array('UPDATE', $civ_data) . ' WHERE civ_id = ' . $civ_id);
-	}
+    private function create_civ_maps(string $civ_id): void
+    {
+        foreach (zone_util::maps()->get_map_ids() as $map_id) {
+            db_util::insert($this->db, $this->map_civs_table, [
+                'map_id' => $map_id,
+                'civ_id' => $civ_id,
+                'multiplier' => 0.0,
+                'force_draw' => false,
+                'prevent_draw' => false,
+                'both_teams' => false,
+            ]);
+        }
+    }
 }
-
-?>
