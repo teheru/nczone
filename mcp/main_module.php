@@ -10,6 +10,7 @@
 
 namespace eru\nczone\mcp;
 
+use eru\nczone\utility\db_util;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
 
@@ -18,7 +19,9 @@ use eru\nczone\utility\zone_util;
  */
 class main_module
 {
-    var $u_action;
+    private $u_action;
+    private $tpl_name;
+    private $page_title;
 
     function main($id, $mode)
     {
@@ -55,47 +58,44 @@ class main_module
     {
         $template = phpbb_util::template();
         $request = phpbb_util::request();
-        $db = phpbb_util::db();
 
         $template->assign_var('S_MANAGE_PLAYERS', true);
 
         $user_id = $request->variable('user_id', '');
         if ($user_id == '') {
+            $db = phpbb_util::db();
             $username = $request->variable('username', '');
-            $sql = 'SELECT user_id FROM ' . USERS_TABLE . " WHERE username_clean = '" . $db->sql_escape(utf8_clean_string($username)) . "'";
-            $result = $db->sql_query($sql);
-            $user_id = (int)$db->sql_fetchfield('user_id');
-            $db->sql_freeresult($result);
+            $user_id = (int)db_util::get_var($db, [
+                'SELECT' => 'user_id',
+                'FROM' => [USERS_TABLE => 'u'],
+                'WHERE' => 'username_clean = \'' . $db->sql_escape(utf8_clean_string($username)) . '\'',
+            ]);
+        } else {
+            $username = '';
         }
 
-        $new_player = $request->variable('new_player', '0') == '1';
-        $edit_player = $request->variable('edit_player', '0') == '1';
-        if ($new_player) {
+        if ($request->variable('new_player', '0') == '1') {
             $activate = $request->variable('activate', '') === 'on';
             if ($activate) {
-                $rating = (int)$request->variable('rating', 0);
-                zone_util::players()->activate_player((int)$user_id, $rating);
+                zone_util::players()->activate_player((int)$user_id, (int)$request->variable('rating', 0));
             }
-        } elseif ($edit_player) {
-            $rating = (int)$request->variable('rating', 0);
-            zone_util::players()->edit_player($user_id, array('rating' => $rating));
-        } else {
-            if ($user_id) {
-                $template->assign_var('USER_ID', $user_id);
+        } elseif ($request->variable('edit_player', '0') == '1') {
+            zone_util::players()->edit_player((int)$user_id, ['rating' => (int)$request->variable('rating', 0)]);
+        } elseif ($user_id) {
+            $template->assign_var('USER_ID', $user_id);
 
-                $player = zone_util::players()->get_player((int)$user_id);
-                if (array_key_exists('rating', $player)) {
-                    $template->assign_var('S_EDIT_PLAYER', true);
+            $player = zone_util::players()->get_player((int)$user_id);
+            if (array_key_exists('rating', $player)) {
+                $template->assign_var('S_EDIT_PLAYER', true);
 
-                    $template->assign_var('USERNAME', $player['username']);
-                    $template->assign_var('PLAYER_RATING', $player['rating']);
-                } else {
-                    $template->assign_var('S_NEW_PLAYER', true);
-                }
+                $template->assign_var('USERNAME', $player['username']);
+                $template->assign_var('PLAYER_RATING', $player['rating']);
+            } else {
+                $template->assign_var('S_NEW_PLAYER', true);
             }
         }
 
-        if ($username != '') {
+        if ($username !== '') {
             $template->assign_var('S_PLAYER_NOT_FOUND', true);
         }
         $template->assign_var('S_SELECT_PLAYER', true);
@@ -104,36 +104,30 @@ class main_module
 
     function civs()
     {
-        $template = phpbb_util::template();
         $request = phpbb_util::request();
-
-        $template->assign_var('S_MANAGE_CIVS', true);
 
         $civ_id = $request->variable('civ_id', '');
 
-        $create_civ = $request->variable('create_civ', '');
-        $edit_civ = $request->variable('edit_civ', '');
-        if ($create_civ) {
-            $civ_name = $request->variable('civ_name', '');
-            zone_util::civs()->create_civ($civ_name);
-        } elseif ($edit_civ) {
-            $civ_name = $request->variable('civ_name', '');
-            zone_util::civs()->edit_civ((int)$civ_id, array('name' => $civ_name));
+        if ($request->variable('create_civ', '')) {
+            zone_util::civs()->create_civ($request->variable('civ_name', ''));
+        } elseif ($request->variable('edit_civ', '')) {
+            zone_util::civs()->edit_civ((int)$civ_id, [
+                'name' => $request->variable('civ_name', ''),
+            ]);
             $civ_id = ''; // back to selection page
         }
+
+        $template = phpbb_util::template();
+        $template->assign_var('S_MANAGE_CIVS', true);
 
         if ($civ_id == '') // no civ selected
         {
             $template->assign_var('S_SELECT_CIV', true);
-
-            $civs = zone_util::civs()->get_civs();
-            if (count($civs)) {
-                foreach ($civs as $civ) {
-                    $template->assign_block_vars('civs', array(
-                        'ID' => (int)$civ['id'],
-                        'NAME' => $civ['name']
-                    ));
-                }
+            foreach (zone_util::civs()->get_civs() as $civ) {
+                $template->assign_block_vars('civs', [
+                    'ID' => (int)$civ['id'],
+                    'NAME' => $civ['name']
+                ]);
             }
         } elseif ($civ_id == 0) // new civ
         {
@@ -150,74 +144,57 @@ class main_module
 
     function maps()
     {
-        $template = phpbb_util::template();
         $request = phpbb_util::request();
 
         $map_id = $request->variable('map_id', '');
 
-        $create_map = $request->variable('create_map', '');
-        $edit_map = $request->variable('edit_map', '');
-        if ($create_map && phpbb_util::auth()->acl_get('m_zone_create_maps')) {
-            $map_name = $request->variable('map_name', '');
-            $map_weight = (float)$request->variable('map_weight', 0.0);
-            $copy_map_id = (int)$request->variable('copy_map_id', 0);
-            zone_util::maps()->create_map($map_name, $map_weight, $copy_map_id);
-        } elseif ($edit_map) {
-            $map_name = $request->variable('map_name', '');
-            $map_weight = (float)$request->variable('map_weight', 0.0);
-            zone_util::maps()->edit_map((int)$map_id, array(
-                    'name' => $map_name,
-                    'weight' => $map_weight)
+        if ($request->variable('create_map', '') && phpbb_util::auth()->acl_get('m_zone_create_maps')) {
+            zone_util::maps()->create_map(
+                $request->variable('map_name', ''),
+                (float)$request->variable('map_weight', 0.0),
+                (int)$request->variable('copy_map_id', 0)
             );
+        } elseif ($request->variable('edit_map', '')) {
+            zone_util::maps()->edit_map((int)$map_id, [
+                'name' => $request->variable('map_name', ''),
+                'weight' => (float)$request->variable('map_weight', 0.0),
+            ]);
 
-            $civs = zone_util::civs()->get_civs();
-            $civ_info = array();
-            foreach ($civs as $civ) {
-                $civ_id = $civ['id'];
-
-                $multiplier = $request->variable('multiplier_' . $civ_id, '');
-                $force_draw = $request->variable('force_draw_' . $civ_id, '');
-                $prevent_draw = $request->variable('prevent_draw_' . $civ_id, '');
-                $both_teams = $request->variable('both_teams_' . $civ_id, '');
-
-                $civ_info[$civ_id] = array(
-                    'multiplier' => $multiplier,
-                    'force_draw' => ($force_draw === 'on'),
-                    'prevent_draw' => ($prevent_draw === 'on'),
-                    'both_teams' => ($both_teams === 'on')
-                );
+            $civ_info = [];
+            foreach (zone_util::civs()->get_civs() as $civ) {
+                $civ_info[$civ['id']] = [
+                    'multiplier' => $request->variable('multiplier_' . $civ['id'], ''),
+                    'force_draw' => $request->variable('force_draw_' . $civ['id'], '') === 'on',
+                    'prevent_draw' => $request->variable('prevent_draw_' . $civ['id'], '') === 'on',
+                    'both_teams' => $request->variable('both_teams_' . $civ['id'], '') === 'on'
+                ];
             }
             zone_util::maps()->edit_map_civs((int)$map_id, $civ_info);
 
             $map_id = '';
         }
 
+        $template = phpbb_util::template();
         $template->assign_var('S_MANAGE_MAPS', true);
         $template->assign_var('S_CAN_CREATE_MAP', phpbb_util::auth()->acl_get('m_zone_create_maps'));
 
         if ($map_id == '') {
             $template->assign_var('S_SELECT_MAP', true);
 
-            $maps = zone_util::maps()->get_maps();
-            if (count($maps)) {
-                foreach ($maps as $map) {
-                    $template->assign_block_vars('maps', array(
-                        'ID' => (int)$map['id'],
-                        'NAME' => $map['name']
-                    ));
-                }
+            foreach (zone_util::maps()->get_maps() as $map) {
+                $template->assign_block_vars('maps', [
+                    'ID' => (int)$map['id'],
+                    'NAME' => $map['name']
+                ]);
             }
         } elseif ($map_id == 0) {
             $template->assign_var('S_NEW_MAP', true);
 
-            $maps = zone_util::maps()->get_maps();
-            if (count($maps)) {
-                foreach ($maps as $map) {
-                    $template->assign_block_vars('maps', array(
-                        'ID' => (int)$map['id'],
-                        'NAME' => $map['name']
-                    ));
-                }
+            foreach (zone_util::maps()->get_maps() as $map) {
+                $template->assign_block_vars('maps', [
+                    'ID' => (int)$map['id'],
+                    'NAME' => $map['name']
+                ]);
             }
         } else {
             $template->assign_var('S_EDIT_MAP', true);
@@ -227,18 +204,18 @@ class main_module
             $template->assign_var('S_MAP_NAME', $map['name']);
             $template->assign_var('S_MAP_WEIGHT', $map['weight']);
 
-            $map_civs = zone_util::maps()->get_map_civs($map_id);
-            foreach ($map_civs as $map_civ) {
+            foreach (zone_util::maps()->get_map_civs($map_id) as $map_civ) {
+                # todo: dont fetch civs one by one in a loop.
                 $civ = zone_util::civs()->get_civ((int)$map_civ['civ_id']);
 
-                $template->assign_block_vars('map_civs', array(
+                $template->assign_block_vars('map_civs', [
                     'CIV_ID' => $map_civ['civ_id'],
                     'CIV_NAME' => $civ['name'],
                     'MULTIPLIER' => $map_civ['multiplier'],
                     'FORCE_DRAW' => $map_civ['force_draw'] ? 'checked' : '',
                     'PREVENT_DRAW' => $map_civ['prevent_draw'] ? 'checked' : '',
                     'BOTH_TEAMS' => $map_civ['both_teams'] ? 'checked' : ''
-                ));
+                ]);
             }
         }
     }

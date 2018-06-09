@@ -50,9 +50,7 @@ class civs
 
     public function edit_civ(int $civ_id, array $civ_info): void
     {
-        $this->db->sql_query('UPDATE ' . $this->civs_table . ' SET ' . $this->db->sql_build_array('UPDATE', [
-                'civ_name' => $civ_info['name']
-            ]) . ' WHERE civ_id = ' . $civ_id);
+        db_util::update($this->db, $this->civs_table, ['civ_name' => $civ_info['name']], ['civ_id' => $civ_id]);
     }
 
     public function create_civ($civ_name): string

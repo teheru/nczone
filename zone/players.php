@@ -70,11 +70,9 @@ class players
         return true;
     }
 
-    public function edit_player($user_id, $player_info)
+    public function edit_player(int $user_id, array $player_info)
     {
-        $user_id = (int)$user_id;
-
-        $sql_array = array();
+        $sql_array = [];
         if (array_key_exists('rating', $player_info)) {
             $sql_array['rating'] = (int)$player_info['rating'];
         }
@@ -91,12 +89,12 @@ class players
         db_util::update($this->db, $this->players_table, $sql_array, ['user_id' => $user_id]);
     }
 
-    public function login_player($user_id)
+    public function login_player(int $user_id)
     {
         $this->edit_player($user_id, ['logged_in' => time()]);
     }
 
-    public function logout_player($user_id)
+    public function logout_player(int $user_id)
     {
         $this->edit_player($user_id, ['logged_in' => 0]);
     }
