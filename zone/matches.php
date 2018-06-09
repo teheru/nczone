@@ -11,9 +11,17 @@
 
 namespace eru\nczone\zone;
 
+/**
+ * nC Zone matches management class.
+ */
 class matches {
 	// TODO: attributes
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param \phpbb\db\driver\driver_interface    $db    Database object
+	 */
 	public function __construct(\phpbb\db\driver\driver_interface $db)
 	{
 		$this->db = $db;

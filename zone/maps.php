@@ -10,10 +10,20 @@
  */
 
 namespace eru\nczone\zone;
-
+/**
+ * nC Zone maps management class.
+ */
 class maps {
 	// TODO: attributes
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param \phpbb\db\driver\driver_interface     $db                Database object
+	 * @param \eru\nczone\zone\civs                 $zone_civs         Civs object
+	 * @param string                                $maps_table        Name of the maps table
+	 * @param string                                $map_civs_table    Name of the map civ (ratings) table
+	 */
 	public function __construct(\phpbb\db\driver\driver_interface $db, \eru\nczone\zone\civs $zone_civs,
 	$maps_table, $map_civs_table)
 	{
@@ -25,6 +35,11 @@ class maps {
 		$this->map_civs_table = $map_civs_table;
 	}
 
+	/**
+	 * Returns all maps (id, name, weight)
+	 * 
+	 * @return array
+	 */
 	public function get_maps()
 	{
 		$sql_array = array(
@@ -40,6 +55,13 @@ class maps {
 		return $rows;
 	}
 
+	/**
+	 * Returns name and weight of a certain map.
+	 * 
+	 * @param int    $map_id    Id of the map.
+	 * 
+	 * @return array
+	 */
 	public function get_map($map_id)
 	{
 		$map_id = (int) $map_id;
@@ -58,6 +80,13 @@ class maps {
 		return $row;
 	}
 
+	/**
+	 * Returns the information of all civs for a certain map.
+	 * 
+	 * @param int    $map_id    Id of the map.
+	 * 
+	 * @return array
+	 */
 	public function get_map_civs($map_id)
 	{
 		$map_id = (int) $map_id;
@@ -76,6 +105,13 @@ class maps {
 		return $rows;
 	}
 
+	/**
+	 * Creates a new map.
+	 * 
+	 * @param string    $map_name       Name of the new map
+	 * @param float     $weight         Drawing weight
+	 * @param int       $copy_map_id    id of a map to be copied
+	 */
 	public function create_map($map_name, $weight, $copy_map_id=0)
 	{
 		$copy_map_id = (int) $copy_map_id;
@@ -119,6 +155,14 @@ class maps {
 		return $map_id;
 	}
 
+	/**
+	 * Edits the information (name, weight) of a map
+	 * 
+	 * @param int      $map_id      Id of the map
+	 * @param array    $map_info    Information of the map
+	 * 
+	 * @return void
+	 */
 	public function edit_map($map_id, $map_info)
 	{
 		$map_id = (int) $map_id;
@@ -136,6 +180,14 @@ class maps {
 		$this->db->sql_query('UPDATE ' . $this->maps_table . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_array) . ' WHERE map_id = ' . $map_id);
 	}
 
+	/**
+	 * Edits the civs information for a map
+	 * 
+	 * @param int      $map_id      Id of the map
+	 * @param array    $map_civs    Information of the civs
+	 * 
+	 * @return void
+	 */
 	public function edit_map_civs($map_id, $map_civs)
 	{
 		$map_id = (int) $map_id;

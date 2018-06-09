@@ -11,9 +11,21 @@
 
 namespace eru\nczone\zone;
 
+
+/**
+ * nC Zone civs management class.
+ */
 class civs {
 	// TODO: attributes
 
+	/**
+	 * Constructor
+	 *
+	 * @param \phpbb\db\driver\driver_interface    $db                Database object
+	 * @param string                               $civs_table        Name of the civs table
+	 * @param string                               $maps_table        Name of the maps table
+	 * @param string                               $map_civs_table    Name of the map civ (ratings) table
+	 */
 	public function __construct(\phpbb\db\driver\driver_interface $db,
 	$civs_table, $maps_table, $map_civs_table)
 	{
@@ -24,6 +36,11 @@ class civs {
 		$this->map_civs_table = $map_civs_table;
 	}
 
+	/**
+	 * Returns the id and name of all civs
+	 * 
+	 * @return array
+	 */
 	public function get_civs()
 	{
 		$sql_array = array(
@@ -39,6 +56,13 @@ class civs {
 		return $rows;
 	}
 
+	/**
+	 * Returns the name of a certain civ
+	 * 
+	 * @param int    $civ_id    Id of the civ
+	 * 
+	 * @return string
+	 */
 	public function get_civ($civ_id)
 	{
 		$civ_id = (int) $civ_id;
@@ -57,6 +81,13 @@ class civs {
 		return $row;
 	}
 
+	/**
+	 * Creates a new civ in the database
+	 * 
+	 * @param string    $civ_name    Name of the civ
+	 * 
+	 * @return void
+	 */
 	public function create_civ($civ_name)
 	{
 		$sql_array = array(
@@ -91,6 +122,14 @@ class civs {
 		return $civ_id;
 	}
 
+	/**
+	 * Edits the info of a civ
+	 * 
+	 * @param int    $civ_id    Id of the civ
+	 * @param array  $civ_info  Information of the civ (i.e. name)
+	 * 
+	 * @return void
+	 */
 	public function edit_civ($civ_id, $civ_info)
 	{
 		$civ_id = (int) $civ_id;

@@ -11,9 +11,20 @@
 
 namespace eru\nczone\zone;
 
+/**
+ * nC Zone players management class.
+ */
 class players {
 	// TODO: attributes
 
+	/**
+	 * Constructor
+	 * 
+	 * @param \phpbb\db\driver\driver_interface    $db               Database object
+	 * @param \phpbb\user                          $user             phpBB user object
+	 * @param string                               $players_table    Name of the players table
+	 * @param string                               $users_table      Name of the users table
+	 */
 	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\user $user,
 	$players_table, $users_table)
 	{
@@ -24,6 +35,13 @@ class players {
 		$this->users_table = $users_table;
 	}
 
+	/**
+	 * Returns the zone information of a user/player
+	 * 
+	 * @param int    $user_id    The id of the user
+	 * 
+	 * @return array
+	 */
 	public function get_player($user_id)
 	{
 		$user_id = (int) $user_id;
@@ -56,6 +74,14 @@ class players {
 		return $row;
 	}
 
+	/**
+	 * Creates an entry for an user for the zone
+	 * 
+	 * @param int    $user_id    Id of the user
+	 * @param int    $rating     Start rating for the user
+	 * 
+	 * @return bool
+	 */
 	public function activate_player($user_id, $rating)
 	{
 		$user_id = (int) $user_id;
@@ -84,6 +110,14 @@ class players {
 		}
 	}
 
+	/**
+	 * Edits the information of a player
+	 * 
+	 * @param int      $user_id        Id of the user
+	 * @param array    $player_info    Information array for the user
+	 * 
+	 * @return void
+	 */
 	public function edit_player($user_id, $player_info)
 	{
 		$user_id = (int) $user_id;
@@ -109,16 +143,35 @@ class players {
 		$this->db->sql_query('UPDATE '. $this->players_table . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_array) . ' WHERE user_id = '. $user_id);
 	}
 
+	/**
+	 * Logins a player
+	 * 
+	 * @param int    $user_id    Id of the user
+	 * 
+	 * @return void
+	 */
 	public function login_player($user_id)
 	{
 		$this->edit_player($user_id, array('logged_in' => time()));
 	}
 
+	/**
+	 * Logouts a player
+	 * 
+	 * @param int    $user_id    Id of the user
+	 * 
+	 * @return void
+	 */
 	public function logout_player($user_id)
 	{
 		$this->edit_player($user_id, array('logged_in' => 0));
 	}
 
+	/**
+	 * Gets the user id, name and rating of all logged in players
+	 * 
+	 * @return array
+	 */
 	public function get_logged_in()
 	{
 		$sql_array = array(
@@ -135,6 +188,13 @@ class players {
 		return $rows;
 	}
 
+	/**
+	 * Calculates the next map (id) to be drawn for a group of players
+	 * 
+	 * @param array    $user_ids    Ids of the users
+	 * 
+	 * @return int
+	 */
 	public function get_players_map_id($user_ids)
 	{
 		$sql_array = array(

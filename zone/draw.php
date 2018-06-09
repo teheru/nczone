@@ -11,9 +11,15 @@
 
 namespace eru\nczone\zone;
 
+/**
+ * Class to make teams (not maps or civs!)
+ */
 class draw {
 	// TODO: attributes
 	
+	/**
+	 * Constructor
+	 */
 	public function __construct()
 	{
 		$this->special_match_sizes = array(
@@ -30,6 +36,13 @@ class draw {
 		$this->teams_4vs4 = array(array(array(0,3,4,7),array(1,2,5,6)),array(array(0,3,5,6),array(1,2,4,7)),array(array(0,2,5,7),array(1,3,4,6)),array(array(0,1,6,7),array(2,3,4,5)),array(array(0,3,4,6),array(1,2,5,7)),array(array(0,2,5,6),array(1,3,4,7)),array(array(0,2,6,7),array(1,3,4,5)),array(array(0,1,5,7),array(2,3,4,6)),array(array(0,4,5,6),array(1,2,3,7)),array(array(0,3,4,5),array(1,2,6,7)),array(array(0,1,5,6),array(2,3,4,7)),array(array(0,3,5,7),array(1,2,4,6)),array(array(0,2,4,7),array(1,3,5,6)),array(array(0,3,6,7),array(1,2,4,5)),array(array(0,4,5,7),array(1,2,3,6)),array(array(0,1,4,7),array(2,3,5,6)),array(array(0,2,3,7),array(1,4,5,6)),array(array(0,5,6,7),array(1,2,3,4)),array(array(0,1,2,7),array(3,4,5,6)),array(array(0,1,3,7),array(2,4,5,6)),array(array(0,4,6,7),array(1,2,3,5)));
 	}
 
+	/**
+	 * Calculates the best sizes of matches.
+	 * 
+	 * @param int    $num_players    Number of players do be drawn
+	 * 
+	 * @return array
+	 */
 	public function get_match_sizes($num_players)
 	{
 		$num_players = $num_players - ($num_players % 2);
@@ -56,6 +69,13 @@ class draw {
 		}
 	}
 
+	/**
+	 * Permutes match sizes in all possible combinations without redundancy.
+	 * 
+	 * @param array    $match_sizes    The number of match sizes n vs n (n => number)
+	 * 
+	 * @return array
+	 */
 	public function permute_match_sizes($match_sizes)
 	{
 		if(count($match_sizes) == 1)
@@ -129,6 +149,13 @@ class draw {
 		}
 	}
 
+	/**
+	 * Calculates the best teams for a single match.
+	 * 
+	 * @param array    $player_list    List of players with a 'rating' index
+	 * 
+	 * @return array
+	 */
 	public function make_match($player_list)
 	{
 		usort($player_list, array($this, 'cmp_ratings'));
@@ -213,6 +240,12 @@ class draw {
 		}
 	}
 
+	/**
+	 * Calculates the best combination of matches, basically a combination of make_match() and permute_match_sizes().
+	 * 
+	 * @param array    $player_list    List of all players to be drawn
+	 * 
+	 */
 	public function make_matches($player_list)
 	{
 		$num_players = count($player_list);
@@ -253,6 +286,14 @@ class draw {
 		return $best_teams;
 	}
 
+	/**
+	 * Callback function for sort.
+	 * 
+	 * @param array    $p1    Player array of a player with a index 'rating'
+	 * @param array    $p2    Player array of a player with a index 'rating'
+	 * 
+	 * @return bool
+	 */
 	static function cmp_ratings($p1, $p2)
 	{
 		$p1_rating = $p1['rating'];
