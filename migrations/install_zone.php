@@ -30,10 +30,10 @@ class install_zone extends \phpbb\db\migration\migration
 			array('permission.add', array('u_zone_draw', true)),
 			array('permission.add', array('u_zone_view_matches', true)),
 
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_zone_login')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_zone_view_login')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_zone_draw')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_zone_view_matches')),
+			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_login')),
+			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_view_login')),
+			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_draw')),
+			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_view_matches')),
 		);
 	}
 }
