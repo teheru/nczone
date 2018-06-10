@@ -151,13 +151,13 @@ class main_module
         if ($request->variable('create_map', '') && phpbb_util::auth()->acl_get('m_zone_create_maps')) {
             zone_util::maps()->create_map(
                 $request->variable('map_name', ''),
-                (float)$request->variable('map_weight', 0.0),
+                (float)$request->variable('map_weight', 1.0),
                 (int)$request->variable('copy_map_id', 0)
             );
         } elseif ($request->variable('edit_map', '')) {
             zone_util::maps()->edit_map((int)$map_id, [
                 'name' => $request->variable('map_name', ''),
-                'weight' => (float)$request->variable('map_weight', 0.0),
+                'weight' => (float)$request->variable('map_weight', 1.0),
             ]);
 
             $civ_info = [];
@@ -203,6 +203,8 @@ class main_module
             $template->assign_var('S_MAP_ID', $map_id);
             $template->assign_var('S_MAP_NAME', $map['name']);
             $template->assign_var('S_MAP_WEIGHT', $map['weight']);
+
+            # todo: make sure weight is not 0
 
             foreach (zone_util::maps()->get_map_civs($map_id) as $map_civ) {
                 # todo: dont fetch civs one by one in a loop.
