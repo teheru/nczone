@@ -77,6 +77,8 @@ class main_listener implements EventSubscriberInterface
 	$event['categories'] = array_merge($event['categories'], array(
 		'zone' => 'ACP_CAT_ZONE',
 	));
+
+	$event['permissions'] = $permissions;
   }
 
 	/**
