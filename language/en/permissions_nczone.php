@@ -19,5 +19,9 @@ if (empty($lang) || !is_array($lang))
 }
 
 $lang = array_merge($lang, array(
-	'ACP_ZONE_TITLE'			=> 'nC Zone',
+    'ACP_CAT_ZONE' => 'nC Zone',
+	'ACL_M_ZONE_MANAGE_PLAYERS' => 'nC Zone manage players',
+	'ACL_M_ZONE_MANAGE_MAPS' => 'nC Zone manage maps',
+	'ACL_M_ZONE_CREATE_MAPS' => 'nC Zone create and delete maps',
+	'ACL_M_ZONE_MANAGE_CIVS' => 'nC Zone manage civilizations',
 ));
