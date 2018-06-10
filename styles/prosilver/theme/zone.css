@@ -25,3 +25,61 @@ table.mcp_nczone td, table.mcp_nczone th, table.nczone td, table.nczone th
 	font-weight: bold;
 	text-align: center;
 }
+
+div#zone_container
+{
+	margin-top: 20px;
+	margin-bottom: 20px;
+
+	display: grid;
+	grid-template-columns: 216px 580px 320px;
+	grid-gap: 18px;
+}
+
+div#zone_links
+{
+	grid-row: 1 / span 2;
+	grid-column: 1;
+}
+
+div#zone
+{
+	grid-row: 1 / span 2;
+	grid-column: 3;
+}
+
+div#zone_infos, div#zone_main, div#zone_links, div#zone
+{
+	padding: 5px;
+	border-radius: 7px;
+	background-color: #0076B1;
+	background-image: -webkit-linear-gradient(top, #6ACEFF 0%, #12A3EB 2px, #0076B1 92px, #0076B1 100%);
+	background-image: linear-gradient(to bottom, #6ACEFF 0%,#12A3EB 2px,#0076B1 92px,#0076B1 100%);
+	background-repeat: repeat-x;
+}
+
+div#zone_infos > .zone_content, div#zone_main > .zone_content, div#zone_links > .zone_content, div#zone > .zone_content
+{
+	/**
+	 * I'm not sure how portable this is
+	 * 5px padding from above, 5px padding from here, 2+4+2+2px from margin/padding below, 1em line height from below
+	 */
+	height: calc(100% - 20px - 1em); 
+	padding: 5px;
+	background-color: #EEF5F9;
+	background-image: -webkit-linear-gradient(top, #D2E0EB 0%, #EEF5F9 100%);
+	background-image: linear-gradient(to bottom, #D2E0EB 0%,#EEF5F9 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D2E0EB', endColorstr='#EEF5F9',GradientType=0 );
+}
+
+div#zone_infos > .zone_title, div#zone_main > .zone_title, div#zone_links > .zone_title, div#zone .zone_title
+{
+	color: #FFFFFF;
+	margin: 2px 0 4px 0;
+	padding: 2px 0 2px 0;
+	font-weight: bold;
+	line-height: 1em;
+	font-size: 1em;
+	font-family: Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+}
