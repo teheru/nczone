@@ -19,9 +19,9 @@ use eru\nczone\utility\zone_util;
  */
 class main_module
 {
-    private $u_action;
-    private $tpl_name;
-    private $page_title;
+    public $u_action;
+    public $tpl_name;
+    public $page_title;
 
     function main($id, $mode)
     {
