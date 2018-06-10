@@ -64,7 +64,6 @@ services:
       arguments:
         - '@dbal.conn'
         - '%tables.eru.nczone.civs%'
-        - '%tables.eru.nczone.maps%'
         - '%tables.eru.nczone.map_civs%'
 
     eru.nczone.zone.maps:

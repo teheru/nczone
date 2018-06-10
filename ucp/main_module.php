@@ -9,27 +9,26 @@
  */
 
 namespace eru\nczone\ucp;
+use eru\nczone\utility\phpbb_util;
 
 /**
  * nC Zone UCP module.
  */
 class main_module
 {
-	var $u_action;
+    var $u_action;
 
-	function main($id, $mode)
-	{
-		global $db, $request, $template, $user;
+    function main($id, $mode)
+    {
+        $user = phpbb_util::user();
+        $this->tpl_name = 'ucp_zone_body';
+        $this->page_title = $user->lang('UCP_ZONE_TITLE');
+        add_form_key('eru/nczone');
 
-		$this->tpl_name = 'ucp_zone_body';
-		$this->page_title = $user->lang('UCP_ZONE_TITLE');
-		add_form_key('eru/nczone');
-
-		if ($request->is_set_post('submit'))
-		{
-			if (!check_form_key('eru/nczone'))
-			{
-				trigger_error($user->lang('FORM_INVALID'));
-			}
-	}
+        if (phpbb_util::request()->is_set_post('submit')) {
+            if (!check_form_key('eru/nczone')) {
+                trigger_error($user->lang('FORM_INVALID'));
+            }
+        }
+    }
 }

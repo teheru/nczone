@@ -11,182 +11,147 @@
 
 namespace eru\nczone\zone;
 
-/**
- * nC Zone players management class.
- */
-class players {
-	// TODO: attributes
+use eru\nczone\utility\db_util;
+use phpbb\db\driver\driver_interface;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param \phpbb\db\driver\driver_interface    $db               Database object
-	 * @param \phpbb\user                          $user             phpBB user object
-	 * @param string                               $players_table    Name of the players table
-	 * @param string                               $users_table      Name of the users table
-	 */
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\user $user,
-	$players_table, $users_table)
-	{
-		$this->db = $db;
-		$this->user = $user;
+class players
+{
+    /** @var driver_interface */
+    private $db;
+    /** @var \phpbb\user */
+    private $user;
+    /** @var string */
+    private $players_table;
+    /** @var string */
+    private $users_table;
 
-		$this->players_table = $players_table;
-		$this->users_table = $users_table;
-	}
 
-	/**
-	 * Returns the zone information of a user/player
-	 * 
-	 * @param int    $user_id    The id of the user
-	 * 
-	 * @return array
-	 */
-	public function get_player($user_id)
-	{
-		$user_id = (int) $user_id;
+    /**
+     * nC Zone players management class.
+     */
+    public function __construct(driver_interface $db, \phpbb\user $user, string $players_table, string $users_table)
+    {
+        $this->db = $db;
+        $this->user = $user;
+        $this->players_table = $players_table;
+        $this->users_table = $users_table;
+    }
 
-		$sql_array = array(
-			'SELECT' => 'p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss',
-			'FROM' => array($this->players_table => 'p'),
-			'WHERE' => 'p.user_id = '. $user_id
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$row = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult();
+    /**
+     * Returns the zone information of a user/player
+     * 
+     * @param int    $user_id    The id of the user
+     * 
+     * @return array
+     */
+    public function get_player(int $user_id): array
+    {
+        $playerRow = db_util::get_row($this->db, [
+            'SELECT' => 'p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss',
+            'FROM' => [$this->players_table => 'p'],
+            'WHERE' => 'p.user_id = ' . $user_id
+        ]) ?: [];
 
-		if(!$row)
-		{
-			$row = array();
-		}
+        $userRow = db_util::get_row($this->db, [
+            'SELECT' => 'u.username AS username',
+            'FROM' => [$this->users_table => 'u'],
+            'WHERE' => 'u.user_id = ' . $user_id,
+        ]) ?: [];
+        return array_merge($playerRow, $userRow);
+    }
 
-		$sql_array = array(
-			'SELECT' => 'u.username AS username',
-			'FROM' => array($this->users_table => 'u'),
-			'WHERE' => 'u.user_id = ' . $user_id
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$row = array_merge($row, $this->db->sql_fetchrow($result));
-		$this->db->sql_freeresult();
+    /**
+     * Creates an entry for an user for the zone
+     * 
+     * @param int    $user_id    Id of the user
+     * @param int    $rating     Start rating for the user
+     * 
+     * @return bool
+     */
+    public function activate_player(int $user_id, int $rating)
+    {
+        $count = (int)db_util::get_var($this->db, [
+            'SELECT' => 'COUNT(*) AS n',
+            'FROM' => [$this->players_table => 'u'],
+            'WHERE' => 'u.user_id = ' . $user_id,
+        ]);
+        if ($count > 0) {
+            return false;
+        }
 
-		return $row;
-	}
+        db_util::insert($this->db, $this->players_table, [
+            'user_id' => $user_id,
+            'rating' => $rating,
+            'logged_in' => 0,
+            'matches_won' => 0,
+            'matches_loss' => 0
+        ]);
+        return true;
+    }
 
-	/**
-	 * Creates an entry for an user for the zone
-	 * 
-	 * @param int    $user_id    Id of the user
-	 * @param int    $rating     Start rating for the user
-	 * 
-	 * @return bool
-	 */
-	public function activate_player($user_id, $rating)
-	{
-		$user_id = (int) $user_id;
-		$rating = (int) $rating;
+    /**
+     * Edits the information of a player
+     * 
+     * @param int      $user_id        Id of the user
+     * @param array    $player_info    Information array for the user
+     * 
+     * @return void
+     */
+    public function edit_player(int $user_id, array $player_info)
+    {
+        $sql_array = [];
+        if (array_key_exists('rating', $player_info)) {
+            $sql_array['rating'] = (int)$player_info['rating'];
+        }
+        if (array_key_exists('logged_in', $player_info)) {
+            $sql_array['logged_in'] = (int)$player_info['logged_in'];
+        }
+        if (array_key_exists('matches_won', $player_info)) {
+            $sql_array['matches_won'] = (int)$player_info['matches_won'];
+        }
+        if (array_key_exists('matches_loss', $player_info)) {
+            $sql_array['matches_loss'] = (int)$player_info['matches_loss'];
+        }
 
-		$result = $this->db->sql_query('SELECT COUNT(*) AS n FROM ' . $this->players_table . ' WHERE user_id = '. $user_id);
-		$row = (int) $this->db->sql_fetchfield('n');
-		$this->db->sql_freeresult($result);
+        db_util::update($this->db, $this->players_table, $sql_array, ['user_id' => $user_id]);
+    }
 
-		if($row == 0)
-		{
-			$sql_array = array(
-				'user_id' => $user_id,
-				'rating' => $rating,
-				'logged_in' => 0,
-				'matches_won' => 0,
-				'matches_loss' => 0
-			);
-			$this->db->sql_query('INSERT INTO ' . $this->players_table . ' ' . $this->db->sql_build_array('INSERT', $sql_array));
+    /**
+     * Logins a player
+     * 
+     * @param int    $user_id    Id of the user
+     * 
+     * @return void
+     */
+    public function login_player(int $user_id)
+    {
+        $this->edit_player($user_id, ['logged_in' => time()]);
+    }
 
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+    /**
+     * Logouts a player
+     * 
+     * @param int    $user_id    Id of the user
+     * 
+     * @return void
+     */
+    public function logout_player(int $user_id)
+    {
+        $this->edit_player($user_id, ['logged_in' => 0]);
+    }
 
-	/**
-	 * Edits the information of a player
-	 * 
-	 * @param int      $user_id        Id of the user
-	 * @param array    $player_info    Information array for the user
-	 * 
-	 * @return void
-	 */
-	public function edit_player($user_id, $player_info)
-	{
-		$user_id = (int) $user_id;
-
-		$sql_array = array();
-		if(array_key_exists('rating', $player_info))
-		{
-			$sql_array['rating'] = (int) $player_info['rating'];
-		}
-		if(array_key_exists('logged_in', $player_info))
-		{
-			$sql_array['logged_in'] = (int) $player_info['logged_in'];
-		}
-		if(array_key_exists('matches_won', $player_info))
-		{
-			$sql_array['matches_won'] = (int) $player_info['matches_won'];
-		}
-		if(array_key_exists('matches_loss', $player_info))
-		{
-			$sql_array['matches_loss'] = (int) $player_info['matches_loss'];
-		}
-
-		$this->db->sql_query('UPDATE '. $this->players_table . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_array) . ' WHERE user_id = '. $user_id);
-	}
-
-	/**
-	 * Logins a player
-	 * 
-	 * @param int    $user_id    Id of the user
-	 * 
-	 * @return void
-	 */
-	public function login_player($user_id)
-	{
-		$this->edit_player($user_id, array('logged_in' => time()));
-	}
-
-	/**
-	 * Logouts a player
-	 * 
-	 * @param int    $user_id    Id of the user
-	 * 
-	 * @return void
-	 */
-	public function logout_player($user_id)
-	{
-		$this->edit_player($user_id, array('logged_in' => 0));
-	}
-
-	/**
-	 * Gets the user id, name and rating of all logged in players
-	 * 
-	 * @return array
-	 */
-	public function get_logged_in()
-	{
-		$sql_array = array(
-			'SELECT' => 'p.user_id AS user_id, u.username AS username, p.rating AS rating, p.logged_in AS logged_in',
-			'FROM' => array($this->players_table => 'p', $this->users_table => 'u'),
-			'WHERE' => 'logged_in > 0 AND p.user_id = u.user_id',
-			'ORDER_BY' => 'logged_in DESC'
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$rows = $this->db->sql_fetchrowset($result);
-		$this->db->sql_freeresult($result);
-
-		return $rows;
-	}
+    /**
+     * Gets the user id, name and rating of all logged in players
+     * 
+     * @return array
+     */
+    public function get_logged_in()
+    {
+        return db_util::get_rows($this->db, [
+            'SELECT' => 'p.user_id AS user_id, u.username AS username, p.rating AS rating, p.logged_in AS logged_in',
+            'FROM' => [$this->players_table => 'p', $this->users_table => 'u'],
+            'WHERE' => 'logged_in > 0 AND p.user_id = u.user_id',
+            'ORDER_BY' => 'logged_in DESC'
+        ]);
+    }
 }
-
-?>
