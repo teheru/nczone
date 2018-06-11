@@ -5,6 +5,8 @@ namespace eru\nczone\utility;
 use eru\nczone\zone\civs;
 use eru\nczone\zone\maps;
 use eru\nczone\zone\players;
+use eru\nczone\zone\matches;
+use eru\nczone\zone\draw;
 
 class zone_util
 {
@@ -16,6 +18,26 @@ class zone_util
             $players = phpbb_util::container()->get('eru.nczone.zone.players');
         }
         return $players;
+    }
+
+    public static function matches(): matches
+    {
+        static $matches;
+        if ($matches === null) {
+            /** @var matches $matches */
+            $matches = phpbb_util::container()->get('eru.nczone.zone.matches');
+        }
+        return $matches;
+    }
+
+    public static function draw(): draw
+    {
+        static $draw;
+        if ($draw === null) {
+            /** @var draw $draw */
+            $draw = phpbb_util::container()->get('eru.nczone.zone.draw');
+        }
+        return $draw;
     }
 
     public static function civs(): civs
