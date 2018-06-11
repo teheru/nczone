@@ -12,6 +12,7 @@ services:
             - '@user'
             - '@auth'
             - '@eru.nczone.zone.players'
+            - '@eru.nczone.zone.matches'
 
     eru.nczone.listener:
         class: eru\nczone\event\main_listener
@@ -59,6 +60,13 @@ services:
         - '@user'
         - '%tables.eru.nczone.players%'
         - '%tables.users%'
+
+    eru.nczone.zone.matches:
+      class: eru\nczone\zone\matches
+      arguments:
+        - '@dbal.conn'
+        - '%tables.eru.nczone.maps%'
+        - '%tables.eru.nczone.zone_player_map_time%'
 
     eru.nczone.zone.civs:
       class: eru\nczone\zone\civs
