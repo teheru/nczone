@@ -11,6 +11,8 @@
 
 namespace eru\nczone\zone;
 
+use eru\nczone\utility\db_util;
+
 /**
  * nC Zone matches management class.
  */
@@ -43,16 +45,10 @@ class matches {
     {
         return db_util::get_var($this->db, [
             'SELECT' => 't.map_id',
-            'FROM' => ['zone_player_map_time' => 't', 'zone_maps' => 'm'],
-            'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('user_id', $user_ids),
+            'FROM' => [$this->player_map_times => 't', $this->maps_table => 'm'],
+            'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('t.user_id', $user_ids),
             'GROUP_BY' => 't.map_id',
             'ORDER_BY' => 'LOG(60, SUM(UNIX_TIMESTAMP() - t.time)) * m.weight DESC'
         ]);
-    }
-}
-
-    public function __construct(driver_interface $db)
-    {
-        $this->db = $db;
     }
 }
