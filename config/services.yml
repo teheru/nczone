@@ -14,6 +14,13 @@ services:
             - '@eru.nczone.zone.players'
             - '@eru.nczone.zone.matches'
 
+    eru.nczone.controller.api:
+        class: eru\nczone\controller\api
+        arguments:
+            - '@config'
+            - '@user'
+            - '@auth'
+
     eru.nczone.listener:
         class: eru\nczone\event\main_listener
         arguments:

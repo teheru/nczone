@@ -9,3 +9,7 @@ eru_nczone_controller_pmatches:
 eru_nczone_controller_table:
     path: /nczone/table
     defaults: { _controller: eru.nczone.controller:table }
+
+eru_nczone_controller__api__logged_in_users:
+    path: /nczone/api/logged_in_users
+    defaults: { _controller: eru.nczone.controller.api:logged_in_users }
