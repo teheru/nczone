@@ -10,6 +10,8 @@
 
 namespace eru\nczone\controller;
 
+use eru\nczone\utility\zone_util;
+
 /**
  * nC Zone main controller.
  */
@@ -33,6 +35,9 @@ class main
 	/* @var \eru\nczone\zone\players */
 	protected $zone_players;
 
+	/* @var \eru\nczone\zone\matches */
+	protected $zone_matches;
+
 	/**
 	 * Constructor
 	 *
@@ -41,8 +46,10 @@ class main
 	 * @param \phpbb\template\template      	$template
 	 * @param \phpbb\request\request_interface	$request
 	 * @param \phpbb\user				        $user
+	 * @param \eru\nczone\zone\players          $zone_players
+	 * @param \eru\nczone\zone\matches          $zone_matches
 	 */
-	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\request\request_interface $request, \phpbb\user $user, \phpbb\auth\auth $auth, \eru\nczone\zone\players $zone_players)
+	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\request\request_interface $request, \phpbb\user $user, \phpbb\auth\auth $auth, \eru\nczone\zone\players $zone_players, \eru\nczone\zone\matches $zone_matches)
 	{
 		$this->config = $config;
 		$this->helper = $helper;
@@ -51,6 +58,7 @@ class main
 		$this->user = $user;
 		$this->auth = $auth;
 		$this->zone_players = $zone_players;
+		$this->zone_matches = $zone_matches;
 	}
 
 	public function common()
