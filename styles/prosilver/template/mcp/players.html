@@ -1,0 +1,70 @@
+{% extends "mcp/base.html" %}
+
+{% block content %}
+    {% if S_NEW_PLAYER or S_EDIT_PLAYER %}
+        <fieldset>
+            <dl>
+                <dt>
+                    <label>{{ lang('USERNAME') }}{{ lang('COLON') }}</label><br/>
+                </dt>
+                <dd>
+                    <strong>{{ USERNAME }}</strong>
+                </dd>
+            </dl>
+        </fieldset>
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="rating">{{ lang('MCP_PLAYER_RATING') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_PLAYER_RATING_HINT') }}</span>
+                </dt>
+                <dd>
+                    <input class="inputbox" id="rating" name="rating" type="text"
+                           value="{% if S_EDIT_PLAYER %}{{ PLAYER_RATING }}{% else %}0{% endif %}"/>
+                </dd>
+            </dl>
+            {% if S_NEW_PLAYER %}
+                <dl>
+                    <dt>
+                        <label for="activate_player">{{ lang('MCP_ACTIVATE_PLAYER') }}{{ lang('COLON') }}</label><br/>
+                        <span>{{ lang('MCP_ACTIVATE_PLAYER_HINT') }}</span>
+                    </dt>
+                    <dd>
+                        <input id="activate" name="activate" type="checkbox"/>
+                    </dd>
+                </dl>
+            {% endif %}
+        </fieldset>
+
+        <input id="user_id" name="user_id" type="hidden" value="{{ USER_ID }}"/>
+        {% if S_NEW_PLAYER %}
+            <input id="new_player" name="new_player" type="hidden" value="1"/>
+        {% else %}
+            <input id="edit_player" name="edit_player" type="hidden" value="1"/>
+        {% endif %}
+
+    {% elseif S_SELECT_PLAYER %}
+
+        {% if S_PLAYER_NOT_FOUND %}
+            <div class="zone_errorbox">
+                {{ lang('MCP_USER_NOT_FOUND') }}
+            </div>
+        {% endif %}
+
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="user_id">{{ lang('MCP_SELECT_USER') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_SELECT_USER_HINT') }}</span>
+                </dt>
+                <dd>
+                    <input class="inputbox" id="username" name="username" type="text"/>
+                </dd>
+                <dd><strong><a href="{{ U_FIND_USERNAME }}"
+                               onclick="find_username(this.href); return false;">{{ lang('FIND_USERNAME') }}</a></strong>
+                </dd>
+            </dl>
+        </fieldset>
+
+    {% endif %}
+{% endblock %}

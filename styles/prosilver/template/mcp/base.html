@@ -1,0 +1,20 @@
+{% include "mcp_header.html" %}
+
+<form method="post" id="mcp" action="{{ U_POST_ACTION }}">
+
+    <h2>{{ lang('MCP_ZONE_TITLE') }}</h2>
+    <div class="panel">
+        <div class="inner">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+    <fieldset class="submit-buttons">
+        <input type="reset" value="{{ lang('RESET') }}" name="reset" class="button2"/>&nbsp;
+        <input type="submit" name="submituser" value="{{ lang('SUBMIT') }}" class="button1"/>
+        {{ S_FORM_TOKEN }}
+    </fieldset>
+</form>
+
+{% include "mcp_footer.html" %}

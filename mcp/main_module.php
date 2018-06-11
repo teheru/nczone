@@ -27,7 +27,6 @@ class main_module
     {
         $user = phpbb_util::user();
         $user->add_lang_ext('eru/nczone', 'info_mcp');
-        $this->tpl_name = 'mcp_zone_body';
         $this->page_title = $user->lang('MCP_ZONE_TITLE');
         add_form_key('eru/nczone');
 
@@ -40,14 +39,17 @@ class main_module
         switch ($mode) {
             case 'players':
                 $this->players();
+                $this->tpl_name = 'mcp/players';
                 break;
 
             case 'civs':
                 $this->civs();
+                $this->tpl_name = 'mcp/civs';
                 break;
 
             case 'maps':
                 $this->maps();
+                $this->tpl_name = 'mcp/maps';
                 break;
         }
 
