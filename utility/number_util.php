@@ -9,6 +9,6 @@ class number_util
         if ($num1 == $num2) {
             return 0;
         }
-        return ($num1 < $num2) ? 1 : -1;
+        return $num1 < $num2 ? 1 : -1;
     }
 }
