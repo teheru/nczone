@@ -58,7 +58,7 @@ div#zone_main, div#zone_links, div#zone
 	background-repeat: repeat-x;
 }
 
-div#zone_infos > .zone_content, div#zone_main > .zone_content, div#zone_links > .zone_content, div#zone > .zone_content
+div#zone_infos > .zone_content, div#zone_main > .zone_content, div#zone_links > .zone_content, div#zone > .zone_loggedin
 {
 	padding: 5px;
 	background-color: #EEF5F9;
@@ -67,12 +67,7 @@ div#zone_infos > .zone_content, div#zone_main > .zone_content, div#zone_links > 
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D2E0EB', endColorstr='#EEF5F9',GradientType=0 );
 }
 
-div#zone_main > .zone_content
-{
-	min-height: 100px;
-}
-
-div#zone_links > .zone_content, div#zone > .zone_content
+div#zone_links > .zone_content, div#zone > .zone_loggedin
 {
 	/**
 	* I'm not sure how portable this is
@@ -114,4 +109,41 @@ div#zone_links li
 {
 	margin-left: 7px;
 	line-height: 175%;
+}
+
+div#zone > .zone_loggedin
+{
+	text-align: center;
+}
+
+div#zone > .zone_loggedin > a
+{
+	padding: 3px;
+	font-size: 150%;
+	font-weight: bold;
+	color: #D31141;
+}
+
+div#zone > .zone_loggedin > table
+{
+	margin: auto;
+	margin-bottom: 15px;
+}
+
+div#zone > .zone_loggedin > table td
+{
+	line-height: 175%;
+}
+
+div#zone > .zone_loggedin > table td.username
+{
+	width: 100px;
+	text-align: left;
+	font-weight: bold;
+}
+
+div#zone > .zone_loggedin > table td.rating
+{
+	width: 20px;
+	text-align: right;
 }

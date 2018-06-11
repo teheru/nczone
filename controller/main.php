@@ -24,6 +24,9 @@ class main
 	/* @var \phpbb\template\template */
 	protected $template;
 
+	/* @var \phpbb\request\request_interface */
+	protected $request;
+
 	/* @var \phpbb\user */
 	protected $user;
 
@@ -33,16 +36,18 @@ class main
 	/**
 	 * Constructor
 	 *
-	 * @param \phpbb\config\config		$config
-	 * @param \phpbb\controller\helper	$helper
-	 * @param \phpbb\template\template	$template
-	 * @param \phpbb\user				$user
+	 * @param \phpbb\config\config      		$config
+	 * @param \phpbb\controller\helper	        $helper
+	 * @param \phpbb\template\template      	$template
+	 * @param \phpbb\request\request_interface	$request
+	 * @param \phpbb\user				        $user
 	 */
-	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user, \phpbb\auth\auth $auth, \eru\nczone\zone\players $zone_players)
+	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\request\request_interface $request, \phpbb\user $user, \phpbb\auth\auth $auth, \eru\nczone\zone\players $zone_players)
 	{
 		$this->config = $config;
 		$this->helper = $helper;
 		$this->template = $template;
+		$this->request = $request;
 		$this->user = $user;
 		$this->auth = $auth;
 		$this->zone_players = $zone_players;
@@ -58,6 +63,12 @@ class main
 		// logged in list
 		if($this->auth->acl_get('u_zone_view_login'))
 		{
+			$this->template->assign_var('CURRENT_PLAYER_VIEW_LOGIN', true);
+			if($this->auth->acl_get('u_zone_draw'))
+			{
+				$this->template->assign_var('CURRENT_PLAYER_CAN_DRAW', true);
+			}
+
 			$logged_in = $this->zone_players->get_logged_in();
 			foreach($logged_in as $player)
 			{
@@ -75,8 +86,7 @@ class main
 				$this->template->assign_var('CURRENT_PLAYER_CAN_LOGIN', true);
 			}
 
-			// $this->template->assign_var('U_NCZONE_LOGIN', $this->helper->route('', array('action' => 'login')));
-			// $this->template->assign_var('U_NCZONE_LOGOUT', $this->helper->route('', array('action' => 'logout')));
+			// $this->template->assign_var('U_ZONE_LOGINOUT', '');
 		}
 	}
 

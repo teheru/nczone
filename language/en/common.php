@@ -29,6 +29,7 @@ $lang = array_merge($lang, array(
 	'NCZONE_LOGGEDIN'		=> 'Logged in',
 	'NCZONE_LOGIN'			=> 'Login',
 	'NCZONE_LOGOUT'			=> 'Logout',
+	'NCZONE_DRAW'			=> 'Draw',
 
 	'NCZONE_LINKS'          => 'Links',
 	'NCZONE_ZONE'           => 'Teh Zone',
