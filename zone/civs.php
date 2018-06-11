@@ -32,12 +32,14 @@ class civs
      * @param string                               $civs_table        Name of the civs table
      * @param string                               $maps_table        Name of the maps table
      * @param string                               $map_civs_table    Name of the map civ (ratings) table
+     * @param string                               $player_civ_table  Name of the player civ (time) table
      */
-    public function __construct(driver_interface $db, string $civs_table, string $map_civs_table)
+    public function __construct(driver_interface $db, string $civs_table, string $map_civs_table, string $player_civ_table)
     {
         $this->db = $db;
         $this->civs_table = $civs_table;
         $this->map_civs_table = $map_civs_table;
+        $this->player_civ_table = $player_civ_table;
     }
 
 

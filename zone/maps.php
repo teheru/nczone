@@ -26,6 +26,8 @@ class maps
     private $maps_table;
     /** @var string */
     private $map_civs_table;
+    /** @var string */
+    private $player_map_table;
 
     
     /**
@@ -35,13 +37,15 @@ class maps
      * @param \eru\nczone\zone\civs                 $zone_civs         Civs object
      * @param string                                $maps_table        Name of the maps table
      * @param string                                $map_civs_table    Name of the map civ (ratings) table
+     * @param string                                $player_map_table  Name of the player map (time) table
      */
-    public function __construct(driver_interface $db, civs $zone_civs, string $maps_table, string $map_civs_table)
+    public function __construct(driver_interface $db, civs $zone_civs, string $maps_table, string $map_civs_table, string $player_map_table)
     {
         $this->db = $db;
         $this->zone_civs = $zone_civs;
         $this->maps_table = $maps_table;
         $this->map_civs_table = $map_civs_table;
+        $this->player_map_table = $player_map_table;
     }
 
     /**

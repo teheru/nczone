@@ -74,6 +74,7 @@ services:
         - '@dbal.conn'
         - '%tables.eru.nczone.civs%'
         - '%tables.eru.nczone.map_civs%'
+        - '%tables.eru.nczone.zone_player_civ_time%'
 
     eru.nczone.zone.maps:
       class: eru\nczone\zone\maps
@@ -82,6 +83,7 @@ services:
         - '@eru.nczone.zone.civs'
         - '%tables.eru.nczone.maps%'
         - '%tables.eru.nczone.map_civs%'
+        - '%tables.eru.nczone.zone_player_map_time%'
 
     eru.nczone.zone.draw:
       class: eru\nczone\zone\draw
