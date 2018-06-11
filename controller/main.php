@@ -83,18 +83,18 @@ class main
 	public function rmatches()
 	{
 		$this->common();
-		return $this->helper->render('nczone_rmatches.html', $name);
+		return $this->helper->render('nczone_rmatches.html');
 	}
 
 	public function pmatches()
 	{
 		$this->common();
-		return $this->helper->render('nczone_pmatches.html', $name);
+		return $this->helper->render('nczone_pmatches.html');
 	}
 
 	public function table()
 	{
 		$this->common();
-		return $this->helper->render('nczone_table.html', $name);
+		return $this->helper->render('nczone_table.html');
 	}
 }
