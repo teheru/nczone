@@ -204,8 +204,6 @@ class main_module
             $template->assign_var('S_MAP_NAME', $map['name']);
             $template->assign_var('S_MAP_WEIGHT', $map['weight']);
 
-            # todo: make sure weight is not 0
-
             foreach (zone_util::maps()->get_map_civs($map_id) as $map_civ) {
                 # todo: dont fetch civs one by one in a loop.
                 $civ = zone_util::civs()->get_civ((int)$map_civ['civ_id']);

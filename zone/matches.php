@@ -46,7 +46,7 @@ class matches {
             'FROM' => ['zone_player_map_time' => 't', 'zone_maps' => 'm'],
             'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('user_id', $user_ids),
             'GROUP_BY' => 't.map_id',
-            'ORDER_BY' => 'SUM(UNIX_TIMESTAMP() - t.time) / m.weight DESC'
+            'ORDER_BY' => 'LOG(60, SUM(UNIX_TIMESTAMP() - t.time)) * m.weight DESC'
         ]);
     }
 }
