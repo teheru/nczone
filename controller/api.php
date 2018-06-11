@@ -2,6 +2,7 @@
 
 namespace eru\nczone\controller;
 
+use eru\nczone\utility\zone_util;
 use phpbb\auth\auth;
 use phpbb\config\config;
 use phpbb\user;
@@ -32,8 +33,6 @@ class api
      */
     public function logged_in_users(): JsonResponse
     {
-        # todo: return the list of logged in users
-        $users = (object)[];
-        return new JsonResponse($users);
+        return new JsonResponse(zone_util::players()->get_logged_in());
     }
 }
