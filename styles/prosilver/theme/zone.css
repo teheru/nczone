@@ -38,17 +38,17 @@ div#zone_container
 
 div#zone_links
 {
-	grid-row: 1 / span 2;
+	grid-row: 1;
 	grid-column: 1;
 }
 
 div#zone
 {
-	grid-row: 1 / span 2;
+	grid-row: 1;
 	grid-column: 3;
 }
 
-div#zone_infos, div#zone_main, div#zone_links, div#zone
+div#zone_main, div#zone_links, div#zone
 {
 	padding: 5px;
 	border-radius: 7px;
@@ -60,16 +60,30 @@ div#zone_infos, div#zone_main, div#zone_links, div#zone
 
 div#zone_infos > .zone_content, div#zone_main > .zone_content, div#zone_links > .zone_content, div#zone > .zone_content
 {
-	/**
-	 * I'm not sure how portable this is
-	 * 5px padding from above, 5px padding from here, 2+4+2+2px from margin/padding below, 1em line height from below
-	 */
-	height: calc(100% - 20px - 1em); 
 	padding: 5px;
 	background-color: #EEF5F9;
 	background-image: -webkit-linear-gradient(top, #D2E0EB 0%, #EEF5F9 100%);
 	background-image: linear-gradient(to bottom, #D2E0EB 0%,#EEF5F9 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D2E0EB', endColorstr='#EEF5F9',GradientType=0 );
+}
+
+div#zone_main > .zone_content
+{
+	min-height: 100px;
+}
+
+div#zone_links > .zone_content, div#zone > .zone_content
+{
+	/**
+	* I'm not sure how portable this is
+	* 5px padding from above, 5px padding from here, 2+4+2+2px from margin/padding below, 1em line height from below
+	*/
+	height: calc(100% - 20px - 1em);
+}
+
+div#zone_infos > .zone_content
+{
+	margin-bottom: 15px;
 }
 
 div#zone_infos > .zone_title, div#zone_main > .zone_title, div#zone_links > .zone_title, div#zone .zone_title
@@ -82,4 +96,22 @@ div#zone_infos > .zone_title, div#zone_main > .zone_title, div#zone_links > .zon
 	font-size: 1em;
 	font-family: Arial, Helvetica, sans-serif;
 	text-transform: uppercase;
+}
+
+div#zone_links .links_title
+{
+	line-height: 200%;
+	font-weight: bold;
+}
+
+div#zone_links ul
+{
+	font-weight: bold;
+	list-style-type: "»";
+}
+
+div#zone_links li
+{
+	margin-left: 7px;
+	line-height: 175%;
 }

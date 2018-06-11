@@ -48,17 +48,14 @@ class main
 		$this->zone_players = $zone_players;
 	}
 
-	/**
-	 * Demo controller for route /demo/{name}
-	 * TODO obv.
-	 *
-	 * @param string $name
-	 *
-	 * @return \Symfony\Component\HttpFoundation\Response A Symfony Response object
-	 */
-	public function loggedin()
+	public function common()
 	{
+		// links menu
+		$this->template->assign_var('U_NCZONE_RMATCHES', $this->helper->route('eru_nczone_controller_rmatches'));
+		$this->template->assign_var('U_NCZONE_PMATCHES', $this->helper->route('eru_nczone_controller_pmatches'));
+		$this->template->assign_var('U_NCZONE_TABLE', $this->helper->route('eru_nczone_controller_table'));
 
+		// logged in list
 		if($this->auth->acl_get('u_zone_view_login'))
 		{
 			$logged_in = $this->zone_players->get_logged_in();
@@ -85,16 +82,19 @@ class main
 
 	public function rmatches()
 	{
+		$this->common();
 		return $this->helper->render('nczone_rmatches.html', $name);
 	}
 
 	public function pmatches()
 	{
+		$this->common();
 		return $this->helper->render('nczone_pmatches.html', $name);
 	}
 
 	public function table()
 	{
+		$this->common();
 		return $this->helper->render('nczone_table.html', $name);
 	}
 }
