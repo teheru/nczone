@@ -34,8 +34,6 @@ class install_db_create extends \phpbb\db\migration\migration
 				$this->table_prefix . 'zone_matches' => array(
 					'COLUMNS' => array(
 						'match_id' => array('UINT', null, 'auto_increment'),
-						'team1_id' => array('UINT', 0),
-						'team2_id' => array('UINT', 0),
 						'draw_user_id' => array('UINT', 0),
 						'post_user_id' => array('UINT', 0),
 						'draw_time' => array('TIMESTAMP', 0),
@@ -44,10 +42,18 @@ class install_db_create extends \phpbb\db\migration\migration
 					),
 					'PRIMARY_KEY' => 'match_id',
 					'KEYS' => array(
-						'team1' => array('INDEX', 'team1_id'),
-						'team2' => array('INDEX', 'team2_id'),
 						'draw_uid' => array('INDEX', 'draw_user_id'),
 						'post_uid' => array('INDEX', 'post_user_id')
+					)
+				),
+				$this->table_prefix . 'zone_match_teams' => array(
+					'COLUMNS' => array(
+						'team_id' => array('UINT', null, 'auto_increment'),
+						'match_id' => array('UINT', 0)
+					),
+					'PRIMARY_KEY' => 'team_id',
+					'KEYS' => array(
+						'mid' => array('INDEX', 'match_id')
 					)
 				),
 				$this->table_prefix . 'zone_match_players' => array(

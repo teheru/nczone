@@ -73,6 +73,7 @@ services:
       arguments:
         - '@dbal.conn'
         - '%tables.eru.nczone.zone_matches%'
+        - '%tables.eru.nczone.zone_match_teams%'
         - '%tables.eru.nczone.zone_match_players%'
         - '%tables.eru.nczone.zone_match_civs%'
         - '%tables.eru.nczone.zone_match_team_civs%'
