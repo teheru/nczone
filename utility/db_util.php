@@ -26,7 +26,7 @@ class db_util
 
     public static function get_row(driver_interface $db, array $sqlArray, $query = 'SELECT')
     {
-        $result = $db->sql_query($db->sql_build_query($query, $sqlArray));
+        $result = $db->sql_query_limit($db->sql_build_query($query, $sqlArray), 1);
         $row = $db->sql_fetchrow($result);
         $db->sql_freeresult($result);
         return $row;
