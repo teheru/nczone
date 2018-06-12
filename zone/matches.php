@@ -113,7 +113,7 @@ class matches {
                 'draw_rating' => $player['rating'],
             ];
         }
-        db_util::multi_insert($this->db, $this->match_players_table, $team_data);
+        $this->db->multi_insert($this->match_players_table, $team_data);
 
         
         $match_civ_data = [];
@@ -127,7 +127,7 @@ class matches {
                 'number' => $match_civ_numbers[$civ_id],
             ];
         }
-        db_util::multi_insert($this->db, $this->match_civs_table, $match_civ_data);
+        $this->db->multi_insert($this->match_civs_table, $match_civ_data);
 
         
         $team_civ_data = [];
@@ -151,7 +151,7 @@ class matches {
                 'number' => $team2_civ_numbers[$civ_id],
             ];
         }
-        db_util::multi_insert($this->db, $this->team_civs_table, $team_civ_data);
+        $this->db->multi_insert($this->team_civs_table, $team_civ_data);
 
 
         $player_civ_data = [];
@@ -163,7 +163,7 @@ class matches {
                 'civ_id' => (int)$civ_id,
             ];
         }
-        db_util::multi_insert($this->db, $this->player_civs_table, $player_civ_data);
+        $this->db->multi_insert($this->match_player_civs_table, $player_civ_data);
 
         return $match_id;
     }
