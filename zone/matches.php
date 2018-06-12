@@ -39,17 +39,17 @@ class matches {
     /**
      * Constructor
      * 
-     * @param \phpbb\db\driver\driver_interface  $db                   Database object
-     * @param string                             $matches_table        Name of the matches table
-     * @param string                             $match_teams_table    Name of the table for the players of the teams
-     * @param string                             $match_players_table  Name of the table for the teams
-     * @param string                             $match_civs_table     Name of the match civs table
-     * @param string                             $team_civs_table      Name of the team civs table
-     * @param string                             $player_civs_table    Name of the player civs table
-     * @param string                             $maps_table           Name of the maps table
-     * @param string                             $player_map_time      Name of the table with the last time a player played a map
+     * @param \phpbb\db\driver\driver_interface  $db                       Database object
+     * @param string                             $matches_table            Name of the matches table
+     * @param string                             $match_teams_table        Name of the table for the players of the teams
+     * @param string                             $match_players_table      Name of the table for the teams
+     * @param string                             $match_civs_table         Name of the match civs table
+     * @param string                             $team_civs_table          Name of the team civs table
+     * @param string                             $match_player_civs_table  Name of the player civs table
+     * @param string                             $maps_table               Name of the maps table
+     * @param string                             $player_map_table         Name of the table with the last time a player played a map
      */
-    public function __construct(\phpbb\db\driver\driver_interface $db, $matches_table, $match_teams_table, $match_players_table, $match_civs_table, $team_civs_table, $player_civs_table, $maps_table, $player_map_time)
+    public function __construct(\phpbb\db\driver\driver_interface $db, $matches_table, $match_teams_table, $match_players_table, $match_civs_table, $team_civs_table, $match_player_civs_table, $maps_table, $player_map_table)
     {
         $this->db = $db;
         $this->matches_table = $matches_table;
@@ -57,9 +57,9 @@ class matches {
         $this->match_players_table = $match_players_table;
         $this->match_civs_table = $match_civs_table;
         $this->team_civs_table = $team_civs_table;
-        $this->player_civs_table = $player_civs_table;
+        $this->match_player_civs_table = $match_player_civs_table;
         $this->maps_table = $maps_table;
-        $this->player_map_times = $player_map_time;
+        $this->player_map_table = $player_map_table;
     }
 
     /**
@@ -115,7 +115,7 @@ class matches {
         }
         if(!empty($team_data))
         {
-        $this->db->multi_insert($this->match_players_table, $team_data);
+            $this->db->multi_insert($this->match_players_table, $team_data);
         }
 
         
@@ -132,7 +132,7 @@ class matches {
         }
         if(!empty($match_civ_data))
         {
-        $this->db->multi_insert($this->match_civs_table, $match_civ_data);
+            $this->db->multi_insert($this->match_civs_table, $match_civ_data);
         }
 
         
@@ -159,7 +159,7 @@ class matches {
         }
         if(!empty($team_civ_data))
         {
-        $this->db->multi_insert($this->team_civs_table, $team_civ_data);
+            $this->db->multi_insert($this->team_civs_table, $team_civ_data);
         }
 
 
@@ -174,7 +174,7 @@ class matches {
         }
         if(!empty($player_civ_data))
         {
-        $this->db->multi_insert($this->match_player_civs_table, $player_civ_data);
+            $this->db->multi_insert($this->match_player_civs_table, $player_civ_data);
         }
 
         return $match_id;

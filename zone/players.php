@@ -29,12 +29,16 @@ class players
     /**
      * nC Zone players management class.
      */
-    public function __construct(driver_interface $db, \phpbb\user $user, string $players_table, string $users_table)
+    public function __construct(driver_interface $db, \phpbb\user $user, string $players_table, string $users_table, string $maps_table, string $civs_table, string $player_map_table, string $player_civ_table)
     {
         $this->db = $db;
         $this->user = $user;
         $this->players_table = $players_table;
         $this->users_table = $users_table;
+        $this->maps_table = $maps_table;
+        $this->civs_table = $civs_table;
+        $this->player_map_table = $player_map_table;
+        $this->player_civ_table = $player_civ_table;
     }
 
     /**
@@ -68,7 +72,7 @@ class players
      * 
      * @return bool
      */
-    public function activate_player(int $user_id, int $rating)
+    public function activate_player(int $user_id, int $rating): bool
     {
         $count = (int)db_util::get_var($this->db, [
             'SELECT' => 'COUNT(*) AS n',
@@ -86,6 +90,10 @@ class players
             'matches_won' => 0,
             'matches_loss' => 0
         ]);
+
+        $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT "'. $user_id .'", map_id, "'. time() .'" FROM `'. $this->maps_table .'`');
+        $this->db->sql_query('INSERT INTO `'. $this->player_civ_table .'` (`user_id`, `civ_id`, `time`) SELECT "'. $user_id .'", civ_id, "'. time() .'" FROM `'. $this->civs_table .'`');
+
         return true;
     }
 

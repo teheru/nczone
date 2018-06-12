@@ -67,27 +67,33 @@ services:
         - '@user'
         - '%tables.eru.nczone.players%'
         - '%tables.users%'
+        - '%tables.eru.nczone.maps%'
+        - '%tables.eru.nczone.civs%'
+        - '%tables.eru.nczone.player_map%'
+        - '%tables.eru.nczone.player_civ%'
 
     eru.nczone.zone.matches:
       class: eru\nczone\zone\matches
       arguments:
         - '@dbal.conn'
-        - '%tables.eru.nczone.zone_matches%'
-        - '%tables.eru.nczone.zone_match_teams%'
-        - '%tables.eru.nczone.zone_match_players%'
-        - '%tables.eru.nczone.zone_match_civs%'
-        - '%tables.eru.nczone.zone_match_team_civs%'
-        - '%tables.eru.nczone.zone_match_player_civs%'
+        - '%tables.eru.nczone.matches%'
+        - '%tables.eru.nczone.match_teams%'
+        - '%tables.eru.nczone.match_players%'
+        - '%tables.eru.nczone.match_civs%'
+        - '%tables.eru.nczone.match_team_civs%'
+        - '%tables.eru.nczone.match_player_civs%'
         - '%tables.eru.nczone.maps%'
-        - '%tables.eru.nczone.zone_player_map_time%'
+        - '%tables.eru.nczone.player_map%'
 
     eru.nczone.zone.civs:
       class: eru\nczone\zone\civs
       arguments:
         - '@dbal.conn'
         - '%tables.eru.nczone.civs%'
+        - '%tables.eru.nczone.players%'
+        - '%tables.eru.nczone.maps%'
         - '%tables.eru.nczone.map_civs%'
-        - '%tables.eru.nczone.zone_player_civ_time%'
+        - '%tables.eru.nczone.player_civ%'
 
     eru.nczone.zone.maps:
       class: eru\nczone\zone\maps
@@ -95,8 +101,10 @@ services:
         - '@dbal.conn'
         - '@eru.nczone.zone.civs'
         - '%tables.eru.nczone.maps%'
+        - '%tables.eru.nczone.players%'
+        - '%tables.eru.nczone.civs%'
         - '%tables.eru.nczone.map_civs%'
-        - '%tables.eru.nczone.zone_player_map_time%'
+        - '%tables.eru.nczone.player_map%'
 
     eru.nczone.zone.draw:
       class: eru\nczone\zone\draw

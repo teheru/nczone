@@ -3,11 +3,11 @@ parameters:
     tables.eru.nczone.civs: %core.table_prefix%zone_civs
     tables.eru.nczone.maps: %core.table_prefix%zone_maps
     tables.eru.nczone.map_civs: %core.table_prefix%zone_map_civs
-    tables.eru.nczone.zone_matches: %core.table_prefix%zone_matches
-    tables.eru.nczone.zone_match_teams: %core.table_prefix%zone_match_teams
-    tables.eru.nczone.zone_match_players: %core.table_prefix%zone_match_players
-    tables.eru.nczone.zone_match_civs: %core.table_prefix%zone_match_civs
-    tables.eru.nczone.zone_match_team_civs: %core.table_prefix%zone_match_team_civs
-    tables.eru.nczone.zone_match_player_civs: %core.table_prefix%zone_match_player_civs
-    tables.eru.nczone.zone_player_map_time: %core.table_prefix%zone_player_map_time
-    tables.eru.nczone.zone_player_civ_time: %core.table_prefix%zone_player_civ_time
+    tables.eru.nczone.matches: %core.table_prefix%zone_matches
+    tables.eru.nczone.match_teams: %core.table_prefix%zone_match_teams
+    tables.eru.nczone.match_players: %core.table_prefix%zone_match_players
+    tables.eru.nczone.match_civs: %core.table_prefix%zone_match_civs
+    tables.eru.nczone.match_team_civs: %core.table_prefix%zone_match_team_civs
+    tables.eru.nczone.match_player_civs: %core.table_prefix%zone_match_player_civs
+    tables.eru.nczone.player_map: %core.table_prefix%zone_player_map
+    tables.eru.nczone.player_civ: %core.table_prefix%zone_player_civ

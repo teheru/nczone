@@ -40,7 +40,7 @@ class maps
      * @param string                                $map_civs_table    Name of the map civ (ratings) table
      * @param string                                $player_map_table  Name of the player map (time) table
      */
-    public function __construct(driver_interface $db, civs $zone_civs, string $maps_table, string $map_civs_table, string $player_map_table)
+    public function __construct(driver_interface $db, civs $zone_civs, string $maps_table, string $players_table, string $civs_table, string $map_civs_table, string $player_map_table)
     {
         $this->db = $db;
         $this->zone_civs = $zone_civs;
@@ -120,6 +120,8 @@ class maps
             $this->create_map_civs($map_id);
         }
 
+        $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT user_id, "'. $map_id .'", "'. time() .'" FROM `'. $this->players_table .'`');
+
         return $map_id;
     }
 
@@ -149,6 +151,7 @@ class maps
 
     private function create_map_civs($map_id): void
     {
+        // todo: replace this by a subquery like above?
         $sql_array = [];
         foreach ($this->zone_civs->get_civs() as $civ) {
             $sql_array[] = [
