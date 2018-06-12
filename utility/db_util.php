@@ -45,6 +45,12 @@ class db_util
         return (string)$db->sql_nextid();
     }
 
+    public static function multi_insert(driver_interface $db, string $table, array $data): string
+    {
+        $db->sql_multi_insert($table, $data);
+        return (string)$db->sql_nextid(); // TODO: Does this work / make sense here?
+    }
+
     public static function update(driver_interface $db, string $table, array $sqlArray, array $whereArray): void
     {
         $where = [];
