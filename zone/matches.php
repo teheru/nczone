@@ -58,6 +58,103 @@ class matches {
         $this->player_map_times = $player_map_time;
     }
 
+    /**
+     * Creates a match and returns the match id
+     * 
+     * @param int    $draw_user_id    ID of the user who draw the game
+     * @param array  $team1           Array of the players in team 1
+     * @param array  $team2           Array of the players in team 2
+     * @param int    $map_id          ID of the map to be played
+     * @param array  $match_civ_ids   Array of civ ids for the whole match
+     * @param array  $team1_civ_ids   Array of civ ids for team 1 only
+     * @param array  $team2_civ_ids   Array of civ ids for team 2 only
+     * @param array  $player_civ_ids  Array (user id => civ id) of civs for players
+     * 
+     * @return int
+     */
+    public function create_match(int $draw_user_id, $team1, $team2, int $map_id=0, $match_civ_ids=[], $team1_civ_ids=[], $team2_civ_ids=[], $player_civ_ids=[]): int
+    {
+        $team1_id = $this->get_last_team_id() + 1;
+        $team2_id = $team1_id + 1;
+
+        $team_data = [];
+        foreach($team1 as $player)
+        {
+            $team_data[] = [
+                'team_id' => $team1_id,
+                'user_id' => $player['id'],
+                'draw_rating' => $player['rating'],
+            ];
+        }
+        foreach($team2 as $player)
+        {
+            $team_data[] = [
+                'team_id' => $team2_id,
+                'user_id' => $player['id'],
+                'draw_rating' => $player['rating'],
+            ];
+        }
+        db_util::multi_insert($this->db, $this->match_players_table, $team_data);
+
+        $match_id = (int)db_util::insert($this->db, $this->matches_table, [
+            'match_id' => '',
+            'team1_id' => $team1_id,
+            'team2_id' => $team2_id,
+            'draw_user_id' => (int)$draw_user_id,
+            'post_user_id' => 0,
+            'draw_time' => time(),
+            'post_time' => 0,
+            'winner_team_id' => 0,
+        ]);
+
+        $match_civ_data = [];
+        $match_civ_numbers = array_count_values($match_civ_ids);
+        foreach($civ_id as array_unique($match_civ_ids))
+        {
+            $match_civ_data[] = [
+                'match_id' => $match_id,
+                'civ_id' => $civ_id,
+                'number' => $match_civ_numbers[$civ_id],
+            ];
+        }
+        db_util::multi_insert($this->db, $this->match_civs_table, $match_civ_data);
+
+        
+        $team_civ_data = [];
+        $team1_civ_numbers = array_count_values($team1_civ_numbers);
+        foreach($civ_id as array_unique($team1_civ_ids))
+        {
+            $team_civ_data[] = [
+                'team_id' => $team1_id,
+                'civ_id' => (int)$civ_id,
+                'number' => $team1_civ_numbers[$civ_id],
+            ];
+        }
+        $team2_civ_numbers = array_count_values($team2_civ_numbers);
+        foreach($civ_id as array_unique($team2_civ_ids))
+        {
+            $team_civ_data[] = [
+                'team_id' => $team2_id,
+                'civ_id' => (int)$civ_id,
+                'number' => $team2_civ_numbers[$civ_id],
+            ];
+        }
+        db_util::multi_insert($this->db, $this->team_civs_table, $team_civ_data);
+
+
+        $player_civ_data = [];
+        foreach($player_civ_ids as $user_id => $civ_id)
+        {
+            $player_civ_data[] = [
+                'match_id' => $match_id,
+                'user_id' = (int)$user_id,
+                'civ_id' = (int)$civ_id,
+            ];
+        }
+        db_util::multi_insert($this->db, $this->player_civs_table, $player_civ_data);
+
+        return $match_id;
+    }
 
     public function get_last_team_id(): int
     {
