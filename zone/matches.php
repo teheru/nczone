@@ -62,7 +62,7 @@ class matches {
     public function get_last_team_id(): int
     {
         // TODO: this should probably done with something like sql_query_limit()
-        return (int)db_utils::get_var($this->db, [
+        return (int)db_util::get_var($this->db, [
             'SELECT' => 't.team_id',
             'FROM' => [$this->match_players_table => 't'],
             'ORDER_BY' => 'team_id DESC'
