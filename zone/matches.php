@@ -115,6 +115,7 @@ class matches {
         }
         db_util::multi_insert($this->db, $this->match_players_table, $team_data);
 
+        
         $match_civ_data = [];
         $match_civ_numbers = array_count_values($match_civ_ids);
         foreach($civ_id as array_unique($match_civ_ids))

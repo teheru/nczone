@@ -28,11 +28,11 @@ class civs
     /**
      * Constructor
      *
-     * @param \phpbb\db\driver\driver_interface    $db                Database object
-     * @param string                               $civs_table        Name of the civs table
-     * @param string                               $maps_table        Name of the maps table
-     * @param string                               $map_civs_table    Name of the map civ (ratings) table
-     * @param string                               $player_civ_table  Name of the player civ (time) table
+     * @param \phpbb\db\driver\driver_interface  $db                Database object
+     * @param string                             $civs_table        Name of the civs table
+     * @param string                             $maps_table        Name of the maps table
+     * @param string                             $map_civs_table    Name of the map civ (ratings) table
+     * @param string                             $player_civ_table  Name of the player civ (time) table
      */
     public function __construct(driver_interface $db, string $civs_table, string $map_civs_table, string $player_civ_table)
     {
@@ -60,7 +60,7 @@ class civs
     /**
      * Returns the name of a certain civ
      * 
-     * @param int    $civ_id    Id of the civ
+     * @param int  $civ_id  Id of the civ
      * 
      * @return string
      */
@@ -89,9 +89,9 @@ class civs
 
 
     /**
-     * Creates a new civ in the database
+     * Creates a new civ and civ map entries in the database, returns the id of the new civ
      * 
-     * @param string    $civ_name    Name of the civ
+     * @param string  $civ_name  Name of the civ
      * 
      * @return void
      */
@@ -103,6 +103,13 @@ class civs
     }
 
 
+    /**
+     * Creates a new civ entry in the database without entries for related tables, returns the id of the new civ
+     * 
+     * @param string  $civ_name  Name of the civ
+     * 
+     * @return  int
+     */
     private function insert_civ(string $civ_name): string
     {
         return db_util::insert($this->db, $this->civs_table, [
@@ -112,7 +119,14 @@ class civs
     }
 
     
-    private function create_civ_maps(string $civ_id): void
+    /**
+     * Create entries for the civ x map table.
+     * 
+     * @param int  $civ_id  The id of the civ
+     * 
+     * @return void
+     */
+    private function create_civ_maps(int $civ_id): void // todo: here was string $civ_id before.... string??
     {
         foreach (zone_util::maps()->get_map_ids() as $map_id) {
             db_util::insert($this->db, $this->map_civs_table, [

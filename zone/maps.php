@@ -13,6 +13,7 @@ namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
 use phpbb\db\driver\driver_interface;
+
 /**
  * nC Zone maps management class.
  */
@@ -60,6 +61,7 @@ class maps
             'FROM' => [$this->maps_table => 'm']
         ]);
     }
+
 
     public function get_map_ids(): array
     {
@@ -121,6 +123,7 @@ class maps
         return $map_id;
     }
 
+
     private function insert_map(string $map_name, float $weight): string
     {
         return db_util::insert($this->db, $this->maps_table, [
@@ -129,6 +132,7 @@ class maps
             'weight' => $weight
         ]);
     }
+
 
     private function copy_map_civs($to_map_id, $from_map_id): void
     {
@@ -141,6 +145,7 @@ class maps
             $this->db->sql_multi_insert($this->map_civs_table, $sql_array);
         }
     }
+
 
     private function create_map_civs($map_id): void
     {

@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\number_util;
+
 /**
  * Class to make teams (not maps or civs!)
  */
@@ -30,6 +31,8 @@ class draw
      */
     public function __construct()
     {
+        // These are number of players, which doesn't work with the scheme in get_match_sizes()
+        // so these are taken instead
         $this->special_match_sizes = [
             0 => [],
             2 => [1 => 1],
@@ -40,6 +43,7 @@ class draw
             18 => [3 => 3],
         ];
 
+        // all combinations of players in two teams which makes sense for 3vs3
         $this->teams_3vs3 = [
             [[0, 3, 4], [1, 2, 5]],
             [[0, 2, 5], [1, 3, 4]],
@@ -48,6 +52,7 @@ class draw
             [[0, 4, 5], [1, 2, 3]]
         ];
 
+        // same thing for 4vs4
         $this->teams_4vs4 = [
             [[0, 3, 4, 7], [1, 2, 5, 6]],
             [[0, 3, 5, 6], [1, 2, 4, 7]],
@@ -73,9 +78,8 @@ class draw
         ];
     }
 
-
     /**
-     * Calculates the best sizes of matches.
+     * Calculates the best sizes of matches. We avoid 1vs1 and 2vs2 if possible and prefer 4vs4 over 3vs3.
      * 
      * @param int    $num_players    Number of players do be drawn
      * 
@@ -103,7 +107,6 @@ class draw
 
         return [3 => 3, 4 => ($even_num_players - 18) / 8];
     }
-
 
     /**
      * Permutes match sizes in all possible combinations without redundancy.
@@ -176,6 +179,13 @@ class draw
         return $permutes;
     }
 
+    /**
+     * Calculates the best teams for a single match.
+     * 
+     * @param array  $player_list  List of the players (must have index 'rating') to be put in teams
+     * 
+     * @return array
+     */
     public function make_match(array $player_list): array
     {
         usort($player_list, [__CLASS__, 'cmp_ratings']);
@@ -258,6 +268,13 @@ class draw
         return ['teams' => [], 'value' => 0];
     }
 
+    /**
+     * Divides players in usable groups to make teams and than calculate the optimal teams.
+     * 
+     * @param array  $player_list  List of the players (must have index 'rating') to be put in teams
+     * 
+     * @return array
+     */
     public function make_matches(array $player_list): array
     {
         $num_players = \count($player_list);
@@ -293,6 +310,14 @@ class draw
         return $best_teams;
     }
 
+    /**
+     * Callback function to compare ratings.
+     * 
+     * @param array  $p1  Array with index rating
+     * @param array  $p2  Array with index rating
+     * 
+     * @return int
+     */
     public static function cmp_ratings($p1, $p2): int
     {
         return number_util::cmp($p1['rating'], $p2['rating']);
