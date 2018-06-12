@@ -102,10 +102,11 @@ class install_db_create extends \phpbb\db\migration\migration
 				),
 				$this->table_prefix . 'zone_match_player_civs' => array(
 					'COLUMNS' => array(
+						'match_id' => array('UINT', 0),
 						'user_id' => array('UINT', 0),
 						'civ_id' => array('UINT', 0)
 					),
-					'PRIMARY_KEY' => array('user_id', 'civ_id')
+					'PRIMARY_KEY' => array('match_id', 'user_id')
 				),
 				$this->table_prefix . 'zone_player_map' => array(
 					'COLUMNS' => array(
