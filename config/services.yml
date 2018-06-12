@@ -72,6 +72,11 @@ services:
       class: eru\nczone\zone\matches
       arguments:
         - '@dbal.conn'
+        - '%tables.eru.nczone.zone_matches%'
+        - '%tables.eru.nczone.zone_match_players%'
+        - '%tables.eru.nczone.zone_match_civs%'
+        - '%tables.eru.nczone.zone_match_team_civs%'
+        - '%tables.eru.nczone.zone_match_player_civs%'
         - '%tables.eru.nczone.maps%'
         - '%tables.eru.nczone.zone_player_map_time%'
 
