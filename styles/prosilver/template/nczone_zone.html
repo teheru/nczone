@@ -1,35 +1,34 @@
 <div class="zone_title">{L_NCZONE_ZONE}</div>
 <div class="zone_loggedin">
-<!-- IF CURRENT_PLAYER_VIEW_LOGIN -->
+{% if CURRENT_PLAYER_VIEW_LOGIN %}
 
-<!-- IF .logged_in -->
+{% if loops.logged_in %}
     <table>
-    <!-- BEGIN logged_in -->
+    {% for user in loops.logged_in %}
         <tr>
-            <td class="number">{logged_in.ROW}</td>
-            <td class="username">{logged_in.USERNAME}</td>
-            <td class="rating">{logged_in.RATING}</td>
+            <td class="username">{{ user.USERNAME }}</td>
+            <td class="rating">{{ user.RATING }}</td>
         </tr>
-    <!-- END logged_in -->
+    {% endfor %}
     </table>
     <br />
-<!-- ELSE -->
-    {L_NCZONE_NO_LOGIN}<br />
-<!-- ENDIF -->
+{% else %}
+    {{ lang('NCZONE_NO_LOGIN') }}<br />
+{% endif %}
 
-<!-- IF CURRENT_PLAYER_CAN_LOGIN -->
+{% if CURRENT_PLAYER_CAN_LOGIN %}
     <a href="{U_ZONE_LOGINOUT}">
-        <!-- IF CURRENT_PLAYER_LOGGED_IN -->
-        {L_NCZONE_LOGOUT}
-        <!-- ELSE -->
-        {L_NCZONE_LOGIN}
-        <!-- ENDIF -->
+        {% if CURRENT_PLAYER_LOGGED_IN %}
+        {{ lang('NCZONE_LOGOUT') }}
+        {% else %}
+        {{ lang('NCZONE_LOGIN') }}
+        {% endif %}
     </a>
-<!-- ENDIF -->
+{% endif %}
 
-<!-- IF CURRENT_PLAYER_CAN_DRAW -->
-    <a href="{U_ZONE_DRAW}">{L_NCZONE_DRAW}</a>
-<!-- ENDIF -->
+{% if CURRENT_PLAYER_CAN_DRAW %}
+    <a href="{U_ZONE_DRAW}">{{ lang('NCZONE_DRAW') }}</a>
+{% endif %}
 
-<!-- ENDIF -->
+{% endif %}
 </div>

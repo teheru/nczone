@@ -1,0 +1,24 @@
+{{ include('overall_header.html') }}
+
+<div id="zone_container">
+    <div id="zone_links">
+        {{ include('nczone_links.html') }}
+    </div>
+    <div id="zone">
+        {{ include('nczone_zone.html') }}
+    </div>
+    <!-- Shoutbox / mChat -->
+    <div id="zone_main">
+        <div id="zone_infos">
+            <div class="zone_title">{{ lang('NCZONE_INFORMATION') }}</div>
+            <div class="zone_content">
+            </div>
+            {% block content %}
+
+            {% endblock %}
+        </div>
+
+        </div>
+</div>
+
+{{ include('overall_footer.html') }}
