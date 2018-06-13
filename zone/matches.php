@@ -223,34 +223,42 @@ class matches {
         ]);
         if($force_civ)
         {
-            $civ_ids[] = (int)$force_civ['id'];
-            $force_civ_multiplier = (float)$force_civ['multiplier'];
+            $force_civ_num = 1;
+            $sql_add = ' AND c.civ_id != ' . $force_civ['id'];
+            $test_civ_add = [$force_civ];
+        }
+        else
+        {
+            $force_civ_num = 0;
+            $sql_add = '';
+            $test_civ_add = [];
         }
 
         // get additional civs
         $draw_civs = db_util::get_num_rows($this->db, [
             'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
             'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
-            'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('c.civ_id', $civ_ids, true),
+            'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw' . $sql_add,
             'GROUP_BY' => 'c.civ_id',
             'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
         ], $num_civs - count($civ_ids) + $extra_civs);
-        usort($draw_civs, [__CLASS__, 'cmp_multiplier']);
 
         // we drawed some extra civs and now we drop some to reduce the difference of multipliers
+        $best_civs = [];
+        $best_value = -1;
         for($i = 0; $i < $extra_civs; $i++)
         {
-            if($i % 2 == 0)
+            $test_civs = array_merge($test_civ_add, array_slice($draw_civs, $i, $num_civs - $force_civ_num));
+            usort($test_civs, [__CLASS__, 'cmp_multiplier']);
+            $value = (float)$test_civs[0]['multiplier'] - (float)$test_civs[-1]['multiplier'];
+            if($value < $best_value || $best_value < 0)
             {
-                array_shift($draw_civs);
-            }
-            else
-            {
-                array_pop($draw_civs);
+                $best_civs = $test_civs;
+                $best_value = $value;
             }
         }
 
-        foreach($draw_civs as $civ)
+        foreach($best_civs as $civ)
         {
             $civ_ids[] = (int)$civ['id'];
         }
@@ -260,6 +268,6 @@ class matches {
 
     public static function cmp_multiplier($c1, $c2): int
     {
-        return number_util::cmp($c1['multiplier'], $c2['multiplier']);
+        return number_util::cmp((float)$c1['multiplier'], (float)$c2['multiplier']);
     }
 }
