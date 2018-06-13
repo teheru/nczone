@@ -201,10 +201,8 @@ class matches {
         ]);
     }
 
-    public function get_players_match_civs($map_id, $user_ids, $num_civs=0)
+    public function get_match_civs($map_id, $user_ids, $num_civs=0, $extra_civs=3)
     {
-        $extra_civs = 3; // todo: replace this by a config var
-
         if($num_civs == 0)
         {
             $num_civs = count($user_ids) / 2;
@@ -243,6 +241,13 @@ class matches {
             'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
         ], $num_civs - count($civ_ids) + $extra_civs);
 
+        if($extra_civs == 0)
+        {
+            $best_civs = array_merge($test_civ_add, $draw_civs);
+            usort($best_civs, [__CLASS__, 'cmp_multiplier']);
+        }
+        else
+        {
         // we drawed some extra civs and now we drop some to reduce the difference of multipliers
         $best_civs = [];
         $best_value = -1;
@@ -256,6 +261,7 @@ class matches {
                 $best_civs = $test_civs;
                 $best_value = $value;
             }
+        }
         }
 
         foreach($best_civs as $civ)
