@@ -84,6 +84,8 @@ services:
         - '%tables.eru.nczone.match_player_civs%'
         - '%tables.eru.nczone.maps%'
         - '%tables.eru.nczone.player_map%'
+        - '%tables.eru.nczone.map_civs%'
+        - '%tables.eru.nczone.player_civ%'
 
     eru.nczone.zone.civs:
       class: eru\nczone\zone\civs

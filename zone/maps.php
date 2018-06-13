@@ -45,6 +45,7 @@ class maps
         $this->db = $db;
         $this->zone_civs = $zone_civs;
         $this->maps_table = $maps_table;
+        $this->players_table = $players_table;
         $this->map_civs_table = $map_civs_table;
         $this->player_map_table = $player_map_table;
     }

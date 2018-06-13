@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
+use eru\nczone\utility\number_util;
 
 /**
  * nC Zone matches management class.
@@ -49,7 +50,7 @@ class matches {
      * @param string                             $maps_table               Name of the maps table
      * @param string                             $player_map_table         Name of the table with the last time a player played a map
      */
-    public function __construct(\phpbb\db\driver\driver_interface $db, $matches_table, $match_teams_table, $match_players_table, $match_civs_table, $team_civs_table, $match_player_civs_table, $maps_table, $player_map_table)
+    public function __construct(\phpbb\db\driver\driver_interface $db, $matches_table, $match_teams_table, $match_players_table, $match_civs_table, $team_civs_table, $match_player_civs_table, $maps_table, $player_map_table, $map_civs_table, $player_civ_table)
     {
         $this->db = $db;
         $this->matches_table = $matches_table;
@@ -60,6 +61,8 @@ class matches {
         $this->match_player_civs_table = $match_player_civs_table;
         $this->maps_table = $maps_table;
         $this->player_map_table = $player_map_table;
+        $this->map_civs_table = $map_civs_table;
+        $this->player_civ_table = $player_civ_table;
     }
 
     /**
@@ -189,12 +192,74 @@ class matches {
      */
     public function get_players_map_id($user_ids)
     {
-        return db_util::get_var($this->db, [
-            'SELECT' => 't.map_id',
-            'FROM' => [$this->player_map_times => 't', $this->maps_table => 'm'],
+        return (int)db_util::get_var($this->db, [
+            'SELECT' => 't.map_id, SUM(' . time() . ' - t.time) * m.weight AS val',
+            'FROM' => [$this->player_map_table => 't', $this->maps_table => 'm'],
             'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('t.user_id', $user_ids),
             'GROUP_BY' => 't.map_id',
-            'ORDER_BY' => 'LOG(60, SUM(UNIX_TIMESTAMP() - t.time)) * m.weight DESC'
+            'ORDER_BY' => 'val DESC'
         ]);
+    }
+
+    public function get_players_match_civs($map_id, $user_ids, $num_civs=0)
+    {
+        $extra_civs = 3; // todo: replace this by a config var
+
+        if($num_civs == 0)
+        {
+            $num_civs = count($user_ids) / 2;
+        }
+
+        $civ_ids = [];
+        $civ_multiplier = [];
+
+        // first, get one of the force draw civs
+        $force_civ = db_util::get_row($this->db, [
+            'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
+            'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
+            'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw',
+            'GROUP_BY' => 'c.civ_id',
+            'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
+        ]);
+        if($force_civ)
+        {
+            $civ_ids[] = (int)$force_civ['id'];
+            $force_civ_multiplier = (float)$force_civ['multiplier'];
+        }
+
+        // get additional civs
+        $draw_civs = db_util::get_num_rows($this->db, [
+            'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
+            'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
+            'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('c.civ_id', $civ_ids, true),
+            'GROUP_BY' => 'c.civ_id',
+            'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
+        ], $num_civs - count($civ_ids) + $extra_civs);
+        usort($draw_civs, [__CLASS__, 'cmp_multiplier']);
+
+        // we drawed some extra civs and now we drop some to reduce the difference of multipliers
+        for($i = 0; $i < $extra_civs; $i++)
+        {
+            if($i % 2 == 0)
+            {
+                array_shift($draw_civs);
+            }
+            else
+            {
+                array_pop($draw_civs);
+            }
+        }
+
+        foreach($draw_civs as $civ)
+        {
+            $civ_ids[] = (int)$civ['id'];
+        }
+
+        return $civ_ids;
+    }
+
+    public static function cmp_multiplier($c1, $c2): int
+    {
+        return number_util::cmp($c1['multiplier'], $c2['multiplier']);
     }
 }

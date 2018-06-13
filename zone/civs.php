@@ -38,6 +38,8 @@ class civs
     {
         $this->db = $db;
         $this->civs_table = $civs_table;
+        $this->players_table = $players_table;
+        $this->maps_table = $maps_table;
         $this->map_civs_table = $map_civs_table;
         $this->player_civ_table = $player_civ_table;
     }

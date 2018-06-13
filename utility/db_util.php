@@ -13,6 +13,13 @@ class db_util
         $db->sql_freeresult($result);
         return $rows ?: [];
     }
+    public static function get_num_rows(driver_interface $db, array $sqlArray, $num, $query = 'SELECT'): array
+    {
+        $result = $db->sql_query_limit($db->sql_build_query($query, $sqlArray), $num);
+        $rows = $db->sql_fetchrowset($result);
+        $db->sql_freeresult($result);
+        return $rows ?: [];
+    }
 
     // todo: build this without getting the whole rowset
     public static function get_col(driver_interface $db, array $sqlArray, $query = 'SELECT'): array
