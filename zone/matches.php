@@ -261,33 +261,116 @@ class matches {
         }
         else
         {
-        // we drawed some extra civs and now we drop some to reduce the difference of multipliers
-        $best_civs = [];
-        $best_value = -1;
-        for($i = 0; $i < $extra_civs; $i++)
-        {
-            $test_civs = array_merge($test_civ_add, array_slice($draw_civs, $i, $num_civs - $force_civ_num));
-            usort($test_civs, [__CLASS__, 'cmp_multiplier']);
-                $value = $test_civs[0]['multiplier'] - $test_civs[-1]['multiplier'];
-            if($value < $best_value || $best_value < 0)
+            // we drawed some extra civs and now we drop some to reduce the difference of multipliers
+            $best_civs = [];
+            $best_value = -1;
+            for($i = 0; $i < $extra_civs; $i++)
             {
-                $best_civs = $test_civs;
-                $best_value = $value;
+                $test_civs = array_merge($test_civ_add, array_slice($draw_civs, $i, $num_civs - $force_civ_num));
+                usort($test_civs, [__CLASS__, 'cmp_multiplier']);
+                $value = $test_civs[0]['multiplier'] - $test_civs[-1]['multiplier'];
+                if($value < $best_value || $best_value < 0)
+                {
+                    $best_civs = $test_civs;
+                    $best_value = $value;
+                }
             }
-        }
         }
 
         return $best_civs;
     }
+
+    public function get_teams_civs($map_id, $team1_users, $team2_users, $num_civs=0, $extra_civs=2)
+    {
+        if($num_civs == 0)
         {
-            $civ_ids[] = (int)$civ['id'];
+            $num_civs = count($team1_users);
         }
 
-        return $civ_ids;
+
+        $team1_sum_rating = array_reduce($team1_users, [__CLASS__, 'rating_sum']);
+        $team2_sum_rating = array_reduce($team2_users, [__CLASS__, 'rating_sum']);
+
+
+        // we use some extra civs to be able to draw fair civs for the teams
+        $team1_civpool = $this->get_match_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
+        $team2_civpool = $this->get_match_civs($map_id, $team2_users, $num_civs + $extra_civs, 0);
+
+
+        // get all index combinations with length $num_civs for our civpools
+        $test_indices = [];
+        for($i = 0; $i < $extra_civs + 1; $i++)
+        {
+            $test_indices[] = [$i];
+        }
+        for($i = 1; $i < $num_civs; $i++)
+        {
+            $temp = [];
+            foreach($test_indices as $lo)
+            {
+                for($j = end($lo)+1; $j < $num_civs + $extra_civs; $j++)
+                {
+                    $temp[] = array_merge($lo, [$j]);
+                }
+            }
+            $test_indices = $temp;
+        }
+
+        
+        $best_indices = [[], []];
+        $best_value = -1;
+
+        // we test all possible combinations and the combination, which minimizes |diff(player_ratings * multipliers)|
+        foreach($test_indices as $team1_indices)
+        {
+            $team1_sum_multiplier = 0;
+            foreach($team1_indices as $index)
+            {
+                $team1_sum_multiplier += $team1_civpool[$index]['multiplier'];
+            }
+
+            foreach($test_indices as $team2_indices)
+            {
+                $team2_sum_multiplier = 0;
+                foreach($team2_indices as $index)
+                {
+                    $team2_sum_multiplier += $team2_civpool[$index]['multiplier'];
+                }
+
+                $value = abs($team1_sum_rating * $team1_sum_multiplier - $team2_sum_rating * $team2_sum_multiplier);
+                if($value < $best_value || $best_value < 0)
+                {
+                    $best_indices[0] = $team1_indices;
+                    $best_indices[1] = $team2_indices;
+                    $best_value = $value;
+                }
+            }
+        }
+
+
+        // apply the indices on the civpools
+        $team1_civs = [];
+        $team2_civs = [];
+        foreach($best_indices[0] as $index)
+        {
+            $team1_civs[] = $team1_civpool[$index];
+        }
+        foreach($best_indices[1] as $index)
+        {
+            $team2_civs[] = $team2_civpool[$index];
+        }
+
+
+        return [$team1_civs, $team2_civs];
     }
 
     public static function cmp_multiplier($c1, $c2): int
     {
         return number_util::cmp($c1['multiplier'], $c2['multiplier']);
+    }
+
+    public static function rating_sum($c, $p): int
+    {
+        return $c + $p['rating'];
     }
 }
