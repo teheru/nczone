@@ -25,9 +25,9 @@ class main_module
 
     function main($id, $mode)
     {
-        $user = phpbb_util::user();
-        $user->add_lang_ext('eru/nczone', 'info_mcp');
-        $this->page_title = $user->lang('MCP_ZONE_TITLE');
+        $language = phpbb_util::language();
+        $language->add_lang('info_mcp', 'eru/nczone');
+        $this->page_title = $language->lang('MCP_ZONE_TITLE');
         add_form_key('eru/nczone');
 
         if (phpbb_util::request()->is_set_post('submit')) {

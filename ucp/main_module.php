@@ -20,14 +20,14 @@ class main_module
 
     function main($id, $mode)
     {
-        $user = phpbb_util::user();
+        $language = phpbb_util::language();
         $this->tpl_name = 'ucp_zone_body';
-        $this->page_title = $user->lang('UCP_ZONE_TITLE');
+        $this->page_title = $language->lang('UCP_ZONE_TITLE');
         add_form_key('eru/nczone');
 
         if (phpbb_util::request()->is_set_post('submit')) {
             if (!check_form_key('eru/nczone')) {
-                trigger_error($user->lang('FORM_INVALID'));
+                trigger_error($language->lang('FORM_INVALID'));
             }
         }
     }

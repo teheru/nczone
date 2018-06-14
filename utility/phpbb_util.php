@@ -16,9 +16,9 @@ class phpbb_util
         return $GLOBALS['request'];
     }
 
-    public static function user(): \phpbb\user
+    public static function language(): \phpbb\language\language
     {
-        return $GLOBALS['user'];
+        return self::container()->get('language');
     }
 
     public static function template(): \phpbb\template\template
@@ -44,5 +44,10 @@ class phpbb_util
     public static function file_url(string $basename): string
     {
         return self::root_path() . $basename . '.' . $GLOBALS['phpEx'];
+    }
+
+    public static function config(): \phpbb\config\config
+    {
+        return $GLOBALS['config'];
     }
 }
