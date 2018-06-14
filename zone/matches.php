@@ -83,7 +83,7 @@ class matches {
     public function create_match(int $draw_user_id, $team1, $team2, int $map_id=0, $match_civ_ids=[], $team1_civ_ids=[], $team2_civ_ids=[], $player_civ_ids=[]): int
     {
         $match_id = (int)db_util::insert($this->db, $this->matches_table, [
-            'match_id' => '',
+            'match_id' => 0,
             'draw_user_id' => (int)$draw_user_id,
             'post_user_id' => 0,
             'draw_time' => time(),
@@ -92,11 +92,11 @@ class matches {
         ]);
 
         $team1_id = (int)db_util::insert($this->db, $this->match_teams_table, [
-            'team_id' => '',
+            'team_id' => 0,
             'match_id' => $match_id,
         ]);
         $team2_id = (int)db_util::insert($this->db, $this->match_teams_table, [
-            'team_id' => '',
+            'team_id' => 0,
             'match_id' => $match_id,
         ]);
 
@@ -119,14 +119,14 @@ class matches {
         }
         if(!empty($team_data))
         {
-            $this->db->multi_insert($this->match_players_table, $team_data);
+            $this->db->sql_multi_insert($this->match_players_table, $team_data);
         }
 
         
         $match_civ_data = [];
         $match_civ_numbers = array_count_values($match_civ_ids);
         $unique_match_civ_ids = array_unique($match_civ_ids);
-        foreach($civ_id as $unique_match_civ_ids)
+        foreach($unique_match_civ_ids as $civ_id)
         {
             $match_civ_data[] = [
                 'match_id' => $match_id,
@@ -136,12 +136,12 @@ class matches {
         }
         if(!empty($match_civ_data))
         {
-            $this->db->multi_insert($this->match_civs_table, $match_civ_data);
+            $this->db->sql_multi_insert($this->match_civs_table, $match_civ_data);
         }
 
         
         $team_civ_data = [];
-        $team1_civ_numbers = array_count_values($team1_civ_numbers);
+        $team1_civ_numbers = array_count_values($team1_civ_ids);
         foreach(array_unique($team1_civ_ids) as $civ_id)
         {
             $team_civ_data[] = [
@@ -150,7 +150,7 @@ class matches {
                 'number' => $team1_civ_numbers[$civ_id],
             ];
         }
-        $team2_civ_numbers = array_count_values($team2_civ_numbers);
+        $team2_civ_numbers = array_count_values($team2_civ_ids);
         foreach(array_unique($team2_civ_ids) as $civ_id)
         {
             $team_civ_data[] = [
@@ -161,7 +161,7 @@ class matches {
         }
         if(!empty($team_civ_data))
         {
-            $this->db->multi_insert($this->team_civs_table, $team_civ_data);
+            $this->db->sql_multi_insert($this->team_civs_table, $team_civ_data);
         }
 
 
@@ -176,7 +176,7 @@ class matches {
         }
         if(!empty($player_civ_data))
         {
-            $this->db->multi_insert($this->match_player_civs_table, $player_civ_data);
+            $this->db->sql_multi_insert($this->match_player_civs_table, $player_civ_data);
         }
 
         return $match_id;
