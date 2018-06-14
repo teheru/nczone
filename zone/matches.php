@@ -142,8 +142,7 @@ class matches {
         
         $team_civ_data = [];
         $team1_civ_numbers = array_count_values($team1_civ_numbers);
-        $unique_team1_civ_numbers = array_unique($team1_civ_ids);
-        foreach($civ_id as $unique_team1_civ_numbers)
+        foreach(array_unique($team1_civ_ids) as $civ_id)
         {
             $team_civ_data[] = [
                 'team_id' => $team1_id,
@@ -152,8 +151,7 @@ class matches {
             ];
         }
         $team2_civ_numbers = array_count_values($team2_civ_numbers);
-        $unique_team2_civ_numbers = array_unique($team2_civ_ids);
-        foreach($civ_id as $unique_team2_civ_numbers)
+        foreach(array_unique($team2_civ_ids) as $civ_id)
         {
             $team_civ_data[] = [
                 'team_id' => $team2_id,
@@ -505,6 +503,189 @@ class matches {
         usort($team1_civs, [__CLASS__, 'cmp_multiplier']);
         usort($team2_civs, [__CLASS__, 'cmp_multiplier']);
         return [$team1_civs, $team2_civs];
+    }
+
+    public function get_player_civs($map_id, $team1_users, $team2_users, $num_civs=3)
+    {
+        $civs_module = zone_util::civs();
+
+        // find out which civs have to be in both teams
+        $both_teams_civ_ids = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
+
+        $user_ids = [];
+        $team1_ids = [];
+        $team2_ids = [];
+        $user_ratings = [];
+        $user_civpools = [];
+        foreach($team1_users as $user)
+        {
+            $user_ids[] = $user['id'];
+            $team1_ids[] = $user['id'];
+            $user_ratings[$user['id']] = $user['rating'];
+            $user_civpools[$user['id']] = [];
+        }
+        foreach($team2_users as $user)
+        {
+            $user_ids[] = $user['id'];
+            $team2_ids[] = $user['id'];
+            $user_ratings[$user['id']] = $user['rating'];
+            $user_civpools[$user['id']] = [];
+        }
+
+
+        // get civs which are forced for the map
+        $force_civ_ids = [];
+
+        $team1_force_civ = $civs_module->get_map_players_civs($map_id, $team1_ids, [], False, True, True);
+        if($team1_force_civ)
+        {
+            // check if the civ has to be in both teams anyways
+            if(in_array($team1_force_civ['civ_id'], $both_teams_civ_ids))
+            {
+                $team2_force_civ = $civs_module->get_map_players_civs($map_id, $team2_ids, [$team1_force_civ['civ_id']], False, True, True);
+            }
+            else
+            {
+                // check force civ for the other team except the one drawed before
+                $team2_force_civ = $civs_module->get_map_players_civs($map_id, $team2_ids, [$team1_force_civ['civ_id']], True, True, True);
+                if($team2_force_civ)
+                {
+                    // check again if THIS civ has to be in both teams
+                    if(in_array($team2_force_civ['civ_id'], $both_teams_civ_ids))
+                    {
+                        $team1_force_civ = $civs_module->get_map_players_civs($map_id, $team1_ids, [$team2_force_civ['civ_id']], False, True, True);
+                    }
+                }
+                // if this didn't work, we only have one forced civ and it has to be in both teams nevertheless
+                else
+                {
+                    $team2_force_civ = $civs_module->get_map_players_civs($map_id, $team2_ids, [$team1_force_civ['civ_id']], False, True, True);
+                }       
+            }
+
+            // we need to remember these civs so we don't drop them or draw them again
+            $force_civ_ids[] = $team1_force_civ['civ_id'];
+            if($team1_force_civ['civ_id'] != $team2_force_civ['civ_id'])
+            {
+                $force_civ_ids[] = $team2_force_civ['civ_id'];
+            }
+
+            $user_civpools[$team1_force_civ['user_id']][] = ['id' => $team1_force_civ['civ_id'], 'multiplier' => $team1_force_civ['multiplier']];
+            $user_civpools[$team2_force_civ['user_id']][] = ['id' => $team2_force_civ['civ_id'], 'multiplier' => $team2_force_civ['multiplier']];
+        }
+        // civs we don't want to drop
+        $keep_civ_ids = array_merge($force_civ_ids, $both_teams_civ_ids);
+
+
+        $user_civs = $civs_module->get_map_players_civs($map_id, $user_ids, $force_civ_ids, True, False, False);
+
+        // remember civs that were already drawed so we don't draw them twice
+        $civpool_civs = [];
+        foreach($user_civs as $pc)
+        {
+            $user_civpool_count = count($user_civpools[$pc['user_id']]);
+
+            if($user_civpool_count < $num_civs && !in_array($pc['civ_id'], $civpool_civs))
+            {
+                $add = True;
+                foreach($user_civpools[$pc['user_id']] as $civ)
+                {
+                    // we don't want to have multiple civs with same multiplier for the same player
+                    // also, don't add civs for players which have a civ which we want to keep
+                    if($pc['multiplier'] == $civ['multiplier'] || in_array($civ['id'], $keep_civ_ids))
+                    {
+                        $add = False;
+                        break;
+                    }
+                }
+                if($add)
+                {
+                    if(in_array($pc['civ_id'], $both_teams_civ_ids))
+                    {
+                        // if the drawed civ should be in both teams, get the player from the other team who should get that civ
+                        $other_team = $civs_module->get_map_players_civs($map_id, (in_array($pc['user_id'], $team1_ids)) ? $team2_ids : $team1_ids, [$pc['civ_id']], False, False, True);
+                        if(count($user_civpools[$other_team['user_id']]) > 0)
+                        {
+                            foreach($user_civpools[$other_team['user_id']] as $civ)
+                            {
+                                // if he already has a forced civ or a civ for both teams, we drop the recently drawed civ
+                                if(in_array($civ['id'], $keep_civ_ids))
+                                {
+                                    $add = False;
+                                    break;
+                                }
+                            }
+                        }
+                        if($add)
+                        {
+                            // overwrite the other players civs
+                            foreach($user_civpools[$other_team['user_id']] as $civ)
+                            {
+                                unset($civpool_civs[array_search($other_team['civ_id'], $civpool_civs)]);
+                            }
+                            $user_civpools[$other_team['user_id']] = [['id' => $other_team['civ_id'], 'multiplier' => $other_team['multiplier']]];
+                        }
+                    }
+                }
+                if($add)
+                {
+                    $civpool_civs[] = $pc['civ_id'];
+                    $user_civpools[$pc['user_id']][] = ['id' => $pc['civ_id'], 'multiplier' => $pc['multiplier']];
+                }
+            }
+        }
+        
+        // calculate all possible combinations of civs for the players
+        $civ_combinations = [];
+        $first_user_id = array_shift($user_ids);
+        foreach($user_civpools[$first_user_id] as $civ)
+        {
+            $civ_combinations[] = [$first_user_id => $civ];
+        }
+
+        foreach($user_ids as $user_id)
+        {
+            $new_civ_combinations = [];
+            foreach($civ_combinations as $cc)
+            {
+                foreach($user_civpools[$user_id] as $civ)
+                {
+                    $temp = $cc;
+                    $temp[$user_id] = $civ;
+                    $new_civ_combinations[] = $temp;
+                }
+            }
+            $civ_combinations = $new_civ_combinations;
+        }
+
+
+        // calculate sum rating * multiplier and minimize the abs difference for the teams
+        $best_civ_combination = [];
+        $best_diff = -1;
+        foreach($civ_combinations as $cc)
+        {
+            $team1_sum = 0;
+            $team2_sum = 0;
+            foreach($cc as $user_id => $civ)
+            {
+                if(in_array($user_id, $team1_ids))
+                {
+                    $team1_sum += $user_ratings[$user_id] * $civ['multiplier'];
+                }
+                else
+                {
+                    $team2_sum += $user_ratings[$user_id] * $civ['multiplier'];
+                }
+            }
+            $diff = abs($team1_sum - $team2_sum);
+            if($diff < $best_diff || $best_diff < 0)
+            {
+                $best_civ_combination = $cc;
+                $best_diff = $diff;
+            }
+        }
+        
+        return $best_civ_combination;
     }
 
     public static function cmp_multiplier($c1, $c2): int

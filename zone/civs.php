@@ -143,4 +143,33 @@ class civs
             ]);
         }
     }
+
+    public function get_map_players_civs($map_id, $user_ids, $civ_ids=[], $neg_civ_ids=False, $force=False, $single=False)
+    {
+        $sql_array = [
+            'SELECT' => 'p.user_id AS user_id, c.civ_id AS civ_id, c.multiplier AS multiplier, c.both_teams AS both_teams',
+            'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
+            'WHERE' => 'c.map_id = '. (int)$map_id .' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
+            'GROUP_BY' => 'p.user_id, c.civ_id',
+            'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
+        ];
+        
+        if(count($civ_ids) > 0)
+        {
+            $sql_array['WHERE'] .= ' AND ' . $this->db->sql_in_set('c.civ_id', $civ_ids, $neg_civ_ids);
+        }
+        if($force)
+        {
+            $sql_array['WHERE'] .= ' AND c.force_draw';
+        }
+
+        if($single)
+        {
+            return db_util::get_row($this->db, $sql_array);
+        }
+        else
+        {
+            return db_util::get_rows($this->db, $sql_array);
+        }
+    }
 }
