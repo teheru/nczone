@@ -103,8 +103,11 @@ class main
             (object)[
                 'id' => 12314,
                 'game_type' => 'IP',
-                'ip' => false,
-                'timestamp' => 19199191,
+                'ip' => '',
+                'timestampStart' => 19199191,
+                'timestampEnd' => 0,
+                'winner' => 0, // 1 = TEAM 1, 2 = TEAM 2, 3 = OW, 4 = DRAW
+                'result_poster' => null,
                 'drawer' => (object)[
                     'id' => 1234,
                     'name' => 'Hubert'
@@ -158,34 +161,40 @@ class main
                         (object)[
                             'id' => 1234,
                             'name' => 'Kacknouhb',
-                            'rating' => 1377
+                            'rating' => 1377,
+                            'rating_change' => 0,
                         ],
                         (object)[
                             'id' => 2135,
                             'name' => 'Ferdinand der Hauser',
-                            'rating' => 899
+                            'rating' => 899,
+                            'rating_change' => 0,
                         ],
                         (object)[
                             'id' => 4444,
                             'name' => 'Basti_der_Spasti',
-                            'rating' => 61
+                            'rating' => 61,
+                            'rating_change' => 0,
                         ],
                     ],
                     'team2' => [
                         (object)[
                             'id' => 1234,
                             'name' => 'Ultra-Schleife',
-                            'rating' => 1500
+                            'rating' => 1500,
+                            'rating_change' => 0,
                         ],
                         (object)[
                             'id' => 898,
                             'name' => 'Zebrator',
-                            'rating' => 400
+                            'rating' => 400,
+                            'rating_change' => 0,
                         ],
                         (object)[
                             'id' => 3,
                             'name' => 'Mr. Snipe',
-                            'rating' => 370
+                            'rating' => 370,
+                            'rating_change' => 0,
                         ],
                     ],
                 ],

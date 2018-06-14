@@ -1,16 +1,18 @@
 {# init some local variables #}
 {% set can_manage = false %}
-{% if CURRENT_PLAYER.CAN.MANAGE_OWN_MATCH %}
-  {% for player in match.players.team1 %}
-    {% if player.user_id == CURRENT_PLAYER.ID %}
-      {% set can_manage = true %}
-    {% endif %}
-  {% endfor %}
-  {% for player in match.players.team2 %}
-    {% if player.user_id == CURRENT_PLAYER.ID %}
-      {% set can_manage = true %}
-    {% endif %}
-  {% endfor %}
+{% if not match.winner %}
+  {% if CURRENT_PLAYER.CAN.MANAGE_OWN_MATCH %}
+    {% for player in match.players.team1 %}
+      {% if player.user_id == CURRENT_PLAYER.ID %}
+        {% set can_manage = true %}
+      {% endif %}
+    {% endfor %}
+    {% for player in match.players.team2 %}
+      {% if player.user_id == CURRENT_PLAYER.ID %}
+        {% set can_manage = true %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 {% endif %}
 {% set bet_perc_1 = (match.bets.team1|length * 100 / (match.bets.team1|length + match.bets.team2|length))|round %}
 {% set bet_perc_2 = 100 - bet_perc_1 %}
@@ -19,8 +21,18 @@
 <div class="zone-match">
   <div class="zone-match-title">{{ lang('NCZONE_MATCH_MATCH') }} #{{ match.id }}</div>
   <dl class="zone-match-data">
+    {% if match.winner %}
+      <dt>{{ lang('NCZONE_MATCH_WINNER') }}</dt>
+      <dd>{{ match.winner }}</dd>
+    {% endif %}
+
     <dt>{{ lang('NCZONE_MATCH_DRAWER') }}</dt>
     <dd>{{ match.drawer.name }}</dd>
+
+    {% if match.winner %}
+      <dt>{{ lang('NCZONE_MATCH_RESULT_POSTER') }}</dt>
+      <dd>{{ match.result_poster.name }}</dd>
+    {% endif %}
 
     <dt>{{ lang('NCZONE_MATCH_MAP') }}</dt>
     <dd>{{ match.map.title }}</dd>
@@ -41,8 +53,14 @@
       {% endif %}
     </dd>
 
-    <dt>{{ lang('NCZONE_MATCH_TIME_SINCE_DRAW') }}</dt>
-    <dd>{{ match.timestamp }} {# todo init a timer #}</dd>
+    {% if match.winner %}
+      <dt>{{ lang('NCZONE_MATCH_LENGTH') }}</dt>
+      {# todo: calc... #}
+      <dd>{{ match.timestampEnd - match.timestampStart }}</dd>
+    {% else %}
+      <dt>{{ lang('NCZONE_MATCH_TIME_SINCE_DRAW') }}</dt>
+      <dd>{{ match.timestampStart }} {# todo init a timer #}</dd>
+    {% endif %}
 
     <dt>{{ lang('NCZONE_MATCH_GAME_TYPE') }}</dt>
     <dd>{{ match.game_type }}</dd>
@@ -61,6 +79,7 @@
   <div class="zone-match-team-table">
     <div class="zone-match-team-1">
 
+      {# todo: extract bets and team into own templates to reduce duplicate code #}
       <div class="zone-match-bets">
         <div class="zone-match-bets-percentage">{{ bet_perc_1 }}</div>
         <div class="zone-match-bets-overlay">
@@ -82,7 +101,8 @@
           <dt>{{ lang('NCZONE_MATCH_TEAM1') }}</dt>
           <dd>({{ total_rating }})</dd>
           {% for player in match.players.team1 %}
-            <dt>{{ player.name }}</dt>
+            {# todo: explicit +- on rating change, classes to make it colored... #}
+            <dt>{{ player.name }}{% if match.winner %}({{ player.rating_change }}){% endif %}</dt>
             <dd>({{ player.rating }})</dd>
           {% endfor %}
         </dl>
@@ -94,6 +114,7 @@
     </div>
     <div class="zone-match-team-2">
 
+      {# todo: extract bets and team into own templates to reduce duplicate code #}
       <div class="zone-match-bets">
         <div class="zone-match-bets-percentage">{{ bet_perc_2 }}</div>
         <div class="zone-match-bets-overlay">
@@ -115,7 +136,8 @@
           <dt>{{ lang('NCZONE_MATCH_TEAM2') }}</dt>
           <dd>({{ total_rating }})</dd>
           {% for player in match.players.team2 %}
-            <dt>{{ player.name }}</dt>
+            {# todo: explicit +- on rating change, classes to make it colored... #}
+            <dt>{{ player.name }}{% if match.winner %}({{ player.rating_change }}){% endif %}</dt>
             <dd>({{ player.rating }})</dd>
           {% endfor %}
         </dl>
