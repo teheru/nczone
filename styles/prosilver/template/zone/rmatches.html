@@ -1,0 +1,11 @@
+{% extends 'zone/base.html' %}
+
+{% block title %}
+    {{ lang('NCZONE_RMATCHES') }}
+{% endblock %}
+
+{% block content %}
+  {% for match in rmatches %}
+    {% include 'zone/partial/match.html' with {match: match} %}
+  {% endfor %}
+{% endblock %}

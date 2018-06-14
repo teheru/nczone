@@ -1,0 +1,86 @@
+.zone-match {
+}
+
+.zone-match-data {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+.zone-match-team-table {
+  display: grid;
+  grid-template-columns: 45% 10% 45%;
+}
+
+.zone-match-team-1 {
+  display: grid;
+
+  .zone-match-team {
+    grid-column: 2;
+    grid-row: 1;
+
+    dl {
+      display: grid;
+
+      dt {
+        grid-column: 2;
+
+        &:nth-child(1) { grid-row: 1;}
+
+        &:nth-of-type(2){ grid-row: 2;}
+
+        &:nth-of-type(3) { grid-row: 3;}
+
+        &:nth-of-type(4) { grid-row: 4;}
+      }
+
+      dd {
+        grid-column: 1;
+      }
+    }
+  }
+
+  .zone-match-bets {
+    grid-row: 1;
+    grid-column: 1;
+  }
+}
+
+.zone-match-team-2 {
+  display: grid;
+
+  .zone-match-team {
+    grid-row: 1;
+    grid-column: 1;
+
+    dl {
+      display: grid;
+
+      dt {
+        grid-column: 1;
+      }
+
+      dd {
+        grid-column: 2;
+      }
+    }
+  }
+
+  .zone-match-bets {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+.zone-match-bets {
+  .zone-match-bets-overlay {
+    display: none;
+    position: absolute;
+    background: #fff;
+  }
+
+  &:hover {
+    .zone-match-bets-overlay {
+      display: block;
+    }
+  }
+}

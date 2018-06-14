@@ -1,148 +1,152 @@
-div.nczone
-{
-	text-align: center;
+@charset "UTF-8";
+.zone-block {
+  padding: 5px;
+  border-radius: 7px;
+  background-color: #0076b1;
+  background-image: -webkit-linear-gradient(top, #6aceff 0%, #12a3eb 2px, #0076b1 92px, #0076b1 100%);
+  background-image: linear-gradient(to bottom, #6aceff 0%, #12a3eb 2px, #0076b1 92px, #0076b1 100%);
+  background-repeat: repeat-x;
+  margin-bottom: 2em;
+}
+.zone-block:last-child {
+  margin-bottom: 0;
+}
+.zone-block .zone-title {
+  color: #fff;
+  margin: 2px 0 4px;
+  padding: 2px 0;
+  font-weight: bold;
+  line-height: 1em;
+  font-size: 1em;
+  font-family: Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
+}
+.zone-block .zone-content {
+  padding: 5px;
+  background-color: #eef5f9;
+  background-image: -webkit-linear-gradient(top, #d2e0eb 0%, #eef5f9 100%);
+  background-image: linear-gradient(to bottom, #d2e0eb 0%, #eef5f9 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#d2e0eb", endColorstr="#eef5f9", GradientType=0);
 }
 
-table.nczone
-{
-	margin: auto;
+.zone-menu-block {
+  line-height: 1.5em;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.5em;
+  border-bottom: solid 1px #ccc;
+}
+.zone-menu-block:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.zone-menu-block .zone-menu-title {
+  text-transform: uppercase;
+}
+.zone-menu-block .zone-menu {
+  font-weight: bold;
+  list-style-type: "»";
+  padding-left: 1em;
+}
+.zone-menu-block .zone-menu li {
+  padding-left: 0.5em;
 }
 
-table.mcp_nczone td, table.mcp_nczone th, table.nczone td, table.nczone th
-{
-	padding: 2px;
-
-	border-width: 1px;
-	border-color: #B4BAC0;
-	border-style: solid;
-
-	text-align: center;
+.zone-match-data {
+  display: grid;
+  grid-template-columns: 50% 50%;
 }
 
-.zone_errorbox
-{
-	color: #D31141;
-	font-weight: bold;
-	text-align: center;
+.zone-match-team-table {
+  display: grid;
+  grid-template-columns: 45% 10% 45%;
 }
 
-div#zone_container
-{
-	margin-top: 20px;
-	margin-bottom: 20px;
-
-	display: grid;
-	grid-template-columns: 216px 580px 320px;
-	grid-gap: 18px;
+.zone-match-team-1 {
+  display: grid;
+}
+.zone-match-team-1 .zone-match-team {
+  grid-column: 2;
+  grid-row: 1;
+}
+.zone-match-team-1 .zone-match-team dl {
+  display: grid;
+}
+.zone-match-team-1 .zone-match-team dl dt {
+  grid-column: 2;
+}
+.zone-match-team-1 .zone-match-team dl dt:nth-child(1) {
+  grid-row: 1;
+}
+.zone-match-team-1 .zone-match-team dl dt:nth-of-type(2) {
+  grid-row: 2;
+}
+.zone-match-team-1 .zone-match-team dl dt:nth-of-type(3) {
+  grid-row: 3;
+}
+.zone-match-team-1 .zone-match-team dl dt:nth-of-type(4) {
+  grid-row: 4;
+}
+.zone-match-team-1 .zone-match-team dl dd {
+  grid-column: 1;
+}
+.zone-match-team-1 .zone-match-bets {
+  grid-row: 1;
+  grid-column: 1;
 }
 
-div#zone_links
-{
-	grid-row: 1;
-	grid-column: 1;
+.zone-match-team-2 {
+  display: grid;
+}
+.zone-match-team-2 .zone-match-team {
+  grid-row: 1;
+  grid-column: 1;
+}
+.zone-match-team-2 .zone-match-team dl {
+  display: grid;
+}
+.zone-match-team-2 .zone-match-team dl dt {
+  grid-column: 1;
+}
+.zone-match-team-2 .zone-match-team dl dd {
+  grid-column: 2;
+}
+.zone-match-team-2 .zone-match-bets {
+  grid-column: 2;
+  grid-row: 1;
 }
 
-div#zone
-{
-	grid-row: 1;
-	grid-column: 3;
+.zone-match-bets .zone-match-bets-overlay {
+  display: none;
+  position: absolute;
+  background: #fff;
+}
+.zone-match-bets:hover .zone-match-bets-overlay {
+  display: block;
 }
 
-div#zone_main, div#zone_links, div#zone
-{
-	padding: 5px;
-	border-radius: 7px;
-	background-color: #0076B1;
-	background-image: -webkit-linear-gradient(top, #6ACEFF 0%, #12A3EB 2px, #0076B1 92px, #0076B1 100%);
-	background-image: linear-gradient(to bottom, #6ACEFF 0%,#12A3EB 2px,#0076B1 92px,#0076B1 100%);
-	background-repeat: repeat-x;
+.zone-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 216px auto 216px;
+  grid-gap: 18px;
+  align-items: start;
 }
 
-div#zone_infos > .zone_content, div#zone_main > .zone_content, div#zone_links > .zone_content, div#zone > .zone_loggedin
-{
-	padding: 5px;
-	background-color: #EEF5F9;
-	background-image: -webkit-linear-gradient(top, #D2E0EB 0%, #EEF5F9 100%);
-	background-image: linear-gradient(to bottom, #D2E0EB 0%,#EEF5F9 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D2E0EB', endColorstr='#EEF5F9',GradientType=0 );
+#zone-navigation {
+  grid-column: 1;
+  grid-row: 1;
 }
 
-div#zone_links > .zone_content, div#zone > .zone_loggedin
-{
-	/**
-	* I'm not sure how portable this is
-	* 5px padding from above, 5px padding from here, 2+4+2+2px from margin/padding below, 1em line height from below
-	*/
-	height: calc(100% - 20px - 1em);
+#zone-player-area {
+  grid-column: 3;
+  grid-row: 1;
 }
 
-div#zone_infos > .zone_content
-{
-	margin-bottom: 15px;
+#zone-main {
+  grid-column: 2;
+  grid-row: 1;
 }
 
-div#zone_infos > .zone_title, div#zone_main > .zone_title, div#zone_links > .zone_title, div#zone .zone_title
-{
-	color: #FFFFFF;
-	margin: 2px 0 4px 0;
-	padding: 2px 0 2px 0;
-	font-weight: bold;
-	line-height: 1em;
-	font-size: 1em;
-	font-family: Arial, Helvetica, sans-serif;
-	text-transform: uppercase;
-}
-
-div#zone_links .links_title
-{
-	line-height: 200%;
-	font-weight: bold;
-}
-
-div#zone_links ul
-{
-	font-weight: bold;
-	list-style-type: "»";
-}
-
-div#zone_links li
-{
-	margin-left: 7px;
-	line-height: 175%;
-}
-
-div#zone > .zone_loggedin
-{
-	text-align: center;
-}
-
-div#zone > .zone_loggedin > a
-{
-	padding: 3px;
-	font-size: 150%;
-	font-weight: bold;
-	color: #D31141;
-}
-
-div#zone > .zone_loggedin > table
-{
-	margin: auto;
-}
-
-div#zone > .zone_loggedin > table td
-{
-	line-height: 175%;
-}
-
-div#zone > .zone_loggedin > table td.username
-{
-	width: 100px;
-	text-align: left;
-	font-weight: bold;
-}
-
-div#zone > .zone_loggedin > table td.rating
-{
-	width: 20px;
-	text-align: right;
-}
+/*# sourceMappingURL=zone.css.map */
