@@ -104,6 +104,21 @@ class maps
         ]);
     }
 
+    public function get_map_both_teams_civ_ids($map_id): array
+    {
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 'c.civ_id AS id',
+            'FROM' => [$this->map_civs_table => 'c'],
+            'WHERE' => 'c.map_id = ' . (int)$map_id . ' AND c.both_teams',
+        ]);
+        $ids = [];
+        foreach($rows as $row)
+        {
+            $ids[] = (int)$row['id'];
+        }
+        return $ids;
+    }
+
     /**
      * Creates a new map.
      * 

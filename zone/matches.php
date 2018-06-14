@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
+use eru\nczone\utility\zone_util;
 use eru\nczone\utility\number_util;
 
 /**
@@ -207,16 +208,10 @@ class matches {
         ]);
     }
 
-    public function get_match_civs($map_id, $users, $num_civs=0, $extra_civs=4)
+    protected function get_players_civs($map_id, $users, $num_civs, $extra_civs, $ignore_force=False)
     {
-        if($num_civs == 0)
-        {
-            $num_civs = count($users) / 2;
-        }
-
         $civ_ids = [];
         $civ_multiplier = [];
-
 
         $user_ids = [];
         foreach($users as $user)
@@ -225,24 +220,24 @@ class matches {
         }
 
         // first, get one of the force draw civs
-        $force_civ = db_util::get_row($this->db, [
-            'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
-            'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
-            'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND '. $this->db->sql_in_set('p.user_id', $user_ids),
-            'GROUP_BY' => 'c.civ_id',
-            'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
-        ]);
-        if($force_civ)
+        $force_civ_num = 0;
+        $sql_add = '';
+        $test_civ_add = [];
+        if(!$ignore_force)
         {
-            $force_civ_num = 1;
-            $sql_add = ' AND c.civ_id != ' . $force_civ['id'];
-            $test_civ_add = [$force_civ];
-        }
-        else
-        {
-            $force_civ_num = 0;
-            $sql_add = '';
-            $test_civ_add = [];
+            $force_civ = db_util::get_row($this->db, [
+                'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
+                'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
+                'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND '. $this->db->sql_in_set('p.user_id', $user_ids),
+                'GROUP_BY' => 'c.civ_id',
+                'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
+            ]);
+            if($force_civ)
+            {
+                $force_civ_num = 1;
+                $sql_add = ' AND c.civ_id != ' . $force_civ['id'];
+                $test_civ_add = [$force_civ];
+            }
         }
 
         // get additional civs
@@ -256,8 +251,7 @@ class matches {
 
         if($extra_civs == 0)
         {
-            $best_civs = array_merge($test_civ_add, $draw_civs);
-            usort($best_civs, [__CLASS__, 'cmp_multiplier']);
+            $best_civs = $draw_civs;
         }
         else
         {
@@ -266,9 +260,11 @@ class matches {
             $best_value = -1;
             for($i = 0; $i < $extra_civs; $i++)
             {
-                $test_civs = array_merge($test_civ_add, array_slice($draw_civs, $i, $num_civs - $force_civ_num));
-                usort($test_civs, [__CLASS__, 'cmp_multiplier']);
-                $value = $test_civs[0]['multiplier'] - $test_civs[-1]['multiplier'];
+                $test_civs = array_slice($draw_civs, $i, $num_civs - $force_civ_num);
+                $test_civs_calc = array_merge($test_civ_add, $test_civs);
+                usort($test_civs_calc, [__CLASS__, 'cmp_multiplier']);
+                $value = $test_civs_calc[0]['multiplier'] - end($test_civs_calc)['multiplier'];
+                reset($test_civs_calc);
                 if($value < $best_value || $best_value < 0)
                 {
                     $best_civs = $test_civs;
@@ -277,7 +273,28 @@ class matches {
             }
         }
 
-        return $best_civs;
+        return [$force_civ ? $force_civ : NULL, $best_civs];
+    }
+
+    public function get_match_civs($map_id, $users, $num_civs=0, $extra_civs=4)
+    {
+        if($num_civs == 0)
+        {
+            $num_civs = count($users) / 2;
+        }
+
+        $players_civs = $this->get_players_civs($map_id, $users, $num_civs, $extra_civs);
+        if($players_civs[0])
+        {
+            $drawed_civs = array_merge([$players_civs[0]], $players_civs[1]);
+        }
+        else
+        {
+            $drawed_civs = $players_civs[1];
+        }
+        usort($drawed_civs, [__CLASS__, 'cmp_multiplier']);
+
+        return $drawed_civs;
     }
 
     public function get_teams_civs($map_id, $team1_users, $team2_users, $num_civs=0, $extra_civs=2)
@@ -292,9 +309,72 @@ class matches {
         $team2_sum_rating = array_reduce($team2_users, [__CLASS__, 'rating_sum']);
 
 
+        // find out which civs have to be in both teams
+        $both_teams_civs = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
+
+
         // we use some extra civs to be able to draw fair civs for the teams
-        $team1_civpool = $this->get_match_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
-        $team2_civpool = $this->get_match_civs($map_id, $team2_users, $num_civs + $extra_civs, 0);
+        $team1_players_civs = $this->get_players_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
+        $team1_force_civ = $team1_players_civs[0];
+        $team1_civpool = $team1_players_civs[1];
+
+        // if the force civ must be in both teams, we don't want to draw another one for team 2
+        $ignore_force = False;
+        if($team1_force_civ)
+        {
+            $num_civs -= 1;
+
+            if(in_array($team1_force_civ['id'], $both_teams_civs))
+            {
+                $ignore_force = True;
+            }
+        }
+
+        $team2_players_civs = $this->get_players_civs($map_id, $team2_users, $num_civs + $extra_civs, 0, $ignore_force);
+        $team2_force_civ = $team2_players_civs[0];
+        if($ignore_force)
+        {
+            $team2_force_civ = $team1_force_civ;
+        }
+        $team2_civpool = $team2_players_civs[1];
+
+
+        // create a common civpool for civs which has to be in both teams
+        $both_civpool = [];
+        foreach($team1_civpool as $key => $civ)
+        {
+            if(in_array($civ['id'], $both_teams_civs))
+            {
+                $both_civpool[] = $civ;
+                unset($team1_civpool[$key]);
+            }
+        }
+        foreach($team2_civpool as $key => $civ)
+        {
+            if(in_array($civ['id'], $both_teams_civs))
+            {
+                $both_civpool[] = $civ;
+                unset($team2_civpool[$key]);
+            }
+        }
+
+        // remove extra civs from either team civpools
+        $diff_num = count($team1_civpool) - count($team2_civpool);
+        if($diff_num > 0)
+        {
+            for($i = 0; $i < $diff_num; $i++)
+            {
+                array_pop($team1_civpool);
+            }
+        }
+        else
+        {
+            for($i = 0; $i < -$diff_num; $i++)
+            {
+                array_pop($team2_civpool);
+            }
+        }
+        $unique_civpool_num = count($team1_civpool);
 
 
         // get all index combinations with length $num_civs for our civpools
@@ -320,29 +400,66 @@ class matches {
         $best_indices = [[], []];
         $best_value = -1;
 
-        // we test all possible combinations and the combination, which minimizes |diff(player_ratings * multipliers)|
+        // we test all possible combinations and take the combination, which minimizes |diff(player_ratings * multipliers)|
         foreach($test_indices as $team1_indices)
         {
+            $both_civs_indices = [];
+
             $team1_sum_multiplier = 0;
             foreach($team1_indices as $index)
             {
-                $team1_sum_multiplier += $team1_civpool[$index]['multiplier'];
+                if($index < $unique_civpool_num)
+                {
+                    $team1_sum_multiplier += $team1_civpool[$index]['multiplier'];
+                }
+                else
+                {
+                    $team1_sum_multiplier += $both_civpool[$index - $unique_civpool_num]['multiplier'];
+                    $both_civs_indices[] = $index;
+                }
+            }
+            if($team1_force_civ)
+            {
+                $team1_sum_multiplier += $team1_force_civ['multiplier'];
             }
 
             foreach($test_indices as $team2_indices)
             {
-                $team2_sum_multiplier = 0;
-                foreach($team2_indices as $index)
+                $cont = True;
+                foreach($both_civs_indices as $index)
                 {
-                    $team2_sum_multiplier += $team2_civpool[$index]['multiplier'];
+                    if(!in_array($index, $team2_indices))
+                    {
+                        $cont = False;
+                        break;
+                    }
                 }
-
-                $value = abs($team1_sum_rating * $team1_sum_multiplier - $team2_sum_rating * $team2_sum_multiplier);
-                if($value < $best_value || $best_value < 0)
+                if($cont)
                 {
-                    $best_indices[0] = $team1_indices;
-                    $best_indices[1] = $team2_indices;
-                    $best_value = $value;
+                    $team2_sum_multiplier = 0;
+                    foreach($team2_indices as $index)
+                    {
+                        if($index < $unique_civpool_num)
+                        {
+                            $team2_sum_multiplier += $team2_civpool[$index]['multiplier'];
+                        }
+                        else
+                        {
+                            $team2_sum_multiplier += $both_civpool[$index - $unique_civpool_num]['multiplier'];
+                        }
+                    }
+                    if($team2_force_civ)
+                    {
+                        $team2_sum_multiplier += $team2_force_civ['multiplier'];
+                    }
+
+                    $value = abs($team1_sum_rating * $team1_sum_multiplier - $team2_sum_rating * $team2_sum_multiplier);
+                    if($value < $best_value || $best_value < 0)
+                    {
+                        $best_indices[0] = $team1_indices;
+                        $best_indices[1] = $team2_indices;
+                        $best_value = $value;
+                    }
                 }
             }
         }
@@ -353,14 +470,40 @@ class matches {
         $team2_civs = [];
         foreach($best_indices[0] as $index)
         {
-            $team1_civs[] = $team1_civpool[$index];
+            if($index < $unique_civpool_num)
+            {
+                $team1_civs[] = $team1_civpool[$index];
+            }
+            else
+            {
+                $team1_civs[] = $both_civpool[$index - $unique_civpool_num];
+            }
         }
         foreach($best_indices[1] as $index)
         {
-            $team2_civs[] = $team2_civpool[$index];
+            if($index < $unique_civpool_num)
+            {
+                $team2_civs[] = $team2_civpool[$index];
+            }
+            else
+            {
+                $team2_civs[] = $both_civpool[$index - $unique_civpool_num];
+            }
+        }
+
+        // and add the civs forced by the map
+        if($team1_force_civ)
+        {
+            $team1_civs[] = $team1_force_civ;
+        }
+        if($team2_force_civ)
+        {
+            $team2_civs[] = $team2_force_civ;
         }
 
 
+        usort($team1_civs, [__CLASS__, 'cmp_multiplier']);
+        usort($team2_civs, [__CLASS__, 'cmp_multiplier']);
         return [$team1_civs, $team2_civs];
     }
 
