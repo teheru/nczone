@@ -206,6 +206,33 @@ class matches {
         ]);
     }
 
+
+    public function decide_draw_civs_kind($team1_users, $team2_users)
+    {
+        $team1_sum_rating = array_reduce($team1_users, [__CLASS__, 'rating_sum']);
+        $team2_sum_rating = array_reduce($team2_users, [__CLASS__, 'rating_sum']);
+
+        $diff = abs($team1_sum_rating - $team2_sum_rating);
+        if($diff >= 100)
+        {
+            return 'player_civs';
+        }
+        else
+        {
+            $max_rating = max([$team1_users[0]['rating'], $team2_users[0]['rating']]);
+            $min_rating = min(end($team1_users)['rating'], end($team2_users)['rating']);
+            $diff = abs($max_rating - $min_rating);
+            if($diff >= 600)
+            {
+                return 'team_civs';
+            }
+            else
+            {
+                return 'match_civs';
+            }
+        }
+    }
+
     protected function get_players_civs($map_id, $users, $num_civs, $extra_civs, $ignore_force=False)
     {
         $civ_ids = [];
