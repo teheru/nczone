@@ -84,7 +84,7 @@ class matches {
             $civ_kind = $this->decide_draw_civs_kind($match[0], $match[1]);
             if($civ_kind == 'match_civs')
             {
-                $match_civs = $this->get_match_civs($map_id, $players, $match_size + random_int(0, $match_size));
+                $match_civs = $this->get_match_civs($map_id, $players);
                 foreach($match_civs as $civ)
                 {
                     $match_civ_ids[] = $civ['id'];
