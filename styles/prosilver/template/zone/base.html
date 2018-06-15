@@ -27,7 +27,7 @@
         </div>
 #}
         <div class="zone-menu-block">
-          <div class="zone-menu-title">{{ lang('NCZONE_INFORMATION') }}</div>
+          <div class="zone-menu-title">{{ lang('NCZONE_MENU_INFORMATION') }}</div>
           <ul class="zone-menu">
             <li><a href="{{ U_NCZONE_RULES }}">{{ lang('NCZONE_RULES') }}</a></li>
 {#
@@ -47,7 +47,7 @@
 
   <div id="zone-player-area">
     <div class="zone-block">
-      <div class="zone-title">{{ lang('NCZONE_USER_LIST') }}</div>
+      <div class="zone-title">{{ lang('NCZONE_LOGGEDIN') }}</div>
       <div class="zone-content">
         {% if CURRENT_PLAYER_VIEW_LOGIN %}
           {% if not users %}

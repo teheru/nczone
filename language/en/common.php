@@ -35,7 +35,12 @@ $lang = array_merge($lang, array(
 	'NCZONE_LINKS'          => 'Links',
 	'NCZONE_ZONE'           => 'Teh Zone',
 	'NCZONE_INFORMATION'    => 'Max important Information',
+
 	'NCZONE_RMATCHES'       => 'Running Matches',
 	'NCZONE_PMATCHES'       => 'Past Matches',
 	'NCZONE_TABLE'          => 'Player Table',
+	'NCZONE_MENU_INFORMATION' => 'Information',
+	'NCZONE_RULES'          => 'Rules',
+	'NCZONE_SETTINGS'       => 'Settings',
+	'NCZONE_SWITCH_LANG'    => 'TODO',
 ));
