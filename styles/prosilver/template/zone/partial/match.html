@@ -62,18 +62,6 @@
       <dd>{{ match.timestampStart }} {# todo init a timer #}</dd>
     {% endif %}
 
-    <dt>{{ lang('NCZONE_MATCH_GAME_TYPE') }}</dt>
-    <dd>{{ match.game_type }}</dd>
-
-    <dt>{{ lang('NCZONE_MATCH_IP') }}</dt>
-    <dd>
-      {% if can_manage %}
-        {# todo: add functionality to the input field #}
-        <input type="text" value="{{ match.ip?:lang('NCZONE_MATCH_NO_IP')|e('html_attr') }}"/>
-      {% else %}
-        {{ match.ip?:lang('NCZONE_MATCH_NO_IP') }}
-      {% endif %}
-    </dd>
   </dl>
   <div class="zone-match-title">{{ lang('NCZONE_MATCH_TEAMS') }}:</div>
   <div class="zone-match-team-table">

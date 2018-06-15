@@ -98,6 +98,9 @@ class main
     {
         $this->common();
 
+        $language = phpbb_util::language();
+        $language->add_lang('rmatches', 'eru/nczone');
+
         // dummy matches... todo: replace with real matches lul
         $rmatches = [
             (object)[
