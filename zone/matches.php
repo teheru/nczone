@@ -122,6 +122,12 @@ class matches {
 
         if($winner == 1 || $winner == 2)
         {
+            $map_id = (int)db_utils::get_row($this->db, [
+                'SELECT' => 't.map_id',
+                'FROM' => [$this->matches_table => 't'],
+                'WHERE' => 't.match_id = ' . $match_id
+            ]);
+
             $team_rows = db_util::get_rows($this->db, [
                 'SELECT' => 't.team_id AS team_id',
                 'FROM' => [$this->match_teams_table => 't'],
@@ -140,13 +146,83 @@ class matches {
             $match_points = $this->get_match_points($match_size);
 
 
+            $match_civ_ids = [];
+            $match_civ_rows = db_utils::get_rows($this->db, [
+                'SELECT' => 't.civ_id',
+                'FROM' => [$this->match_civs_table => 't'],
+                'WHERE' => 't.match_id = ' . $match_id,
+            ]);
+            foreach($match_civ_rows as $r)
+            {
+                $match_civ_ids[] = (int)$r['civ_id'];
+            }
+
+            $team1_civ_ids = [];
+            $team2_civ_ids = [];
+            $team_civ_rows = db_utils::get_rows($this->db, [
+                'SELECT' => 't.civ_id, t.team_id',
+                'FROM' => [$this->team_civs_table => 't'],
+                'WHERE' => 't.team_id = ' . $team1_id . ' OR t.team_id = ' . $team2_id,
+            ]);
+            foreach($team_civ_rows as $r)
+            {
+                if($r['team_id'] == $team1_id)
+                {
+                    $team1_civ_ids = (int)$r['$civ_id'];
+                }
+                else
+                {
+                    $team2_civ_ids = (int)$r['$civ_id'];
+                }
+            }
+
+            $player_civ_ids = [];
+            $player_civ_rows = db_utils::get_rows($this->db, [
+                'SELECT' => 't.civ_id, t.user_id',
+                'FROM' => [$this->match_player_civs_table => 't'],
+                'WHERE' => 't.match_id = ' . $match_id
+            ]);
+            foreach($player_civ_rows as $r)
+            {
+                $player_civ_ids[(int)$r['user_id']] = (int)$civ_id;
+            }
+
+
             $players = zone_util::players();
+            $user_ids = [];
             foreach($match_players as $mp)
             {
+                $user_ids[] = (int)$mp['user_id'];
+
+                $civ_ids = $match_civ_ids;
+                if($mp['team_id'] == $team1_id)
+                {
+                    $civ_ids = array_merge($civ_ids, $team1_civ_ids);
+                }
+                else
+                {
+                    $civ_ids = array_merge($civ_ids, $team1_civ_ids);
+                }
+                if(array_key_exists($mp['user_id'], $player_civ_ids))
+                {
+                    $civ_ids[] = $player_civ_ids[$mp['user_id']];
+                }
+                db_utils::update($this->db, $this->player_civ_table, ['time' => time()], [
+                    'user_id = ' . $mp['user_id'],
+                    $this->db->sql_in_set('civ_id', $civ_ids),
+                ]);
+
                 $players->match_changes($mp['user_id'], $rating_change, $mp['team_id'] == $team1_id && $winner == 1);
             }
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id = ' . $team1_id]);
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id = ' . $team2_id]);
+
+
+            db_utils::update($this->db, $this->player_map_table, ['time' => time()], [
+                $this->db->sql_in_set('user_id', $user_ids),
+                'map_id = ' . $map_id
+            ]);
+
 
             db_util::update($this->db, $this->matches_table, [
                 'post_user_id' => $post_user_id,
