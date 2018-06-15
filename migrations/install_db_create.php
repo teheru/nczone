@@ -60,7 +60,8 @@ class install_db_create extends \phpbb\db\migration\migration
 					'COLUMNS' => array(
 						'team_id' => array('UINT', 0),
 						'user_id' => array('UINT', 0),
-						'draw_rating' => array('UINT', 0)
+						'draw_rating' => array('UINT', 0),
+						'rating_change' => array('INT', 0)
 					),
 					'PRIMARY_KEY' => array('team_id', 'user_id')
 				),

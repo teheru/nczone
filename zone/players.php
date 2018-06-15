@@ -148,6 +148,18 @@ class players
         $this->edit_player($user_id, ['logged_in' => 0]);
     }
 
+    public function match_changes(int $user_id, int $rating_change, bool $winner): void
+    {
+        $col = $winner ? 'matches_won' : 'matches_loss';
+
+        db_util::update($this->db, $this->players_table, [
+            'rating' => 'rating + ' . ($winner ? 1 : -1) * $rating_change,
+            $col => $col . ' + 1',
+        ], [
+            'user_id = ' . $user_id,
+        ]);
+    }
+
     /**
      * Gets the user id, name and rating of all logged in players
      * 

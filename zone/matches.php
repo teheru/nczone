@@ -116,6 +116,77 @@ class matches {
     }
 
 
+    public function post(int $match_id, int $post_user_id, int $winner): void
+    {
+        // note: draw is so rare, I left it out, still "without result" => $winner = 4
+
+        if($winner == 1 || $winner == 2)
+        {
+            $team_rows = db_util::get_rows($this->db, [
+                'SELECT' => 't.team_id AS team_id',
+                'FROM' => [$this->match_teams_table => 't'],
+                'WHERE' => 't.match_id = ' . $match_id,
+            ]);
+            // todo: check if these teams exists and do something if not
+            $team1_id = (int)$team_rows[0]['team_id'];
+            $team2_id = (int)$team_rows[1]['team_id'];
+
+            $match_players = db_util::get_rows($this->db, [
+                'SELECT' => 't.team_id, t.user_id, t.draw_rating, t.rating_change',
+                'FROM' => [$this->match_players_table => 't'],
+                'WHERE' => 't.team_id = ' . $team1_id .' OR t.team_id = '. $team2_id,
+            ]);
+            $match_size = count($match_players) / 2;
+            $match_points = $this->get_match_points($match_size);
+
+
+            $players = zone_util::players();
+            foreach($match_players as $mp)
+            {
+                $players->match_changes($mp['user_id'], $rating_change, $mp['team_id'] == $team1_id && $winner == 1);
+            }
+            db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id = ' . $team1_id]);
+            db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id = ' . $team2_id]);
+
+            db_util::update($this->db, $this->matches_table, [
+                'post_user_id' => $post_user_id,
+                'post_time' => time(),
+                'winner_team_id' => ($winner == 1) ? $team1_id : $team2_id,
+            ], [
+                'match_id = ' . $match_id
+            ]);
+        }
+        else
+        {
+            db_util::update($this->db, $this->matches_table, [
+                'post_user_id' => $post_user_id,
+                'post_time' => time(),
+                'winner_team_id' => 4,
+            ], [
+                'match_id = ' . $match_id
+            ]);
+        }
+    }
+
+
+    public function get_match_points(int $match_size): int
+    {
+        /**
+         * todo: the draw algorithm should be able to compensate almost everything, but we also
+         * should cover other cases
+         * also: read this from config?
+         */
+        switch($match_size)
+        {
+            case 1: return 0;
+            case 2: return 6;
+            case 3: return 12;
+            case 4: return 9;
+            default: return 0; // maybe change this in case fwb comes back and plays some 1v5
+        }
+    }
+
+
     /**
      * Creates a match and returns the match id
      * 
@@ -157,6 +228,7 @@ class matches {
                 'team_id' => $team1_id,
                 'user_id' => $player['id'],
                 'draw_rating' => $player['rating'],
+                'rating_change' => 0,
             ];
         }
         foreach($team2 as $player)
@@ -165,6 +237,7 @@ class matches {
                 'team_id' => $team2_id,
                 'user_id' => $player['id'],
                 'draw_rating' => $player['rating'],
+                'rating_change' => 0,
             ];
         }
         if(!empty($team_data))
