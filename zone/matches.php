@@ -442,23 +442,22 @@ class matches {
         $team2_sum_rating = array_reduce($team2_users, [__CLASS__, 'rating_sum']);
 
         $diff = abs($team1_sum_rating - $team2_sum_rating);
-        if($diff >= 100)
+
+        $max_rating = max([$team1_users[0]['rating'], $team2_users[0]['rating']]);
+        $min_rating = min(end($team1_users)['rating'], end($team2_users)['rating']);
+        $min_max_diff = abs($max_rating - $min_rating);
+
+        // todo: replace this values by ACP config values
+        if($min_max_diff >= 600 || $diff >= 120)
         {
             return 'player_civs';
         }
-        else
+        elseif($diff >= 120)
         {
-            $max_rating = max([$team1_users[0]['rating'], $team2_users[0]['rating']]);
-            $min_rating = min(end($team1_users)['rating'], end($team2_users)['rating']);
-            $diff = abs($max_rating - $min_rating);
-            if($diff >= 600)
-            {
-                return 'team_civs';
-            }
-            else
-            {
-                return 'match_civs';
-            }
+            return 'team_civs';
+        }
+        else
+            return 'match_civs';
         }
     }
 
