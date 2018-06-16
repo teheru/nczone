@@ -395,14 +395,33 @@ class matches {
         {
             $user_ids[] = $user['id'];
         }
+        $user_num = count($user_ids);
 
-        return (int)db_util::get_var($this->db, [
+        $rows = db_util::get_rows($this->db, [
             'SELECT' => 't.map_id, SUM(' . time() . ' - t.time) * m.weight AS val',
             'FROM' => [$this->player_map_table => 't', $this->maps_table => 'm'],
             'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('t.user_id', $user_ids),
-            'GROUP_BY' => 't.map_id',
+            'GROUP_BY' => 't.map_id, t.user_id',
             'ORDER_BY' => 'val DESC'
         ]);
+
+        $counter = [];
+        foreach($rows as $r)
+        {
+            if(!array_key_exists($r['map_id'], $counter))
+            {
+                $counter[$r['map_id']] = 1;
+            }
+            else
+            {
+                $counter[$r['map_id']]++;
+            }
+
+            if($counter[$r['map_id']] == $user_num)
+            {
+                return (int)$r['map_id'];
+            }
+        }
     }
 
 
