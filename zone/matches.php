@@ -67,52 +67,63 @@ class matches {
     }
 
 
-    public function draw(int $draw_user_id)
+    public function draw(int $draw_user_id): array
     {
+        $match_ids = [];
+
         $matches = zone_util::draw()->make_matches(zone_util::players()->get_logged_in());
         foreach($matches as $match)
         {
-            $players = array_merge($match[0], $match[1]);
-            $match_size = count($match[0]);
-
-            $map_id = $this->get_players_map_id($players);
-            
-            $match_civ_ids = [];
-            $team1_civ_ids = [];
-            $team2_civ_ids = [];
-            $player_civ_ids = [];
-            $civ_kind = $this->decide_draw_civs_kind($match[0], $match[1]);
-            if($civ_kind == 'match_civs')
-            {
-                $match_civs = $this->get_match_civs($map_id, $players);
-                foreach($match_civs as $civ)
-                {
-                    $match_civ_ids[] = $civ['id'];
-                }
-            }
-            elseif($civ_kind == 'team_civs')
-            {
-                $team_civs = $this->get_teams_civs($map_id, $match[0], $match[1]);
-                foreach($team_civs[0] as $civ)
-                {
-                    $team1_civ_ids[] = $civ['id'];
-                }
-                foreach($team_civs[1] as $civ)
-                {
-                    $team2_civ_ids[] = $civ['id'];
-                }
-            }
-            else
-            {
-                $player_civs = $this->get_player_civs($map_id, $match[0], $match[1]);
-                foreach($player_civs as $user_id => $pc)
-                {
-                    $player_civ_ids[$user_id] = $pc['id'];
-                }
-            }
-
-            $match_id = $this->create_match($draw_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = $this->draw_settings($match[0], $match[1]);
+            $match_ids[] = $this->create_match($draw_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
         }
+
+        return $match_ids;
+    }
+
+
+    public function draw_settings(array $team1, array $team2): array
+    {
+        $players = array_merge($team1, $team2);
+        $match_size = count($team1);
+
+        $match_civ_ids = [];
+        $team1_civ_ids = [];
+        $team2_civ_ids = [];
+        $player_civ_ids = [];
+        $map_id = $this->get_players_map_id($players);
+
+        $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
+        if($civ_kind == 'match_civs')
+        {
+            $match_civs = $this->get_match_civs($map_id, $players);
+            foreach($match_civs as $civ)
+            {
+                $match_civ_ids[] = $civ['id'];
+            }
+        }
+        elseif($civ_kind == 'team_civs')
+        {
+            $team_civs = $this->get_teams_civs($map_id, $team1, $team2);
+            foreach($team_civs[0] as $civ)
+            {
+                $team1_civ_ids[] = $civ['id'];
+            }
+            foreach($team_civs[1] as $civ)
+            {
+                $team2_civ_ids[] = $civ['id'];
+            }
+        }
+        else
+        {
+            $player_civs = $this->get_player_civs($map_id, $team1, $team2);
+            foreach($player_civs as $user_id => $pc)
+            {
+                $player_civ_ids[$user_id] = $pc['id'];
+            }
+        }
+
+        return [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids];
     }
 
 
