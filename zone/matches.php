@@ -287,33 +287,24 @@ class matches {
                 $player_civ_ids[(int)$r['user_id']] = (int)$r['civ_id'];
             }
 
-
             $players = zone_util::players();
             $user_ids = [];
             foreach($match_players as $user_id => $user_info)
             {
                 $user_ids[] = $user_id;
 
-                $civ_ids = $match_civ_ids;
-                if($user_info['team_id'] == $team1_id)
-                {
-                    $civ_ids = array_merge($civ_ids, $team1_civ_ids);
-                }
-                else
-                {
-                    $civ_ids = array_merge($civ_ids, $team2_civ_ids);
-                }
-                if(array_key_exists($user_id, $player_civ_ids))
-                {
-                    $civ_ids[] = $player_civ_ids[$user_id];
-                }
+                $civ_ids = array_merge(
+                    $match_civ_ids,
+                    $user_info['team_id'] == $team1_id ? $team1_civ_ids : $team2_civ_ids,
+                    array_key_exists($user_id, $player_civ_ids) ? $player_civ_ids[$user_id] : []
+                );
+
                 db_util::update($this->db, $this->player_civ_table, ['time' => time()], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
                 $players->match_changes($user_id, $match_points, $user_info['team_id'] == $winner_team_id);
             }
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id' => $team1_id]);
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
-
 
             db_util::update($this->db, $this->player_map_table, ['time' => time()], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id);
         }
@@ -405,14 +396,8 @@ class matches {
             'winner_team_id' => 0,
         ]);
 
-        $team1_id = (int)db_util::insert($this->db, $this->match_teams_table, [
-            'team_id' => 0,
-            'match_id' => $match_id,
-        ]);
-        $team2_id = (int)db_util::insert($this->db, $this->match_teams_table, [
-            'team_id' => 0,
-            'match_id' => $match_id,
-        ]);
+        $team1_id = $this->insert_new_match_team($match_id);
+        $team2_id = $this->insert_new_match_team($match_id);
 
         $team_data = [];
         foreach($team1 as $player)
@@ -638,20 +623,11 @@ class matches {
 
     public function get_match_civs($map_id, $users, $num_civs=0, $extra_civs=4)
     {
-        if($num_civs == 0)
-        {
-            $num_civs = \count($users) / 2;
-        }
+        $players_civs = $this->get_players_civs($map_id, $users, $num_civs ?: \count($users) / 2, $extra_civs);
 
-        $players_civs = $this->get_players_civs($map_id, $users, $num_civs, $extra_civs);
-        if($players_civs[0])
-        {
-            $drawed_civs = array_merge([$players_civs[0]], $players_civs[1]);
-        }
-        else
-        {
-            $drawed_civs = $players_civs[1];
-        }
+        $drawed_civs = $players_civs[0]
+            ? array_merge([$players_civs[0]], $players_civs[1])
+            : $players_civs[1];
 
         return civs::sort_by_multiplier($drawed_civs);
     }
@@ -756,7 +732,8 @@ class matches {
         }
 
 
-        $best_indices = [[], []];
+        $team1_best_indices = [];
+        $team2_best_indices = [];
         $best_value = -1;
 
         // we test all possible combinations and take the combination, which minimizes |diff(player_ratings * multipliers)|
@@ -815,8 +792,8 @@ class matches {
                 );
                 if($value < $best_value || $best_value < 0)
                 {
-                    $best_indices[0] = $team1_indices;
-                    $best_indices[1] = $team2_indices;
+                    $team1_best_indices = $team1_indices;
+                    $team2_best_indices = $team2_indices;
                     $best_value = $value;
                 }
             }
@@ -826,27 +803,17 @@ class matches {
         // apply the indices on the civpools
         $team1_civs = [];
         $team2_civs = [];
-        foreach($best_indices[0] as $index)
+        foreach($team1_best_indices as $index)
         {
-            if($index < $unique_civpool_num)
-            {
-                $team1_civs[] = $team1_civpool[$index];
-            }
-            else
-            {
-                $team1_civs[] = $both_civpool[$index - $unique_civpool_num];
-            }
+            $team1_civs[] = $index < $unique_civpool_num
+                ? $team1_civpool[$index]
+                : $both_civpool[$index - $unique_civpool_num];
         }
-        foreach($best_indices[1] as $index)
+        foreach($team2_best_indices as $index)
         {
-            if($index < $unique_civpool_num)
-            {
-                $team2_civs[] = $team2_civpool[$index];
-            }
-            else
-            {
-                $team2_civs[] = $both_civpool[$index - $unique_civpool_num];
-            }
+            $team2_civs[] = $index < $unique_civpool_num
+                ? $team2_civpool[$index]
+                : $both_civpool[$index - $unique_civpool_num];
         }
 
         // and add the civs forced by the map
@@ -1033,5 +1000,13 @@ class matches {
         }
 
         return $best_civ_combination;
+    }
+
+    private function insert_new_match_team(int $match_id): int
+    {
+        return (int)db_util::insert($this->db, $this->match_teams_table, [
+            'team_id' => 0,
+            'match_id' => $match_id,
+        ]);
     }
 }
