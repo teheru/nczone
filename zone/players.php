@@ -148,16 +148,16 @@ class players
         $this->edit_player($user_id, ['logged_in' => 0]);
     }
 
+    public function logout_players(array $user_ids)
+    {
+        db_util::update($this->db, $this->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
+    }
+
     public function match_changes(int $user_id, int $rating_change, bool $winner): void
     {
-        $col = $winner ? 'matches_won' : 'matches_loss';
+        $col = $winner ? '`matches_won`' : '`matches_loss`';
 
-        db_util::update($this->db, $this->players_table, [
-            'rating' => 'rating + ' . ($winner ? 1 : -1) * $rating_change,
-            $col => $col . ' + 1',
-        ], [
-            'user_id = ' . $user_id,
-        ]);
+        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($winner ? 1 : -1) * $rating_change) . ', ' . $col . ' = ' . $col . ' + 1 WHERE `user_id` = ' . $user_id);
     }
 
     /**

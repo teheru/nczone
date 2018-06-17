@@ -52,13 +52,17 @@ class db_util
         return (string)$db->sql_nextid();
     }
 
-    public static function update(driver_interface $db, string $table, array $sqlArray, array $whereArray): void
+    public static function update(driver_interface $db, string $table, array $sqlArray, $where): void
     {
-        $where = [];
-        foreach ($whereArray as $key => $value) {
-            $where[] = $key . ' = ' . $value;
+        if(is_array($where))
+        {
+            $whereArray = [];
+            foreach ($where as $key => $value) {
+                $whereArray[] = $key . ' = ' . $value;
+            }
+            $where = implode(' AND ', $whereArray);
         }
         $db->sql_query('UPDATE ' . $table . ' SET ' . $db->sql_build_array('UPDATE', $sqlArray) .
-            (empty($where) ? '' : ' WHERE ' . implode(' AND ', $where)));
+            (empty($where) ? '' : ' WHERE ' . $where));
     }
 }

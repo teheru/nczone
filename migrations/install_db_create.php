@@ -24,7 +24,7 @@ class install_db_create extends \phpbb\db\migration\migration
 				$this->table_prefix . 'zone_players' => array(
 					'COLUMNS' => array(
 						'user_id' => array('UINT', null),
-						'rating' => array('UINT', 0),
+						'rating' => array('UINT:8', 0),
 						'logged_in' => array('TIMESTAMP', 0),
 						'matches_won' => array('UINT', 0),
 						'matches_loss' => array('UINT', 0)
@@ -34,14 +34,16 @@ class install_db_create extends \phpbb\db\migration\migration
 				$this->table_prefix . 'zone_matches' => array(
 					'COLUMNS' => array(
 						'match_id' => array('UINT', null, 'auto_increment'),
+						'map_id' => array('UINT', 0),
 						'draw_user_id' => array('UINT', 0),
 						'post_user_id' => array('UINT', 0),
 						'draw_time' => array('TIMESTAMP', 0),
 						'post_time' => array('TIMESTAMP', 0),
-						'winner_team_id' => array('UINT:2', 0)
+						'winner_team_id' => array('UINT', 0)
 					),
 					'PRIMARY_KEY' => 'match_id',
 					'KEYS' => array(
+						'map_id' => array('INDEX', 'map_id'),
 						'draw_uid' => array('INDEX', 'draw_user_id'),
 						'post_uid' => array('INDEX', 'post_user_id')
 					)
@@ -60,8 +62,8 @@ class install_db_create extends \phpbb\db\migration\migration
 					'COLUMNS' => array(
 						'team_id' => array('UINT', 0),
 						'user_id' => array('UINT', 0),
-						'draw_rating' => array('UINT', 0),
-						'rating_change' => array('INT', 0)
+						'draw_rating' => array('UINT:8', 0),
+						'rating_change' => array('INT:8', 0)
 					),
 					'PRIMARY_KEY' => array('team_id', 'user_id')
 				),
