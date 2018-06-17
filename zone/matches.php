@@ -152,21 +152,9 @@ class matches {
                 'WHERE' => 't.match_id = ' . $match_id
             ]);
 
-            $team_rows = db_util::get_rows($this->db, [
-                'SELECT' => 't.team_id AS team_id',
-                'FROM' => [$this->match_teams_table => 't'],
-                'WHERE' => 't.match_id = ' . $match_id,
-            ]);
-            // todo: check if these teams exists and do something if not
-            $team1_id = (int)$team_rows[0]['team_id'];
-            $team2_id = (int)$team_rows[1]['team_id'];
-
-            $match_players = db_util::get_rows($this->db, [
-                'SELECT' => 't.team_id, t.user_id, t.draw_rating, t.rating_change',
-                'FROM' => [$this->match_players_table => 't'],
-                'WHERE' => 't.team_id = ' . $team1_id .' OR t.team_id = '. $team2_id,
-            ]);
-            $match_size = count($match_players) / 2;
+            [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+            $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+            $match_size = \count($match_players) / 2;
             $match_points = $this->get_match_points($match_size);
 
 
@@ -214,12 +202,12 @@ class matches {
 
             $players = zone_util::players();
             $user_ids = [];
-            foreach($match_players as $mp)
+            foreach($match_players as $user_id => $team_id)
             {
-                $user_ids[] = (int)$mp['user_id'];
+                $user_ids[] = $user_id;
 
                 $civ_ids = $match_civ_ids;
-                if($mp['team_id'] == $team1_id)
+                if($team_id == $team1_id)
                 {
                     $civ_ids = array_merge($civ_ids, $team1_civ_ids);
                 }
@@ -227,16 +215,16 @@ class matches {
                 {
                     $civ_ids = array_merge($civ_ids, $team2_civ_ids);
                 }
-                if(array_key_exists($mp['user_id'], $player_civ_ids))
+                if(array_key_exists($user_id, $player_civ_ids))
                 {
-                    $civ_ids[] = $player_civ_ids[$mp['user_id']];
+                    $civ_ids[] = $player_civ_ids[$user_id];
                 }
                 db_util::update($this->db, $this->player_civ_table, ['time' => time()], [
-                    'user_id = ' . $mp['user_id'],
+                    'user_id = ' . $user_id,
                     $this->db->sql_in_set('civ_id', $civ_ids),
                 ]);
 
-                $players->match_changes($mp['user_id'], $match_points, $mp['team_id'] == $team1_id && $winner == 1);
+                $players->match_changes($user_id, $match_points, $team_id == $team1_id && $winner == 1);
             }
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id' => $team1_id]);
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
@@ -265,6 +253,41 @@ class matches {
             ], [
                 'match_id' => $match_id
             ]);
+        }
+    }
+
+    public function get_match_team_ids(int $match_id): array
+    {
+        $team_rows = db_util::get_rows($this->db, [
+            'SELECT' => 't.team_id AS team_id',
+            'FROM' => [$this->match_teams_table => 't'],
+            'WHERE' => 't.match_id = ' . $match_id,
+        ]);
+        // todo: check if these teams exists and do something if not
+        return [(int)$team_rows[0]['team_id'], (int)$team_rows[0]['team_id']];
+    }
+
+    public function get_teams_players(array $team_ids): array
+    {
+        if(\count($team_ids) > 0)
+        {
+            $rows = db_util::get_rows($this->db, [
+                'SELECT' => 't.team_id, t.user_id',
+                'FROM' => [$this->match_players_table => 't'],
+                'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
+            ]);
+
+            $teams_players = [];
+            foreach($rows as $r)
+            {
+                $teams_players[(int)$r['user_id']] = (int)$r['team_id'];
+            }
+
+            return $teams_players;
+        }
+        else
+        {
+            return [];
         }
     }
 
