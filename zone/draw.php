@@ -25,7 +25,6 @@ class draw
     /** @var array */
     private $teams_4vs4;
 
-    
     /**
      * Constructor
      */
@@ -80,9 +79,9 @@ class draw
 
     /**
      * Calculates the best sizes of matches. We avoid 1vs1 and 2vs2 if possible and prefer 4vs4 over 3vs3.
-     * 
+     *
      * @param int    $num_players    Number of players do be drawn
-     * 
+     *
      * @return array
      */
     public function get_match_sizes(int $num_players): array
@@ -110,9 +109,9 @@ class draw
 
     /**
      * Permutes match sizes in all possible combinations without redundancy.
-     * 
+     *
      * @param array    $match_sizes    The number of match sizes n vs n (n => number)
-     * 
+     *
      * @return array
      */
     public function permute_match_sizes(array $match_sizes): array
@@ -181,9 +180,9 @@ class draw
 
     /**
      * Calculates the best teams for a single match.
-     * 
+     *
      * @param array  $player_list  List of the players (must have index 'rating') to be put in teams
-     * 
+     *
      * @return array
      */
     public function make_match(array $player_list): array
@@ -270,9 +269,9 @@ class draw
 
     /**
      * Divides players in usable groups to make teams and than calculate the optimal teams.
-     * 
-     * @param array  $player_list  List of the players (must have index 'rating') to be put in teams
-     * 
+     *
+     * @param array $player_list  List of the players (must have index 'rating') to be put in teams
+     *
      * @return array
      */
     public function make_matches(array $player_list): array
@@ -312,10 +311,10 @@ class draw
 
     /**
      * Callback function to compare ratings.
-     * 
+     *
      * @param array  $p1  Array with index rating
      * @param array  $p2  Array with index rating
-     * 
+     *
      * @return int
      */
     public static function cmp_ratings($p1, $p2): int
