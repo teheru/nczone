@@ -33,6 +33,8 @@ class players
     private $player_map_table;
     /** @var string */
     private $player_civ_table;
+    /** @var string */
+    private $bets_table;
 
     /**
      * nC Zone players management class.
@@ -44,10 +46,11 @@ class players
      * @param string $civs_table
      * @param string $player_map_table
      * @param string $player_civ_table
+     * @param string $bets_table
      */
     public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
                                 string $users_table, string $maps_table, string $civs_table,
-                                string $player_map_table, string $player_civ_table)
+                                string $player_map_table, string $player_civ_table, string $bets_table)
     {
         $this->db = $db;
         $this->user = $user;
@@ -57,6 +60,7 @@ class players
         $this->civs_table = $civs_table;
         $this->player_map_table = $player_map_table;
         $this->player_civ_table = $player_civ_table;
+        $this->bets_table = $bets_table;
     }
 
     public static function sort_by_ratings(array $players): array
@@ -110,7 +114,7 @@ class players
     public function get_player(int $user_id): array
     {
         $playerRow = db_util::get_row($this->db, [
-            'SELECT' => 'p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss',
+            'SELECT' => 'p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss, p.bets_won AS bets_won, p.bets_loss AS bets_loss',
             'FROM' => [$this->players_table => 'p'],
             'WHERE' => 'p.user_id = ' . $user_id
         ]) ?: [];
@@ -147,7 +151,9 @@ class players
             'rating' => $rating,
             'logged_in' => 0,
             'matches_won' => 0,
-            'matches_loss' => 0
+            'matches_loss' => 0,
+            'bets_won' => 0,
+            'bets_loss' => 0
         ]);
 
         $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT "'. $user_id .'", map_id, "'. time() .'" FROM `'. $this->maps_table .'`');
@@ -178,6 +184,12 @@ class players
         }
         if (array_key_exists('matches_loss', $player_info)) {
             $sql_array['matches_loss'] = (int)$player_info['matches_loss'];
+        }
+        if (array_key_exists('bets_won', $player_info)) {
+            $sql_array['bets_won'] = (int)$player_info['bets_won'];
+        }
+        if (array_key_exists('bets_loss', $player_info)) {
+            $sql_array['bets_loss'] = (int)$player_info['bets_loss'];
         }
 
         db_util::update($this->db, $this->players_table, $sql_array, ['user_id' => $user_id]);
@@ -210,6 +222,28 @@ class players
     public function logout_players(array $user_ids): void
     {
         db_util::update($this->db, $this->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
+    }
+
+    public function place_bet(int $user_id, int $match_id, int $team_id): void
+    {
+        [$team1_id, $team2_id] = zone_util::matches()->get_match_team_ids($match_id);
+        if($team_id == $team1_id || $team_id == $team2_id)
+        {
+            $num_bets = (int)db_util::get_var($this->db, [
+                'SELECT' => 'COUNT(*)',
+                'FROM' => [$this->bets_table => 't'],
+                'WHERE' => 'user_id = ' . $user_id . ' AND (team_id = ' . $team1_id . ' OR team_id = ' . $team2_id . ')'
+            ]);
+            
+            if($num_bets === 0)
+            {
+                db_util::insert($this->db, $this->bets_table, [
+                    'user_id' => $user_id,
+                    'team_id' => $team_id,
+                    'time' => time(),
+                ]);
+            }
+        }
     }
 
     public function match_changes(int $user_id, int $rating_change, bool $winner): void

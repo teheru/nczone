@@ -71,6 +71,7 @@ services:
         - '%tables.eru.nczone.civs%'
         - '%tables.eru.nczone.player_map%'
         - '%tables.eru.nczone.player_civ%'
+        - '%tables.eru.nczone.bets%'
 
     eru.nczone.zone.matches:
       class: eru\nczone\zone\matches
@@ -86,6 +87,7 @@ services:
         - '%tables.eru.nczone.player_map%'
         - '%tables.eru.nczone.map_civs%'
         - '%tables.eru.nczone.player_civ%'
+        - '%tables.eru.nczone.bets%'
 
     eru.nczone.zone.civs:
       class: eru\nczone\zone\civs
