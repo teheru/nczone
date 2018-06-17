@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
+use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
 use phpbb\db\driver\driver_interface;
 
@@ -448,31 +449,29 @@ class matches {
         return 0;
     }
 
-
-    public function decide_draw_civs_kind($team1_users, $team2_users): string
+    public function decide_draw_civs_kind(array $team1_users, array $team2_users): string
     {
-        $team1_sum_rating = players::get_rating_sum($team1_users);
-        $team2_sum_rating = players::get_rating_sum($team2_users);
-
-        $diff = abs($team1_sum_rating - $team2_sum_rating);
-
-        $max_rating = max([$team1_users[0]['rating'], $team2_users[0]['rating']]);
-        $min_rating = min(end($team1_users)['rating'], end($team2_users)['rating']);
-        $min_max_diff = abs($max_rating - $min_rating);
+        $min_max_diff = number_util::diff(
+            players::get_max_rating($team1_users, $team2_users),
+            players::get_min_rating($team1_users, $team2_users)
+        );
 
         // todo: replace this values by ACP config values
-        if($min_max_diff >= 600 || $diff >= 120)
-        {
+        if ($min_max_diff >= 600) {
             return self::PLAYER_CIVS;
         }
-        elseif($diff >= 120)
-        {
+
+        $rating_sum_diff = number_util::diff(
+            players::get_rating_sum($team1_users),
+            players::get_rating_sum($team2_users)
+        );
+
+        // todo: replace this values by ACP config values
+        if($rating_sum_diff >= 120) {
             return self::TEAM_CIVS;
         }
-        else
-        {
-            return self::MATCH_CIVS;
-        }
+
+        return self::MATCH_CIVS;
     }
 
     protected function get_players_civs($map_id, $users, $num_civs, $extra_civs, $ignore_force=False)
