@@ -43,6 +43,12 @@ class matches {
     private $maps_table;
     /** @var string */
     private $player_map_time;
+    /** @var string */
+    private $match_civs;
+    /** @var string */
+    private $team_civs;
+    /** @var string */
+    private $match_player_civs;
 
     /**
      * Constructor
@@ -64,11 +70,11 @@ class matches {
         $this->match_teams_table = $match_teams_table;
         $this->match_players_table = $match_players_table;
         $this->match_civs_table = $match_civs_table;
-        $this->team_civs_table = $team_civs_table;
         $this->match_player_civs_table = $match_player_civs_table;
         $this->maps_table = $maps_table;
-        $this->player_map_table = $player_map_table;
         $this->map_civs_table = $map_civs_table;
+        $this->team_civs_table = $team_civs_table;
+        $this->player_map_table = $player_map_table;
         $this->player_civ_table = $player_civ_table;
     }
 
@@ -120,12 +126,12 @@ class matches {
         }
         elseif($civ_kind === self::TEAM_CIVS)
         {
-            $team_civs = $this->get_teams_civs($map_id, $team1, $team2);
-            foreach($team_civs[0] as $civ)
+            [$team1_civs, $team2_civs] = $this->get_teams_civs($map_id, $team1, $team2);
+            foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = $civ['id'];
             }
-            foreach($team_civs[1] as $civ)
+            foreach($team2_civs as $civ)
             {
                 $team2_civ_ids[] = $civ['id'];
             }
@@ -210,10 +216,10 @@ class matches {
     public function clean_match(int $match_id): void
     {
         // note: team ids where certainly be fetched before, but I rather have the match id as an argument only
-        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $team_ids = $this->get_match_team_ids($match_id);
 
         $where_match_id = ' WHERE `match_id` = ' . $match_id;
-        $where_team_id = ' WHERE `team_id` = '. $team1_id . ' OR `team_id` = ' . $team2_id;
+        $where_team_id = ' WHERE ' . $this->db->sql_in_set('team_id', $team_ids);
         $this->db->sql_query('DELETE FROM ' . $this->match_players_table . $where_team_id);
         $this->db->sql_query('DELETE FROM ' . $this->match_civs . $where_match_id);
         $this->db->sql_query('DELETE FROM ' . $this->team_civs . $where_team_id);
