@@ -38,17 +38,17 @@ class matches {
     /** @var string */
     private $team_civs_table;
     /** @var string */
-    private $player_civs_table;
+    private $match_player_civs_table;
     /** @var string */
     private $maps_table;
     /** @var string */
-    private $player_map_time;
+    private $player_map_table;
     /** @var string */
-    private $match_civs;
+    private $map_civs_table;
     /** @var string */
-    private $team_civs;
+    private $player_civs_table;
     /** @var string */
-    private $match_player_civs;
+    private $bets_table;
 
     /**
      * Constructor
@@ -62,8 +62,11 @@ class matches {
      * @param string                             $match_player_civs_table  Name of the player civs table
      * @param string                             $maps_table               Name of the maps table
      * @param string                             $player_map_table         Name of the table with the last time a player played a map
+     * @param string                             $map_civs_table           Name of the table which contains civ information for maps
+     * @param string                             $player_civs_table        Name of the table which contains the last time a player played a civ
+     * @param string                             $bets_table               Name of the bets table
      */
-    public function __construct(driver_interface $db, $matches_table, $match_teams_table, $match_players_table, $match_civs_table, $team_civs_table, $match_player_civs_table, $maps_table, $player_map_table, $map_civs_table, $player_civ_table)
+    public function __construct(driver_interface $db, $matches_table, $match_teams_table, $match_players_table, $match_civs_table, $team_civs_table, $match_player_civs_table, $maps_table, $player_map_table, $map_civs_table, $player_civ_table, $bets_table)
     {
         $this->db = $db;
         $this->matches_table = $matches_table;
@@ -76,6 +79,7 @@ class matches {
         $this->team_civs_table = $team_civs_table;
         $this->player_map_table = $player_map_table;
         $this->player_civ_table = $player_civ_table;
+        $this->bets_table = $bets_table;
     }
 
     public function draw(int $draw_user_id): array
@@ -246,16 +250,11 @@ class matches {
             $match_points = $this->get_match_points($match_size);
 
 
-            $match_civ_ids = [];
-            $match_civ_rows = db_util::get_rows($this->db, [
+            $match_civ_ids = db_util::get_col($this->db, [
                 'SELECT' => 't.civ_id',
                 'FROM' => [$this->match_civs_table => 't'],
                 'WHERE' => 't.match_id = ' . $match_id,
             ]);
-            foreach($match_civ_rows as $r)
-            {
-                $match_civ_ids[] = (int)$r['civ_id'];
-            }
 
             $team1_civ_ids = [];
             $team2_civ_ids = [];
@@ -307,6 +306,8 @@ class matches {
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
 
             db_util::update($this->db, $this->player_map_table, ['time' => time()], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id);
+
+            $this->evaluate_bets($team1_id, $team2_id, time());
         }
         else
         {
@@ -370,6 +371,25 @@ class matches {
         }
     }
 
+
+    public function evaluate_bets(int $winner_team, int $loser_team, int $end_time): void
+    {
+        $users_right = db_util::get_col($this->db, $this->bets_table, [
+            'SELECT' => 't.user_id',
+            'FROM' => [$this->bets_table => 't'],
+            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - 1200), // todo: replace by ACP var
+        ]);
+        $users_right = db_util::get_col($this->db, $this->bets_table, [
+            'SELECT' => 't.user_id',
+            'FROM' => [$this->bets_table => 't'],
+            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - 1200), // todo: replace by ACP var
+        ]);
+
+        $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
+        $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
+    }
+
+    
     /**
      * Creates a match and returns the match id
      *

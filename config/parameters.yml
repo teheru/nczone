@@ -11,3 +11,4 @@ parameters:
     tables.eru.nczone.match_player_civs: %core.table_prefix%zone_match_player_civs
     tables.eru.nczone.player_map: %core.table_prefix%zone_player_map
     tables.eru.nczone.player_civ: %core.table_prefix%zone_player_civ
+    tables.eru.nczone.bets: %core.table_prefix%zone_bets
