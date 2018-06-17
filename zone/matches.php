@@ -144,8 +144,7 @@ class matches {
 
     public function replace_player(int $match_id, int $player1_id, int $player2_id): int
     {
-        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $match_players = $this->get_teams_players($team1_id, $team2_id);
+        $match_players = $this->get_teams_players(...$this->get_match_team_ids($match_id));
 
         if(array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_player))
         {
@@ -167,8 +166,7 @@ class matches {
 
     public function add_pair(int $match_id, int $player1_id, int $player2_id): int
     {
-        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $match_players = $this->get_teams_players($team1_id, $team2_id);
+        $match_players = $this->get_teams_players(...$this->get_match_team_ids($match_id));
 
         if(\count($match_players) < 8)
         {
@@ -190,8 +188,7 @@ class matches {
 
     public function remove_pair(int $match_id, int $player1_id, int $player2_id): int
     {
-        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $match_players = $this->get_teams_players($team1_id, $team2_id);
+        $match_players = $this->get_teams_players(...$this->get_match_team_ids($match_id));
 
         if(\count($match_players) > 2)
         {
@@ -237,6 +234,7 @@ class matches {
             ]);
 
             [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+            $winner_team_id = ($winner == 1) ? $team1_id : $team2_id;
             $match_players = $this->get_teams_players($team1_id, $team2_id);
             $match_size = \count($match_players) / 2;
             $match_points = $this->get_match_points($match_size);
@@ -305,33 +303,26 @@ class matches {
                 }
                 db_util::update($this->db, $this->player_civ_table, ['time' => time()], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
-                $players->match_changes($user_id, $match_points, $user_info['team_id'] == $team1_id && $winner == 1);
+                $players->match_changes($user_id, $match_points, $user_info['team_id'] == $winner_team_id);
             }
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id' => $team1_id]);
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
 
 
             db_util::update($this->db, $this->player_map_table, ['time' => time()], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id);
-
-
-            db_util::update($this->db, $this->matches_table, [
-                'post_user_id' => $post_user_id,
-                'post_time' => time(),
-                'winner_team_id' => ($winner == 1) ? $team1_id : $team2_id,
-            ], [
-                'match_id' => $match_id
-            ]);
         }
         else
         {
-            db_util::update($this->db, $this->matches_table, [
-                'post_user_id' => $post_user_id,
-                'post_time' => time(),
-                'winner_team_id' => 0,
-            ], [
-                'match_id' => $match_id
-            ]);
+            $winner_team_id = 0;
         }
+
+        db_util::update($this->db, $this->matches_table, [
+            'post_user_id' => $post_user_id,
+            'post_time' => time(),
+            'winner_team_id' => $winner_team_id,
+        ], [
+            'match_id' => $match_id
+        ]);
     }
 
     public function get_match_team_ids(int $match_id): array
@@ -345,28 +336,24 @@ class matches {
         return [(int)$team_rows[0]['team_id'], (int)$team_rows[1]['team_id']];
     }
 
-    public function get_teams_players(...$team_ids): array
+    public function get_teams_players(int ...$team_ids): array
     {
-        if(\count($team_ids) > 0)
-        {
-            $rows = db_util::get_rows($this->db, [
-                'SELECT' => 't.team_id, t.user_id, t.draw_rating as rating',
-                'FROM' => [$this->match_players_table => 't'],
-                'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
-            ]);
-
-            $teams_players = [];
-            foreach($rows as $r)
-            {
-                $teams_players[(int)$r['user_id']] = ['team_id' => (int)$r['team_id'], 'rating' => (int)$r['rating']];
-            }
-
-            return $teams_players;
-        }
-        else
-        {
+        if(\count($team_ids) === 0) {
             return [];
         }
+
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 't.team_id, t.user_id, t.draw_rating as rating',
+            'FROM' => [$this->match_players_table => 't'],
+            'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
+        ]);
+
+        $teams_players = [];
+        foreach ($rows as $r) {
+            $teams_players[(int)$r['user_id']] = ['team_id' => (int)$r['team_id'], 'rating' => (int)$r['rating']];
+        }
+
+        return $teams_players;
     }
 
     public function get_match_points(int $match_size): int
@@ -791,41 +778,40 @@ class matches {
 
             foreach($test_indices as $team2_indices)
             {
-                $cont = True;
                 foreach($both_civs_indices as $index)
                 {
                     if(!in_array($index, $team2_indices))
                     {
-                        $cont = False;
-                        break;
+                        continue 2;
                     }
                 }
-                if($cont)
-                {
-                    $team2_sum_multiplier = 0;
-                    foreach($team2_indices as $index)
-                    {
-                        if($index < $unique_civpool_num)
-                        {
-                            $team2_sum_multiplier += $team2_civpool[$index]['multiplier'];
-                        }
-                        else
-                        {
-                            $team2_sum_multiplier += $both_civpool[$index - $unique_civpool_num]['multiplier'];
-                        }
-                    }
-                    if($team2_force_civ)
-                    {
-                        $team2_sum_multiplier += $team2_force_civ['multiplier'];
-                    }
 
-                    $value = abs($team1_sum_rating * $team1_sum_multiplier - $team2_sum_rating * $team2_sum_multiplier);
-                    if($value < $best_value || $best_value < 0)
+                $team2_sum_multiplier = 0;
+                foreach($team2_indices as $index)
+                {
+                    if($index < $unique_civpool_num)
                     {
-                        $best_indices[0] = $team1_indices;
-                        $best_indices[1] = $team2_indices;
-                        $best_value = $value;
+                        $team2_sum_multiplier += $team2_civpool[$index]['multiplier'];
                     }
+                    else
+                    {
+                        $team2_sum_multiplier += $both_civpool[$index - $unique_civpool_num]['multiplier'];
+                    }
+                }
+                if($team2_force_civ)
+                {
+                    $team2_sum_multiplier += $team2_force_civ['multiplier'];
+                }
+
+                $value = number_util::diff(
+                    $team1_sum_rating * $team1_sum_multiplier,
+                    $team2_sum_rating * $team2_sum_multiplier
+                );
+                if($value < $best_value || $best_value < 0)
+                {
+                    $best_indices[0] = $team1_indices;
+                    $best_indices[1] = $team2_indices;
+                    $best_value = $value;
                 }
             }
         }
@@ -951,56 +937,43 @@ class matches {
         $civpool_civs = [];
         foreach($user_civs as $pc)
         {
-            $user_civpool_count = count($user_civpools[$pc['user_id']]);
+            if(\in_array($pc['civ_id'], $civpool_civs)) {
+                continue;
+            }
 
-            if($user_civpool_count < $num_civs && !in_array($pc['civ_id'], $civpool_civs))
-            {
-                $add = True;
-                foreach($user_civpools[$pc['user_id']] as $civ)
-                {
-                    // we don't want to have multiple civs with same multiplier for the same player
-                    // also, don't add civs for players which have a civ which we want to keep
-                    if($pc['multiplier'] == $civ['multiplier'] || in_array($civ['id'], $keep_civ_ids))
-                    {
-                        $add = False;
-                        break;
-                    }
-                }
-                if($add)
-                {
-                    if(in_array($pc['civ_id'], $both_teams_civ_ids))
-                    {
-                        // if the drawed civ should be in both teams, get the player from the other team who should get that civ
-                        $other_team = $civs_module->get_map_players_civs($map_id, (in_array($pc['user_id'], $team1_ids)) ? $team2_ids : $team1_ids, [$pc['civ_id']], False, False, True);
-                        if(count($user_civpools[$other_team['user_id']]) > 0)
-                        {
-                            foreach($user_civpools[$other_team['user_id']] as $civ)
-                            {
-                                // if he already has a forced civ or a civ for both teams, we drop the recently drawed civ
-                                if(in_array($civ['id'], $keep_civ_ids))
-                                {
-                                    $add = False;
-                                    break;
-                                }
-                            }
-                        }
-                        if($add)
-                        {
-                            // overwrite the other players civs
-                            foreach($user_civpools[$other_team['user_id']] as $civ)
-                            {
-                                unset($civpool_civs[array_search($other_team['civ_id'], $civpool_civs)]);
-                            }
-                            $user_civpools[$other_team['user_id']] = [['id' => $other_team['civ_id'], 'multiplier' => $other_team['multiplier']]];
-                        }
-                    }
-                }
-                if($add)
-                {
-                    $civpool_civs[] = $pc['civ_id'];
-                    $user_civpools[$pc['user_id']][] = ['id' => $pc['civ_id'], 'multiplier' => $pc['multiplier']];
+            if (\count($user_civpools[$pc['user_id']]) >= $num_civs) {
+                continue;
+            }
+
+            foreach ($user_civpools[$pc['user_id']] as $civ) {
+                // we don't want to have multiple civs with same multiplier for the same player
+                // also, don't add civs for players which have a civ which we want to keep
+                if ($pc['multiplier'] == $civ['multiplier'] || in_array($civ['id'], $keep_civ_ids)) {
+                    continue 2;
                 }
             }
+
+            if (in_array($pc['civ_id'], $both_teams_civ_ids)) {
+                // if the drawed civ should be in both teams, get the player from the other team who should get that civ
+                $other_team =  $civs_module->get_map_players_civs($map_id, (in_array($pc['user_id'], $team1_ids)) ? $team2_ids : $team1_ids, [$pc['civ_id']], False, False, True);
+                if (count($user_civpools[$other_team['user_id']]) > 0) {
+                    foreach ($user_civpools[$other_team['user_id']] as $civ) {
+                        // if he already has a forced civ or a civ for both teams, we drop the recently drawed civ
+                        if (in_array($civ['id'], $keep_civ_ids)) {
+                            continue 2;
+                        }
+                    }
+                }
+
+                // overwrite the other players civs
+                foreach ($user_civpools[$other_team['user_id']] as $civ) {
+                    unset($civpool_civs[array_search($other_team['civ_id'], $civpool_civs)]);
+                }
+                $user_civpools[$other_team['user_id']] = [['id' => $other_team['civ_id'], 'multiplier' => $other_team['multiplier']]];
+            }
+
+            $civpool_civs[] = $pc['civ_id'];
+            $user_civpools[$pc['user_id']][] = ['id' => $pc['civ_id'], 'multiplier' => $pc['multiplier']];
         }
 
         // calculate all possible combinations of civs for the players
@@ -1045,7 +1018,7 @@ class matches {
                     $team2_sum += $user_ratings[$user_id] * $civ['multiplier'];
                 }
             }
-            $diff = abs($team1_sum - $team2_sum);
+            $diff = number_util::diff($team1_sum, $team2_sum);
             if($diff < $best_diff || $best_diff < 0)
             {
                 $best_civ_combination = $cc;
