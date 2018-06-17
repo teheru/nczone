@@ -863,30 +863,30 @@ class matches {
         // get civs which are forced for the map
         $force_civ_ids = [];
 
-        $team1_force_civ = $civs_module->get_map_players_civs($map_id, $team1_ids, [], False, True, True);
+        $team1_force_civ = $civs_module->get_map_players_single_civ($map_id, $team1_ids, [], False, True);
         if($team1_force_civ)
         {
             // check if the civ has to be in both teams anyways
             if(in_array($team1_force_civ['civ_id'], $both_teams_civ_ids))
             {
-                $team2_force_civ = $civs_module->get_map_players_civs($map_id, $team2_ids, [$team1_force_civ['civ_id']], False, True, True);
+                $team2_force_civ = $civs_module->get_map_players_single_civ($map_id, $team2_ids, [$team1_force_civ['civ_id']], False, True);
             }
             else
             {
                 // check force civ for the other team except the one drawed before
-                $team2_force_civ = $civs_module->get_map_players_civs($map_id, $team2_ids, [$team1_force_civ['civ_id']], True, True, True);
+                $team2_force_civ = $civs_module->get_map_players_single_civ($map_id, $team2_ids, [$team1_force_civ['civ_id']], True, True);
                 if($team2_force_civ)
                 {
                     // check again if THIS civ has to be in both teams
                     if(in_array($team2_force_civ['civ_id'], $both_teams_civ_ids))
                     {
-                        $team1_force_civ = $civs_module->get_map_players_civs($map_id, $team1_ids, [$team2_force_civ['civ_id']], False, True, True);
+                        $team1_force_civ = $civs_module->get_map_players_single_civ($map_id, $team1_ids, [$team2_force_civ['civ_id']], False, True);
                     }
                 }
                 // if this didn't work, we only have one forced civ and it has to be in both teams nevertheless
                 else
                 {
-                    $team2_force_civ = $civs_module->get_map_players_civs($map_id, $team2_ids, [$team1_force_civ['civ_id']], False, True, True);
+                    $team2_force_civ = $civs_module->get_map_players_single_civ($map_id, $team2_ids, [$team1_force_civ['civ_id']], False, True);
                 }
             }
 
@@ -904,7 +904,7 @@ class matches {
         $keep_civ_ids = array_merge($force_civ_ids, $both_teams_civ_ids);
 
 
-        $user_civs = $civs_module->get_map_players_civs($map_id, $user_ids, $force_civ_ids, True, False, False);
+        $user_civs = $civs_module->get_map_players_multiple_civs($map_id, $user_ids, $force_civ_ids, True, False);
 
         // remember civs that were already drawed so we don't draw them twice
         $civpool_civs = [];
@@ -928,7 +928,7 @@ class matches {
 
             if (in_array($pc['civ_id'], $both_teams_civ_ids)) {
                 // if the drawed civ should be in both teams, get the player from the other team who should get that civ
-                $other_team =  $civs_module->get_map_players_civs($map_id, (in_array($pc['user_id'], $team1_ids)) ? $team2_ids : $team1_ids, [$pc['civ_id']], False, False, True);
+                $other_team =  $civs_module->get_map_players_single_civ($map_id, (in_array($pc['user_id'], $team1_ids)) ? $team2_ids : $team1_ids, [$pc['civ_id']], False, False);
                 if (count($user_civpools[$other_team['user_id']]) > 0) {
                     foreach ($user_civpools[$other_team['user_id']] as $civ) {
                         // if he already has a forced civ or a civ for both teams, we drop the recently drawed civ
