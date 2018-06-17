@@ -145,7 +145,7 @@ class matches {
     public function replace_player(int $match_id, int $player1_id, int $player2_id): int
     {
         [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+        $match_players = $this->get_teams_players($team1_id, $team2_id);
 
         if(array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_player))
         {
@@ -168,7 +168,7 @@ class matches {
     public function add_pair(int $match_id, int $player1_id, int $player2_id): int
     {
         [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+        $match_players = $this->get_teams_players($team1_id, $team2_id);
 
         if(\count($match_players) < 8)
         {
@@ -191,7 +191,7 @@ class matches {
     public function remove_pair(int $match_id, int $player1_id, int $player2_id): int
     {
         [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+        $match_players = $this->get_teams_players($team1_id, $team2_id);
 
         if(\count($match_players) > 2)
         {
@@ -230,14 +230,14 @@ class matches {
         // todo: maybe check here if the game was already posted? or leave it the function which calls this
         if($winner == 1 || $winner == 2)
         {
-            $map_id = (int)db_util::get_row($this->db, [
+            $map_id = (int)db_util::get_var($this->db, [
                 'SELECT' => 't.map_id',
                 'FROM' => [$this->matches_table => 't'],
                 'WHERE' => 't.match_id = ' . $match_id
             ]);
 
             [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-            $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+            $match_players = $this->get_teams_players($team1_id, $team2_id);
             $match_size = \count($match_players) / 2;
             $match_points = $this->get_match_points($match_size);
 
@@ -303,10 +303,7 @@ class matches {
                 {
                     $civ_ids[] = $player_civ_ids[$user_id];
                 }
-                db_util::update($this->db, $this->player_civ_table, ['time' => time()], [
-                    'user_id = ' . $user_id,
-                    $this->db->sql_in_set('civ_id', $civ_ids),
-                ]);
+                db_util::update($this->db, $this->player_civ_table, ['time' => time()], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
                 $players->match_changes($user_id, $match_points, $user_info['team_id'] == $team1_id && $winner == 1);
             }
@@ -314,10 +311,7 @@ class matches {
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
 
 
-            db_util::update($this->db, $this->player_map_table, ['time' => time()], [
-                $this->db->sql_in_set('user_id', $user_ids),
-                'map_id' => $map_id
-            ]);
+            db_util::update($this->db, $this->player_map_table, ['time' => time()], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id);
 
 
             db_util::update($this->db, $this->matches_table, [
@@ -348,10 +342,10 @@ class matches {
             'WHERE' => 't.match_id = ' . $match_id,
         ]);
         // todo: check if these teams exists and do something if not
-        return [(int)$team_rows[0]['team_id'], (int)$team_rows[0]['team_id']];
+        return [(int)$team_rows[0]['team_id'], (int)$team_rows[1]['team_id']];
     }
 
-    public function get_teams_players(array $team_ids): array
+    public function get_teams_players(...$team_ids): array
     {
         if(\count($team_ids) > 0)
         {
