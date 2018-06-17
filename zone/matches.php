@@ -142,8 +142,92 @@ class matches {
         return [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids];
     }
 
+    public function replace_player(int $match_id, int $player1_id, int $player2_id): int
+    {
+        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+
+        if(array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_player))
+        {
+            $this->clean_match($match_id);
+
+            unset($match_players[$player1_id]);
+            // todo: this contains much more information than needed, but is it much overhead?
+            $match_players[$player2_id] = zone_util::players()->get_player($player2_id);
+
+            [$match] = zone_util::draw()->make_matches($match_players);
+            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = $this->draw_settings($match[0], $match[1]);
+            return $this->create_match($draw_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public function add_pair(int $match_id, int $player1_id, int $player2_id): int
+    {
+        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+
+        if(\count($match_players) < 8)
+        {
+            $this->clean_match($match_id);
+
+            // todo: this contains much more information than needed, but is it much overhead?
+            $match_players[$player2_id] = zone_util::players()->get_player($player1_id);
+            $match_players[$player2_id] = zone_util::players()->get_player($player2_id);
+
+            [$match] = zone_util::draw()->make_matches($match_players);
+            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = $this->draw_settings($match[0], $match[1]);
+            return $this->create_match($draw_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public function remove_pair(int $match_id, int $player1_id, int $player2_id): int
+    {
+        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $match_players = $this->get_teams_players([$team1_id, $team2_id]);
+
+        if(\count($match_players) > 2)
+        {
+            $this->clean_match($match_id);
+
+            unset($match_players[$player1_id]);
+            unset($match_players[$player2_id]);
+
+            [$match] = zone_util::draw()->make_matches($match_players);
+            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = $this->draw_settings($match[0], $match[1]);
+            return $this->create_match($draw_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public function clean_match(int $match_id): void
+    {
+        // note: team ids where certainly be fetched before, but I rather have the match id as an argument only
+        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+
+        $where_match_id = ' WHERE `match_id` = ' . $match_id;
+        $where_team_id = ' WHERE `team_id` = '. $team1_id . ' OR `team_id` = ' . $team2_id;
+        $this->db->sql_query('DELETE FROM ' . $this->match_players_table . $where_team_id);
+        $this->db->sql_query('DELETE FROM ' . $this->match_civs . $where_match_id);
+        $this->db->sql_query('DELETE FROM ' . $this->team_civs . $where_team_id);
+        $this->db->sql_query('DELETE FROM ' . $this->match_player_civs . $where_match_id);
+        $this->db->sql_query('DELETE FROM ' . $this->match_teams_table . $where_team_id);
+        $this->db->sql_query('DELETE FROM ' . $this->matches_table . $where_match_id);
+    }
+
     public function post(int $match_id, int $post_user_id, int $winner): void
     {
+        // todo: maybe check here if the game was already posted? or leave it the function which calls this
         if($winner == 1 || $winner == 2)
         {
             $map_id = (int)db_util::get_row($this->db, [
@@ -202,12 +286,12 @@ class matches {
 
             $players = zone_util::players();
             $user_ids = [];
-            foreach($match_players as $user_id => $team_id)
+            foreach($match_players as $user_id => $user_info)
             {
                 $user_ids[] = $user_id;
 
                 $civ_ids = $match_civ_ids;
-                if($team_id == $team1_id)
+                if($user_info['team_id'] == $team1_id)
                 {
                     $civ_ids = array_merge($civ_ids, $team1_civ_ids);
                 }
@@ -224,7 +308,7 @@ class matches {
                     $this->db->sql_in_set('civ_id', $civ_ids),
                 ]);
 
-                $players->match_changes($user_id, $match_points, $team_id == $team1_id && $winner == 1);
+                $players->match_changes($user_id, $match_points, $user_info['team_id'] == $team1_id && $winner == 1);
             }
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id' => $team1_id]);
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
@@ -272,7 +356,7 @@ class matches {
         if(\count($team_ids) > 0)
         {
             $rows = db_util::get_rows($this->db, [
-                'SELECT' => 't.team_id, t.user_id',
+                'SELECT' => 't.team_id, t.user_id, t.draw_rating as rating',
                 'FROM' => [$this->match_players_table => 't'],
                 'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
             ]);
@@ -280,7 +364,7 @@ class matches {
             $teams_players = [];
             foreach($rows as $r)
             {
-                $teams_players[(int)$r['user_id']] = (int)$r['team_id'];
+                $teams_players[(int)$r['user_id']] = ['team_id' => (int)$r['team_id'], 'rating' => (int)$r['rating']];
             }
 
             return $teams_players;
