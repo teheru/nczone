@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
+use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
 use phpbb\db\driver\driver_interface;
 
@@ -44,10 +45,17 @@ class civs
         $this->player_civ_table = $player_civ_table;
     }
 
+    public static function sort_by_multiplier(array $civs): array
+    {
+        usort($civs, function ($c1, $c2) {
+            return number_util::cmp($c1['multiplier'], $c2['multiplier']);
+        });
+        return $civs;
+    }
 
     /**
      * Returns the id and name of all civs
-     * 
+     *
      * @return array
      */
     public function get_civs(): array
@@ -61,9 +69,9 @@ class civs
 
     /**
      * Returns the name of a certain civ
-     * 
+     *
      * @param int  $civ_id  Id of the civ
-     * 
+     *
      * @return string
      */
     public function get_civ(int $civ_id)
@@ -78,10 +86,10 @@ class civs
 
     /**
      * Edits the info of a civ
-     * 
+     *
      * @param int    $civ_id    Id of the civ
      * @param array  $civ_info  Information of the civ (i.e. name)
-     * 
+     *
      * @return void
      */
     public function edit_civ(int $civ_id, array $civ_info): void
@@ -92,9 +100,9 @@ class civs
 
     /**
      * Creates a new civ and civ map entries in the database, returns the id of the new civ
-     * 
+     *
      * @param string  $civ_name  Name of the civ
-     * 
+     *
      * @return void
      */
     public function create_civ($civ_name): string
@@ -108,9 +116,9 @@ class civs
 
     /**
      * Creates a new civ entry in the database without entries for related tables, returns the id of the new civ
-     * 
+     *
      * @param string  $civ_name  Name of the civ
-     * 
+     *
      * @return  int
      */
     private function insert_civ(string $civ_name): string
@@ -121,12 +129,12 @@ class civs
         ]);
     }
 
-    
+
     /**
      * Create entries for the civ x map table.
-     * 
+     *
      * @param int  $civ_id  The id of the civ
-     * 
+     *
      * @return void
      */
     private function create_civ_maps(int $civ_id): void // todo: here was string $civ_id before.... string??
@@ -153,7 +161,7 @@ class civs
             'GROUP_BY' => 'p.user_id, c.civ_id',
             'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
         ];
-        
+
         if(count($civ_ids) > 0)
         {
             $sql_array['WHERE'] .= ' AND ' . $this->db->sql_in_set('c.civ_id', $civ_ids, $neg_civ_ids);

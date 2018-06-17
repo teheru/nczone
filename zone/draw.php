@@ -11,8 +11,6 @@
 
 namespace eru\nczone\zone;
 
-use eru\nczone\utility\number_util;
-
 /**
  * Class to make teams (not maps or civs!)
  */
@@ -187,7 +185,7 @@ class draw
      */
     public function make_match(array $player_list): array
     {
-        usort($player_list, [__CLASS__, 'cmp_ratings']);
+        $player_list = players::sort_by_ratings($player_list);
 
         $num_players = \count($player_list);
         if ($num_players === 2) {
@@ -281,7 +279,8 @@ class draw
             array_pop($player_list);
             $num_players--;
         }
-        usort($player_list, [__CLASS__, 'cmp_ratings']);
+
+        $player_list = players::sort_by_ratings($player_list);
 
         $match_sizes = $this->get_match_sizes($num_players);
         $permutes = $this->permute_match_sizes($match_sizes);
@@ -307,18 +306,5 @@ class draw
             }
         }
         return $best_teams;
-    }
-
-    /**
-     * Callback function to compare ratings.
-     *
-     * @param array  $p1  Array with index rating
-     * @param array  $p2  Array with index rating
-     *
-     * @return int
-     */
-    public static function cmp_ratings($p1, $p2): int
-    {
-        return number_util::cmp($p1['rating'], $p2['rating']);
     }
 }

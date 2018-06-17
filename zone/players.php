@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
+use eru\nczone\utility\number_util;
 use phpbb\db\driver\driver_interface;
 
 class players
@@ -24,12 +25,29 @@ class players
     private $players_table;
     /** @var string */
     private $users_table;
-
+    /** @var string */
+    private $maps_table;
+    /** @var string */
+    private $civs_table;
+    /** @var string */
+    private $player_map_table;
+    /** @var string */
+    private $player_civ_table;
 
     /**
      * nC Zone players management class.
+     * @param driver_interface $db
+     * @param \phpbb\user $user
+     * @param string $players_table
+     * @param string $users_table
+     * @param string $maps_table
+     * @param string $civs_table
+     * @param string $player_map_table
+     * @param string $player_civ_table
      */
-    public function __construct(driver_interface $db, \phpbb\user $user, string $players_table, string $users_table, string $maps_table, string $civs_table, string $player_map_table, string $player_civ_table)
+    public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
+                                string $users_table, string $maps_table, string $civs_table,
+                                string $player_map_table, string $player_civ_table)
     {
         $this->db = $db;
         $this->user = $user;
@@ -41,11 +59,26 @@ class players
         $this->player_civ_table = $player_civ_table;
     }
 
+    public static function sort_by_ratings(array $players): array
+    {
+        usort($players, function ($p1, $p2) {
+            return number_util::cmp($p1['rating'], $p2['rating']);
+        });
+        return $players;
+    }
+
+    public static function get_rating_sum(array $players): int
+    {
+        return array_reduce($players, function ($p1, $p2) {
+            return $p1 + $p2['rating'];
+        });
+    }
+
     /**
      * Returns the zone information of a user/player
-     * 
+     *
      * @param int    $user_id    The id of the user
-     * 
+     *
      * @return array
      */
     public function get_player(int $user_id): array
@@ -66,10 +99,10 @@ class players
 
     /**
      * Creates an entry for an user for the zone
-     * 
+     *
      * @param int    $user_id    Id of the user
      * @param int    $rating     Start rating for the user
-     * 
+     *
      * @return bool
      */
     public function activate_player(int $user_id, int $rating): bool
@@ -99,10 +132,10 @@ class players
 
     /**
      * Edits the information of a player
-     * 
+     *
      * @param int      $user_id        Id of the user
      * @param array    $player_info    Information array for the user
-     * 
+     *
      * @return void
      */
     public function edit_player(int $user_id, array $player_info)
@@ -126,29 +159,29 @@ class players
 
     /**
      * Logins a player
-     * 
+     *
      * @param int    $user_id    Id of the user
-     * 
+     *
      * @return void
      */
-    public function login_player(int $user_id)
+    public function login_player(int $user_id): void
     {
         $this->edit_player($user_id, ['logged_in' => time()]);
     }
 
     /**
      * Logouts a player
-     * 
+     *
      * @param int    $user_id    Id of the user
-     * 
+     *
      * @return void
      */
-    public function logout_player(int $user_id)
+    public function logout_player(int $user_id): void
     {
         $this->edit_player($user_id, ['logged_in' => 0]);
     }
 
-    public function logout_players(array $user_ids)
+    public function logout_players(array $user_ids): void
     {
         db_util::update($this->db, $this->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
     }
@@ -162,10 +195,10 @@ class players
 
     /**
      * Gets the user id, name and rating of all logged in players
-     * 
+     *
      * @return array
      */
-    public function get_logged_in()
+    public function get_logged_in(): array
     {
         return db_util::get_rows($this->db, [
             'SELECT' => 'p.user_id AS id, u.username AS username, p.rating AS rating, p.logged_in AS logged_in',

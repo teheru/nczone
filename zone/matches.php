@@ -13,7 +13,6 @@ namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
 use eru\nczone\utility\zone_util;
-use eru\nczone\utility\number_util;
 use phpbb\db\driver\driver_interface;
 
 /**
@@ -452,8 +451,8 @@ class matches {
 
     public function decide_draw_civs_kind($team1_users, $team2_users): string
     {
-        $team1_sum_rating = array_reduce($team1_users, [__CLASS__, 'rating_sum']);
-        $team2_sum_rating = array_reduce($team2_users, [__CLASS__, 'rating_sum']);
+        $team1_sum_rating = players::get_rating_sum($team1_users);
+        $team2_sum_rating = players::get_rating_sum($team2_users);
 
         $diff = abs($team1_sum_rating - $team2_sum_rating);
 
@@ -530,7 +529,7 @@ class matches {
             {
                 $test_civs = array_slice($draw_civs, $i, $num_civs - $force_civ_num);
                 $test_civs_calc = array_merge($test_civ_add, $test_civs);
-                usort($test_civs_calc, [__CLASS__, 'cmp_multiplier']);
+                $test_civs_calc = civs::sort_by_multiplier($test_civs_calc);
                 $value = $test_civs_calc[0]['multiplier'] - end($test_civs_calc)['multiplier'];
                 reset($test_civs_calc);
                 if($value < $best_value || $best_value < 0)
@@ -548,7 +547,7 @@ class matches {
     {
         if($num_civs == 0)
         {
-            $num_civs = count($users) / 2;
+            $num_civs = \count($users) / 2;
         }
 
         $players_civs = $this->get_players_civs($map_id, $users, $num_civs, $extra_civs);
@@ -560,9 +559,8 @@ class matches {
         {
             $drawed_civs = $players_civs[1];
         }
-        usort($drawed_civs, [__CLASS__, 'cmp_multiplier']);
 
-        return $drawed_civs;
+        return civs::sort_by_multiplier($drawed_civs);
     }
 
     public function get_teams_civs($map_id, $team1_users, $team2_users, $num_civs=0, $extra_civs=2)
@@ -573,8 +571,8 @@ class matches {
         }
 
 
-        $team1_sum_rating = array_reduce($team1_users, [__CLASS__, 'rating_sum']);
-        $team2_sum_rating = array_reduce($team2_users, [__CLASS__, 'rating_sum']);
+        $team1_sum_rating = players::get_rating_sum($team1_users);
+        $team2_sum_rating = players::get_rating_sum($team2_users);
 
 
         // find out which civs have to be in both teams
@@ -769,10 +767,10 @@ class matches {
             $team2_civs[] = $team2_force_civ;
         }
 
-
-        usort($team1_civs, [__CLASS__, 'cmp_multiplier']);
-        usort($team2_civs, [__CLASS__, 'cmp_multiplier']);
-        return [$team1_civs, $team2_civs];
+        return [
+            civs::sort_by_multiplier($team1_civs),
+            civs::sort_by_multiplier($team2_civs),
+        ];
     }
 
     public function get_player_civs($map_id, $team1_users, $team2_users, $num_civs=3)
@@ -956,15 +954,5 @@ class matches {
         }
 
         return $best_civ_combination;
-    }
-
-    public static function cmp_multiplier($c1, $c2): int
-    {
-        return number_util::cmp($c1['multiplier'], $c2['multiplier']);
-    }
-
-    public static function rating_sum($c, $p): int
-    {
-        return $c + $p['rating'];
     }
 }
