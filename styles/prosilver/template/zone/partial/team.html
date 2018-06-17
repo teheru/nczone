@@ -1,0 +1,57 @@
+
+{% set bet_perc_1 = (match.bets.team1|length * 100 / (match.bets.team1|length + match.bets.team2|length))|round %}
+{% set bet_perc_2 = 100 - bet_perc_1 %}
+
+{% if team == 1 %}
+  {% set players = match.players.team1 %}
+  {% set title = lang('NCZONE_MATCH_TEAM1') %}
+  {% set perc = bet_perc_1 %}
+  {% set bets = match.bets.team1 %}
+{% else %}
+  {% set players = match.players.team2 %}
+  {% set title = lang('NCZONE_MATCH_TEAM2') %}
+  {% set perc = bet_perc_2 %}
+  {% set bets = match.bets.team2 %}
+{% endif %}
+
+{% set total_rating = 0 %}
+{% set player_civs = false %}
+{% for player in players %}
+  {% set total_rating = total_rating + player.rating %}
+  {% if player.civ %}{% set player_civs = true %}{% endif %}
+{% endfor %}
+
+<div class="zone-match-team-{{ team }}">
+
+  <div class="zone-match-bets">
+    <div class="zone-match-bets-percentage">
+      <div class="zone-match-bets-percentage-number">{{ perc }}%</div>
+      <div class="zone-match-bets-percentage-bar" style="height: {{ perc }}%"></div>
+    </div>
+    <div class="zone-match-bets-overlay">
+      <div class="zone-match-bets-title">{{ lang('NCZONE_MATCH_HAVE_BET') }}</div>
+      <ul class="zone-match-betters">
+        {% for bet in bets %}
+          <li>{{ bet.user.name }} ({{ bet.timestamp }})</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="zone-match-team">
+    <div class="zone-match-team-header zone-match-player-name">{{ title }}</div>
+    <div class="zone-match-team-header zone-match-player-rating">({{ total_rating }})</div>
+    {% if player_civs %}
+      <div class="zone-match-team-header zone-match-player-civ">{{ lang('NCZONE_MATCH_CIVS') }}</div>
+    {% endif %}
+
+    {% for player in players %}
+      {# todo: explicit +- on rating change, classes to make it colored... #}
+      <div class="zone-match-player-name">{{ player.name }}{% if match.winner %}({{ player.rating_change }}){% endif %}</div>
+      <div class="zone-match-player-rating">({{ player.rating }})</div>
+      {% if player_civs %}
+        <div class="zone-match-player-civ">{% if player.civ %}{{ player.civ.title }}{% endif %}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>

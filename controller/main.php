@@ -102,6 +102,8 @@ class main
         $language->add_lang('rmatches', 'eru/nczone');
 
         // dummy matches... todo: replace with real matches lul
+        $aztecs = (object)['id' => 3, 'title' => 'Aztecs'];
+        $celts = (object)['id' => 9, 'title' => 'Celts'];
         $rmatches = [
             (object)[
                 'id' => 12314,
@@ -124,12 +126,12 @@ class main
                         (object)['id' => 1, 'title' => 'Huns'],
                     ],
                     'team1' => [
-                        (object)['id' => 3, 'title' => 'Aztecs'],
+                        $aztecs,
                         (object)['id' => 4, 'title' => 'Britons'],
                     ],
                     'team2' => [
                         (object)['id' => 6, 'title' => 'Burmese'],
-                        (object)['id' => 9, 'title' => 'Celts'],
+                        $celts,
                     ]
                 ],
                 'bets' => (object)[
@@ -179,6 +181,13 @@ class main
                             'rating' => 61,
                             'rating_change' => 0,
                         ],
+                        (object)[
+                            'id' => 5,
+                            'name' => 'Luemmel_87',
+                            'rating' => 371,
+                            'rating_change' => 0,
+                            'civ' => $celts,
+                        ],
                     ],
                     'team2' => [
                         (object)[
@@ -198,6 +207,13 @@ class main
                             'name' => 'Mr. Snipe',
                             'rating' => 370,
                             'rating_change' => 0,
+                        ],
+                        (object)[
+                            'id' => 4,
+                            'name' => 'Frank Bank',
+                            'rating' => 371,
+                            'rating_change' => 0,
+                            'civ' => $aztecs,
                         ],
                     ],
                 ],

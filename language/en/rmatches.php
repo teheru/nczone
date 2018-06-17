@@ -31,4 +31,5 @@ $lang = array_merge($lang, array(
     'NCZONE_MATCH_TEAM1' => 'Team 1',
     'NCZONE_MATCH_TEAM2' => 'Team 2',
     'NCZONE_MATCH_VS' => 'VS',
+    'NCZONE_MATCH_HAVE_BET' => 'Bets',
 ));
