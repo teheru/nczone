@@ -1091,9 +1091,10 @@ class matches {
     public function get_match_civs(int $match_id): array
     {
         $rows = db_util::get_rows($this->db, [
-            'SELECT' => 'm.civ_id AS id, c.civ_name AS title, m.number',
-            'FROM' => [$this->match_civs_table => 'm', $this->civs_table => 'c'],
-            'WHERE' => 'm.civ_id = c.civ_id AND m.match_id = ' . $match_id
+            'SELECT' => 'm.civ_id AS id, c.civ_name AS title, mc.multiplier, m.number',
+            'FROM' => [$this->match_civs_table => 'm', $this->civs_table => 'c', $this->map_civs_table => 'mc'],
+            'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND m.match_id = ' . $match_id,
+            'ORDER_BY' => 'mc.multiplier DESC'
         ]);
 
         return array_map(function($row) {
@@ -1108,9 +1109,10 @@ class matches {
     public function get_team_civs(int $team1_id, int $team2_id): array
     {
         $rows = db_util::get_rows($this->db, [
-            'SELECT' => 'm.team_id, m.civ_id AS id, c.civ_name AS title, m.number',
-            'FROM' => [$this->team_civs_table => 'm', $this->civs_table => 'c'],
-            'WHERE' => 'm.civ_id = c.civ_id AND (m.team_id = ' . $team1_id . ' OR m.team_id = ' . $team2_id . ')'
+            'SELECT' => 'm.team_id, m.civ_id AS id, c.civ_name AS title, mc.multiplier, m.number',
+            'FROM' => [$this->team_civs_table => 'm', $this->civs_table => 'c', $this->map_civs_table => 'mc'],
+            'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND (m.team_id = ' . $team1_id . ' OR m.team_id = ' . $team2_id . ')',
+            'ORDER_BY' => 'mc.multiplier DESC'
         ]);
 
         $teams = ['team1' => [], 'team2' => []];
