@@ -957,14 +957,14 @@ class matches {
             foreach ($user_civpools[$pc['user_id']] as $civ) {
                 // we don't want to have multiple civs with same multiplier for the same player
                 // also, don't add civs for players which have a civ which we want to keep
-                if ($pc['multiplier'] == $civ['multiplier'] || in_array($civ['id'], $keep_civ_ids)) {
+                if ($pc['multiplier'] == $civ['multiplier'] || \in_array($civ['id'], $keep_civ_ids)) {
                     continue 2;
                 }
             }
 
             if (\in_array($pc['civ_id'], $both_teams_civ_ids)) {
                 // if the drawed civ should be in both teams, get the player from the other team who should get that civ
-                $other_team =  $civs_module->get_map_players_single_civ($map_id, (\in_array($pc['user_id'], $team1_ids)) ? $team2_ids : $team1_ids, [$pc['civ_id']], False, False);
+                $other_team = $civs_module->get_map_players_single_civ($map_id, (\in_array($pc['user_id'], $team1_ids)) ? $team2_ids : $team1_ids, [$pc['civ_id']], False, False);
                 if (\count($user_civpools[$other_team['user_id']]) > 0) {
                     foreach ($user_civpools[$other_team['user_id']] as $civ) {
                         // if he already has a forced civ or a civ for both teams, we drop the recently drawed civ
@@ -976,13 +976,23 @@ class matches {
 
                 // overwrite the other players civs
                 foreach ($user_civpools[$other_team['user_id']] as $civ) {
-                    unset($civpool_civs[array_search($other_team['civ_id'], $civpool_civs)]);
+                    unset($civpool_civs[array_search($civ['id'], $civpool_civs)]);
                 }
                 $user_civpools[$other_team['user_id']] = [['id' => $other_team['civ_id'], 'multiplier' => $other_team['multiplier']]];
             }
 
             $civpool_civs[] = $pc['civ_id'];
-            $user_civpools[$pc['user_id']][] = ['id' => $pc['civ_id'], 'multiplier' => $pc['multiplier']];
+            if (\in_array($pc['civ_id'], $both_teams_civ_ids)) {
+                // overwrite this players civs
+                foreach ($user_civpools[$pc['user_id']] as $civ) {
+                    unset($civpool_civs[array_search($civ['id'], $civpool_civs)]);
+                }
+                $user_civpools[$pc['user_id']] = [['id' => $pc['civ_id'], 'multiplier' => $pc['multiplier']]];
+            }
+            else
+            {
+                $user_civpools[$pc['user_id']][] = ['id' => $pc['civ_id'], 'multiplier' => $pc['multiplier']];
+            }
         }
 
         // calculate all possible combinations of civs for the players
