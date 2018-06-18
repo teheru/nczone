@@ -42,6 +42,8 @@ class matches {
     /** @var string */
     private $maps_table;
     /** @var string */
+    private $civs_table;
+    /** @var string */
     private $player_map_table;
     /** @var string */
     private $map_civs_table;
@@ -49,6 +51,8 @@ class matches {
     private $player_civ_table;
     /** @var string */
     private $bets_table;
+    /** @var string */
+    private $users_table;
 
     /**
      * Constructor
@@ -61,15 +65,17 @@ class matches {
      * @param string                             $team_civs_table          Name of the team civs table
      * @param string                             $match_player_civs_table  Name of the player civs table
      * @param string                             $maps_table               Name of the maps table
+     * @param string                             $maps_table               Name of the civs table
      * @param string                             $player_map_table         Name of the table with the last time a player played a map
      * @param string                             $map_civs_table           Name of the table which contains civ information for maps
      * @param string                             $player_civ_table         Name of the table which contains the last time a player played a civ
      * @param string                             $bets_table               Name of the bets table
+     * @param string                             $users_table              Name of the phpBB users table
      */
     public function __construct(driver_interface $db, string $matches_table, string $match_teams_table,
                                 string $match_players_table, string $match_civs_table, string $team_civs_table,
-                                string $match_player_civs_table, string $maps_table, string $player_map_table,
-                                string $map_civs_table, string $player_civ_table, string $bets_table)
+                                string $match_player_civs_table, string $maps_table, string $civs_table, string $player_map_table,
+                                string $map_civs_table, string $player_civ_table, string $bets_table, string $users_table)
     {
         $this->db = $db;
         $this->matches_table = $matches_table;
@@ -78,11 +84,13 @@ class matches {
         $this->match_civs_table = $match_civs_table;
         $this->match_player_civs_table = $match_player_civs_table;
         $this->maps_table = $maps_table;
+        $this->civs_table = $civs_table;
         $this->map_civs_table = $map_civs_table;
         $this->team_civs_table = $team_civs_table;
         $this->player_map_table = $player_map_table;
         $this->player_civ_table = $player_civ_table;
         $this->bets_table = $bets_table;
+        $this->users_table = $users_table;
     }
 
 
@@ -128,7 +136,7 @@ class matches {
         $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
         if($civ_kind === self::MATCH_CIVS)
         {
-            $match_civs = $this->get_match_civs($map_id, $players);
+            $match_civs = $this->draw_match_civs($map_id, $players);
             foreach($match_civs as $civ)
             {
                 $match_civ_ids[] = $civ['id'];
@@ -136,7 +144,7 @@ class matches {
         }
         elseif($civ_kind === self::TEAM_CIVS)
         {
-            [$team1_civs, $team2_civs] = $this->get_teams_civs($map_id, $team1, $team2);
+            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2);
             foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = $civ['id'];
@@ -148,7 +156,7 @@ class matches {
         }
         else
         {
-            $player_civs = $this->get_player_civs($map_id, $team1, $team2);
+            $player_civs = $this->draw_player_civs($map_id, $team1, $team2);
             foreach($player_civs as $user_id => $pc)
             {
                 $player_civ_ids[$user_id] = $pc['id'];
@@ -580,7 +588,7 @@ class matches {
         return self::MATCH_CIVS;
     }
 
-    protected function get_players_civs(int $map_id, array $users, int $num_civs, int $extra_civs, bool $ignore_force=False): array
+    protected function draw_players_civs(int $map_id, array $users, int $num_civs, int $extra_civs, bool $ignore_force=False): array
     {
         $civ_ids = [];
         $civ_multiplier = [];
@@ -649,9 +657,9 @@ class matches {
         return [$force_civ ?: NULL, $best_civs];
     }
 
-    public function get_match_civs(int $map_id, array $users, int $num_civs=0, int $extra_civs=4): array
+    public function draw_match_civs(int $map_id, array $users, int $num_civs=0, int $extra_civs=4): array
     {
-        $players_civs = $this->get_players_civs($map_id, $users, $num_civs ?: \count($users) / 2, $extra_civs);
+        $players_civs = $this->draw_players_civs($map_id, $users, $num_civs ?: \count($users) / 2, $extra_civs);
 
         $drawed_civs = $players_civs[0]
             ? array_merge([$players_civs[0]], $players_civs[1])
@@ -660,7 +668,7 @@ class matches {
         return civs::sort_by_multiplier($drawed_civs);
     }
 
-    public function get_teams_civs(int $map_id, array $team1_users, array $team2_users, int $num_civs=0, int $extra_civs=2): array
+    public function draw_teams_civs(int $map_id, array $team1_users, array $team2_users, int $num_civs=0, int $extra_civs=2): array
     {
         if($num_civs === 0)
         {
@@ -677,7 +685,7 @@ class matches {
 
 
         // we use some extra civs to be able to draw fair civs for the teams
-        $team1_players_civs = $this->get_players_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
+        $team1_players_civs = $this->draw_players_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
         $team1_force_civ = $team1_players_civs[0];
         $team1_civpool = $team1_players_civs[1];
 
@@ -693,7 +701,7 @@ class matches {
             }
         }
 
-        $team2_players_civs = $this->get_players_civs($map_id, $team2_users, $num_civs + $extra_civs, 0, $ignore_force);
+        $team2_players_civs = $this->draw_players_civs($map_id, $team2_users, $num_civs + $extra_civs, 0, $ignore_force);
         $team2_force_civ = $team2_players_civs[0];
         if($ignore_force)
         {
@@ -860,7 +868,7 @@ class matches {
         ];
     }
 
-    public function get_player_civs(int $map_id, array $team1_users, array $team2_users, int $num_civs=3): array
+    public function draw_player_civs(int $map_id, array $team1_users, array $team2_users, int $num_civs=3): array
     {
         $civs_module = zone_util::civs();
 
@@ -1036,5 +1044,110 @@ class matches {
             'team_id' => 0,
             'match_id' => $match_id,
         ]);
+    }
+
+    public function get_all_rmatches(): array
+    {
+        $rmatches = [];
+
+        $match_rows = db_util::get_rows($this->db, [
+            'SELECT' => 't.match_id, t.map_id, m.map_name, t.draw_user_id, u.username AS draw_username, t.draw_time',
+            'FROM' => [$this->matches_table => 't', $this->maps_table => 'm', $this->users_table => 'u'],
+            'WHERE' => 't.map_id = m.map_id AND t.draw_user_id = u.user_id AND t.post_time = 0',
+            'ORDER_BY' => 't.draw_time DESC'
+        ]);
+        foreach($match_rows as $m)
+        {
+            $match_id = (int)$m['match_id'];
+            [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+
+            $match = [
+                'id' => $match_id,
+                'game_type' => 'IP', // todo: remove
+                'ip' => '', // todo: remove
+                'timestampStart' => (int)$m['draw_time'],
+                'timestampEnd' => 0,
+                'winner' => 0,
+                'whiner' => 'Snyper',
+                'result_poster' => NULL,
+                'drawer' => [
+                    'id' => (int)$m['draw_user_id'],
+                    'name' => $m['draw_username'],
+                ],
+                'map' => [
+                    'id' => (int)$m['map_id'],
+                    'title' => $m['map_name'],
+                ],
+                'civs' => array_merge(['both' => $this->get_match_civs($match_id)], $this->get_team_civs($team1_id, $team2_id)),
+                'bets' => ['team1' => [], 'team2' => []],
+                'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id),
+            ];
+            $rmatches[] = $match;
+        }
+
+        return $rmatches;
+    }
+
+    public function get_match_civs(int $match_id): array
+    {
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 'm.civ_id AS id, c.civ_name AS title, m.number',
+            'FROM' => [$this->match_civs_table => 'm', $this->civs_table => 'c'],
+            'WHERE' => 'm.civ_id = c.civ_id AND m.match_id = ' . $match_id
+        ]);
+
+        return array_map(function($row) {
+            return [
+                'id' => (int)$row['id'],
+                'title' => $row['title'],
+                'number' => (int)$row['number'],
+            ];
+        }, $rows);
+    }
+
+    public function get_team_civs(int $team1_id, int $team2_id): array
+    {
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 'm.team_id, m.civ_id AS id, c.civ_name AS title, m.number',
+            'FROM' => [$this->team_civs_table => 'm', $this->civs_table => 'c'],
+            'WHERE' => 'm.civ_id = c.civ_id AND (m.team_id = ' . $team1_id . ' OR m.team_id = ' . $team2_id . ')'
+        ]);
+
+        $teams = ['team1' => [], 'team2' => []];
+        foreach($rows as $r)
+        {
+            $team_id = (int)$r['team_id'];
+            unset($r['team_id']);
+            
+            $r['civ_id'] = (int)$r['civ_id'];
+            $r['number'] = (int)$r['number'];
+
+            $teams[($team_id === $team1_id) ? 'team1' : 'team2'][] = $r;
+        }
+
+        return $teams;
+    }
+
+    public function get_bets(int $team1_id, int $team2_id): array
+    {
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 'b.user_id, b.team_id, b.time, u.username',
+            'FROM' => [$this->bets_table => 'b', $this->users_table => 'u'],
+            'WHERE' => 'b.user_id = u.user_id AND (b.team_id = ' . $team1_id . ' OR b.team_id = ' . $team2_id . ')'
+        ]);
+
+        $bets = ['team1' => [], 'team2' => []];
+        foreach($rows as $r)
+        {
+            $bets[($team_id === $team1_id) ? 'team1' : 'team2'][] = [
+                'timestamp' => (int)$r['time'],
+                'user' => [
+                    'id' => (int)$r['user_id'],
+                    'name' => $r['username']
+                ]
+            ];
+        }
+
+        return $bets;
     }
 }

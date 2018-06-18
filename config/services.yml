@@ -67,6 +67,8 @@ services:
         - '@user'
         - '%tables.eru.nczone.players%'
         - '%tables.users%'
+        - '%tables.eru.nczone.match_players%'
+        - '%tables.eru.nczone.match_player_civs%'
         - '%tables.eru.nczone.maps%'
         - '%tables.eru.nczone.civs%'
         - '%tables.eru.nczone.player_map%'
@@ -84,10 +86,12 @@ services:
         - '%tables.eru.nczone.match_team_civs%'
         - '%tables.eru.nczone.match_player_civs%'
         - '%tables.eru.nczone.maps%'
+        - '%tables.eru.nczone.civs%'
         - '%tables.eru.nczone.player_map%'
         - '%tables.eru.nczone.map_civs%'
         - '%tables.eru.nczone.player_civ%'
         - '%tables.eru.nczone.bets%'
+        - '%tables.users%'
 
     eru.nczone.zone.civs:
       class: eru\nczone\zone\civs

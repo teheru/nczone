@@ -26,6 +26,10 @@ class players
     /** @var string */
     private $users_table;
     /** @var string */
+    private $match_players_table;
+    /** @var string */
+    private $match_player_civs_table;
+    /** @var string */
     private $maps_table;
     /** @var string */
     private $civs_table;
@@ -42,6 +46,8 @@ class players
      * @param \phpbb\user $user
      * @param string $players_table
      * @param string $users_table
+     * @param string $match_players_table
+     * @param string $match_player_civs_table
      * @param string $maps_table
      * @param string $civs_table
      * @param string $player_map_table
@@ -49,13 +55,15 @@ class players
      * @param string $bets_table
      */
     public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
-                                string $users_table, string $maps_table, string $civs_table,
+                                string $users_table, string $match_players_table, string $match_player_civs_table, string $maps_table, string $civs_table,
                                 string $player_map_table, string $player_civ_table, string $bets_table)
     {
         $this->db = $db;
         $this->user = $user;
         $this->players_table = $players_table;
         $this->users_table = $users_table;
+        $this->match_players_table = $match_players_table;
+        $this->match_player_civs_table = $match_player_civs_table;
         $this->maps_table = $maps_table;
         $this->civs_table = $civs_table;
         $this->player_map_table = $player_map_table;
@@ -297,5 +305,38 @@ class players
                 'logged_in' => (int)$row['logged_in'],
             ];
         }, $rows);
+    }
+
+    public function get_match_players(int $match_id, int $team1_id, int $team2_id): array
+    {
+        $player_rows = db_util::get_rows($this->db, [
+            'SELECT' => 'mp.user_id AS id, mp.team_id, u.username AS name, mp.draw_rating AS rating, mp.rating_change, pc.civ_id, c.civ_name',
+            'FROM' => [$this->match_players_table => 'mp', $this->users_table => 'u', $this->match_player_civs_table => 'pc', $this->civs_table => 'c'],
+            'WHERE' => '(mp.team_id = ' . $team1_id . ' OR mp.team_id = ' . $team2_id . ') AND mp.user_id = pc.user_id AND mp.user_id = u.user_id AND pc.match_id = ' . $match_id . ' AND pc.civ_id = c.civ_id'
+        ]);
+        
+        $teams = [];
+        foreach($player_rows as $r)
+        {
+            $civ_id = $r['civ_id'];
+            $civ_name = $r['civ_name'];
+            unset($r['civ_id'], $r['civ_name']);
+            if($civ_id)
+            {
+                $r['civ'] = ['id' => (int)$civ_id, 'title' => $civ_name];
+            }
+
+            $team_id = (int)$r['team_id'];
+            unset($r['team_id']);
+
+            $r['rating'] = (int)$r['rating'];
+            $r['rating_change'] = (int)$r['rating_change'];
+
+            $teams[$team_id][] = $r;
+        }
+
+        [$team1_key, $team2_key] = array_keys($teams);
+
+        return ['team1' => $teams[$team1_key], 'team2' => $teams[$team2_key]];
     }
 }
