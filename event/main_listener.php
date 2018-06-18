@@ -67,6 +67,8 @@ class main_listener implements EventSubscriberInterface
     $permissions['u_zone_view_login']	= array('lang' => 'ACL_U_ZONE_VIEW_LOGIN', 'cat' => 'zone');
     $permissions['u_zone_draw']	= array('lang' => 'ACL_U_ZONE_DRAW', 'cat' => 'zone');
     $permissions['u_zone_view_matches']	= array('lang' => 'ACL_U_ZONE_VIEW_MATCHES', 'cat' => 'zone');
+    $permissions['u_zone_view_bets']	= array('lang' => 'ACL_U_ZONE_VIEW_BETS', 'cat' => 'zone');
+    $permissions['u_zone_bet']	= array('lang' => 'ACL_U_ZONE_BET', 'cat' => 'zone');
 	
     $permissions['m_zone_manage_players']	= array('lang' => 'ACL_M_ZONE_MANAGE_PLAYERS', 'cat' => 'zone');
     $permissions['m_zone_manage_civs']	= array('lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone');

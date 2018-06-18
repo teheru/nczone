@@ -29,4 +29,6 @@ $lang = array_merge($lang, array(
 	'ACL_U_ZONE_LOGIN' => 'login / logout',
 	'ACL_U_ZONE_VIEW_LOGIN' => 'can see logged in players',
 	'ACL_U_ZONE_VIEW_MATCHES' => 'can see matches',
+	'ACL_U_ZONE_VIEW_BETS' => 'can see players bets',
+	'ACL_U_ZONE_BET' => 'can bet on matches',
 ));
