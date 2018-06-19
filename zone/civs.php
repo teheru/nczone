@@ -174,7 +174,7 @@ class civs
             'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
         ];
 
-        if (count($civ_ids) > 0) {
+        if (\count($civ_ids) > 0) {
             $sql_array['WHERE'] .= ' AND ' . $this->db->sql_in_set('c.civ_id', $civ_ids, $neg_civ_ids);
         }
         if ($force) {

@@ -26,6 +26,8 @@ class maps
     /** @var string */
     private $maps_table;
     /** @var string */
+    private $players_table;
+    /** @var string */
     private $map_civs_table;
     /** @var string */
     private $player_map_table;
@@ -79,7 +81,7 @@ class maps
      * 
      * @return array
      */
-    public function get_map($map_id)
+    public function get_map(int $map_id): array
     {
         return db_util::get_row($this->db, [
             'SELECT' => 'm.map_name AS name, m.weight AS weight',
@@ -95,7 +97,7 @@ class maps
      * 
      * @return array
      */
-    public function get_map_civs($map_id): array
+    public function get_map_civs(int $map_id): array
     {
         return db_util::get_rows($this->db, [
             'SELECT' => 'c.civ_id AS civ_id, c.multiplier AS multiplier, c.force_draw AS force_draw, c.prevent_draw AS prevent_draw, c.both_teams AS both_teams',
@@ -104,7 +106,7 @@ class maps
         ]);
     }
 
-    public function get_map_both_teams_civ_ids($map_id): array
+    public function get_map_both_teams_civ_ids(int $map_id): array
     {
         $rows = db_util::get_rows($this->db, [
             'SELECT' => 'c.civ_id AS id',
@@ -152,7 +154,7 @@ class maps
     }
 
 
-    private function copy_map_civs($to_map_id, $from_map_id): void
+    private function copy_map_civs(int $to_map_id, int $from_map_id): void
     {
         $sql_array = [];
         foreach ($this->get_map_civs($from_map_id) as $map_civ) {
@@ -165,7 +167,7 @@ class maps
     }
 
 
-    private function create_map_civs($map_id): void
+    private function create_map_civs(int $map_id): void
     {
         // todo: replace this by a subquery like above?
         $sql_array = [];

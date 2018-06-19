@@ -55,8 +55,9 @@ class players
      * @param string $bets_table
      */
     public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
-                                string $users_table, string $match_players_table, string $match_player_civs_table, string $maps_table, string $civs_table,
-                                string $player_map_table, string $player_civ_table, string $bets_table)
+                                string $users_table, string $match_players_table, string $match_player_civs_table,
+                                string $maps_table, string $civs_table, string $player_map_table,
+                                string $player_civ_table, string $bets_table)
     {
         $this->db = $db;
         $this->user = $user;
@@ -178,7 +179,7 @@ class players
      *
      * @return void
      */
-    public function edit_player(int $user_id, array $player_info)
+    public function edit_player(int $user_id, array $player_info): void
     {
         $sql_array = [];
         if (array_key_exists('rating', $player_info)) {
@@ -235,7 +236,7 @@ class players
     public function place_bet(int $user_id, int $match_id, int $team_id): void
     {
         [$team1_id, $team2_id] = zone_util::matches()->get_match_team_ids($match_id);
-        if($team_id == $team1_id || $team_id == $team2_id)
+        if($team_id === $team1_id || $team_id === $team2_id)
         {
             $num_bets = (int)db_util::get_var($this->db, [
                 'SELECT' => 'COUNT(*)',

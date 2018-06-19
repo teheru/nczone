@@ -591,7 +591,6 @@ class matches {
     protected function draw_players_civs(int $map_id, array $users, int $num_civs, int $extra_civs, bool $ignore_force=False): array
     {
         $civ_ids = [];
-        $civ_multiplier = [];
 
         $user_ids = [];
         foreach($users as $user)
@@ -1151,7 +1150,7 @@ class matches {
         $bets = ['team1' => [], 'team2' => []];
         foreach($rows as $r)
         {
-            $bets[($team_id === $team1_id) ? 'team1' : 'team2'][] = [
+            $bets[($r['team_id'] === $team1_id) ? 'team1' : 'team2'][] = [
                 'timestamp' => (int)$r['time'],
                 'user' => [
                     'id' => (int)$r['user_id'],
