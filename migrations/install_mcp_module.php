@@ -52,17 +52,6 @@ class install_mcp_module extends \phpbb\db\migration\migration
 			array('permission.add', array('m_zone_manage_maps', true)),
 			array('permission.add', array('m_zone_create_maps', true)),
 
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'm_zone_manage_players')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'm_zone_manage_civs')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'm_zone_create_maps')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'm_zone_manage_maps')),
-
-			array('permission.role_add', array('nC Zone Admin', 'a_', 'A full administrative role for the nC Zone.')),
-			array('permission.permission_set', array('nC Zone Admin', 'm_zone_manage_players')),
-			array('permission.permission_set', array('nC Zone Admin', 'm_zone_manage_civs')),
-			array('permission.permission_set', array('nC Zone Admin', 'm_zone_create_maps')),
-			array('permission.permission_set', array('nC Zone Admin', 'm_zone_manage_maps')),
-
 			array('permission.role_add', array('nC Zone Mod', 'm_', 'A moderator role for the nC Zone.')),
 			array('permission.permission_set', array('nC Zone Mod', 'm_zone_manage_players')),
 			array('permission.permission_set', array('nC Zone Mod', 'm_zone_manage_civs')),

@@ -41,9 +41,14 @@ class install_acp_module extends \phpbb\db\migration\migration
 				'ACP_NCZONE_TITLE',
 				array(
 					'module_basename'	=> '\eru\nczone\acp\main_module',
-					'modes'				=> array('settings'),
+					'modes'				=> array('draw'),
 				),
 			)),
+
+			array('permission.add', array('a_zone_manage_draw', true)),
+
+			array('permission.role_add', array('nC Zone Admin', 'a_', 'A full administrative role for the nC Zone.')),
+			array('permission.permission_set', array('nC Zone Admin', 'a_zone_manage_draw')),
 		);
 	}
 }

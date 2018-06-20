@@ -20,6 +20,9 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, array(
 	'NCZONE' => 'nC Zone',
+	
+	'ACP_NCZONE_TITLE' => 'nC Zone',
+	'ACP_NCZONE_DRAW_TITLE' => 'Draw settings',
 
 	'MCP_ZONE_TITLE'		=> 'nC Zone',
 	'MCP_PLAYERS_TITLE'		=> 'Player',

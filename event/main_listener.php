@@ -74,6 +74,8 @@ class main_listener implements EventSubscriberInterface
     $permissions['m_zone_manage_civs']	= array('lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone');
     $permissions['m_zone_manage_maps']	= array('lang' => 'ACL_M_ZONE_MANAGE_MAPS', 'cat' => 'zone');
 	$permissions['m_zone_create_maps']	= array('lang' => 'ACL_M_ZONE_CREATE_MAPS', 'cat' => 'zone');
+
+	$permissions['a_zone_manage_draw']	= array('lang' => 'ACL_A_ZONE_MANAGE_DRAW', 'cat' => 'zone');
 	
 
 	$event['categories'] = array_merge($event['categories'], array(

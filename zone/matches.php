@@ -581,7 +581,6 @@ class matches {
             players::get_min_rating($team1_users, $team2_users)
         );
 
-        // todo: replace this values by ACP config values
         if ($min_max_diff >= $config['nczone_draw_player_civs']) {
             return self::PLAYER_CIVS;
         }
@@ -591,7 +590,6 @@ class matches {
             players::get_rating_sum($team2_users)
         );
 
-        // todo: replace this values by ACP config values
         if($rating_sum_diff >= $config['nczone_draw_team_civs']) {
             return self::TEAM_CIVS;
         }

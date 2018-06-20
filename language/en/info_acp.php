@@ -19,8 +19,6 @@ if (empty($lang) || !is_array($lang))
 }
 
 $lang = array_merge($lang, array(
-	'ACP_NCZONE_TITLE' => 'nC Zone',
-	'ACP_NCZONE_DRAW_TITLE' => 'Draw settings',
 	'ACP_NCZONE_SAVED' => 'Saved!',
 
 	'NCZONE_DRAW_SETTINGS' => 'Draw settings',

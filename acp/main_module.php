@@ -23,20 +23,39 @@ class main_module
 
     public function main($id, $mode)
     {
-        $config = phpbb_util::config();
         $request = phpbb_util::request();
         $language = phpbb_util::language();
         $language->add_lang('common', 'eru/nczone');
         $language->add_lang('info_acp', 'eru/nczone');
-        $this->tpl_name = 'acp_nczone';
         $this->page_title = $language->lang('ACP_NCZONE_TITLE');
         add_form_key('eru/nczone');
 
+        $submit = False;
         if ($request->is_set_post('submit')) {
             if (!check_form_key('eru/nczone')) {
                 trigger_error('FORM_INVALID', E_USER_WARNING);
             }
 
+            $submit = True;
+        }
+
+        switch($mode)
+        {
+            case 'draw':
+                $this->draw($submit);
+                $this->tpl_name = 'acp_nczone_draw';
+                break;
+        }
+    }
+
+    public function draw(bool $submit): void
+    {
+        $request = phpbb_util::request();
+        $config = phpbb_util::config();
+        $language = phpbb_util::language();
+
+        if($submit)
+        {
             $config->set('nczone_draw_player_civs', (int)$request->variable('nczone_draw_player_civs', 600));
             $config->set('nczone_draw_team_civs', (int)$request->variable('nczone_draw_team_civs', 120));
             $config->set('nczone_draw_match_extra_civs', (int)$request->variable('nczone_draw_match_extra_civs', 4));

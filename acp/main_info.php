@@ -21,9 +21,9 @@ class main_info
 			'filename'	=> '\eru\nczone\acp\main_module',
 			'title'		=> 'ACP_NCZONE_TITLE',
 			'modes'		=> array(
-				'settings'	=> array(
-					'title'	=> 'ACP_NCZONE_TITLE',
-					'auth'	=> 'ext_eru/nczone && acl_a_board',
+				'draw'	=> array(
+					'title'	=> 'ACP_NCZONE_DRAW_TITLE',
+					'auth'	=> 'ext_eru/nczone && acl_a_zone_manage_draw',
 					'cat'	=> array('ACP_NCZONE_TITLE')
 				),
 			),

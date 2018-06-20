@@ -31,4 +31,6 @@ $lang = array_merge($lang, array(
 	'ACL_U_ZONE_VIEW_MATCHES' => 'can see matches',
 	'ACL_U_ZONE_VIEW_BETS' => 'can see players bets',
 	'ACL_U_ZONE_BET' => 'can bet on matches',
+
+	'ACL_A_ZONE_MANAGE_DRAW' => 'can manage draw settings',
 ));
