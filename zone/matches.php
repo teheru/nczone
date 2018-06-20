@@ -14,6 +14,7 @@ namespace eru\nczone\zone;
 use eru\nczone\utility\db_util;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
+use eru\nczone\utility\phpbb_util;
 use phpbb\db\driver\driver_interface;
 
 /**
@@ -125,6 +126,8 @@ class matches {
 
     public function draw_settings(array $team1, array $team2): array
     {
+        $config = phpbb_util::config();
+
         $players = array_merge($team1, $team2);
 
         $match_civ_ids = [];
@@ -136,7 +139,7 @@ class matches {
         $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
         if($civ_kind === self::MATCH_CIVS)
         {
-            $match_civs = $this->draw_match_civs($map_id, $players);
+            $match_civs = $this->draw_match_civs($map_id, $players, 0, $config['nczone_draw_match_extra_civs']);
             foreach($match_civs as $civ)
             {
                 $match_civ_ids[] = $civ['id'];
@@ -144,7 +147,7 @@ class matches {
         }
         elseif($civ_kind === self::TEAM_CIVS)
         {
-            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2);
+            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, 0, $config['nczone_draw_team_extra_civs']);
             foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = $civ['id'];
@@ -156,7 +159,7 @@ class matches {
         }
         else
         {
-            $player_civs = $this->draw_player_civs($map_id, $team1, $team2);
+            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, $config['nczone_draw_player_num_civs']);
             foreach($player_civs as $user_id => $pc)
             {
                 $player_civ_ids[$user_id] = $pc['id'];
@@ -308,7 +311,7 @@ class matches {
                 $civ_ids = array_merge(
                     $match_civ_ids,
                     $user_info['team_id'] == $team1_id ? $team1_civ_ids : $team2_civ_ids,
-                    array_key_exists($user_id, $player_civ_ids) ? $player_civ_ids[$user_id] : []
+                    array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                 );
 
                 db_util::update($this->db, $this->player_civ_table, ['time' => time()], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
@@ -398,8 +401,14 @@ class matches {
             'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - 1200), // todo: replace by ACP var
         ]);
 
-        $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
-        $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
+        if($$users_right)
+        {
+            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
+        }
+        if($users_wrong)
+        {
+            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
+        }
     }
 
 
@@ -565,13 +574,14 @@ class matches {
 
     public function decide_draw_civs_kind(array $team1_users, array $team2_users): string
     {
+        $config = phpbb_util::config();
+
         $min_max_diff = number_util::diff(
             players::get_max_rating($team1_users, $team2_users),
             players::get_min_rating($team1_users, $team2_users)
         );
 
-        // todo: replace this values by ACP config values
-        if ($min_max_diff >= 600) {
+        if ($min_max_diff >= $config['nczone_draw_player_civs']) {
             return self::PLAYER_CIVS;
         }
 
@@ -580,8 +590,7 @@ class matches {
             players::get_rating_sum($team2_users)
         );
 
-        // todo: replace this values by ACP config values
-        if($rating_sum_diff >= 120) {
+        if($rating_sum_diff >= $config['nczone_draw_team_civs']) {
             return self::TEAM_CIVS;
         }
 
@@ -1062,7 +1071,7 @@ class matches {
         $match_rows = db_util::get_rows($this->db, [
             'SELECT' => 't.match_id, t.map_id, m.map_name, t.draw_user_id, u.username AS draw_username, t.draw_time',
             'FROM' => [$this->matches_table => 't', $this->maps_table => 'm', $this->users_table => 'u'],
-            'WHERE' => 't.map_id = m.map_id AND t.draw_user_id = u.user_id AND t.post_time = 0',
+            'WHERE' => 't.map_id = m.map_id AND t.draw_user_id = u.user_id AND t.post_user_id = 0',
             'ORDER_BY' => 't.draw_time DESC'
         ]);
         foreach($match_rows as $m)

@@ -7,6 +7,7 @@ use eru\nczone\zone\maps;
 use eru\nczone\zone\players;
 use eru\nczone\zone\matches;
 use eru\nczone\zone\draw;
+use eru\nczone\zone\misc;
 
 class zone_util
 {
@@ -58,5 +59,15 @@ class zone_util
             $maps = phpbb_util::container()->get('eru.nczone.zone.maps');
         }
         return $maps;
+    }
+
+    public static function misc(): misc
+    {
+        static $misc;
+        if ($misc === null) {
+            /** @var misc $misc */
+            $misc = phpbb_util::container()->get('eru.nczone.zone.misc');
+        }
+        return $misc;
     }
 }

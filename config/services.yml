@@ -117,3 +117,9 @@ services:
     eru.nczone.zone.draw:
       class: eru\nczone\zone\draw
       arguments:
+
+    eru.nczone.zone.misc:
+      class: eru\nczone\zone\misc
+      arguments:
+        - '@dbal.conn'
+        - '%tables.posts%'
