@@ -14,7 +14,7 @@ class install_acp_module extends \phpbb\db\migration\migration
 {
 	public function effectively_installed()
 	{
-		return isset($this->config['acme_demo_goodbye']);
+		return isset($this->config['nczone_draw_player_civs']);
 	}
 
 	static public function depends_on()
@@ -25,16 +25,20 @@ class install_acp_module extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
-			array('config.add', array('acme_demo_goodbye', 0)),
+			array('config.add', array('nczone_draw_player_civs', 600)),
+			array('config.add', array('nczone_draw_team_civs', 120)),
+			array('config.add', array('nczone_draw_match_extra_civs', 4)),
+			array('config.add', array('nczone_draw_team_extra_civs', 2)),
+			array('config.add', array('nczone_draw_player_num_civs', 3)),
 
 			array('module.add', array(
 				'acp',
 				'ACP_CAT_DOT_MODS',
-				'ACP_DEMO_TITLE'
+				'ACP_NCZONE_TITLE'
 			)),
 			array('module.add', array(
 				'acp',
-				'ACP_DEMO_TITLE',
+				'ACP_NCZONE_TITLE',
 				array(
 					'module_basename'	=> '\eru\nczone\acp\main_module',
 					'modes'				=> array('settings'),

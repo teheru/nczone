@@ -19,10 +19,10 @@ class main_info
 	{
 		return array(
 			'filename'	=> '\eru\nczone\acp\main_module',
-			'title'		=> 'ACP_DEMO_TITLE',
+			'title'		=> 'ACP_NCZONE_TITLE',
 			'modes'		=> array(
 				'settings'	=> array(
-					'title'	=> 'ACP_NCZONE',
+					'title'	=> 'ACP_NCZONE_TITLE',
 					'auth'	=> 'ext_eru/nczone && acl_a_board',
 					'cat'	=> array('ACP_NCZONE_TITLE')
 				),

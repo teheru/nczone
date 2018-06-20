@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<fieldset>
+	<legend>{{ lang('NCZONE_DRAW_SETTINGS') }}</legend>
+	<dl>
+		<dt>
+			<label for="draw_player_civs">{{ lang('NCZONE_DRAW_PLAYER_CIVS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_DRAW_PLAYER_CIVS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="draw_player_civs" value="{{ nczone_draw_player_civs }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
+			<label for="draw_team_civs">{{ lang('NCZONE_DRAW_TEAM_CIVS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_DRAW_TEAM_CIVS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="draw_team_civs" value="{{ nczone_draw_team_civs }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
+			<label for="draw_match_extra_civs">{{ lang('NCZONE_DRAW_MATCH_EXTRA_CIVS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_DRAW_MATCH_EXTRA_CIVS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="draw_match_extra_civs" value="{{ nczone_draw_match_extra_civs }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
+			<label for="draw_team_extra_civs">{{ lang('NCZONE_DRAW_TEAM_EXTRA_CIVS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_DRAW_TEAM_EXTRA_CIVS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="draw_team_extra_civs" value="{{ nczone_draw_team_extra_civs }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
+			<label for="draw_player_num_civs">{{ lang('NCZONE_DRAW_PLAYER_NUM_CIVS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="draw_player_num_civs" value="{{ nczone_draw_player_num_civs }}" />
+		</dd>
+	</dl>
+</fieldset>
+
+{% endblock %}
