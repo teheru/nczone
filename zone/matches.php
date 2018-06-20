@@ -308,7 +308,7 @@ class matches {
                 $civ_ids = array_merge(
                     $match_civ_ids,
                     $user_info['team_id'] == $team1_id ? $team1_civ_ids : $team2_civ_ids,
-                    array_key_exists($user_id, $player_civ_ids) ? $player_civ_ids[$user_id] : []
+                    array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                 );
 
                 db_util::update($this->db, $this->player_civ_table, ['time' => time()], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
@@ -398,8 +398,14 @@ class matches {
             'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - 1200), // todo: replace by ACP var
         ]);
 
+        if($$users_right)
+        {
         $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
+        }
+        if($users_wrong)
+        {
         $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
+    }
     }
 
 
