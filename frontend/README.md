@@ -6,8 +6,7 @@ The frontend is separate from the backend application and an be launched with:
 
 `npm run serve`
 
-*Note:* Change `baseUrl` in api.js if needed (todo: add an optional baseUrl for development that can be configured outside)
-
+*Note:* Api endpoint base url probably needs to be changed for development. The url is defined in `.env`. Overwrites should be done in a file called `.env.development.local`.
 
 **Manual steps to use with the extension in PhpBB**
 

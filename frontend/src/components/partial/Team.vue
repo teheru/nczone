@@ -9,7 +9,7 @@
       <div class="zone-match-bets-overlay">
         <div class="zone-match-bets-title">{{ $t('NCZONE_MATCH_HAVE_BET') }}</div>
         <ul class="zone-match-betters">
-          <li v-for="bet in bets">{{ bet.user.name }} ({{ bet.timestamp }})</li>
+          <li v-for="(bet, idx) in bets" :key="idx">{{ bet.user.name }} ({{ bet.timestamp }})</li>
         </ul>
       </div>
     </div>
@@ -19,10 +19,10 @@
       <div class="zone-match-team-header zone-match-player-rating">({{ totalRating }})</div>
       <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ">{{ $t('NCZONE_MATCH_CIVS') }}</div>
 
-      <template v-for="player in players">
-        <div class="zone-match-player-name">{{ player.name }}<span v-if="match.winner">({{ player.rating_change }})</span></div>
-        <div class="zone-match-player-rating">({{ player.rating }})</div>
-        <div v-if="havePlayerCivs" class="zone-match-player-civ"><span v-if="player.civ">{{ player.civ.title }}</span></div>
+      <template v-for="(player, idx) in players">
+        <div class="zone-match-player-name" :key="`name-${idx}`">{{ player.name }}<span v-if="match.winner">({{ player.rating_change }})</span></div>
+        <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
+        <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ player.civ.title }}</span></div>
       </template>
     </div>
   </div>
@@ -43,31 +43,31 @@ export default {
     }
   },
   computed: {
-    match() {
+    match () {
       return this.matchById(this.matchId)
     },
-    canManage() {
+    canManage () {
       return this.match.players.team1.map(p => p.id).includes(this.me.id) ||
         this.match.players.team2.map(p => p.id).includes(this.me.id)
     },
-    perc() {
+    perc () {
       const perc1 = Math.round(this.match.bets.team1.length * 100 / (this.match.bets.team1.length + this.match.bets.team2.length))
       const perc2 = 100 - perc1
       return this.team === 1 ? perc1 : perc2
     },
-    players() {
+    players () {
       return this.team === 1 ? this.match.players.team1 : this.match.players.team2
     },
-    bets() {
+    bets () {
       return this.team === 1 ? this.match.bets.team1 : this.match.bets.team2
     },
-    title() {
+    title () {
       return this.team === 1 ? this.$t('NCZONE_MATCH_TEAM1') : this.$t('NCZONE_MATCH_TEAM2')
     },
-    havePlayerCivs() {
+    havePlayerCivs () {
       return !!this.players.find(p => !!p.civ)
     },
-    totalRating() {
+    totalRating () {
       let r = 0
       this.players.forEach(p => {
         r += p.rating
@@ -77,7 +77,7 @@ export default {
     ...mapGetters([
       'matchById',
       'me'
-    ]),
+    ])
   }
 }
 </script>

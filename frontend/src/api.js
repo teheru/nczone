@@ -1,4 +1,4 @@
-const apiBase = 'http://new-chapter.local/app.php/nczone/api'
+const apiBase = process.env.VUE_APP_API_BASE
 const xhrTimeoutMs = 30000
 
 const _request = (url, opts = {}, onProgress) => {
@@ -32,7 +32,7 @@ const request = (method, path, options, onProgress) => {
   const defaultOptions = {
     // credentials: 'include',
     method: method,
-    headers: {},
+    headers: {}
   }
   return _request(url(path), Object.assign(defaultOptions, options), onProgress)
     .then(response => {
@@ -71,3 +71,4 @@ export const pastMatches = () => get('/pmatches')
 export const me = () => get('/me')
 export const login = () => get('/me/login')
 export const logout = () => get('/me/logout')
+export const state = () => get('/state')

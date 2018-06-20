@@ -3,12 +3,25 @@
     <div class="zone-block">
       <div class="zone-title" v-t="'NCZONE_LINKS'"></div>
       <div class="zone-content zone-menu">
-        <div v-for="block in blocks" class="zone-menu-block">
-          <div v-if="block.title" class="zone-menu-title">{{ block.title }}</div>
+        <div class="zone-menu-block">
+          <div class="zone-menu-title" v-t="'NCZONE'"></div>
           <ul class="zone-menu">
-            <li v-for="item in block.items">
-              <router-link :to="{name: item.route}">{{ item.title }}</router-link>
-            </li>
+            <li><router-link :to="{name: 'rmatches'}" v-t="'NCZONE_RMATCHES'"></router-link></li>
+            <li><router-link :to="{name: 'pmatches'}" v-t="'NCZONE_PMATCHES'"></router-link></li>
+            <li><router-link :to="{name: 'table'}" v-t="'NCZONE_TABLE'"></router-link></li>
+          </ul>
+        </div>
+        <div class="zone-menu-block">
+          <div class="zone-menu-title" v-t="'NCZONE_MENU_INFORMATION'"></div>
+          <ul class="zone-menu">
+            <li><router-link :to="{name: 'rules'}" v-t="'NCZONE_RULES'"></router-link></li>
+          </ul>
+        </div>
+
+        <div class="zone-menu-block">
+          <ul class="zone-menu">
+            <li><router-link :to="{name: 'settings'}" v-t="'NCZONE_SETTINGS'"></router-link></li>
+            <li><div @click="toggleLang" v-t="'NCZONE_SWITCH_LANG'"></div></li>
           </ul>
         </div>
       </div>
@@ -16,52 +29,14 @@
   </div>
 </template>
 <script>
+import Vue from 'vue'
 export default {
   name: 'nczone-navigation',
-  data () {
-    return {
-      title: 'menu',
-      blocks: [
-        {
-          title: this.$t('NCZONE'),
-          items: [
-            {
-              route: 'rmatches',
-              title: this.$t('NCZONE_RMATCHES'),
-            },
-            {
-              route: 'pmatches',
-              title: this.$t('NCZONE_PMATCHES'),
-            },
-            {
-              route: 'table',
-              title: this.$t('NCZONE_TABLE'),
-            },
-          ]
-        },
-        {
-          title: this.$t('NCZONE_MENU_INFORMATION'),
-          items: [
-            {
-              route: 'rules',
-              title: this.$t('NCZONE_RULES'),
-            },
-          ]
-        },
-        {
-          items: [
-            {
-              route: 'settings',
-              title: this.$t('NCZONE_SETTINGS'),
-            },
-            {
-              // todo: switch language (without routing)
-              route: 'switch-language',
-              title: this.$t('NCZONE_SWITCH_LANG'),
-            },
-          ]
-        },
-      ]
+  methods: {
+    toggleLang () {
+      Vue.config.lang = Vue.config.lang === 'de' ? 'en' : 'de'
+      this.$i18n.locale = Vue.config.lang
+      localStorage.setItem('nczone-lang', Vue.config.lang)
     }
   }
 }

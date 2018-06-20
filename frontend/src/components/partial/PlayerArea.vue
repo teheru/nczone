@@ -8,7 +8,7 @@
           {{ $t('NCZONE_NO_LOGIN') }}
         </div>
         <table v-else="" class="zone-user-table">
-          <tr v-for="user in users">
+          <tr v-for="(user, idx) in users" :key="idx">
             <td class="username">{{ user.username }}</td>
             <td class="rating">{{ user.rating }}</td>
           </tr>
@@ -35,15 +35,15 @@ export default {
     ])
   },
   methods: {
-    login() {
+    login () {
       this.$store.dispatch('login')
     },
-    logout() {
+    logout () {
       this.$store.dispatch('logout')
     },
-    draw() {
+    draw () {
       this.$store.dispatch('draw')
-    },
+    }
   }
 }
 </script>
