@@ -25,6 +25,7 @@ $lang = array_merge($lang, array(
 	'ACL_M_ZONE_CREATE_MAPS' => 'create and delete maps',
 	'ACL_M_ZONE_MANAGE_CIVS' => 'manage civilizations',
 
+	'ACL_U_ZONE_VIEW_INFO' => 'can view information',
 	'ACL_U_ZONE_DRAW' => 'draw matches',
 	'ACL_U_ZONE_LOGIN' => 'login / logout',
 	'ACL_U_ZONE_VIEW_LOGIN' => 'can see logged in players',

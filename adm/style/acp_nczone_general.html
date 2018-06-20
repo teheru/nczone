@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<fieldset>
+	<legend>{{ lang('NCZONE_GENERAL_SETTINGS') }}</legend>
+	<dl>
+		<dt>
+			<label for="nczone_bet_time">{{ lang('NCZONE_BET_TIME') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_BET_TIME_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="nczone_bet_time" value="{{ nczone_bet_time }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
+			<label for="nczone_info_posts">{{ lang('NCZONE_INFO_POSTS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_INFO_POSTS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<textarea style="width:200px;height:100px;" name="nczone_info_posts">{{ nczone_info_posts }}</textarea>
+		</dd>
+	</dl>
+</fieldset>
+
+{% endblock %}

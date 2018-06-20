@@ -390,15 +390,17 @@ class matches {
 
     public function evaluate_bets(int $winner_team, int $loser_team, int $end_time): void
     {
+        $config = phpbb_util::config();
+
         $users_right = db_util::get_col($this->db, [
             'SELECT' => 't.user_id',
             'FROM' => [$this->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - 1200), // todo: replace by ACP var
+            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ((int)$config['nczone_bet_time'] - 1200),
         ]);
         $users_wrong = db_util::get_col($this->db, [
             'SELECT' => 't.user_id',
             'FROM' => [$this->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - 1200), // todo: replace by ACP var
+            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ((int)$config['nczone_bet_time'] - 1200),
         ]);
 
         if($$users_right)
