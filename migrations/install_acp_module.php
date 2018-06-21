@@ -25,6 +25,8 @@ class install_acp_module extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
+			array('config.add', array('nczone_bet_time', 1200)),
+			array('config.add', array('nczone_info_posts', '')),
 			array('config.add', array('nczone_draw_player_civs', 600)),
 			array('config.add', array('nczone_draw_team_civs', 120)),
 			array('config.add', array('nczone_draw_match_extra_civs', 4)),
@@ -41,13 +43,15 @@ class install_acp_module extends \phpbb\db\migration\migration
 				'ACP_NCZONE_TITLE',
 				array(
 					'module_basename'	=> '\eru\nczone\acp\main_module',
-					'modes'				=> array('draw'),
+					'modes'				=> array('general', 'draw'),
 				),
 			)),
 
+			array('permission.add', array('a_zone_manage_general', true)), // todo: maybe more fine grained
 			array('permission.add', array('a_zone_manage_draw', true)),
 
 			array('permission.role_add', array('nC Zone Admin', 'a_', 'A full administrative role for the nC Zone.')),
+			array('permission.permission_set', array('nC Zone Admin', 'a_zone_manage_general')),
 			array('permission.permission_set', array('nC Zone Admin', 'a_zone_manage_draw')),
 		);
 	}

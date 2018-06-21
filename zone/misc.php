@@ -28,15 +28,26 @@ class misc
         $this->posts_table = $posts_table;
     }
 
-    public function get_post(int $post_id)
+    public function get_posts(int ...$post_ids): array
     {
-        $row = db_util::get_row($this->db, [
-            'SELECT' => 't.post_text, t.bbcode_uid, t.bbcode_bitfield',
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 't.post_id, t.post_text, t.bbcode_uid, t.bbcode_bitfield',
             'FROM' => [$this->posts_table => 't'],
-            'WHERE' => 't.post_id = ' . $post_id
+            'WHERE' => $this->db->sql_in_set('t.post_id', $post_ids),
         ]);
+        
+        $numbers = array_count_values($post_ids);
+        $posts = [];
+        foreach($rows as $r)
+        {
+            $post_id = (int)$r['post_id'];
+            $posts[$post_id] = [
+                'number' => $numbers[$post_id],
+                'info' => generate_text_for_display($r['post_text'], $r['bbcode_uid'], $r['bbcode_bitfield'], ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true)
+            ];
+        }
 
-        return generate_text_for_display($row['post_text'], $row['bbcode_uid'], $row['bbcode_bitfield'], ($row['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true);
+        return $posts;
     }
 }
 

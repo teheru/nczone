@@ -41,6 +41,10 @@ class main_module
 
         switch($mode)
         {
+            case 'general':
+                $this->general($submit);
+                $this->tpl_name = 'acp_nczone_general';
+                break;
             case 'draw':
                 $this->draw($submit);
                 $this->tpl_name = 'acp_nczone_draw';
@@ -76,6 +80,27 @@ class main_module
             'nczone_draw_match_extra_civs' => $config['nczone_draw_match_extra_civs'],
             'nczone_draw_team_extra_civs' => $config['nczone_draw_team_extra_civs'],
             'nczone_draw_player_num_civs' => $config['nczone_draw_player_num_civs'],
+        ));
+    }
+
+    public function general(bool $submit): void
+    {
+        $request = phpbb_util::request();
+        $config = phpbb_util::config();
+        $language = phpbb_util::language();
+
+        if($submit)
+        {
+            $config->set('nczone_bet_time', (int)$request->variable('nczone_bet_time', 1200));
+            $config->set('nczone_info_posts', join(',', array_map(function($a) { return (int)$a; }, preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
+
+            trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
+        }
+
+        phpbb_util::template()->assign_vars(array(
+            'U_ACTION' => $this->u_action,
+            'nczone_bet_time' => $config['nczone_bet_time'],
+            'nczone_info_posts' => str_replace(',', "\n", $config['nczone_info_posts']),
         ));
     }
 }

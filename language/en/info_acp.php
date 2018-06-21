@@ -21,6 +21,11 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'ACP_NCZONE_SAVED' => 'Saved!',
 
+	'NCZONE_BET_TIME' => 'Bet time',
+	'NCZONE_BET_TIME_DESCR' => 'Time (in seconds) a bet has to be placed before the ending of a match to be counted.',
+	'NCZONE_INFO_POSTS' => 'Information post IDs',
+	'NCZONE_INFO_POSTS_DESCR' => 'IDs of the posts which will be displayed as \'Max important information\'.',
+
 	'NCZONE_DRAW_SETTINGS' => 'Draw settings',
 	'NCZONE_DRAW_PLAYER_CIVS' => 'Difference for player civs',
 	'NCZONE_DRAW_PLAYER_CIVS_DESCR' => 'Minimum difference of ratings between the player with highest rating and the player with lowest rating in order to draw player civs.',

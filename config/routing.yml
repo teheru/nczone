@@ -33,3 +33,7 @@ eru_nczone_controller__api__me_login:
 eru_nczone_controller__api__me_logout:
     path: /nczone/api/me/logout
     defaults: { _controller: eru.nczone.controller.api:me_logout }
+
+eru_nczone_controller__api__information:
+    path: /nczone/api/information
+    defaults: { _controller: eru.nczone.controller.api:information }

@@ -63,6 +63,7 @@ class main_listener implements EventSubscriberInterface
   {
 	$permissions = $event['permissions'];
 
+    $permissions['u_zone_view_info']	= array('lang' => 'ACL_U_ZONE_VIEW_INFO', 'cat' => 'zone');
     $permissions['u_zone_login']	= array('lang' => 'ACL_U_ZONE_LOGIN', 'cat' => 'zone');
     $permissions['u_zone_view_login']	= array('lang' => 'ACL_U_ZONE_VIEW_LOGIN', 'cat' => 'zone');
     $permissions['u_zone_draw']	= array('lang' => 'ACL_U_ZONE_DRAW', 'cat' => 'zone');
@@ -75,6 +76,7 @@ class main_listener implements EventSubscriberInterface
     $permissions['m_zone_manage_maps']	= array('lang' => 'ACL_M_ZONE_MANAGE_MAPS', 'cat' => 'zone');
 	$permissions['m_zone_create_maps']	= array('lang' => 'ACL_M_ZONE_CREATE_MAPS', 'cat' => 'zone');
 
+	$permissions['a_zone_manage_general']	= array('lang' => 'ACL_A_ZONE_MANAGE_GENERAL', 'cat' => 'zone');
 	$permissions['a_zone_manage_draw']	= array('lang' => 'ACL_A_ZONE_MANAGE_DRAW', 'cat' => 'zone');
 	
 

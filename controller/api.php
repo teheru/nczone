@@ -128,8 +128,8 @@ class api
      */
     public function all_users(): JsonResponse
     {
-        $logged_in_users = zone_util::players()->get_all();
-        return $this->jsonResponse($logged_in_users);
+        $all_users = zone_util::players()->get_all();
+        return $this->jsonResponse($all_users);
     }
 
     /**
@@ -260,5 +260,15 @@ class api
         //     ]
         // ];
         return $this->jsonResponse($rmatches);
+    }
+
+    public function information(): JsonResponse
+    {
+        if (!(bool)$this->auth->acl_get('u_zone_view_info')) { // todo: this does not work
+            return $this->jsonResponse([]);
+        }
+
+        $post_ids = array_map(function($a) { return (int)$a; }, explode(',', phpbb_util::config()['nczone_info_posts']));
+        return $this->jsonResponse(zone_util::misc()->get_posts(...$post_ids));
     }
 }

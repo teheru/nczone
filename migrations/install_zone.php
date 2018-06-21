@@ -25,6 +25,7 @@ class install_zone extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
+			array('permission.add', array('u_zone_view_info', true)),
 			array('permission.add', array('u_zone_login', true)),
 			array('permission.add', array('u_zone_view_login', true)),
 			array('permission.add', array('u_zone_draw', true)),
@@ -32,6 +33,7 @@ class install_zone extends \phpbb\db\migration\migration
 			array('permission.add', array('u_zone_view_bets', true)),
 			array('permission.add', array('u_zone_bet', true)),
 
+			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_view_info')),
 			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_login')),
 			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_view_login')),
 			array('permission.permission_set', array('ROLE_USER_STANDARD', 'u_zone_draw')),
