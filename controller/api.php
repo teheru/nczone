@@ -109,27 +109,27 @@ class api
     /**
      * Returns the list of logged in users as json.
      *
-     * @route /nczone/api/users/logged_in
+     * @route /nczone/api/players/logged_in
      *
      * @return JsonResponse
      */
-    public function logged_in_users(): JsonResponse
+    public function logged_in_players(): JsonResponse
     {
-        $logged_in_users = zone_util::players()->get_logged_in();
-        return $this->jsonResponse($logged_in_users);
+        $logged_in_players = zone_util::players()->get_logged_in();
+        return $this->jsonResponse($logged_in_players);
     }
 
     /**
      * Returns the list of all users that can play in the zone.
      *
-     * @route /nczone/api/users
+     * @route /nczone/api/players
      *
      * @return JsonResponse
      */
-    public function all_users(): JsonResponse
+    public function all_players(): JsonResponse
     {
-        $all_users = zone_util::players()->get_all();
-        return $this->jsonResponse($all_users);
+        $all_players = zone_util::players()->get_all();
+        return $this->jsonResponse($all_players);
     }
 
     /**
@@ -142,123 +142,19 @@ class api
     public function rmatches(): JsonResponse
     {
         $rmatches = zone_util::matches()->get_all_rmatches();
-        // $aztecs = (object)['id' => 3, 'title' => 'Aztecs'];
-        // $celts = (object)['id' => 9, 'title' => 'Celts'];
-        // $rmatches = [
-        //     (object)[
-        //         'id' => 12314,
-        //         'game_type' => 'IP',
-        //         'ip' => '',
-        //         'timestampStart' => time() - 3600 - 600,
-        //         'timestampEnd' => 0,
-        //         'winner' => 0, // 1 = TEAM 1, 2 = TEAM 2, 3 = OW, 4 = DRAW
-        //         'result_poster' => null,
-        //         'drawer' => (object)[
-        //             'id' => 1234,
-        //             'name' => 'Hubert'
-        //         ],
-        //         'map' => (object)[
-        //             'id' => 123,
-        //             'title' => 'arab'
-        //         ],
-        //         'civs' => (object)[
-        //             'both' => [
-        //                 (object)['id' => 1, 'title' => 'Huns'],
-        //             ],
-        //             'team1' => [
-        //                 $aztecs,
-        //                 (object)['id' => 4, 'title' => 'Britons'],
-        //             ],
-        //             'team2' => [
-        //                 (object)['id' => 6, 'title' => 'Burmese'],
-        //                 $celts,
-        //             ]
-        //         ],
-        //         'bets' => (object)[
-        //             'team1' => [
-        //                 (object)[
-        //                     'timestamp' => 51515151,
-        //                     'user' => [
-        //                         'id' => 1234,
-        //                         'name' => 'Hubert',
-        //                     ]
-        //                 ]
-        //             ],
-        //             'team2' => [
-        //                 (object)[
-        //                     'timestamp' => 51515151,
-        //                     'user' => [
-        //                         'id' => 4444,
-        //                         'name' => 'Basti_der_Spasti'
-        //                     ]
-        //                 ],
-        //                 (object)[
-        //                     'timestamp' => 666666,
-        //                     'user' => [
-        //                         'id' => 1234,
-        //                         'name' => 'Kacknouhb'
-        //                     ]
-        //                 ],
-        //             ]
-        //         ],
-        //         'players' => (object)[
-        //             'team1' => [
-        //                 (object)[
-        //                     'id' => 1234,
-        //                     'name' => 'Kacknouhb',
-        //                     'rating' => 1377,
-        //                     'rating_change' => 0,
-        //                 ],
-        //                 (object)[
-        //                     'id' => 2135,
-        //                     'name' => 'Ferdinand der Hauser',
-        //                     'rating' => 899,
-        //                     'rating_change' => 0,
-        //                 ],
-        //                 (object)[
-        //                     'id' => 4444,
-        //                     'name' => 'Basti_der_Spasti',
-        //                     'rating' => 61,
-        //                     'rating_change' => 0,
-        //                 ],
-        //                 (object)[
-        //                     'id' => 5,
-        //                     'name' => 'Luemmel_87',
-        //                     'rating' => 371,
-        //                     'rating_change' => 0,
-        //                     'civ' => $celts,
-        //                 ],
-        //             ],
-        //             'team2' => [
-        //                 (object)[
-        //                     'id' => 1234,
-        //                     'name' => 'Ultra-Schleife',
-        //                     'rating' => 1500,
-        //                     'rating_change' => 0,
-        //                 ],
-        //                 (object)[
-        //                     'id' => 898,
-        //                     'name' => 'Zebrator',
-        //                     'rating' => 400,
-        //                     'rating_change' => 0,
-        //                 ],
-        //                 (object)[
-        //                     'id' => 3,
-        //                     'name' => 'Mr. Snipe',
-        //                     'rating' => 370,
-        //                     'rating_change' => 0,
-        //                 ],
-        //                 (object)[
-        //                     'id' => 4,
-        //                     'name' => 'Frank Bank',
-        //                     'rating' => 371,
-        //                     'rating_change' => 0,
-        //                     'civ' => $aztecs,
-        //                 ],
-        //             ],
-        //         ],
-        //     ]
-        // ];
+        return $this->jsonResponse($rmatches);
+    }
+
+    /**
+     * Returns the list of past matches
+     *
+     * @route /nczone/api/pmatches
+     *
+     * @return JsonResponse
+     */
+    public function pmatches(): JsonResponse
+    {
+        $rmatches = zone_util::matches()->get_all_pmatches();
         return $this->jsonResponse($rmatches);
     }
 

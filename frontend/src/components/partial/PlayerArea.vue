@@ -4,13 +4,13 @@
       <div class="zone-title" v-t="'NCZONE_LOGGEDIN'"></div>
       <div class="zone-content">
 
-        <div v-if="users.length === 0" class="zone-user-table-no-login">
+        <div v-if="players.length === 0" class="zone-user-table-no-login">
           {{ $t('NCZONE_NO_LOGIN') }}
         </div>
         <table v-else="" class="zone-user-table">
-          <tr v-for="(user, idx) in users" :key="idx">
-            <td class="username">{{ user.username }}</td>
-            <td class="rating">{{ user.rating }}</td>
+          <tr v-for="(player, idx) in players" :key="idx">
+            <td class="username">{{ player.username }}</td>
+            <td class="rating">{{ player.rating }}</td>
           </tr>
         </table>
 
@@ -28,11 +28,13 @@ export default {
   name: 'nczone-player-area',
   computed: {
     ...mapGetters([
-      'users',
       'canDraw',
       'canLogin',
       'canLogout'
-    ])
+    ]),
+    ...mapGetters({
+      players: 'loggedInPlayers'
+    })
   },
   methods: {
     login () {

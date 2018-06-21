@@ -64,11 +64,10 @@ const post = (...params) => request('POST', ...params)
 
 const url = (path) => apiBase + path
 
-export const loggedInUsers = () => get('/users/logged_in')
-export const allUsers = () => get('/users')
+export const loggedInPlayers = () => get('/players/logged_in')
+export const allPlayers = () => get('/players')
 export const runningMatches = () => get('/rmatches')
 export const pastMatches = () => get('/pmatches')
 export const me = () => get('/me')
 export const login = () => get('/me/login')
 export const logout = () => get('/me/logout')
-export const state = () => get('/state')

@@ -10,17 +10,21 @@ eru_nczone_controller_table:
     path: /nczone/table
     defaults: { _controller: eru.nczone.controller:table }
 
-eru_nczone_controller__api__logged_in_users:
-    path: /nczone/api/users/logged_in
-    defaults: { _controller: eru.nczone.controller.api:logged_in_users }
+eru_nczone_controller__api__logged_in_players:
+    path: /nczone/api/players/logged_in
+    defaults: { _controller: eru.nczone.controller.api:logged_in_players }
 
-eru_nczone_controller__api__all_users:
-    path: /nczone/api/users
-    defaults: { _controller: eru.nczone.controller.api:all_users }
+eru_nczone_controller__api__all_players:
+    path: /nczone/api/players
+    defaults: { _controller: eru.nczone.controller.api:all_players }
 
 eru_nczone_controller__api__running_matches:
     path: /nczone/api/rmatches
     defaults: { _controller: eru.nczone.controller.api:rmatches }
+
+eru_nczone_controller__api__past_matches:
+    path: /nczone/api/pmatches
+    defaults: { _controller: eru.nczone.controller.api:pmatches }
 
 eru_nczone_controller__api__me:
     path: /nczone/api/me

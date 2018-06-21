@@ -1108,6 +1108,13 @@ class matches {
         return $rmatches;
     }
 
+    public function get_all_pmatches(): array
+    {
+        $rmatches = [];
+        # todo implement..
+        return $rmatches;
+    }
+
     public function get_match_civs(int $match_id): array
     {
         $rows = db_util::get_rows($this->db, [
@@ -1140,7 +1147,7 @@ class matches {
         {
             $team_id = (int)$r['team_id'];
             unset($r['team_id']);
-            
+
             $r['civ_id'] = (int)$r['civ_id'];
             $r['number'] = (int)$r['number'];
 

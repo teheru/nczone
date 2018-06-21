@@ -14,7 +14,7 @@ export default {
 
     'NCZONE_RMATCHES': 'Laufende Spiele',
     'NCZONE_PMATCHES': 'Vergangene Spiele',
-    'NCZONE_TABLE': 'Tabelle',
+    'NCZONE_PLAYERS_TABLE': 'Tabelle',
     'NCZONE_MENU_INFORMATION': 'Informationen',
     'NCZONE_RULES': 'Regeln',
     'NCZONE_SETTINGS': 'Einstellungen',
@@ -33,14 +33,15 @@ export default {
     'NCZONE_MATCH_TEAM2': 'Team 2',
     'NCZONE_MATCH_VS': 'VS',
     'NCZONE_MATCH_HAVE_BET': 'Tipps',
+
+    'NCZONE_LOADING': 'Lade Daten...',
+    'NCZONE_ERROR_LOADING': 'Fehler beim Laden der Daten',
+    'NCZONE_NO_PMATCHES': 'Keine vergangenen Spiele',
+    'NCZONE_NO_RMATCHES': 'Keine laufenden Spiele',
+    'NCZONE_NO_ACTIVE_PLAYERS': 'Keine aktiven Spieler'
   },
   'en': {
     'NCZONE': 'nC Zone',
-
-    'MCP_ZONE_TITLE': 'nC Zone',
-    'MCP_PLAYERS_TITLE': 'Player',
-    'MCP_CIVS_TITLE': 'Civilizations',
-    'MCP_MAPS_TITLE': 'Maps',
 
     'NCZONE_LOGGEDIN': 'Logged in',
     'NCZONE_LOGIN': 'Login',
@@ -50,11 +51,11 @@ export default {
 
     'NCZONE_LINKS': 'Links',
     'NCZONE_ZONE': 'Teh Zone',
-    'NCZONE_INFORMATION': 'Max important Information',
+    'NCZONE_INFORMATION': 'Max important information',
 
-    'NCZONE_RMATCHES': 'Running Matches',
-    'NCZONE_PMATCHES': 'Past Matches',
-    'NCZONE_TABLE': 'Player Table',
+    'NCZONE_RMATCHES': 'Running matches',
+    'NCZONE_PMATCHES': 'Past matches',
+    'NCZONE_PLAYERS_TABLE': 'Player list',
     'NCZONE_MENU_INFORMATION': 'Information',
     'NCZONE_RULES': 'Rules',
     'NCZONE_SETTINGS': 'Settings',
@@ -73,5 +74,24 @@ export default {
     'NCZONE_MATCH_TEAM2': 'Team 2',
     'NCZONE_MATCH_VS': 'VS',
     'NCZONE_MATCH_HAVE_BET': 'Bets',
+
+    'NCZONE_LOADING': 'Loading...',
+    'NCZONE_ERROR_LOADING': 'Error loading data',
+    'NCZONE_NO_PMATCHES': 'No past matches',
+    'NCZONE_NO_RMATCHES': 'No running matches',
+    'NCZONE_NO_ACTIVE_PLAYERS': 'No active players',
+
+    'NCZONE_TABLE_HEADER_NAME': 'Name',
+    'NCZONE_TABLE_HEADER_GAMES': 'G',
+    'NCZONE_TABLE_HEADER_WINS': 'W',
+    'NCZONE_TABLE_HEADER_LOSSES': 'L',
+    'NCZONE_TABLE_HEADER_TIES': 'T',
+    'NCZONE_TABLE_HEADER_WINRATE': 'Winrate',
+    'NCZONE_TABLE_HEADER_STREAK': 'S',
+    'NCZONE_TABLE_HEADER_RATING_CHANGE': 'R+-',
+    'NCZONE_TABLE_HEADER_RATING': 'R',
+    'NCZONE_TABLE_HEADER_STREAK_RATING': 'SR',
+    'NCZONE_TABLE_HEADER_ACTIVITY': 'Activity',
+    'NCZONE_TABLE_FOOTER_AVERAGE': 'Average'
   }
 }

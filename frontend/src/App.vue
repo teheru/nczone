@@ -27,11 +27,9 @@ export default {
     NczonePlayerArea,
     NczoneNavigation
   },
-  created() {
-    this.$store.dispatch('initMe')
-    this.$store.dispatch('getLoggedInUsers')
+  created () {
   },
-  data() {
+  data () {
     return {
     }
   }
