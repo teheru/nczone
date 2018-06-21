@@ -62,11 +62,7 @@ export default {
         if (a[this.sort.field] === b[this.sort.field]) {
           return 0
         }
-        if (this.sort.order === 'desc') {
-          return a[this.sort.field] > b[this.sort.field] ? -1 : 1
-        } else {
-          return b[this.sort.field] > a[this.sort.field] ? -1 : 1
-        }
+        return (a[this.sort.field] > b[this.sort.field] ? 1 : -1) * this.sort.order
       })
     },
     avgGames () {
@@ -110,15 +106,15 @@ export default {
     '$route': 'fetchData'
   },
   methods: {
-    setSort (key) {
-      if (this.sort.field !== key) {
-        this.sort.field = key
+    setSort (field) {
+      if (this.sort.field !== field) {
+        this.sort.field = field
       } else {
-        this.sort.order = this.sort.order === 'desc' ? 'asc' : 'desc'
+        this.sort.order *= -1
       }
     },
-    avg (arr, prop) {
-      const avg = (arr.reduce((acc, cur) => acc + cur[prop], 0) / arr.length)
+    avg (arr, field) {
+      const avg = arr.reduce((acc, cur) => acc + cur[field], 0) / arr.length
       return isNaN(avg) ? 0 : Math.round(avg)
     },
     fetchData () {
@@ -139,7 +135,7 @@ export default {
       error: false,
       sort: {
         field: 'rating',
-        order: 'desc'
+        order: -1
       }
     }
   }
