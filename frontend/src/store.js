@@ -81,6 +81,6 @@ export default new Vuex.Store({
     async logout ({ commit, dispatch }) {
       await api.logout()
       dispatch('getLoggedInPlayers')
-    },
+    }
   }
 })

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const apiBase = process.env.VUE_APP_API_BASE
 const xhrTimeoutMs = 30000
 

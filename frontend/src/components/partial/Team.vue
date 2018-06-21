@@ -7,7 +7,7 @@
         <div class="zone-match-bets-percentage-bar" :style="`height: ${perc}%`"></div>
       </div>
       <div class="zone-match-bets-overlay">
-        <div class="zone-match-bets-title">{{ $t('NCZONE_MATCH_HAVE_BET') }}</div>
+        <div class="zone-match-bets-title" v-t="'NCZONE_MATCH_HAVE_BET'"></div>
         <ul class="zone-match-betters">
           <li v-for="(bet, idx) in bets" :key="idx">{{ bet.user.name }} ({{ bet.timestamp }})</li>
         </ul>
@@ -15,9 +15,9 @@
     </div>
 
     <div class="zone-match-team">
-      <div class="zone-match-team-header zone-match-player-name">{{ title }}</div>
+      <div class="zone-match-team-header zone-match-player-name" v-t="title"></div>
       <div class="zone-match-team-header zone-match-player-rating">({{ totalRating }})</div>
-      <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ">{{ $t('NCZONE_MATCH_CIVS') }}</div>
+      <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ" v-t="'NCZONE_MATCH_CIVS'"></div>
 
       <template v-for="(player, idx) in players">
         <div class="zone-match-player-name" :key="`name-${idx}`">{{ player.name }}<span v-if="match.winner">({{ player.rating_change }})</span></div>
@@ -62,7 +62,7 @@ export default {
       return this.team === 1 ? this.match.bets.team1 : this.match.bets.team2
     },
     title () {
-      return this.team === 1 ? this.$t('NCZONE_MATCH_TEAM1') : this.$t('NCZONE_MATCH_TEAM2')
+      return this.team === 1 ? 'NCZONE_MATCH_TEAM1' : 'NCZONE_MATCH_TEAM2'
     },
     havePlayerCivs () {
       return !!this.players.find(p => !!p.civ)

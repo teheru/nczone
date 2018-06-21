@@ -4,8 +4,7 @@
       <div class="zone-title" v-t="'NCZONE_LOGGEDIN'"></div>
       <div class="zone-content">
 
-        <div v-if="players.length === 0" class="zone-user-table-no-login">
-          {{ $t('NCZONE_NO_LOGIN') }}
+        <div v-if="players.length === 0" class="zone-user-table-no-login" v-t="'NCZONE_NO_LOGIN'">
         </div>
         <table v-else="" class="zone-user-table">
           <tr v-for="(player, idx) in players" :key="idx">
