@@ -262,6 +262,13 @@ class players
         $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($winner ? 1 : -1) * $rating_change) . ', ' . $col . ' = ' . $col . ' + 1 WHERE `user_id` = ' . $user_id);
     }
 
+    public function match_changes_undo(int $user_id, int $rating_change, bool $former_winner): void
+    {
+        $col = $former_winner ? '`matches_won`' : '`matches_loss`';
+
+        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($former_winner ? -1 : 1) * $rating_change) . ', ' . $col . ' = ' . $col . ' - 1 WHERE `user_id` = ' . $user_id);
+    }
+
     /**
      * Gets the user id, name and rating of all logged in players
      *

@@ -209,7 +209,19 @@ class matches {
 
     public function post(int $match_id, int $post_user_id, int $winner): void
     {
-        // todo: maybe check here if the game was already posted? or leave it the function which calls this
+
+        $already_posted = (int)db_util::get_var($this->db, [
+            'SELECT' => 't.post_user_id',
+            'FROM' => [$this->matches_table => 't'],
+            'WHERE' => 't.match_id = ' . $match_id,
+        ]);
+        if($already_posted)
+        {
+            return;
+        }
+
+        $end_time = time();
+
         if($winner === 1 || $winner === 2)
         {
             $map_id = (int)db_util::get_var($this->db, [
@@ -273,16 +285,16 @@ class matches {
                     array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                 );
 
-                db_util::update($this->db, $this->player_civ_table, ['time' => time()], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
+                db_util::update($this->db, $this->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
                 $players->match_changes($user_id, $match_points, $user_info['team_id'] == $winner_team_id);
             }
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id' => $team1_id]);
             db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
 
-            db_util::update($this->db, $this->player_map_table, ['time' => time()], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id);
+            db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
 
-            $this->evaluate_bets($team1_id, $team2_id, time());
+            $this->evaluate_bets($winner == 1 ? $team1_id : $team2_id, $winner == 1 ? $team2_id : $team1_id, $end_time);
         }
         else
         {
@@ -291,8 +303,43 @@ class matches {
 
         db_util::update($this->db, $this->matches_table, [
             'post_user_id' => $post_user_id,
-            'post_time' => time(),
+            'post_time' => $end_time,
             'winner_team_id' => $winner_team_id,
+        ], [
+            'match_id' => $match_id
+        ]);
+    }
+
+    public function post_undo(int $match_id): void // todo: test this xD
+    {
+        $row = db_util::get_row($this->db, [
+            'SELECT' => 't.post_time, t.winner_team_id',
+            'FROM' => [$this->matches_table => 't'],
+            'WHERE' => 't.match_id = ' . $match_id,
+        ]);
+        if(!$row)
+        {
+            return;
+        }
+
+        [$end_time, $winner_team_id] = [(int)$row['post_time'], (int)$row['winner_team_id']];
+        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $match_size = \count($match_players) / 2;
+        $match_points = $this->get_match_points($match_size);
+
+        foreach($this->get_teams_players($team1_id, $team2_id) as $user_id => $user_info)
+        {
+            zone_util::players()->match_changes_undo($user_id, $match_points, $user_info['team_id'] == $winner_team_id);
+        }
+        db_util::update($this->db, $this->match_players_table, ['rating_change' => 0], ['team_id' => $team1_id]);
+        db_util::update($this->db, $this->match_players_table, ['rating_change' => 0], ['team_id' => $team2_id]);
+
+        $this->evaluate_bets_undo($winner == 1 ? $team1_id : $team2_id, $winner == 1 ? $team2_id : $team1_id, $end_time);
+
+        db_util::update($this->db, $this->matches_table, [
+            'post_user_id' => 0,
+            'post_time' => 0,
+            'winner_team_id' => 0,
         ], [
             'match_id' => $match_id
         ]);
@@ -354,12 +401,12 @@ class matches {
         $users_right = db_util::get_col($this->db, [
             'SELECT' => 't.user_id',
             'FROM' => [$this->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ((int)$config['nczone_bet_time'] - 1200),
+            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
         $users_wrong = db_util::get_col($this->db, [
             'SELECT' => 't.user_id',
             'FROM' => [$this->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ((int)$config['nczone_bet_time'] - 1200),
+            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
 
         if($$users_right)
@@ -369,6 +416,32 @@ class matches {
         if($users_wrong)
         {
             $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
+        }
+    }
+
+
+    public function evaluate_bets_undo(int $winner_team, int $loser_team, int $end_time): void
+    {
+        $config = phpbb_util::config();
+
+        $users_right = db_util::get_col($this->db, [
+            'SELECT' => 't.user_id',
+            'FROM' => [$this->bets_table => 't'],
+            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
+        ]);
+        $users_wrong = db_util::get_col($this->db, [
+            'SELECT' => 't.user_id',
+            'FROM' => [$this->bets_table => 't'],
+            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
+        ]);
+
+        if($$users_right)
+        {
+            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
+        }
+        if($users_wrong)
+        {
+            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
         }
     }
 
