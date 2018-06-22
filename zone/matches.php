@@ -1073,7 +1073,7 @@ class matches {
         $match_rows = db_util::get_rows($this->db, [
             'SELECT' => 't.match_id, t.map_id, m.map_name, t.draw_user_id, u.username AS draw_username, t.draw_time',
             'FROM' => [$this->matches_table => 't', $this->maps_table => 'm', $this->users_table => 'u'],
-            'WHERE' => 't.map_id = m.map_id AND t.draw_user_id = u.user_id AND t.post_user_id = 0',
+            'WHERE' => '(t.map_id = m.map_id OR t.map_id = 0) AND t.draw_user_id = u.user_id AND t.post_user_id = 0',
             'ORDER_BY' => 't.draw_time DESC'
         ]);
         foreach($match_rows as $m)

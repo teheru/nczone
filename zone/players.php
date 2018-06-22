@@ -320,12 +320,14 @@ class players
         $teams = [];
         foreach($player_rows as $r)
         {
-            $civ_id = $r['civ_id'];
+            $r['id'] = (int)$r['id'];
+
+            $civ_id = (int)$r['civ_id'];
             $civ_name = $r['civ_name'];
             unset($r['civ_id'], $r['civ_name']);
             if($civ_id)
             {
-                $r['civ'] = ['id' => (int)$civ_id, 'title' => $civ_name];
+                $r['civ'] = ['id' => $civ_id, 'title' => $civ_name];
             }
 
             $team_id = (int)$r['team_id'];
