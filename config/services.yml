@@ -90,7 +90,10 @@ services:
         - '%tables.eru.nczone.player_map%'
         - '%tables.eru.nczone.map_civs%'
         - '%tables.eru.nczone.player_civ%'
+        - '%tables.eru.nczone.draw_process%'
+        - '%tables.eru.nczone.draw_players%'
         - '%tables.eru.nczone.bets%'
+        - '%tables.eru.nczone.players%'
         - '%tables.users%'
 
     eru.nczone.zone.civs:
@@ -114,9 +117,18 @@ services:
         - '%tables.eru.nczone.map_civs%'
         - '%tables.eru.nczone.player_map%'
 
-    eru.nczone.zone.draw:
-      class: eru\nczone\zone\draw
+    eru.nczone.zone.draw_teams:
+      class: eru\nczone\zone\draw_teams
       arguments:
+
+    eru.nczone.zone.draw_settings:
+      class: eru\nczone\zone\draw_settings
+      arguments:
+        - '@dbal.conn'
+        - '%tables.eru.nczone.maps%'
+        - '%tables.eru.nczone.map_civs%'
+        - '%tables.eru.nczone.player_map%'
+        - '%tables.eru.nczone.player_civ%'
 
     eru.nczone.zone.misc:
       class: eru\nczone\zone\misc

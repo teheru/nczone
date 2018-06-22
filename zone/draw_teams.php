@@ -14,7 +14,7 @@ namespace eru\nczone\zone;
 /**
  * Class to make teams (not maps or civs!)
  */
-class draw
+class draw_teams
 {
     /** @var array */
     private $special_match_sizes;

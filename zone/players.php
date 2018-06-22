@@ -270,7 +270,7 @@ class players
     public function get_logged_in(): array
     {
         $rows = db_util::get_rows($this->db, [
-            'SELECT' => 'p.user_id AS id, u.username AS username, p.rating AS rating, p.logged_in AS logged_in',
+            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in',
             'FROM' => [$this->players_table => 'p', $this->users_table => 'u'],
             'WHERE' => 'logged_in > 0 AND p.user_id = u.user_id',
             'ORDER_BY' => 'logged_in DESC'
@@ -293,7 +293,7 @@ class players
     public function get_all(): array
     {
         $rows = db_util::get_rows($this->db, [
-            'SELECT' => 'p.user_id AS id, u.username AS username, p.rating AS rating, p.logged_in AS logged_in',
+            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in',
             'FROM' => [$this->players_table => 'p', $this->users_table => 'u'],
             'WHERE' => 'p.user_id = u.user_id',
             'ORDER_BY' => 'username ASC'

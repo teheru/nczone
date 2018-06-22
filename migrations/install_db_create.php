@@ -142,6 +142,24 @@ class install_db_create extends \phpbb\db\migration\migration
 						'time' => array('TIMESTAMP', 0)
 					),
 					'PRIMARY_KEY' => array('user_id', 'team_id')
+				),
+				$this->table_prefix . 'zone_draw_process' => array(
+					'COLUMNS' => array(
+						'draw_id' => array('UINT', NULL, 'auto_increment'),
+						'user_id' => array('UINT', 0),
+						'time' => array('TIMESTAMP', 0)
+					),
+					'PRIMARY_KEY' => 'draw_id',
+					'KEYS' => array(
+						'uid' => array('INDEX', 'user_id')
+					)
+				),
+				$this->table_prefix . 'zone_draw_players' => array(
+					'COLUMNS' => array(
+						'draw_id' => array('UINT', 0),
+						'user_id' => array('UINT', 0),
+					),
+					'PRIMARY_KEY' => array('draw_id', 'user_id')
 				)
 			)
 		);
@@ -162,7 +180,9 @@ class install_db_create extends \phpbb\db\migration\migration
 				$this->table_prefix . 'zone_match_player_civs',
 				$this->table_prefix . 'zone_player_map',
 				$this->table_prefix . 'zone_player_civ',
-				$this->table_prefix . 'zone_bets'
+				$this->table_prefix . 'zone_bets',
+				$this->table_prefix . 'zone_draw_process',
+				$this->table_prefix . 'zone_draw_players'
 			),
 		);
 	}

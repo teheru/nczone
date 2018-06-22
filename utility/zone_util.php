@@ -6,7 +6,8 @@ use eru\nczone\zone\civs;
 use eru\nczone\zone\maps;
 use eru\nczone\zone\players;
 use eru\nczone\zone\matches;
-use eru\nczone\zone\draw;
+use eru\nczone\zone\draw_teams;
+use eru\nczone\zone\draw_settings;
 use eru\nczone\zone\misc;
 
 class zone_util
@@ -31,14 +32,24 @@ class zone_util
         return $matches;
     }
 
-    public static function draw(): draw
+    public static function draw_teams(): draw_teams
     {
-        static $draw;
-        if ($draw === null) {
-            /** @var draw $draw */
-            $draw = phpbb_util::container()->get('eru.nczone.zone.draw');
+        static $draw_teams;
+        if ($draw_teams === null) {
+            /** @var draw_teams $draw_teams */
+            $draw_teams = phpbb_util::container()->get('eru.nczone.zone.draw_teams');
         }
-        return $draw;
+        return $draw_teams;
+    }
+
+    public static function draw_settings(): draw_settings
+    {
+        static $draw_settings;
+        if ($draw_settings === null) {
+            /** @var draw_settings $draw_settings */
+            $draw_settings = phpbb_util::container()->get('eru.nczone.zone.draw_settings');
+        }
+        return $draw_settings;
     }
 
     public static function civs(): civs
