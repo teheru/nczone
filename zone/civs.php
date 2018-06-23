@@ -103,7 +103,7 @@ class civs
      *
      * @param string  $civ_name  Name of the civ
      *
-     * @return void
+     * @return string
      */
     public function create_civ($civ_name): string
     {
@@ -119,7 +119,7 @@ class civs
      *
      * @param string  $civ_name  Name of the civ
      *
-     * @return  int
+     * @return string
      */
     private function insert_civ(string $civ_name): string
     {
