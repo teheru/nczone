@@ -22,7 +22,7 @@
       <template v-for="(player, idx) in players">
         <div class="zone-match-player-name" :key="`name-${idx}`">{{ player.name }}<span v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
-        <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ player.civ.title }}</span></div>
+        <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ $t(player.civ.title) }}</span></div>
       </template>
     </div>
   </div>
@@ -51,7 +51,8 @@ export default {
         this.match.players.team2.map(p => p.id).includes(this.me.id)
     },
     perc () {
-      const perc1 = Math.round(this.match.bets.team1.length * 100 / (this.match.bets.team1.length + this.match.bets.team2.length))
+      const betCount = this.match.bets.team1.length + this.match.bets.team2.length
+      const perc1 = betCount === 0 ? 50 : Math.round(this.match.bets.team1.length * 100 / betCount)
       const perc2 = 100 - perc1
       return this.team === 1 ? perc1 : perc2
     },

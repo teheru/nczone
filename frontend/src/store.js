@@ -5,6 +5,19 @@ import * as api from './api'
 
 Vue.use(Vuex)
 
+const mergeMatches = (m, m2) => {
+  const matches = []
+  m.forEach(match => {
+    matches.push(match)
+  })
+  m2.forEach(match => {
+    if (!matches.find(m => m.id === match.id)) {
+      matches.push(match)
+    }
+  })
+  return matches
+}
+
 export default new Vuex.Store({
   state: {
     me: {
@@ -58,14 +71,10 @@ export default new Vuex.Store({
       state.allPlayers = payload
     },
     setRunningMatches (state, payload) {
-      payload.forEach(match => {
-        state.matches.push(match)
-      })
+      state.matches = mergeMatches(payload, state.matches)
     },
     setPastMatches (state, payload) {
-      payload.forEach(match => {
-        state.matches.push(match)
-      })
+      state.matches = mergeMatches(payload, state.matches)
     },
     showDrawPreview (state, payload) {
       state.drawPreview.visible = true

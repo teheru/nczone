@@ -18,18 +18,20 @@
     <div v-t="'NCZONE_MATCH_MAP'"></div>
     <div>{{ match.map.title }}</div>
 
-    <div v-t="'NCZONE_MATCH_CIVS'"></div>
-    <div>
-      <div v-if="match.civs.both">
-        <span v-t="'NCZONE_MATCH_CIVS_BOTH'"></span>: <nczone-csv :list="match.civs.both.map(c => c.title)"></nczone-csv>
+    <template v-if="haveGlobalCivs">
+      <div v-t="'NCZONE_MATCH_CIVS'"></div>
+      <div>
+        <div v-if="match.civs.both.length > 0">
+          <span v-t="'NCZONE_MATCH_CIVS_BOTH'"></span>: <nczone-csv :list="match.civs.both.map(c => $t(c.title))"></nczone-csv>
+        </div>
+        <div v-if="match.civs.team1.length > 0">
+          <span v-t="'NCZONE_MATCH_CIVS_TEAM1'"></span>: <nczone-csv :list="match.civs.team1.map(c => $t(c.title))"></nczone-csv>
+        </div>
+        <div v-if="match.civs.team2.length > 0">
+          <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-csv :list="match.civs.team2.map(c => $t(c.title))"></nczone-csv>
+        </div>
       </div>
-      <div v-if="match.civs.team1">
-        <span v-t="'NCZONE_MATCH_CIVS_TEAM1'"></span>: <nczone-csv :list="match.civs.team1.map(c => c.title)"></nczone-csv>
-      </div>
-      <div v-if="match.civs.team2">
-        <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-csv :list="match.civs.team2.map(c => c.title)"></nczone-csv>
-      </div>
-    </div>
+    </template>
 
     <template v-if="match.winner">
       <div v-t="'NCZONE_MATCH_LENGTH'"></div>
@@ -58,7 +60,6 @@
       <option value="" v-t="'NCZONE_MATCH_POST_RESULT'"></option>
       <option value="" v-t="'NCZONE_MATCH_POST_WIN_TEAM1'"></option>
       <option value="" v-t="'NCZONE_MATCH_POST_WIN_TEAM2'">}</option>
-      <option value="" v-t="'NCZONE_MATCH_POST_DRAW'"></option>
       <option value="" v-t="'NCZONE_MATCH_POST_OW'"></option>
     </select>
   </div>
@@ -91,6 +92,11 @@ export default {
         (minutes > 9 ? minutes : '0' + minutes),
         (seconds > 9 ? seconds : '0' + seconds)
       ].join(':')
+    },
+    haveGlobalCivs () {
+      return this.match.civs.both.length > 0 ||
+        this.match.civs.team1.length > 0 ||
+        this.match.civs.team2.length > 0
     },
     canManage () {
       return this.match.players.team1.map(p => p.id).includes(this.me.id) ||
