@@ -92,6 +92,9 @@ export default {
     'NCZONE_TABLE_HEADER_RATING': 'R',
     'NCZONE_TABLE_HEADER_STREAK_RATING': 'SR',
     'NCZONE_TABLE_HEADER_ACTIVITY': 'Activity',
-    'NCZONE_TABLE_FOOTER_AVERAGE': 'Average'
+    'NCZONE_TABLE_FOOTER_AVERAGE': 'Average',
+
+    'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Not allowed to login.',
+    'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER': 'Not an activated player.'
   }
 }

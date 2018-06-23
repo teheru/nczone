@@ -74,13 +74,13 @@ class api
     {
         # check is on login. used for logout as well.
         if (!(bool)$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'Not Allowed to login.'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], 403); // forbidden
         }
 
         $user_id = (int)$this->user->data['user_id'];
 
         if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'Not a player.'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
         }
 
         zone_util::players()->logout_player($user_id);
@@ -97,13 +97,13 @@ class api
     public function me_login(): JsonResponse
     {
         if (!(bool)$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'Not Allowed to login.'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], 403); // forbidden
         }
 
         $user_id = (int)$this->user->data['user_id'];
 
         if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'Not a player.'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
         }
 
         zone_util::players()->login_player($user_id);
