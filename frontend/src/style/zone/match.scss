@@ -1,5 +1,5 @@
 .zone-match {
-  border: solid 1px #ccc;
+  border: solid 1px $border_light_color;
   line-height: 1.4em;
 }
 
@@ -8,7 +8,7 @@
 
   &:first-child {
     border-style: solid;
-    border-color: #ccc;
+    border-color: $border_light_color;
     border-width: 0 0 1px;
   }
 }
@@ -134,7 +134,7 @@
     position: relative;
     width: 42px;
     height: 100%;
-    border: solid 1px #ccc;
+    border: solid 1px $border_light_color;
     background: #888;
   }
 

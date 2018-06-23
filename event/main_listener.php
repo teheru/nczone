@@ -70,7 +70,7 @@ class main_listener implements EventSubscriberInterface
     $permissions['u_zone_view_matches']	= array('lang' => 'ACL_U_ZONE_VIEW_MATCHES', 'cat' => 'zone');
     $permissions['u_zone_view_bets']	= array('lang' => 'ACL_U_ZONE_VIEW_BETS', 'cat' => 'zone');
     $permissions['u_zone_bet']	= array('lang' => 'ACL_U_ZONE_BET', 'cat' => 'zone');
-	
+
     $permissions['m_zone_manage_players']	= array('lang' => 'ACL_M_ZONE_MANAGE_PLAYERS', 'cat' => 'zone');
     $permissions['m_zone_manage_civs']	= array('lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone');
     $permissions['m_zone_manage_maps']	= array('lang' => 'ACL_M_ZONE_MANAGE_MAPS', 'cat' => 'zone');
@@ -80,7 +80,7 @@ class main_listener implements EventSubscriberInterface
 
 	$permissions['a_zone_manage_general']	= array('lang' => 'ACL_A_ZONE_MANAGE_GENERAL', 'cat' => 'zone');
 	$permissions['a_zone_manage_draw']	= array('lang' => 'ACL_A_ZONE_MANAGE_DRAW', 'cat' => 'zone');
-	
+
 
 	$event['categories'] = array_merge($event['categories'], array(
 		'zone' => 'ACP_CAT_ZONE',
@@ -110,7 +110,7 @@ class main_listener implements EventSubscriberInterface
 	public function add_page_header_link()
 	{
 		$this->template->assign_vars(array(
-			'U_NCZONE'	=> $this->helper->route('eru_nczone_controller_rmatches'),
+			'U_NCZONE'	=> $this->helper->route('eru_nczone_controller_zone'),
 		));
 	}
 
@@ -121,10 +121,10 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function viewonline_page($event)
 	{
-		if ($event['on_page'][1] === 'app' && strrpos($event['row']['session_page'], 'app.' . $this->php_ext . '/nczone/rmatches') === 0)
+		if ($event['on_page'][1] === 'app' && strrpos($event['row']['session_page'], 'app.' . $this->php_ext . '/nczone') === 0)
 		{
 			$event['location'] = $this->user->lang('NCZONE_RMATCHES');
-			$event['location_url'] = $this->helper->route('eru_nczone_controller_rmatches', array('name' => 'world'));
+			$event['location_url'] = $this->helper->route('eru_nczone_controller_zone', array('name' => 'world'));
 		}
 	}
 }

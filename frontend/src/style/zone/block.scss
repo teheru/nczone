@@ -1,9 +1,9 @@
 .zone-block {
   padding: 5px;
   border-radius: 7px;
-  background-color: #0076b1;
-  background-image: -webkit-linear-gradient(top, #6aceff 0%, #12a3eb 2px, #0076b1 92px, #0076b1 100%);
-  background-image: linear-gradient(to bottom, #6aceff 0%, #12a3eb 2px, #0076b1 92px, #0076b1 100%);
+  background-color: $block_bg;
+  background-image: -webkit-linear-gradient(top, lighten($block_bg, 40) 0%, lighten($block_bg, 20) 2px, $block_bg 92px, $block_bg 100%);
+  background-image: linear-gradient(to bottom, lighten($block_bg, 40) 0%, lighten($block_bg, 20) 2px, $block_bg 92px, $block_bg 100%);
   background-repeat: repeat-x;
   margin-bottom: 2em;
   &:last-child {
@@ -24,8 +24,8 @@
   .zone-content {
     padding: 5px;
     background-color: #eef5f9;
-    background-image: -webkit-linear-gradient(top, #d2e0eb 0%, #eef5f9 100%);
-    background-image: linear-gradient(to bottom, #d2e0eb 0%, #eef5f9 100%);
+    background-image: -webkit-linear-gradient(top, darken($base_light_color, 5) 0%, $base_light_color 100%);
+    background-image: linear-gradient(to bottom, darken($base_light_color, 5) 0%, $base_light_color 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#d2e0eb", endColorstr="#eef5f9", GradientType=0);
   }
 

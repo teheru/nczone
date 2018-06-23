@@ -1,14 +1,6 @@
-eru_nczone_controller_rmatches:
-    path: /nczone/rmatches
-    defaults: { _controller: eru.nczone.controller:rmatches }
-
-eru_nczone_controller_pmatches:
-    path: /nczone/pmatches
-    defaults: { _controller: eru.nczone.controller:pmatches }
-
-eru_nczone_controller_table:
-    path: /nczone/table
-    defaults: { _controller: eru.nczone.controller:table }
+eru_nczone_controller_zone:
+    path: /nczone
+    defaults: { _controller: eru.nczone.controller:zone }
 
 eru_nczone_controller__api__logged_in_players:
     path: /nczone/api/players/logged_in

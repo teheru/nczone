@@ -2,14 +2,47 @@
   display: grid;
   grid-auto-flow: dense;
 }
-.zone-players-table-idx { grid-column: 1; }
-.zone-players-table-name { grid-column: 2; }
-.zone-players-table-games { grid-column: 3; }
-.zone-players-table-wins { grid-column: 4; }
-.zone-players-table-losses { grid-column: 5; }
-.zone-players-table-ties { grid-column: 6; }
-.zone-players-table-winrate { grid-column: 7; }
-.zone-players-table-streak { grid-column: 8; }
-.zone-players-table-rating-change { grid-column: 9; }
-.zone-players-table-rating { grid-column: 10; }
-.zone-players-table-activity { grid-column: 11; }
+
+.zone-players-table-idx {
+  grid-column: 1;
+}
+
+.zone-players-table-name {
+  grid-column: 2;
+}
+
+.zone-players-table-games {
+  grid-column: 3;
+}
+
+.zone-players-table-wins {
+  grid-column: 4;
+}
+
+.zone-players-table-losses {
+  grid-column: 5;
+}
+
+.zone-players-table-ties {
+  grid-column: 6;
+}
+
+.zone-players-table-winrate {
+  grid-column: 7;
+}
+
+.zone-players-table-streak {
+  grid-column: 8;
+}
+
+.zone-players-table-rating-change {
+  grid-column: 9;
+}
+
+.zone-players-table-rating {
+  grid-column: 10;
+}
+
+.zone-players-table-activity {
+  grid-column: 11;
+}
