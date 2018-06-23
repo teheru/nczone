@@ -45,10 +45,13 @@ class draw_settings {
         $player_civ_ids = [];
         $map_id = $this->get_players_map_id($players);
 
+        $match_size = \count($team1);
+        $vs_str = $match_size . 'vs' . $match_size;
+
         $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
         if($civ_kind === self::MATCH_CIVS)
         {
-            $match_civs = $this->draw_match_civs($map_id, $players, 0, $config['nczone_draw_match_extra_civs']);
+            $match_civs = $this->draw_match_civs($map_id, $players, 0, $config['nczone_draw_match_extra_civs_' . $vs_str]);
             foreach($match_civs as $civ)
             {
                 $match_civ_ids[] = $civ['id'];
@@ -56,7 +59,7 @@ class draw_settings {
         }
         elseif($civ_kind === self::TEAM_CIVS)
         {
-            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, 0, $config['nczone_draw_team_extra_civs']);
+            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, 0, $config['nczone_draw_team_extra_civs_' . $vs_str]);
             foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = $civ['id'];
@@ -68,7 +71,7 @@ class draw_settings {
         }
         else
         {
-            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, $config['nczone_draw_player_num_civs']);
+            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, $config['nczone_draw_player_num_civs_' . $vs_str]);
             foreach($player_civs as $user_id => $pc)
             {
                 $player_civ_ids[$user_id] = $pc['id'];
