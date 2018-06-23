@@ -1,19 +1,57 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="nczone"></div>
-    <!-- built files will be auto injected -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>frontend</title>
 
-    <script>
-      nczone.init({
-        target: 'nczone'
-      })
-    </script>
-  </body>
+  <style type="text/css">
+    /* This is styling that phpbb brings, so it is not part of the frontend css per se */
+    body {
+      font-family: Verdana, Helvetica, Arial, sans-serif;
+      font-size: 10px;
+      line-height: normal;
+      word-wrap: break-word;
+      color: #536482;
+    }
+
+    a {
+      color: #105289;
+      direction: ltr;
+      unicode-bidi: embed;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    ol, ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .wrap {
+      width: 1152px;
+      margin: 0 auto;
+      padding: 15px;
+    }
+
+    .page-body {
+      margin: 4px 0;
+    }
+
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-body">
+    <div id="nczone"></div>
+  </div>
+</div>
+<script>
+  nczone.init({
+    target: 'nczone'
+  })
+</script>
+</body>
 </html>

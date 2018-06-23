@@ -51,11 +51,15 @@ class api
             ]);
         }
 
+        $user_id = (int)$this->user->data['user_id'];
+
+        $is_activated = zone_util::players()->is_activated($user_id);
+
         return $this->jsonResponse([
-            'id' => (int)$this->user->data['user_id'],
+            'id' => $user_id,
             'canViewLogin' => true,
-            'canDraw' => (bool)$this->auth->acl_get('u_zone_draw'),
-            'canLogin' => (bool)$this->auth->acl_get('u_zone_login'),
+            'canDraw' => $is_activated && (bool)$this->auth->acl_get('u_zone_draw'),
+            'canLogin' => $is_activated && (bool)$this->auth->acl_get('u_zone_login'),
         ]);
     }
 
@@ -70,13 +74,13 @@ class api
     {
         # check is on login. used for logout as well.
         if (!(bool)$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'Not Allowed to login.'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], 403); // forbidden
         }
 
         $user_id = (int)$this->user->data['user_id'];
-        $player = zone_util::players()->get_player($user_id);
-        if (!isset($player['rating'])) {
-            return $this->jsonResponse(['reason' => 'Not a player.'], 403); // forbidden
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
         }
 
         zone_util::players()->logout_player($user_id);
@@ -93,13 +97,13 @@ class api
     public function me_login(): JsonResponse
     {
         if (!(bool)$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'Not Allowed to login.'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], 403); // forbidden
         }
 
         $user_id = (int)$this->user->data['user_id'];
-        $player = zone_util::players()->get_player($user_id);
-        if (!isset($player['rating'])) {
-            return $this->jsonResponse(['reason' => 'Not a player.'], 403); // forbidden
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
         }
 
         zone_util::players()->login_player($user_id);
