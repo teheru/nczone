@@ -1,0 +1,15 @@
+.zone-user-table {
+  display: table;
+  width: 100%;
+}
+
+.zone-player-login-row {
+  display: table-row;
+  > div {
+    display: table-cell;
+  }
+}
+
+.zone-player-table-rating {
+  text-align: right;
+}

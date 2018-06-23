@@ -3,17 +3,12 @@
     <div class="zone-block">
       <div class="zone-title" v-t="'NCZONE_LOGGEDIN'"></div>
       <div class="zone-content">
-
-        <div v-if="players.length === 0" class="zone-user-table-no-login" v-t="'NCZONE_NO_LOGIN'">
+        <div v-if="players.length === 0" class="zone-user-table-no-login">
+          <span v-if="'NCZONE_NO_LOGIN'"></span>
         </div>
-        <table v-else="" class="zone-user-table">
-          <tr v-for="(player, idx) in players" :key="idx">
-            <td>{{ idx + 1 }}.</td>
-            <td class="username">{{ player.username }}</td>
-            <td class="rating">{{ player.rating }}</td>
-          </tr>
-        </table>
-
+        <div v-else="" class="zone-user-table">
+          <nczone-player-login-row v-for="(player, idx) in players" :key="idx" :idx="idx" :playerId="player.id"></nczone-player-login-row>
+        </div>
       </div>
       <div class="zone-actions">
         <button class="zone-button" v-if="canLogin" @click="login" v-t="'NCZONE_LOGIN'"></button>
@@ -26,9 +21,11 @@
 </template>
 <script>
 import {mapGetters} from 'vuex'
+import NczonePlayerLoginRow from './PlayerLoginRow'
 
 export default {
   name: 'nczone-player-area',
+  components: {NczonePlayerLoginRow},
   computed: {
     ...mapGetters([
       'canDraw',

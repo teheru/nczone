@@ -37,8 +37,7 @@ export default new Vuex.Store({
       visible: false,
       players: []
     },
-    loggedInPlayers: [],
-    allPlayers: [],
+    players: [],
     matches: [],
     information: [],
     informationIndex: 0,
@@ -54,15 +53,20 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    allPlayers: (s) => s.allPlayers,
+    players: (s) => s.players,
     me: (s) => s.me,
-    loggedInPlayers: (s) => s.loggedInPlayers,
-    loggedInUserIds: (s) => s.loggedInPlayers.map(u => u.id),
+    loggedInPlayers: (s) => s.players.filter(p => p.logged_in > 0).sort((a, b) => {
+      if (a.logged_in === b.logged_in) {
+        return a.rating > b.rating ? -1 : 1
+      }
+      return a.logged_in > b.logged_in ? 1 : -1
+    }),
+    loggedInUserIds: (s) => s.players.filter(p => p.logged_in > 0).map(u => u.id),
     canDraw: (s, g) => {
       if (!s.me.permissions.u_zone_view_login) {
         return false
       }
-      if (s.loggedInPlayers.length <= 1) {
+      if (g.loggedInUserIds.length <= 1) {
         return false
       }
       if (g.loggedInUserIds.includes(s.me.id) && s.me.permissions.u_zone_draw) {
@@ -77,7 +81,8 @@ export default new Vuex.Store({
     drawPreview: (s) => s.drawPreview,
     matchById: (s) => (id) => s.matches.find(m => m.id === id),
     info: (s) => s.information[s.informationIndex] || '',
-    informationIndex: (s) => s.informationIndex
+    informationIndex: (s) => s.informationIndex,
+    playerById: (s) => (id) => s.players.find(p => p.id === id)
   },
   mutations: {
     setMe (state, payload) {
@@ -92,10 +97,30 @@ export default new Vuex.Store({
       state.me.permissions.m_zone_change_match = payload.permissions.m_zone_change_match || false
     },
     setLoggedInPlayers (state, payload) {
-      state.loggedInPlayers = payload
+      const players = []
+      payload.forEach(player => {
+        players.push(player)
+      })
+      state.players.forEach(player => {
+        if (!players.find(m => m.id === player.id)) {
+          // because we got logged in players, we set all players not in the playload to logged_in 0
+          player.logged_in = 0
+          players.push(player)
+        }
+      })
+      state.players = players
     },
     setAllPlayers (state, payload) {
-      state.allPlayers = payload
+      const players = []
+      payload.forEach(player => {
+        players.push(player)
+      })
+      state.players.forEach(player => {
+        if (!players.find(m => m.id === player.id)) {
+          players.push(player)
+        }
+      })
+      state.players = players
     },
     setRunningMatches (state, payload) {
       state.matches = mergeMatches(payload, state.matches)
