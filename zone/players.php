@@ -35,6 +35,8 @@ class players
     /** @var string */
     private $civs_table;
     /** @var string */
+    private $map_civs_table;
+    /** @var string */
     private $player_map_table;
     /** @var string */
     private $player_civ_table;
@@ -51,13 +53,14 @@ class players
      * @param string $match_player_civs_table
      * @param string $maps_table
      * @param string $civs_table
+     * @param string $map_civs_table
      * @param string $player_map_table
      * @param string $player_civ_table
      * @param string $bets_table
      */
     public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
                                 string $users_table, string $match_players_table, string $match_player_civs_table,
-                                string $maps_table, string $civs_table, string $player_map_table,
+                                string $maps_table, string $civs_table, string $map_civs_table, string $player_map_table,
                                 string $player_civ_table, string $bets_table)
     {
         $this->db = $db;
@@ -68,6 +71,7 @@ class players
         $this->match_player_civs_table = $match_player_civs_table;
         $this->maps_table = $maps_table;
         $this->civs_table = $civs_table;
+        $this->map_civs_table = $map_civs_table;
         $this->player_map_table = $player_map_table;
         $this->player_civ_table = $player_civ_table;
         $this->bets_table = $bets_table;
@@ -316,7 +320,7 @@ class players
         }, $rows);
     }
 
-    public function get_match_players(int $match_id, int $team1_id, int $team2_id): array
+    public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array
     {
         $result = $this->db->sql_query('
             SELECT 
@@ -326,13 +330,14 @@ class players
                 mp.draw_rating AS rating, 
                 mp.rating_change, 
                 pc.civ_id, 
-                c.civ_name
+                c.civ_name,
+                mc.multiplier
             FROM 
-                phpbb_zone_match_players mp
-                INNER JOIN phpbb_users u ON u.user_id = mp.user_id
-                
-                LEFT JOIN phpbb_zone_match_player_civs pc ON pc.user_id = mp.user_id AND pc.match_id = ' . $match_id . '
-                LEFT JOIN phpbb_zone_civs c ON c.civ_id = pc.civ_id
+                ' . $this->match_players_table . ' mp
+                INNER JOIN ' . $this->users_table . ' u ON u.user_id = mp.user_id
+                LEFT JOIN ' . $this->match_player_civs_table . ' pc ON pc.user_id = mp.user_id AND pc.match_id = ' . $match_id . '
+                LEFT JOIN ' . $this->civs_table . ' c ON c.civ_id = pc.civ_id
+                LEFT JOIN ' . $this->map_civs_table . ' mc ON mc.map_id = ' . $map_id . ' AND mc.civ_id = c.civ_id
             WHERE 
                 mp.team_id IN (' . $team1_id . ', ' . $team2_id . ')
             ORDER BY
@@ -359,6 +364,7 @@ class players
 
             $r['rating'] = (int)$r['rating'];
             $r['rating_change'] = (int)$r['rating_change'];
+            $r['multiplier'] = (float)$r['multiplier'];
 
             $teams[$team_id][] = $r;
         }

@@ -605,7 +605,7 @@ class matches {
                 ],
                 'civs' => array_merge(['both' => $this->get_match_civs($match_id, $map_id)], $this->get_team_civs($team1_id, $team2_id, $map_id)),
                 'bets' => ['team1' => [], 'team2' => []],
-                'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id),
+                'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id),
             ];
             $rmatches[] = $match;
         }

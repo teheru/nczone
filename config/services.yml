@@ -71,6 +71,7 @@ services:
         - '%tables.eru.nczone.match_player_civs%'
         - '%tables.eru.nczone.maps%'
         - '%tables.eru.nczone.civs%'
+        - '%tables.eru.nczone.map_civs%'
         - '%tables.eru.nczone.player_map%'
         - '%tables.eru.nczone.player_civ%'
         - '%tables.eru.nczone.bets%'
