@@ -18,6 +18,10 @@ class api
     /** @var auth */
     protected $auth;
 
+    private const CODE_FORBIDDEN = 403;
+    private const CODE_OK = 200;
+    private const CODE_BAD_REQUEST = 400;
+
     public function __construct(config $config, user $user, auth $auth)
     {
         $this->config = $config;
@@ -25,7 +29,7 @@ class api
         $this->auth = $auth;
     }
 
-    private function jsonResponse(array $data, int $code = 200)
+    private function jsonResponse(array $data, int $code = self::CODE_OK)
     {
         return new JsonResponse($data, $code, [
             'Access-Control-Allow-Origin' => phpbb_util::request()->header('Origin') ?: '*',
@@ -48,9 +52,9 @@ class api
 
         return $this->jsonResponse([
             'id' => $user_id,
-            'canViewLogin' => (bool)$this->auth->acl_get('u_zone_view_login'),
-            'canDraw' => $is_activated && (bool)$this->auth->acl_get('u_zone_draw'),
-            'canLogin' => $is_activated && (bool)$this->auth->acl_get('u_zone_login'),
+            'canViewLogin' => $this->auth->acl_get('u_zone_view_login'),
+            'canDraw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
+            'canLogin' => $is_activated && $this->auth->acl_get('u_zone_login'),
         ]);
     }
 
@@ -64,14 +68,14 @@ class api
     public function me_logout(): JsonResponse
     {
         # check is on login. used for logout as well.
-        if (!(bool)$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], 403); // forbidden
+        if (!$this->auth->acl_get('u_zone_login')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
         }
 
         $user_id = (int)$this->user->data['user_id'];
 
         if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
         zone_util::players()->logout_player($user_id);
@@ -87,14 +91,14 @@ class api
      */
     public function me_login(): JsonResponse
     {
-        if (!(bool)$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], 403); // forbidden
+        if (!$this->auth->acl_get('u_zone_login')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
         }
 
         $user_id = (int)$this->user->data['user_id'];
 
         if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
         zone_util::players()->login_player($user_id);
@@ -103,14 +107,14 @@ class api
 
     public function draw_preview(): JsonResponse
     {
-        if (!(bool)$this->auth->acl_get('u_zone_draw')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], 403); // forbidden
+        if (!$this->auth->acl_get('u_zone_draw')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
         }
 
         $user_id = (int)$this->user->data['user_id'];
 
         if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
         $players = zone_util::matches()->start_draw_process($user_id);
@@ -119,14 +123,14 @@ class api
 
     public function draw_cancel(): JsonResponse
     {
-        if (!(bool)$this->auth->acl_get('u_zone_draw')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], 403); // forbidden
+        if (!$this->auth->acl_get('u_zone_draw')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
         }
 
         $user_id = (int)$this->user->data['user_id'];
 
         if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
         zone_util::matches()->deny_draw_process($user_id);
@@ -135,14 +139,14 @@ class api
 
     public function draw_confirm(): JsonResponse
     {
-        if (!(bool)$this->auth->acl_get('u_zone_draw')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], 403); // forbidden
+        if (!$this->auth->acl_get('u_zone_draw')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
         }
 
         $user_id = (int)$this->user->data['user_id'];
 
         if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
         $players = zone_util::matches()->confirm_draw_process($user_id);
@@ -207,14 +211,49 @@ class api
         return $this->jsonResponse($rmatches);
     }
 
+    public function match(string $match_id): JsonResponse
+    {
+        $match = zone_util::matches()->get_match((int)$match_id);
+        return $this->jsonResponse($match);
+    }
+
+    public function match_post_result(string $match_id): JsonResponse
+    {
+        if (!$this->auth->acl_get('u_zone_draw')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT'], self::CODE_FORBIDDEN);
+        }
+
+        $data = self::get_request_data();
+        if (!isset($data['winner'])) {
+            return $this->jsonResponse(['reason' => 'winner is not set'], self::CODE_BAD_REQUEST);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!$this->auth->acl_get('m_zone_login_players') &&
+            !zone_util::matches()->is_player_in_match($user_id, (int)$match_id)
+        ) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT'], self::CODE_FORBIDDEN);
+        }
+        $winner = (int)$data['winner'];
+
+        zone_util::matches()->post((int)$match_id, $user_id, $winner);
+        return $this->jsonResponse([]);
+    }
+
     public function information(): JsonResponse
     {
-        if (!(bool)$this->auth->acl_get('u_zone_view_info')) { // todo: this does not work
+        if (!$this->auth->acl_get('u_zone_view_info')) { // todo: this does not work
             return $this->jsonResponse([]);
         }
 
         $misc = zone_util::misc();
         $post_ids = $misc->get_information_ids();
         return $this->jsonResponse($misc->get_posts(...$post_ids));
+    }
+
+    private static function get_request_data(): array
+    {
+        return json_decode(file_get_contents('php://input'), true) ?: [];
     }
 }

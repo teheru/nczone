@@ -7,7 +7,7 @@
         <div class="zone-match-bets-percentage-bar" :style="`height: ${perc}%`"></div>
       </div>
       <div class="zone-match-bets-overlay">
-        <div class="zone-match-bets-title" v-t="'NCZONE_MATCH_HAVE_BET'"></div>
+        <div class="zone-match-bets-title" v-t="bets.length > 0 ? 'NCZONE_MATCH_HAVE_BET' : 'NCZONE_MATCH_NO_BETS'"></div>
         <ul class="zone-match-betters">
           <li v-for="(bet, idx) in bets" :key="idx">{{ bet.user.name }} ({{ bet.timestamp }})</li>
         </ul>

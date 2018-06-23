@@ -129,7 +129,7 @@ class matches {
 
     public function replace_player(int $replace_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
-        $match_players = $this->get_teams_players(...$this->get_match_team_ids($match_id));
+        $match_players = $this->get_match_players($match_id);
 
         if(array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players))
         {
@@ -151,7 +151,7 @@ class matches {
 
     public function add_pair(int $add_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
-        $match_players = $this->get_teams_players(...$this->get_match_team_ids($match_id));
+        $match_players = $this->get_match_players($match_id);
 
         if(\count($match_players) < 8)
         {
@@ -173,7 +173,7 @@ class matches {
 
     public function remove_pair(int $remove_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
-        $match_players = $this->get_teams_players(...$this->get_match_team_ids($match_id));
+        $match_players = $this->get_match_players($match_id);
 
         if(\count($match_players) > 2)
         {
@@ -342,6 +342,16 @@ class matches {
         ], [
             'match_id' => $match_id
         ]);
+    }
+
+    public function get_match_players(int $match_id): array
+    {
+        return $this->get_teams_players(...$this->get_match_team_ids($match_id));
+    }
+
+    public function is_player_in_match(int $player_id, int $match_id): bool
+    {
+        return array_key_exists($player_id, $this->get_match_players($match_id));
     }
 
     public function get_match_team_ids(int $match_id): array
@@ -569,55 +579,140 @@ class matches {
         ]);
     }
 
-    public function get_all_rmatches(): array
+    public function get_match(int $match_id): array
     {
-        $rmatches = [];
-
-        $match_rows = db_util::get_rows($this->db, [
-            'SELECT' => 't.match_id, t.map_id, m.map_name, t.draw_user_id, u.username AS draw_username, t.draw_time',
-            'FROM' => [$this->matches_table => 't', $this->maps_table => 'm', $this->users_table => 'u'],
-            'WHERE' => '(t.map_id = m.map_id OR t.map_id = 0) AND t.draw_user_id = u.user_id AND t.post_user_id = 0',
-            'ORDER_BY' => 't.draw_time DESC'
-        ]);
-        foreach($match_rows as $m)
-        {
-            $match_id = (int)$m['match_id'];
-            $map_id = (int)$m['map_id'];
-            [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-
-
-            $match = [
-                'id' => $match_id,
-                'game_type' => 'IP', // todo: remove
-                'ip' => '', // todo: remove
-                'timestampStart' => (int)$m['draw_time'],
-                'timestampEnd' => 0,
-                'winner' => 0,
-                'whiner' => 'Snyper',
-                'result_poster' => NULL,
-                'drawer' => [
-                    'id' => (int)$m['draw_user_id'],
-                    'name' => $m['draw_username'],
-                ],
-                'map' => [
-                    'id' => $map_id,
-                    'title' => $m['map_name'],
-                ],
-                'civs' => array_merge(['both' => $this->get_match_civs($match_id, $map_id)], $this->get_team_civs($team1_id, $team2_id, $map_id)),
-                'bets' => ['team1' => [], 'team2' => []],
-                'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id),
-            ];
-            $rmatches[] = $match;
+        $sql = '
+            SELECT 
+                t.match_id, 
+                t.map_id, 
+                m.map_name, 
+                t.draw_user_id, 
+                t.post_user_id, 
+                t.winner_team_id,
+                u.username AS draw_username, 
+                u2.username AS post_username, 
+                t.draw_time,
+                t.post_time
+            FROM
+                '.$this->matches_table.' t
+                LEFT JOIN '.$this->maps_table.' m ON t.map_id = m.map_id
+                LEFT JOIN '.$this->users_table.' u ON t.draw_user_id = u.user_id
+                LEFT JOIN '.$this->users_table.' u2 ON t.draw_user_id = u2.user_id
+            WHERE
+                t.match_id = '.$match_id.'
+            ;
+        ';
+        $m = db_util::get_row($this->db, $sql);
+        if (!$m) {
+            return null;
         }
 
-        return $rmatches;
+        return $this->create_match_by_row($m);
+    }
+
+    public function get_all_rmatches(): array
+    {
+        $sql = '
+            SELECT 
+                t.match_id, 
+                t.map_id, 
+                m.map_name, 
+                t.draw_user_id, 
+                t.post_user_id, 
+                u.username AS draw_username,  
+                t.draw_time,
+                t.post_time
+            FROM
+                '.$this->matches_table.' t
+                LEFT JOIN '.$this->maps_table.' m ON t.map_id = m.map_id
+                LEFT JOIN '.$this->users_table.' u ON t.draw_user_id = u.user_id
+            WHERE
+                t.post_time = 0
+            ORDER BY
+                t.draw_time DESC
+            ;
+        ';
+        $match_rows = db_util::get_rows($this->db, $sql);
+        $matches = [];
+        foreach($match_rows as $m)
+        {
+            $matches[] = $this->create_match_by_row($m);
+        }
+        return $matches;
     }
 
     public function get_all_pmatches(): array
     {
-        $pmatches = [];
-        # todo implement..
-        return $pmatches;
+        $sql = '
+            SELECT 
+                t.match_id, 
+                t.map_id, 
+                m.map_name, 
+                t.draw_user_id, 
+                t.post_user_id, 
+                t.winner_team_id,
+                u.username AS draw_username, 
+                u2.username AS post_username, 
+                t.draw_time,
+                t.post_time
+            FROM
+                '.$this->matches_table.' t
+                LEFT JOIN '.$this->maps_table.' m ON t.map_id = m.map_id
+                LEFT JOIN '.$this->users_table.' u ON t.draw_user_id = u.user_id
+                LEFT JOIN '.$this->users_table.' u2 ON t.draw_user_id = u2.user_id
+            WHERE
+                t.post_time > 0
+            ORDER BY
+                t.post_time DESC
+            ;
+        ';
+        $match_rows = db_util::get_rows($this->db, $sql);
+        $matches = [];
+        foreach($match_rows as $m)
+        {
+            $matches[] = $this->create_match_by_row($m);
+        }
+        return $matches;
+    }
+
+    private function create_match_by_row(array $m): array
+    {
+        $match_id = (int)$m['match_id'];
+        $map_id = (int)$m['map_id'];
+        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $winner_team_id = (int)($m['winner_team_id'] ?? 0);
+        if ($winner_team_id === $team1_id) {
+            $winner = 1;
+        } elseif ($winner_team_id === $team2_id) {
+            $winner = 2;
+        } else {
+            $winner = 0;
+        }
+
+        return [
+            'id' => $match_id,
+            'game_type' => 'IP', // todo: remove
+            'ip' => '', // todo: remove
+            'timestampStart' => (int)$m['draw_time'],
+            'timestampEnd' => (int)($m['post_time'] ?? 0),
+            'winner' => $winner,
+            'whiner' => 'Snyper',
+            'result_poster' => empty($m['post_user_id']) ? null : [
+                'id' => (int)$m['post_user_id'],
+                'name' => $m['post_username'],
+            ],
+            'drawer' => empty($m['draw_user_id']) ? null : [
+                'id' => (int)$m['draw_user_id'],
+                'name' => $m['draw_username'],
+            ],
+            'map' => empty($map_id) ? null : [
+                'id' => $map_id,
+                'title' => $m['map_name'],
+            ],
+            'civs' => array_merge(['both' => $this->get_match_civs($match_id, $map_id)], $this->get_team_civs($team1_id, $team2_id, $map_id)),
+            'bets' => ['team1' => [], 'team2' => []],
+            'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id),
+        ];
     }
 
     public function get_match_civs(int $match_id, int $map_id): array

@@ -81,6 +81,7 @@ export default {
     'NCZONE_MATCH_POST_WIN_TEAM1': 'Team 1',
     'NCZONE_MATCH_POST_WIN_TEAM2': 'Team 2',
     'NCZONE_MATCH_POST_OW': 'No result',
+    'NCZONE_MATCH_SEND_RESULT': 'Send result',
 
     'NCZONE': 'nC Zone',
     'NCZONE_OK': 'OK',
@@ -106,17 +107,23 @@ export default {
 
     'NCZONE_MATCH_MATCH': 'Match',
     'NCZONE_MATCH_DRAWER': 'Drawed by',
+    'NCZONE_MATCH_RESULT_POSTER': 'Posted by',
+    'NCZONE_MATCH_WINNER': 'Winner',
+    'NCZONE_MATCH_WINNER_NO_RESULT': 'No result',
+    'NCZONE_MATCH_TEAM': 'Team',
     'NCZONE_MATCH_MAP': 'Map',
     'NCZONE_MATCH_CIVS': 'Civilizations',
     'NCZONE_MATCH_CIVS_BOTH': 'Both teams',
     'NCZONE_MATCH_CIVS_TEAM1': 'Team 1',
     'NCZONE_MATCH_CIVS_TEAM2': 'Team 2',
     'NCZONE_MATCH_TIME_SINCE_DRAW': 'Time since draw',
+    'NCZONE_MATCH_LENGTH': 'Length',
     'NCZONE_MATCH_TEAMS': 'Teams',
     'NCZONE_MATCH_TEAM1': 'Team 1',
     'NCZONE_MATCH_TEAM2': 'Team 2',
     'NCZONE_MATCH_VS': 'VS',
     'NCZONE_MATCH_HAVE_BET': 'Bets',
+    'NCZONE_MATCH_NO_BETS': 'No bets',
 
     'NCZONE_LOADING': 'Loading...',
     'NCZONE_ERROR_LOADING': 'Error loading data',
@@ -142,6 +149,8 @@ export default {
 
     'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Not allowed to login.',
     'NCZONE_REASON_NOT_ALLOWED_TO_DRAW': 'Not allowed to draw.',
+    'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT': 'Not allowed to post match results.',
+    'NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT': 'Not allowed to post someone else\'s match results.',
     'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER': 'Not an activated player.'
   }
 }

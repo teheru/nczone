@@ -322,7 +322,7 @@ class players
 
     public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array
     {
-        $result = $this->db->sql_query('
+        $player_rows = db_util::get_rows($this->db, '
             SELECT 
                 mp.user_id as id, 
                 mp.team_id,
@@ -343,8 +343,6 @@ class players
             ORDER BY
                 rating DESC
         ');
-        $player_rows = $this->db->sql_fetchrowset($result);
-        $this->db->sql_freeresult($result);
 
         $teams = [];
         foreach($player_rows as $r)

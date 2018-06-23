@@ -6,9 +6,16 @@ use phpbb\db\driver\driver_interface;
 
 class db_util
 {
-    public static function get_rows(driver_interface $db, array $sqlArray, $query = 'SELECT'): array
+    /**
+     * @param driver_interface $db
+     * @param array|string $sql
+     * @param string $query
+     * @return array
+     */
+    public static function get_rows(driver_interface $db, $sql, $query = 'SELECT'): array
     {
-        $result = $db->sql_query($db->sql_build_query($query, $sqlArray));
+        $queryString = is_string($sql) ? rtrim(rtrim($sql), ';') : $db->sql_build_query($query, $sql);
+        $result = $db->sql_query($queryString);
         $rows = $db->sql_fetchrowset($result);
         $db->sql_freeresult($result);
         return $rows ?: [];
@@ -31,9 +38,16 @@ class db_util
         return $col;
     }
 
-    public static function get_row(driver_interface $db, array $sqlArray, $query = 'SELECT')
+    /**
+     * @param driver_interface $db
+     * @param array|string $sql
+     * @param string $query
+     * @return mixed
+     */
+    public static function get_row(driver_interface $db, $sql, $query = 'SELECT')
     {
-        $result = $db->sql_query_limit($db->sql_build_query($query, $sqlArray), 1);
+        $queryString = is_string($sql) ? rtrim(rtrim($sql), ';') : $db->sql_build_query($query, $sql);
+        $result = $db->sql_query_limit($queryString, 1);
         $row = $db->sql_fetchrow($result);
         $db->sql_freeresult($result);
         return $row;
@@ -65,4 +79,5 @@ class db_util
         $db->sql_query('UPDATE ' . $table . ' SET ' . $db->sql_build_array('UPDATE', $sqlArray) .
             (empty($where) ? '' : ' WHERE ' . $where));
     }
+
 }

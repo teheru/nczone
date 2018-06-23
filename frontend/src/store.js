@@ -76,6 +76,9 @@ export default new Vuex.Store({
     setPastMatches (state, payload) {
       state.matches = mergeMatches(payload, state.matches)
     },
+    setMatch (state, payload) {
+      state.matches = mergeMatches(payload ? [payload] : [], state.matches)
+    },
     showDrawPreview (state, payload) {
       state.drawPreview.visible = true
       state.drawPreview.players = payload
@@ -120,6 +123,10 @@ export default new Vuex.Store({
     },
     async drawCancel ({ commit }) {
       commit('hideDrawPreview', await api.drawCancel())
+    },
+    async postMatchResult ({ commit, dispatch }, {matchId, winner}) {
+      await api.postMatchResult(matchId, winner)
+      commit('setMatch', await api.match(matchId))
     }
   }
 })

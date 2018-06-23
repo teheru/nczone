@@ -2,21 +2,24 @@
 <div class="zone-match">
   <div class="zone-match-title">{{ $t('NCZONE_MATCH_MATCH') }} #{{ match.id }}</div>
   <div class="zone-match-data">
-    <template v-if="match.winner">
+    <template v-if="match.timestampEnd">
       <div v-t="'NCZONE_MATCH_WINNER'"></div>
-      <div>{{ match.winner }}</div>
+      <div v-if="match.winner"><span v-t="'NCZONE_MATCH_TEAM'"></span> {{ match.winner }}</div>
+      <div v-else="" v-t="'NCZONE_MATCH_WINNER_NO_RESULT'"></div>
     </template>
 
     <div v-t="'NCZONE_MATCH_DRAWER'"></div>
     <div>{{ match.drawer.name }}</div>
 
-    <template v-if="match.winner">
-      <div v-t="NCZONE_MATCH_RESULT_POSTER"></div>
+    <template v-if="match.result_poster">
+      <div v-t="'NCZONE_MATCH_RESULT_POSTER'"></div>
       <div>{{ match.result_poster.name }}</div>
     </template>
 
-    <div v-t="'NCZONE_MATCH_MAP'"></div>
-    <div>{{ match.map.title }}</div>
+    <template v-if="match.map">
+      <div v-t="'NCZONE_MATCH_MAP'"></div>
+      <div>{{ match.map.title }}</div>
+    </template>
 
     <template v-if="haveGlobalCivs">
       <div v-t="'NCZONE_MATCH_CIVS'"></div>
@@ -33,7 +36,7 @@
       </div>
     </template>
 
-    <template v-if="match.winner">
+    <template v-if="match.timestampEnd">
       <div v-t="'NCZONE_MATCH_LENGTH'"></div>
       <div>{{ matchLength }}</div>
     </template>
@@ -54,14 +57,12 @@
 
   </div>
 
-  <div v-if="canManage" class="zone-match-post-result-form">
+  <div v-if="canManage && match.post_time === 0" class="zone-match-post-result-form">
     <span v-t="'NCZONE_MATCH_RESULT'"></span>
-    <select>
-      <option value="" v-t="'NCZONE_MATCH_POST_RESULT'"></option>
-      <option value="" v-t="'NCZONE_MATCH_POST_WIN_TEAM1'"></option>
-      <option value="" v-t="'NCZONE_MATCH_POST_WIN_TEAM2'">}</option>
-      <option value="" v-t="'NCZONE_MATCH_POST_OW'"></option>
+    <select v-model="matchResult">
+      <option v-for="(opt, idx) in matchResultOptions" :key="idx" :value="opt.value" v-t="opt.title"></option>
     </select>
+    <span class="zone-button" v-t="'NCZONE_MATCH_SEND_RESULT'" @click="sendResult"></span>
   </div>
 </div>
 </template>
@@ -77,6 +78,11 @@ export default {
     matchId: {
       type: Number,
       required: true
+    }
+  },
+  methods: {
+    sendResult () {
+      this.$store.dispatch('postMatchResult', {matchId: this.matchId, winner: this.matchResult})
     }
   },
   computed: {
@@ -109,11 +115,30 @@ export default {
   },
   data () {
     return {
-      gameSeconds: 0
+      gameSeconds: 0,
+      matchResult: '0',
+      matchResultOptions: [
+        {
+          value: '0',
+          title: 'NCZONE_MATCH_POST_RESULT'
+        },
+        {
+          value: '1',
+          title: 'NCZONE_MATCH_POST_WIN_TEAM1'
+        },
+        {
+          value: '2',
+          title: 'NCZONE_MATCH_POST_WIN_TEAM2'
+        },
+        {
+          value: '3',
+          title: 'NCZONE_MATCH_POST_OW'
+        }
+      ]
     }
   },
   mounted () {
-    if (!this.match.winner) {
+    if (!this.match.timestampEnd) {
       this.$options.interval = setInterval(() => {
         this.gameSeconds = new Date().getTime() / 1000 - this.match.timestampStart
       }, 1000)

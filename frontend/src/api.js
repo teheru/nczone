@@ -65,13 +65,22 @@ const post = (...params) => request('POST', ...params)
 
 const url = (path) => apiBase + path
 
-export const loggedInPlayers = () => get('/players/logged_in')
-export const allPlayers = () => get('/players')
-export const runningMatches = () => get('/rmatches')
-export const pastMatches = () => get('/pmatches')
+// me
 export const me = () => get('/me')
 export const login = () => get('/me/login')
 export const logout = () => get('/me/logout')
+
+// draw
 export const drawPreview = () => get('/draw/preview')
 export const drawConfirm = () => get('/draw/confirm')
 export const drawCancel = () => get('/draw/cancel')
+
+// matches
+export const runningMatches = () => get('/matches/running')
+export const pastMatches = () => get('/matches/past')
+export const match = (matchId) => get(`/matches/${matchId}`)
+export const postMatchResult = (matchId, winner) => post(`/matches/${matchId}/post_result`, {body: JSON.stringify({winner: winner})})
+
+// players
+export const loggedInPlayers = () => get('/players/logged_in')
+export const allPlayers = () => get('/players')
