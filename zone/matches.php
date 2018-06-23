@@ -715,15 +715,17 @@ class matches {
     private function get_draw_players(int $draw_id): array
     {
         $rows = db_util::get_rows($this->db, [
-            'SELECT' => 'p.user_id AS id, u.username, p.rating',
+            'SELECT' => 'p.user_id AS id, u.username, p.rating, d.logged_in',
             'FROM' => [$this->draw_players_table => 'd', $this->players_table => 'p', $this->users_table => 'u'],
             'WHERE' => 'd.draw_id = ' . $draw_id . ' AND d.user_id = p.user_id AND p.user_id = u.user_id',
+            'ORDER_BY' => 'd.logged_in ASC'
         ]);
         return array_map(function($row) {
             return [
                 'id' => (int)$row['id'],
                 'username' => $row['username'], // todo: probably not needed
                 'rating' => (int)$row['rating'],
+                'logged_in' => (int)$row['logged_in'],
             ];
         }, $rows);
     }
@@ -757,6 +759,7 @@ class matches {
             $sql_array[] = [
                 'draw_id' => $draw_id,
                 'user_id' => $u['id'],
+                'logged_in' => $u['logged_in'],
             ];
         }
         $this->db->sql_multi_insert($this->draw_players_table, $sql_array);

@@ -285,7 +285,7 @@ class players
             'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in',
             'FROM' => [$this->players_table => 'p', $this->users_table => 'u'],
             'WHERE' => 'logged_in > 0 AND p.user_id = u.user_id',
-            'ORDER_BY' => 'logged_in DESC'
+            'ORDER_BY' => 'logged_in ASC'
         ]);
         return array_map(function($row) {
             return [

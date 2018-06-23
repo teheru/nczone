@@ -157,7 +157,8 @@ class install_db_create extends \phpbb\db\migration\migration
 				$this->table_prefix . 'zone_draw_players' => array(
 					'COLUMNS' => array(
 						'draw_id' => array('UINT', 0),
-						'user_id' => array('UINT', 0),
+						'user_id' => array('UINT', 0),,
+						'logged_in' => array('TIMESTAMP', 0),
 					),
 					'PRIMARY_KEY' => array('draw_id', 'user_id')
 				)
