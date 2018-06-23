@@ -582,7 +582,9 @@ class matches {
         foreach($match_rows as $m)
         {
             $match_id = (int)$m['match_id'];
+            $map_id = (int)$m['map_id'];
             [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+
 
             $match = [
                 'id' => $match_id,
@@ -598,10 +600,10 @@ class matches {
                     'name' => $m['draw_username'],
                 ],
                 'map' => [
-                    'id' => (int)$m['map_id'],
+                    'id' => $map_id,
                     'title' => $m['map_name'],
                 ],
-                'civs' => array_merge(['both' => $this->get_match_civs($match_id)], $this->get_team_civs($team1_id, $team2_id)),
+                'civs' => array_merge(['both' => $this->get_match_civs($match_id, $map_id)], $this->get_team_civs($team1_id, $team2_id, $map_id)),
                 'bets' => ['team1' => [], 'team2' => []],
                 'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id),
             ];
@@ -618,12 +620,12 @@ class matches {
         return $pmatches;
     }
 
-    public function get_match_civs(int $match_id): array
+    public function get_match_civs(int $match_id, int $map_id): array
     {
         $rows = db_util::get_rows($this->db, [
             'SELECT' => 'm.civ_id AS id, c.civ_name AS title, mc.multiplier, m.number',
             'FROM' => [$this->match_civs_table => 'm', $this->civs_table => 'c', $this->map_civs_table => 'mc'],
-            'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND m.match_id = ' . $match_id,
+            'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND mc.map_id = ' . $map_id . ' AND m.match_id = ' . $match_id,
             'ORDER_BY' => 'mc.multiplier DESC'
         ]);
 
@@ -636,12 +638,12 @@ class matches {
         }, $rows);
     }
 
-    public function get_team_civs(int $team1_id, int $team2_id): array
+    public function get_team_civs(int $team1_id, int $team2_id, int $map_id): array
     {
         $rows = db_util::get_rows($this->db, [
             'SELECT' => 'm.team_id, m.civ_id AS id, c.civ_name AS title, mc.multiplier, m.number',
             'FROM' => [$this->team_civs_table => 'm', $this->civs_table => 'c', $this->map_civs_table => 'mc'],
-            'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND (m.team_id = ' . $team1_id . ' OR m.team_id = ' . $team2_id . ')',
+            'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND mc.map_id = ' . $map_id . ' AND (m.team_id = ' . $team1_id . ' OR m.team_id = ' . $team2_id . ')',
             'ORDER_BY' => 'mc.multiplier DESC'
         ]);
 

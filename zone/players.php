@@ -318,12 +318,28 @@ class players
 
     public function get_match_players(int $match_id, int $team1_id, int $team2_id): array
     {
-        $player_rows = db_util::get_rows($this->db, [
-            'SELECT' => 'mp.user_id AS id, mp.team_id, u.username AS name, mp.draw_rating AS rating, mp.rating_change, pc.civ_id, c.civ_name',
-            'FROM' => [$this->match_players_table => 'mp', $this->users_table => 'u', $this->match_player_civs_table => 'pc', $this->civs_table => 'c'],
-            'WHERE' => '(mp.team_id = ' . $team1_id . ' OR mp.team_id = ' . $team2_id . ') AND mp.user_id = pc.user_id AND mp.user_id = u.user_id AND pc.match_id = ' . $match_id . ' AND pc.civ_id = c.civ_id',
-            'ORDER_BY' => 'rating DESC'
-        ]);
+        $result = $this->db->sql_query('
+            SELECT 
+                mp.user_id as id, 
+                mp.team_id,
+                u.username AS name, 
+                mp.draw_rating AS rating, 
+                mp.rating_change, 
+                pc.civ_id, 
+                c.civ_name
+            FROM 
+                phpbb_zone_match_players mp
+                INNER JOIN phpbb_users u ON u.user_id = mp.user_id
+                
+                LEFT JOIN phpbb_zone_match_player_civs pc ON pc.user_id = mp.user_id AND pc.match_id = ' . $match_id . '
+                LEFT JOIN phpbb_zone_civs c ON c.civ_id = pc.civ_id
+            WHERE 
+                mp.team_id IN (' . $team1_id . ', ' . $team2_id . ')
+            ORDER BY
+                rating DESC
+        ');
+        $player_rows = $this->db->sql_fetchrowset($result);
+        $this->db->sql_freeresult($result);
 
         $teams = [];
         foreach($player_rows as $r)
