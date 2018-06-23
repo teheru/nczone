@@ -23,11 +23,14 @@ export default new Vuex.Store({
     me: {
       id: 0,
       permissions: {
-        u_zone_login: false,
-        u_zone_draw: false,
         u_zone_view_login: false,
+        u_zone_view_info: false,
+        u_zone_draw: false,
+        u_zone_login: false,
+        u_zone_change_match: false,
         m_zone_draw_match: false,
-        m_zone_login_players: false
+        m_zone_login_players: false,
+        m_zone_change_match: false
       }
     },
     drawPreview: {
@@ -37,6 +40,8 @@ export default new Vuex.Store({
     loggedInPlayers: [],
     allPlayers: [],
     matches: [],
+    information: [],
+    informationIndex: 0,
     // idea: to reduce number of ajax calls, we save timestamps
     //       when certain actions were executed last and only
     //       make the ajax call if there is no data or timestamp
@@ -64,23 +69,27 @@ export default new Vuex.Store({
         return true
       }
       return s.me.permissions.m_zone_draw_match
-
     },
     canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn,
     isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
     runningMatches: (s) => s.matches.filter(m => m.timestampEnd === 0),
     pastMatches: (s) => s.matches.filter(m => m.timestampEnd > 0),
     drawPreview: (s) => s.drawPreview,
-    matchById: (s) => (id) => s.matches.find(m => m.id === id)
+    matchById: (s) => (id) => s.matches.find(m => m.id === id),
+    info: (s) => s.information[s.informationIndex] || '',
+    informationIndex: (s) => s.informationIndex
   },
   mutations: {
     setMe (state, payload) {
       state.me.id = payload.id || 0
+      state.me.permissions.u_zone_view_login = payload.permissions.u_zone_view_login || false
+      state.me.permissions.u_zone_view_info = payload.permissions.u_zone_view_info || false
       state.me.permissions.u_zone_draw = payload.permissions.u_zone_draw || false
       state.me.permissions.u_zone_login = payload.permissions.u_zone_login || false
-      state.me.permissions.u_zone_view_login = payload.permissions.u_zone_view_login || false
+      state.me.permissions.u_zone_change_match = payload.permissions.u_zone_change_match || false
       state.me.permissions.m_zone_draw_match = payload.permissions.m_zone_draw_match || false
       state.me.permissions.m_zone_login_players = payload.permissions.m_zone_login_players || false
+      state.me.permissions.m_zone_change_match = payload.permissions.m_zone_change_match || false
     },
     setLoggedInPlayers (state, payload) {
       state.loggedInPlayers = payload
@@ -94,6 +103,10 @@ export default new Vuex.Store({
     setPastMatches (state, payload) {
       state.matches = mergeMatches(payload, state.matches)
     },
+    setInformation (state, payload) {
+      state.information = payload
+      state.informationIndex = 0
+    },
     setMatch (state, payload) {
       state.matches = mergeMatches(payload ? [payload] : [], state.matches)
     },
@@ -104,12 +117,19 @@ export default new Vuex.Store({
     hideDrawPreview (state, payload) {
       state.drawPreview.visible = false
       state.drawPreview.players = []
+    },
+    increaseInformationIndex (state) {
+      state.informationIndex += 1
+      if (state.informationIndex > state.information.length - 1) {
+        state.informationIndex = 0
+      }
     }
   },
   actions: {
-    async init ({ commit, dispatch }) {
+    async init ({ state, commit, dispatch }) {
       commit('setMe', await api.me())
       dispatch('getLoggedInPlayers')
+      dispatch('getInformation')
     },
     async getLoggedInPlayers ({ commit }) {
       commit('setLoggedInPlayers', await api.loggedInPlayers())
@@ -136,8 +156,8 @@ export default new Vuex.Store({
     },
     async drawConfirm ({ commit, dispatch }) {
       commit('hideDrawPreview', await api.drawConfirm())
-      await dispatch('getRunningMatches')
-      await dispatch('getLoggedInPlayers')
+      dispatch('getRunningMatches')
+      dispatch('getLoggedInPlayers')
     },
     async drawCancel ({ commit }) {
       commit('hideDrawPreview', await api.drawCancel())
@@ -145,6 +165,12 @@ export default new Vuex.Store({
     async postMatchResult ({ commit, dispatch }, {matchId, winner}) {
       await api.postMatchResult(matchId, winner)
       commit('setMatch', await api.match(matchId))
+    },
+    async getInformation ({ commit }) {
+      commit('setInformation', await api.getInformation())
+    },
+    async nextInformation ({ state, commit }) {
+      commit('increaseInformationIndex')
     }
   }
 })

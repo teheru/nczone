@@ -54,10 +54,13 @@ class api
             'id' => $user_id,
             'permissions' => [
                 'u_zone_view_login' => (bool)$this->auth->acl_get('u_zone_view_login'),
+                'u_zone_view_info' => (bool)$this->auth->acl_get('u_zone_view_info'),
                 'u_zone_draw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
                 'u_zone_login' => $is_activated && $this->auth->acl_get('u_zone_login'),
-                'm_zone_draw_match' => $is_activated && $this->auth->acl_get('m_zone_draw_match'),
-                'm_zone_login_players' => $is_activated && $this->auth->acl_get('m_zone_login_players'),
+                'u_zone_change_match' => $is_activated && $this->auth->acl_get('u_zone_change_match'),
+                'm_zone_draw_match' => (int)$this->auth->acl_get('m_zone_draw_match'),
+                'm_zone_login_players' => (int)$this->auth->acl_get('m_zone_login_players'),
+                'm_zone_change_match' => (int)$this->auth->acl_get('m_zone_change_match'),
             ],
         ]);
     }

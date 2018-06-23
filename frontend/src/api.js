@@ -84,3 +84,6 @@ export const postMatchResult = (matchId, winner) => post(`/matches/${matchId}/po
 // players
 export const loggedInPlayers = () => get('/players/logged_in')
 export const allPlayers = () => get('/players')
+
+// information
+export const getInformation = () => get('/information')

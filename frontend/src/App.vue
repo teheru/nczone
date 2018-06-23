@@ -5,11 +5,7 @@
 
     <div id="zone-main">
       <div class="zone-block">
-        <div id="zone_infos">
-          <div class="zone-title" v-t="'NCZONE_INFORMATION'"></div>
-          <div class="zone-content">
-          </div>
-        </div>
+        <nczone-information></nczone-information>
 
         <router-view></router-view>
       </div>
@@ -23,10 +19,12 @@
 import NczoneNavigation from './components/partial/Navigation'
 import NczonePlayerArea from './components/partial/PlayerArea'
 import NczoneDrawPreview from './components/partial/DrawPreview'
+import NczoneInformation from './components/Information'
 
 export default {
   name: 'app',
   components: {
+    NczoneInformation,
     NczoneDrawPreview,
     NczonePlayerArea,
     NczoneNavigation
