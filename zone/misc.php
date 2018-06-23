@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
+use eru\nczone\utility\phpbb_util;
 use phpbb\db\driver\driver_interface;
 
 class misc
@@ -26,6 +27,11 @@ class misc
     {
         $this->db = $db;
         $this->posts_table = $posts_table;
+    }
+
+    public function get_information_ids(): array
+    {
+        return array_map(function($a): int { return (int)$a; }, explode(',', phpbb_util::config()['nczone_info_posts']));
     }
 
     public function get_posts(int ...$post_ids): array
