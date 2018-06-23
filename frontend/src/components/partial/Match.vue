@@ -18,7 +18,7 @@
     <div v-t="'NCZONE_MATCH_MAP'"></div>
     <div>{{ match.map.title }}</div>
 
-    <div v-t="NCZONE_MATCH_CIVS"></div>
+    <div v-t="'NCZONE_MATCH_CIVS'"></div>
     <div>
       <div v-if="match.civs.both">
         <span v-t="'NCZONE_MATCH_CIVS_BOTH'"></span>: <nczone-csv :list="match.civs.both.map(c => c.title)"></nczone-csv>

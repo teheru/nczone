@@ -349,7 +349,10 @@ class players
 
         [$team1_key, $team2_key] = array_keys($teams);
 
-        return ['team1' => $teams[$team1_key], 'team2' => $teams[$team2_key]];
+        return [
+            'team1' => $teams[$team1_key] ?? [],
+            'team2' => $teams[$team2_key] ?? [],
+        ];
     }
 
     public function is_activated(int $user_id): bool

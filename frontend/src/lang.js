@@ -1,6 +1,8 @@
 export default {
   'de': {
     'NCZONE': 'nC Zone',
+    'NCZONE_OK': 'OK',
+    'NCZONE_CANCEL': 'Abbrechen',
 
     'NCZONE_LOGGEDIN': 'Eingeloggt',
     'NCZONE_LOGIN': 'Einloggen',
@@ -42,6 +44,8 @@ export default {
   },
   'en': {
     'NCZONE': 'nC Zone',
+    'NCZONE_OK': 'OK',
+    'NCZONE_CANCEL': 'Cancel',
 
     'NCZONE_LOGGEDIN': 'Logged in',
     'NCZONE_LOGIN': 'Login',
@@ -94,7 +98,11 @@ export default {
     'NCZONE_TABLE_HEADER_ACTIVITY': 'Activity',
     'NCZONE_TABLE_FOOTER_AVERAGE': 'Average',
 
+    'NCZONE_DRAW_PREVIEW': 'Draw preview',
+    'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW': 'Do you want to draw?',
+
     'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Not allowed to login.',
+    'NCZONE_REASON_NOT_ALLOWED_TO_DRAW': 'Not allowed to draw.',
     'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER': 'Not an activated player.'
   }
 }

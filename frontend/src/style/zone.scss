@@ -6,7 +6,6 @@
 .zone-container {
   margin-top: 20px;
   margin-bottom: 20px;
-
   display: grid;
   grid-template-columns: 216px auto 216px;
   grid-gap: 18px;
@@ -26,4 +25,22 @@
 #zone-main {
   grid-column: 2;
   grid-row: 1;
+}
+
+.nczone-overlay {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, .8);
+
+  .nczone-overlay-panel {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }

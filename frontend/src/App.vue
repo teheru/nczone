@@ -14,16 +14,20 @@
         <router-view></router-view>
       </div>
     </div>
+
+    <nczone-draw-preview></nczone-draw-preview>
   </div>
 </template>
 
 <script>
 import NczoneNavigation from './components/partial/Navigation'
 import NczonePlayerArea from './components/partial/PlayerArea'
+import NczoneDrawPreview from './components/partial/DrawPreview'
 
 export default {
   name: 'app',
   components: {
+    NczoneDrawPreview,
     NczonePlayerArea,
     NczoneNavigation
   },

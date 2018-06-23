@@ -42,22 +42,13 @@ class api
      */
     public function me(): JsonResponse
     {
-        if (!$this->auth->acl_get('u_zone_view_login')) {
-            return $this->jsonResponse([
-                'id' => 0,
-                'canViewLogin' => false,
-                'canDraw' => false,
-                'canLogin' => false,
-            ]);
-        }
-
         $user_id = (int)$this->user->data['user_id'];
 
         $is_activated = zone_util::players()->is_activated($user_id);
 
         return $this->jsonResponse([
             'id' => $user_id,
-            'canViewLogin' => true,
+            'canViewLogin' => (bool)$this->auth->acl_get('u_zone_view_login'),
             'canDraw' => $is_activated && (bool)$this->auth->acl_get('u_zone_draw'),
             'canLogin' => $is_activated && (bool)$this->auth->acl_get('u_zone_login'),
         ]);
@@ -108,6 +99,60 @@ class api
 
         zone_util::players()->login_player($user_id);
         return $this->jsonResponse([]);
+    }
+
+    public function draw_preview(): JsonResponse
+    {
+        if (!(bool)$this->auth->acl_get('u_zone_draw')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], 403); // forbidden
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+        }
+
+        $players = zone_util::matches()->start_draw_process($user_id);
+        return $this->jsonResponse($players);
+    }
+
+    public function draw_cancel(): JsonResponse
+    {
+        if (!(bool)$this->auth->acl_get('u_zone_draw')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], 403); // forbidden
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+        }
+
+        zone_util::matches()->deny_draw_process($user_id);
+        return $this->jsonResponse([]);
+    }
+
+    public function draw_confirm(): JsonResponse
+    {
+        if (!(bool)$this->auth->acl_get('u_zone_draw')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], 403); // forbidden
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], 403); // forbidden
+        }
+
+        $players = zone_util::matches()->confirm_draw_process($user_id);
+        if (empty($players)) {
+            // todo: maybe add reason or something, but use normal status code
+            return $this->jsonResponse([]);
+        }
+
+        $match_ids = zone_util::matches()->draw($user_id, $players);
+        return $this->jsonResponse($match_ids);
     }
 
     /**

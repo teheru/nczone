@@ -1,5 +1,5 @@
 <template>
-  <span><span v-for="(item, idx) in list">{{ item }}<span v-if="idx+1 < list.length">, </span></span></span>
+  <span><span v-for="(item, idx) in list" :key="idx">{{ item }}<span v-if="idx+1 < list.length">, </span></span></span>
 </template>
 <script>
 export default {
@@ -7,8 +7,8 @@ export default {
   props: {
     list: {
       type: Array,
-      required: true,
-    },
+      required: true
+    }
   }
 }
 </script>

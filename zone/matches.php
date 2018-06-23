@@ -12,7 +12,6 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
-use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
 use eru\nczone\utility\phpbb_util;
 use phpbb\db\driver\driver_interface;
@@ -71,10 +70,10 @@ class matches {
      * @param string                             $map_civs_table           Name of the table which contains civ information for maps
      * @param string                             $player_civ_table         Name of the table which contains the last time a player played a civ
      * @param string                             $bets_table               Name of the bets table
-     * @param string                             $draw_process_table       
-     * @param string                             $draw_players_table       
-     * @param string                             $players_table               
-     * @param string                             $users_table               
+     * @param string                             $draw_process_table
+     * @param string                             $draw_players_table
+     * @param string                             $players_table
+     * @param string                             $users_table
      */
     public function __construct(driver_interface $db, string $matches_table, string $match_teams_table,
                                 string $match_players_table, string $match_civs_table, string $team_civs_table,
@@ -614,9 +613,9 @@ class matches {
 
     public function get_all_pmatches(): array
     {
-        $rmatches = [];
+        $pmatches = [];
         # todo implement..
-        return $rmatches;
+        return $pmatches;
     }
 
     public function get_match_civs(int $match_id): array

@@ -38,6 +38,18 @@ eru_nczone_controller__api__me_logout:
     path: /nczone/api/me/logout
     defaults: { _controller: eru.nczone.controller.api:me_logout }
 
+eru_nczone_controller__api__draw_preview:
+    path: /nczone/api/draw/preview
+    defaults: { _controller: eru.nczone.controller.api:draw_preview }
+
+eru_nczone_controller__api__draw_cancel:
+    path: /nczone/api/draw/cancel
+    defaults: { _controller: eru.nczone.controller.api:draw_cancel }
+
+eru_nczone_controller__api__draw_confirm:
+    path: /nczone/api/draw/confirm
+    defaults: { _controller: eru.nczone.controller.api:draw_confirm }
+
 eru_nczone_controller__api__information:
     path: /nczone/api/information
     defaults: { _controller: eru.nczone.controller.api:information }

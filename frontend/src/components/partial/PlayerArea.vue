@@ -43,7 +43,7 @@ export default {
       this.$store.dispatch('logout')
     },
     draw () {
-      this.$store.dispatch('draw')
+      this.$store.dispatch('drawPreview')
     }
   }
 }

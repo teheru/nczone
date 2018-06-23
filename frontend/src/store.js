@@ -13,10 +13,13 @@ export default new Vuex.Store({
       canDraw: false,
       canViewLogin: false
     },
+    drawPreview: {
+      visible: false,
+      players: []
+    },
     loggedInPlayers: [],
     allPlayers: [],
-    runningMatches: [],
-    pastMatches: [],
+    matches: [],
     // idea: to reduce number of ajax calls, we save timestamps
     //       when certain actions were executed last and only
     //       make the ajax call if there is no data or timestamp
@@ -36,8 +39,9 @@ export default new Vuex.Store({
     canDraw: (s) => s.me.canViewLogin && s.me.canDraw,
     canLogin: (s, g) => s.me.canLogin && !g.canLogout,
     canLogout: (s, g) => g.userIds.includes(s.me.id),
-    runningMatches: (s) => s.runningMatches,
-    pastMatches: (s) => s.pastMatches,
+    runningMatches: (s) => s.matches.filter(m => m.timestampEnd === 0),
+    pastMatches: (s) => s.matches.filter(m => m.timestampEnd > 0),
+    drawPreview: (s) => s.drawPreview,
     matchById: (s) => (id) => s.matches.find(m => m.id === id)
   },
   mutations: {
@@ -53,8 +57,23 @@ export default new Vuex.Store({
     setAllPlayers (state, payload) {
       state.allPlayers = payload
     },
-    setMatches (state, payload) {
-      state.matches = payload
+    setRunningMatches (state, payload) {
+      payload.forEach(match => {
+        state.matches.push(match)
+      })
+    },
+    setPastMatches (state, payload) {
+      payload.forEach(match => {
+        state.matches.push(match)
+      })
+    },
+    showDrawPreview (state, payload) {
+      state.drawPreview.visible = true
+      state.drawPreview.players = payload
+    },
+    hideDrawPreview (state, payload) {
+      state.drawPreview.visible = false
+      state.drawPreview.players = []
     }
   },
   actions: {
@@ -69,18 +88,29 @@ export default new Vuex.Store({
       commit('setAllPlayers', await api.allPlayers())
     },
     async getRunningMatches ({ commit }) {
-      commit('setMatches', await api.runningMatches())
+      commit('setRunningMatches', await api.runningMatches())
     },
     async getPastMatches ({ commit }) {
-      commit('setMatches', await api.pastMatches())
+      commit('setPastMatches', await api.pastMatches())
     },
     async login ({ commit, dispatch }) {
       await api.login()
-      dispatch('getLoggedInPlayers')
+      await dispatch('getLoggedInPlayers')
     },
     async logout ({ commit, dispatch }) {
       await api.logout()
-      dispatch('getLoggedInPlayers')
+      await dispatch('getLoggedInPlayers')
+    },
+    async drawPreview ({ commit }) {
+      commit('showDrawPreview', await api.drawPreview())
+    },
+    async drawConfirm ({ commit, dispatch }) {
+      commit('hideDrawPreview', await api.drawConfirm())
+      await dispatch('getRunningMatches')
+      await dispatch('getLoggedInPlayers')
+    },
+    async drawCancel ({ commit }) {
+      commit('hideDrawPreview', await api.drawCancel())
     }
   }
 })
