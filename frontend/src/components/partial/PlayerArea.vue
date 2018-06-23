@@ -8,28 +8,32 @@
         </div>
         <table v-else="" class="zone-user-table">
           <tr v-for="(player, idx) in players" :key="idx">
+            <td>{{ idx + 1 }}.</td>
             <td class="username">{{ player.username }}</td>
             <td class="rating">{{ player.rating }}</td>
           </tr>
         </table>
 
-        <a v-if="canLogin" @click="login" v-t="'NCZONE_LOGIN'"></a>
-        <a v-if="canLogout" @click="logout" v-t="'NCZONE_LOGOUT'"></a>
+      </div>
+      <div class="zone-actions">
+        <button class="zone-button" v-if="canLogin" @click="login" v-t="'NCZONE_LOGIN'"></button>
+        <button class="zone-button" v-if="isLoggedIn" @click="logout" v-t="'NCZONE_LOGOUT'"></button>
 
-        <a v-if="canDraw" @click="draw" v-t="'NCZONE_DRAW'"></a>
+        <button class="zone-button" v-if="canDraw" @click="draw" v-t="'NCZONE_DRAW'"></button>
       </div>
     </div>
   </div>
 </template>
 <script>
 import {mapGetters} from 'vuex'
+
 export default {
   name: 'nczone-player-area',
   computed: {
     ...mapGetters([
       'canDraw',
       'canLogin',
-      'canLogout'
+      'isLoggedIn'
     ]),
     ...mapGetters({
       players: 'loggedInPlayers'

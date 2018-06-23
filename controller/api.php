@@ -52,9 +52,13 @@ class api
 
         return $this->jsonResponse([
             'id' => $user_id,
-            'canViewLogin' => $this->auth->acl_get('u_zone_view_login'),
-            'canDraw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
-            'canLogin' => $is_activated && $this->auth->acl_get('u_zone_login'),
+            'permissions' => [
+                'u_zone_view_login' => (bool)$this->auth->acl_get('u_zone_view_login'),
+                'u_zone_draw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
+                'u_zone_login' => $is_activated && $this->auth->acl_get('u_zone_login'),
+                'm_zone_draw_match' => $is_activated && $this->auth->acl_get('m_zone_draw_match'),
+                'm_zone_login_players' => $is_activated && $this->auth->acl_get('m_zone_login_players'),
+            ],
         ]);
     }
 

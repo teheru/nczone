@@ -22,9 +22,13 @@ export default new Vuex.Store({
   state: {
     me: {
       id: 0,
-      canLogin: false,
-      canDraw: false,
-      canViewLogin: false
+      permissions: {
+        u_zone_login: false,
+        u_zone_draw: false,
+        u_zone_view_login: false,
+        m_zone_draw_match: false,
+        m_zone_login_players: false
+      }
     },
     drawPreview: {
       visible: false,
@@ -46,12 +50,24 @@ export default new Vuex.Store({
   },
   getters: {
     allPlayers: (s) => s.allPlayers,
-    loggedInPlayers: (s) => s.loggedInPlayers,
     me: (s) => s.me,
-    userIds: (s) => s.loggedInPlayers.map(u => u.id),
-    canDraw: (s) => s.me.canViewLogin && s.me.canDraw,
-    canLogin: (s, g) => s.me.canLogin && !g.canLogout,
-    canLogout: (s, g) => g.userIds.includes(s.me.id),
+    loggedInPlayers: (s) => s.loggedInPlayers,
+    loggedInUserIds: (s) => s.loggedInPlayers.map(u => u.id),
+    canDraw: (s, g) => {
+      if (!s.me.permissions.u_zone_view_login) {
+        return false
+      }
+      if (s.loggedInPlayers.length <= 1) {
+        return false
+      }
+      if (g.loggedInUserIds.includes(s.me.id) && s.me.permissions.u_zone_draw) {
+        return true
+      }
+      return s.me.permissions.m_zone_draw_match
+
+    },
+    canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn,
+    isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
     runningMatches: (s) => s.matches.filter(m => m.timestampEnd === 0),
     pastMatches: (s) => s.matches.filter(m => m.timestampEnd > 0),
     drawPreview: (s) => s.drawPreview,
@@ -60,9 +76,11 @@ export default new Vuex.Store({
   mutations: {
     setMe (state, payload) {
       state.me.id = payload.id || 0
-      state.me.canDraw = payload.canDraw || false
-      state.me.canLogin = payload.canLogin || false
-      state.me.canViewLogin = payload.canViewLogin || false
+      state.me.permissions.u_zone_draw = payload.permissions.u_zone_draw || false
+      state.me.permissions.u_zone_login = payload.permissions.u_zone_login || false
+      state.me.permissions.u_zone_view_login = payload.permissions.u_zone_view_login || false
+      state.me.permissions.m_zone_draw_match = payload.permissions.m_zone_draw_match || false
+      state.me.permissions.m_zone_login_players = payload.permissions.m_zone_login_players || false
     },
     setLoggedInPlayers (state, payload) {
       state.loggedInPlayers = payload
