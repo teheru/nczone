@@ -146,6 +146,8 @@ export default {
 
     'NCZONE_DRAW_PREVIEW': 'Draw preview',
     'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW': 'Do you want to draw?',
+    'NCZONE_DRAW_LOGGED_IN_PLAYERS': 'The following players are logged in:',
+    'NCZONE_DRAW_PREVIEW_NO_PLAYERS': 'There are not enough players to draw.',
 
     'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Not allowed to login.',
     'NCZONE_REASON_NOT_ALLOWED_TO_DRAW': 'Not allowed to draw.',

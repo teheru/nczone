@@ -57,12 +57,12 @@
 
   </div>
 
-  <div v-if="canManage && match.post_time === 0" class="zone-match-post-result-form">
+  <div v-if="canManage && match.timestampEnd === 0" class="zone-match-post-result-form">
     <span v-t="'NCZONE_MATCH_RESULT'"></span>
     <select v-model="matchResult">
       <option v-for="(opt, idx) in matchResultOptions" :key="idx" :value="opt.value" v-t="opt.title"></option>
     </select>
-    <span class="zone-button" v-t="'NCZONE_MATCH_SEND_RESULT'" @click="sendResult"></span>
+    <button class="zone-button" v-t="'NCZONE_MATCH_SEND_RESULT'" @click="sendResult" :disabled="matchResult === '0'"></button>
   </div>
 </div>
 </template>

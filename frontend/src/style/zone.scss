@@ -10,6 +10,10 @@
   grid-template-columns: 216px auto 216px;
   grid-gap: 18px;
   align-items: start;
+
+  a {
+    cursor: pointer;
+  }
 }
 
 #zone-navigation {
@@ -27,6 +31,11 @@
   grid-row: 1;
 }
 
+.zone-numeric-list {
+  list-style: decimal;
+  padding-left: 1.8em;
+}
+
 .nczone-overlay {
   position: fixed;
   z-index: 1;
@@ -42,5 +51,20 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+  }
+}
+
+.zone-button {
+  border: solid 1px #6aceff;
+  background: #0076b1;
+  color: #eef5f9;
+  padding: 2px 4px;
+  cursor: pointer;
+
+  &:disabled {
+    color: #000;
+    background: #d0d0d0;
+    background-image: none;
+    cursor: not-allowed;
   }
 }

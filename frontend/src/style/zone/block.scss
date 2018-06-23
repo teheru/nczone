@@ -28,4 +28,12 @@
     background-image: linear-gradient(to bottom, #d2e0eb 0%, #eef5f9 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#d2e0eb", endColorstr="#eef5f9", GradientType=0);
   }
+
+  .zone-actions {
+    margin: 4px 0 0;
+    padding: 2px 0;
+    display: grid;
+    justify-items: center;
+    grid-auto-flow: column;
+  }
 }
