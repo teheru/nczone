@@ -51,12 +51,18 @@ class install_mcp_module extends \phpbb\db\migration\migration
 			array('permission.add', array('m_zone_manage_civs', true)),
 			array('permission.add', array('m_zone_manage_maps', true)),
 			array('permission.add', array('m_zone_create_maps', true)),
+			array('permission.add', array('m_zone_login_players', true)),
+			array('permission.add', array('m_zone_draw_match', true)),
+			array('permission.add', array('m_zone_change_match', true)),
 
 			array('permission.role_add', array('nC Zone Mod', 'm_', 'A moderator role for the nC Zone.')),
 			array('permission.permission_set', array('nC Zone Mod', 'm_zone_manage_players')),
 			array('permission.permission_set', array('nC Zone Mod', 'm_zone_manage_civs')),
 			array('permission.permission_set', array('nC Zone Mod', 'm_zone_create_maps')),
 			array('permission.permission_set', array('nC Zone Mod', 'm_zone_manage_maps')),
+			array('permission.permission_set', array('nC Zone Mod', 'm_zone_login_players')),
+			array('permission.permission_set', array('nC Zone Mod', 'm_zone_draw_match')),
+			array('permission.permission_set', array('nC Zone Mod', 'm_zone_change_match')),
 		);
 	}
 }
