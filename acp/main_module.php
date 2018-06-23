@@ -62,12 +62,24 @@ class main_module
         {
             $config->set('nczone_draw_player_civs', (int)$request->variable('nczone_draw_player_civs', 600));
             $config->set('nczone_draw_team_civs', (int)$request->variable('nczone_draw_team_civs', 120));
-            $config->set('nczone_draw_match_extra_civs', (int)$request->variable('nczone_draw_match_extra_civs', 4));
-            $config->set('nczone_draw_team_extra_civs', (int)$request->variable('nczone_draw_team_extra_civs', 2));
-            $player_num_civs = (int)$request->variable('nczone_draw_player_num_civs', 3);
-            if($player_num_civs >= 1)
+            $config->set('nczone_draw_match_extra_civs_1vs1', (int)$request->variable('nczone_draw_match_extra_civs_1vs1', 7));
+            $config->set('nczone_draw_match_extra_civs_2vs2', (int)$request->variable('nczone_draw_match_extra_civs_2vs2', 6));
+            $config->set('nczone_draw_match_extra_civs_3vs3', (int)$request->variable('nczone_draw_match_extra_civs_3vs3', 5));
+            $config->set('nczone_draw_match_extra_civs_4vs4', (int)$request->variable('nczone_draw_match_extra_civs_4vs4', 4));
+            $config->set('nczone_draw_team_extra_civs_1vs1', (int)$request->variable('nczone_draw_team_extra_civs_1vs1', 5));
+            $config->set('nczone_draw_team_extra_civs_2vs2', (int)$request->variable('nczone_draw_team_extra_civs_2vs2', 4));
+            $config->set('nczone_draw_team_extra_civs_3vs3', (int)$request->variable('nczone_draw_team_extra_civs_3vs3', 3));
+            $config->set('nczone_draw_team_extra_civs_4vs4', (int)$request->variable('nczone_draw_team_extra_civs_4vs4', 2));
+            $player_num_civs_1vs1 = (int)$request->variable('nczone_draw_player_num_civs_1vs1', 9);
+            $player_num_civs_2vs2 = (int)$request->variable('nczone_draw_player_num_civs_2vs2', 5);
+            $player_num_civs_3vs3 = (int)$request->variable('nczone_draw_player_num_civs_3vs3', 4);
+            $player_num_civs_4vs4 = (int)$request->variable('nczone_draw_player_num_civs_4vs4', 3);
+            if($player_num_civs_1vs1 >= 1 && $player_num_civs_2vs2 >= 1 && $player_num_civs_3vs3 >= 1 && $player_num_civs_4vs4 >= 1)
             {
-                $config->set('nczone_draw_player_num_civs', $player_num_civs);
+                $config->set('nczone_draw_player_num_civs_1vs1', $player_num_civs_1vs1);
+                $config->set('nczone_draw_player_num_civs_2vs2', $player_num_civs_2vs2);
+                $config->set('nczone_draw_player_num_civs_3vs3', $player_num_civs_3vs3);
+                $config->set('nczone_draw_player_num_civs_4vs4', $player_num_civs_4vs4);
             } // todo: else
 
             trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
@@ -77,9 +89,18 @@ class main_module
             'U_ACTION' => $this->u_action,
             'nczone_draw_player_civs' => $config['nczone_draw_player_civs'],
             'nczone_draw_team_civs' => $config['nczone_draw_team_civs'],
-            'nczone_draw_match_extra_civs' => $config['nczone_draw_match_extra_civs'],
-            'nczone_draw_team_extra_civs' => $config['nczone_draw_team_extra_civs'],
-            'nczone_draw_player_num_civs' => $config['nczone_draw_player_num_civs'],
+            'nczone_draw_match_extra_civs_1vs1' => $config['nczone_draw_match_extra_civs_1vs1'],
+            'nczone_draw_match_extra_civs_2vs2' => $config['nczone_draw_match_extra_civs_2vs2'],
+            'nczone_draw_match_extra_civs_3vs3' => $config['nczone_draw_match_extra_civs_3vs3'],
+            'nczone_draw_match_extra_civs_4vs4' => $config['nczone_draw_match_extra_civs_4vs4'],
+            'nczone_draw_team_extra_civs_1vs1' => $config['nczone_draw_team_extra_civs_1vs1'],
+            'nczone_draw_team_extra_civs_2vs2' => $config['nczone_draw_team_extra_civs_2vs2'],
+            'nczone_draw_team_extra_civs_3vs3' => $config['nczone_draw_team_extra_civs_3vs3'],
+            'nczone_draw_team_extra_civs_4vs4' => $config['nczone_draw_team_extra_civs_4vs4'],
+            'nczone_draw_player_num_civs_1vs1' => $config['nczone_draw_player_num_civs_1vs1'],
+            'nczone_draw_player_num_civs_2vs2' => $config['nczone_draw_player_num_civs_2vs2'],
+            'nczone_draw_player_num_civs_3vs3' => $config['nczone_draw_player_num_civs_3vs3'],
+            'nczone_draw_player_num_civs_4vs4' => $config['nczone_draw_player_num_civs_4vs4'],
         ));
     }
 
