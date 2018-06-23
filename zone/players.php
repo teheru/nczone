@@ -13,6 +13,7 @@ namespace eru\nczone\zone;
 
 use eru\nczone\utility\db_util;
 use eru\nczone\utility\number_util;
+use eru\nczone\utility\zone_util;
 use phpbb\db\driver\driver_interface;
 
 class players
@@ -243,7 +244,7 @@ class players
                 'FROM' => [$this->bets_table => 't'],
                 'WHERE' => 'user_id = ' . $user_id . ' AND (team_id = ' . $team1_id . ' OR team_id = ' . $team2_id . ')'
             ]);
-            
+
             if($num_bets === 0)
             {
                 db_util::insert($this->db, $this->bets_table, [
@@ -323,7 +324,7 @@ class players
             'WHERE' => '(mp.team_id = ' . $team1_id . ' OR mp.team_id = ' . $team2_id . ') AND mp.user_id = pc.user_id AND mp.user_id = u.user_id AND pc.match_id = ' . $match_id . ' AND pc.civ_id = c.civ_id',
             'ORDER_BY' => 'rating DESC'
         ]);
-        
+
         $teams = [];
         foreach($player_rows as $r)
         {
@@ -349,5 +350,10 @@ class players
         [$team1_key, $team2_key] = array_keys($teams);
 
         return ['team1' => $teams[$team1_key], 'team2' => $teams[$team2_key]];
+    }
+
+    public function is_activated(int $user_id): bool
+    {
+        return array_key_exists('rating', $this->get_player($user_id));
     }
 }

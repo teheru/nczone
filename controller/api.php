@@ -51,11 +51,15 @@ class api
             ]);
         }
 
+        $user_id = (int)$this->user->data['user_id'];
+
+        $is_activated = zone_util::players()->is_activated($user_id);
+
         return $this->jsonResponse([
-            'id' => (int)$this->user->data['user_id'],
+            'id' => $user_id,
             'canViewLogin' => true,
-            'canDraw' => (bool)$this->auth->acl_get('u_zone_draw'),
-            'canLogin' => (bool)$this->auth->acl_get('u_zone_login'),
+            'canDraw' => $is_activated && (bool)$this->auth->acl_get('u_zone_draw'),
+            'canLogin' => $is_activated && (bool)$this->auth->acl_get('u_zone_login'),
         ]);
     }
 
@@ -74,8 +78,8 @@ class api
         }
 
         $user_id = (int)$this->user->data['user_id'];
-        $player = zone_util::players()->get_player($user_id);
-        if (!isset($player['rating'])) {
+
+        if (!zone_util::players()->is_activated($user_id)) {
             return $this->jsonResponse(['reason' => 'Not a player.'], 403); // forbidden
         }
 
@@ -97,8 +101,8 @@ class api
         }
 
         $user_id = (int)$this->user->data['user_id'];
-        $player = zone_util::players()->get_player($user_id);
-        if (!isset($player['rating'])) {
+
+        if (!zone_util::players()->is_activated($user_id)) {
             return $this->jsonResponse(['reason' => 'Not a player.'], 403); // forbidden
         }
 
