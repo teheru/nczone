@@ -253,11 +253,11 @@ class matches {
             {
                 if($r['team_id'] == $team1_id)
                 {
-                    $team1_civ_ids = (int)$r['$civ_id'];
+                    $team1_civ_ids[] = (int)$r['$civ_id'];
                 }
                 else
                 {
-                    $team2_civ_ids = (int)$r['$civ_id'];
+                    $team2_civ_ids[] = (int)$r['$civ_id'];
                 }
             }
 
