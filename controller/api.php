@@ -213,7 +213,8 @@ class api
             return $this->jsonResponse([]);
         }
 
-        $post_ids = array_map(function($a) { return (int)$a; }, explode(',', phpbb_util::config()['nczone_info_posts']));
-        return $this->jsonResponse(zone_util::misc()->get_posts(...$post_ids));
+        $misc = zone_util::misc();
+        $post_ids = $misc->get_information_ids();
+        return $this->jsonResponse($misc->get_posts(...$post_ids));
     }
 }
