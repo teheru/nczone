@@ -25,7 +25,7 @@
             <div class="zone-players-table-wins" :key="`wins-${idx}`">{{ player.wins || 0 }}</div>
             <div class="zone-players-table-losses" :key="`losses-${idx}`">{{ player.losses || 0 }}</div>
             <div class="zone-players-table-ties" :key="`ties-${idx}`">{{ player.ties || 0}}</div>
-            <div class="zone-players-table-winrate" :key="`winrate-${idx}`">{{ player.winrate || 0 }}%</div>
+            <div class="zone-players-table-winrate" :key="`winrate-${idx}`">{{ Math.round(player.winrate) || 0 }}%</div>
             <div class="zone-players-table-streak" :key="`streak-${idx}`">{{ player.streak || 0 }}</div>
             <div class="zone-players-table-rating-change" :key="`rating-change-${idx}`">{{ player.ratingchange || 0 }}</div>
             <div class="zone-players-table-rating" :key="`rating-${idx}`">{{ player.rating || 0 }}</div>

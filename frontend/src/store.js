@@ -97,18 +97,23 @@ export default new Vuex.Store({
       state.me.permissions.m_zone_change_match = payload.permissions.m_zone_change_match || false
     },
     setLoggedInPlayers (state, payload) {
-      const players = []
-      payload.forEach(player => {
-        players.push(player)
-      })
+      // all players are updated to be logged in if needed
       state.players.forEach(player => {
-        if (!players.find(m => m.id === player.id)) {
-          // because we got logged in players, we set all players not in the playload to logged_in 0
+        const loggedInPlayer = payload.find(m => m.id === player.id)
+        if (loggedInPlayer) {
+          player.logged_in = loggedInPlayer.logged_in
+        } else {
           player.logged_in = 0
-          players.push(player)
         }
       })
-      state.players = players
+
+      // missing players are added
+      payload.forEach(player => {
+        const p = state.players.find(m => m.id === player.id)
+        if (!p) {
+          state.players.push(player)
+        }
+      })
     },
     setAllPlayers (state, payload) {
       const players = []
