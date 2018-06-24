@@ -59,21 +59,29 @@ const request = (method, path, options, onProgress) => {
     })
 }
 
-const get = (...params) => request('GET', ...params)
-const put = (...params) => request('PUT', ...params)
-const post = (...params) => request('POST', ...params)
+const actively = (method, path, options, onProgress) => {
+  return request(method, path, Object.assign(options || {}, {headers: {'X-Update-Session': '1'}}), onProgress)
+}
+const passively = (method, path, options, onProgress) => {
+  return request(method, path, options, onProgress)
+}
+
+const get = (...params) => passively('GET', ...params)
+const put = (...params) => actively('PUT', ...params)
+const post = (...params) => actively('POST', ...params)
+const doGet = (...params) => actively('GET', ...params)
 
 const url = (path) => apiBase + path
 
 // me
-export const me = () => get('/me')
-export const login = () => get('/me/login')
-export const logout = () => get('/me/logout')
+export const me = () => doGet('/me')
+export const login = () => doGet('/me/login')
+export const logout = () => doGet('/me/logout')
 
 // draw
-export const drawPreview = () => get('/draw/preview')
-export const drawConfirm = () => get('/draw/confirm')
-export const drawCancel = () => get('/draw/cancel')
+export const drawPreview = () => doGet('/draw/preview')
+export const drawConfirm = () => doGet('/draw/confirm')
+export const drawCancel = () => doGet('/draw/cancel')
 
 // matches
 export const runningMatches = () => get('/matches/running')
