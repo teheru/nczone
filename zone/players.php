@@ -305,17 +305,32 @@ class players
     public function get_all(): array
     {
         $rows = db_util::get_rows($this->db, [
-            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in',
+            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in, p.matches_won, p.matches_loss',
             'FROM' => [$this->players_table => 'p', $this->users_table => 'u'],
             'WHERE' => 'p.user_id = u.user_id',
             'ORDER_BY' => 'username ASC'
         ]);
         return array_map(function($row) {
+            [$wins, $losses] = [(int)$row['matches_won'], (int)$row['matches_loss']];
+            $games = $wins + $losses;
+            if($games > 0)
+            {
+                $winrate = $wins / $games * 100;
+            }
+            else
+            {
+                $winrate = 0.0;
+            }
+            
             return [
                 'id' => (int)$row['id'],
                 'username' => $row['username'],
                 'rating' => (int)$row['rating'],
                 'logged_in' => (int)$row['logged_in'],
+                'games' => $games,
+                'wins' => $wins,
+                'losses' => $losses,
+                'winrate' => $winrate,
             ];
         }, $rows);
     }
