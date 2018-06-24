@@ -308,6 +308,7 @@ class matches {
                 db_util::update($this->db, $this->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
                 $players->match_changes($user_id, $team_id, $match_points, $team_id === $winner_team_id);
+                $players->fix_streak($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
             }
 
             db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
@@ -347,10 +348,9 @@ class matches {
 
         foreach($this->get_teams_players($team1_id, $team2_id) as $user_id => $user_info)
         {
-            zone_util::players()->match_changes_undo($user_id, $match_points, $user_info['team_id'] == $winner_team_id);
+            $team_id = (int)$user_info['team_id'];
+            zone_util::players()->match_changes_undo($user_id, $team_id, $match_points, $team_id === $winner_team_id);
         }
-        db_util::update($this->db, $this->match_players_table, ['rating_change' => 0], ['team_id' => $team1_id]);
-        db_util::update($this->db, $this->match_players_table, ['rating_change' => 0], ['team_id' => $team2_id]);
 
         $this->evaluate_bets_undo($winner == 1 ? $team1_id : $team2_id, $winner == 1 ? $team2_id : $team1_id, $end_time);
 

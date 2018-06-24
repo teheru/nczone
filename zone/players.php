@@ -260,6 +260,7 @@ class players
         }
     }
 
+    
     public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
     {
         $col = $winner ? '`matches_won`' : '`matches_loss`';
@@ -271,11 +272,42 @@ class players
         db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner ? 1 : -1) * $match_points, 'streak' => $new_streak], ['user_id' => $user_id, 'team_id' => $team_id]);
     }
 
-    public function match_changes_undo(int $user_id, int $rating_change, bool $former_winner): void
-    {
-        $col = $former_winner ? '`matches_won`' : '`matches_loss`';
 
-        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($former_winner ? -1 : 1) * $rating_change) . ', ' . $col . ' = ' . $col . ' - 1 WHERE `user_id` = ' . $user_id);
+    public function match_changes_undo(int $user_id, int $team_id, int $match_points, bool $winner): void
+    {
+        $col = $winner ? '`matches_won`' : '`matches_loss`';
+
+        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($winner ? -1 : 1) * $match_points) . ', ' . $col . ' = ' . $col . ' - 1 WHERE `user_id` = ' . $user_id);
+        db_util::update($this->db, $this->match_players_table, ['rating_change' => 0, 'streak' => 0], ['user_id' => $user_id, 'team_id' => $team_id]);
+    }
+
+
+    public function fix_streaks(int $user_id, int $match_id)
+    {
+        $team_id = min(zone_util::matches()->get_match_team_ids($match_id));
+
+        $last_streak = (int)db_util::get_var($this->db, [
+            'SELECT' => 't.streak',
+            'FROM' => [$this->match_players_table => 't'],
+            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id < ' . $team_id,
+            'ORDER_BY' => 't.team_id DESC'
+        ]);
+
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 't.team_id, t.rating_change',
+            'FROM' => [$this->match_players_table => 't'],
+            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id >= ' . $team_id,
+            'ORDER_BY' => 't.team_id ASC'
+        ]);
+
+        foreach($rows as $r)
+        {
+            $won = (int)$r['rating_change'] > 0;
+
+            $new_streak = $won ? (($last_streak > 0) ? ($last_streak + 1) : 1) : (($last_streak > 0) ? -1 : ($last_streak - 1));
+            db_util::update($this->db, $this->match_players_table, ['streak' => $new_streak], ['user_id' => $user_id, 'team_id' => $r['team_id']]);
+            $last_streak = $new_streak;
+        }
     }
 
     /**
