@@ -71,6 +71,7 @@ class api
 
         return $this->jsonResponse([
             'id' => $user_id,
+            'sid' => $this->user->session_id,
             'permissions' => [
                 'u_zone_view_login' => (bool)$this->auth->acl_get('u_zone_view_login'),
                 'u_zone_view_info' => (bool)$this->auth->acl_get('u_zone_view_info'),

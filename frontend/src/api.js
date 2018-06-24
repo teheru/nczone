@@ -2,6 +2,8 @@
 const apiBase = process.env.VUE_APP_API_BASE
 const xhrTimeoutMs = 30000
 
+let sid = ''
+
 const _request = (url, opts = {}, onProgress) => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
@@ -71,7 +73,11 @@ const put = (...params) => actively('PUT', ...params)
 const post = (...params) => actively('POST', ...params)
 const doGet = (...params) => actively('GET', ...params)
 
-const url = (path) => apiBase + path
+const url = (path) => apiBase + path + (sid !== '' ? `?sid=${sid}` : '')
+
+export const setSid = (s) => {
+  sid = s
+}
 
 // me
 export const me = () => doGet('/me')

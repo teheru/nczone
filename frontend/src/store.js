@@ -22,6 +22,7 @@ export default new Vuex.Store({
   state: {
     me: {
       id: 0,
+      sid: '',
       permissions: {
         u_zone_view_login: false,
         u_zone_view_info: false,
@@ -87,6 +88,7 @@ export default new Vuex.Store({
   mutations: {
     setMe (state, payload) {
       state.me.id = payload.id || 0
+      state.me.sid = payload.sid || ''
       state.me.permissions.u_zone_view_login = payload.permissions.u_zone_view_login || false
       state.me.permissions.u_zone_view_info = payload.permissions.u_zone_view_info || false
       state.me.permissions.u_zone_draw = payload.permissions.u_zone_draw || false
@@ -95,6 +97,7 @@ export default new Vuex.Store({
       state.me.permissions.m_zone_draw_match = payload.permissions.m_zone_draw_match || false
       state.me.permissions.m_zone_login_players = payload.permissions.m_zone_login_players || false
       state.me.permissions.m_zone_change_match = payload.permissions.m_zone_change_match || false
+      api.setSid(state.me.sid)
     },
     setLoggedInPlayers (state, payload) {
       // all players are updated to be logged in if needed
