@@ -16,10 +16,7 @@
           <div class="zone-players-table-winrate" @click="setSort('winrate')" v-t="'NCZONE_TABLE_HEADER_WINRATE'"></div>
           <div class="zone-players-table-streak" @click="setSort('streak')" v-t="'NCZONE_TABLE_HEADER_STREAK'"></div>
           <div class="zone-players-table-rating-change" @click="setSort('ratingchange')" v-t="'NCZONE_TABLE_HEADER_RATING_CHANGE'"></div>
-          <div class="zone-players-table-rating">
-            <span @click="setSort('rating')" v-t="'NCZONE_TABLE_HEADER_RATING'"></span>
-            (<span @click="setSort('streakrating')" v-t="'NCZONE_TABLE_HEADER_STREAK_RATING'"></span>)
-          </div>
+          <div class="zone-players-table-rating" @click="setSort('rating')" v-t="'NCZONE_TABLE_HEADER_RATING'"></div>
           <div class="zone-players-table-activity" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
           <template v-for="(player, idx) in players">
             <div class="zone-players-table-idx" :key="`idx-${idx}`">{{ idx+1 }}</div>
@@ -31,7 +28,7 @@
             <div class="zone-players-table-winrate" :key="`winrate-${idx}`">{{ player.winrate || 0 }}%</div>
             <div class="zone-players-table-streak" :key="`streak-${idx}`">{{ player.streak || 0 }}</div>
             <div class="zone-players-table-rating-change" :key="`rating-change-${idx}`">{{ player.ratingchange || 0 }}</div>
-            <div class="zone-players-table-rating" :key="`rating-${idx}`">{{ player.rating || 0 }} ({{ player.streakrating || 0 }})</div>
+            <div class="zone-players-table-rating" :key="`rating-${idx}`">{{ player.rating || 0 }}</div>
             <div class="zone-players-table-activity" :key="`activity-${idx}`">{{ player.activity || 0 }}</div>
           </template>
           <div class="zone-players-table-idx">Ø</div>
@@ -43,7 +40,7 @@
           <div class="zone-players-table-winrate">{{ avgWinrate }}%</div>
           <div class="zone-players-table-streak">{{ avgStreak }}</div>
           <div class="zone-players-table-rating-change">{{ avgRatingChange }}</div>
-          <div class="zone-players-table-rating">{{ avgRating }} ({{ avgStreakRating }})</div>
+          <div class="zone-players-table-rating">{{ avgRating }}</div>
           <div class="zone-players-table-activity">{{ avgActivity }}</div>
         </div>
       </template>
@@ -78,7 +75,7 @@ export default {
       return this.avg(this.players, 'ties')
     },
     avgWinrate () {
-      return this.avg(this.players, 'losses')
+      return this.avg(this.players, 'winrate')
     },
     avgStreak () {
       return this.avg(this.players, 'streak')
@@ -89,15 +86,12 @@ export default {
     avgRatingChange () {
       return this.avg(this.players, 'ratingchange')
     },
-    avgStreakRating () {
-      return this.avg(this.players, 'streakrating')
-    },
     avgActivity () {
       return this.avg(this.players, 'activity')
     },
-    ...mapGetters([
-      'allPlayers'
-    ])
+    ...mapGetters({
+      allPlayers: 'players'
+    })
   },
   created () {
     this.fetchData()

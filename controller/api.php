@@ -6,6 +6,7 @@ use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
 use phpbb\auth\auth;
 use phpbb\config\config;
+use phpbb\request\request_interface;
 use phpbb\user;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -29,6 +30,16 @@ class api
         $this->auth = $auth;
     }
 
+    private function optionsResponse()
+    {
+        return new JsonResponse([], self::CODE_OK, [
+            'Access-Control-Allow-Origin' => phpbb_util::request()->header('Origin') ?: '*',
+            'Access-Control-Allow-Credentials' => 'true',
+            'Access-Control-Allow-Headers' => 'x-update-session',
+            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PUT',
+        ]);
+    }
+
     private function jsonResponse(array $data, int $code = self::CODE_OK)
     {
         return new JsonResponse($data, $code, [
@@ -46,6 +57,14 @@ class api
      */
     public function me(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         $user_id = (int)$this->user->data['user_id'];
 
         $is_activated = zone_util::players()->is_activated($user_id);
@@ -74,6 +93,14 @@ class api
      */
     public function me_logout(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         # check is on login. used for logout as well.
         if (!$this->auth->acl_get('u_zone_login')) {
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
@@ -98,6 +125,14 @@ class api
      */
     public function me_login(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         if (!$this->auth->acl_get('u_zone_login')) {
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
         }
@@ -114,6 +149,14 @@ class api
 
     public function draw_preview(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         if (!$this->auth->acl_get('u_zone_draw')) {
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
         }
@@ -130,6 +173,14 @@ class api
 
     public function draw_cancel(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         if (!$this->auth->acl_get('u_zone_draw')) {
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
         }
@@ -146,6 +197,14 @@ class api
 
     public function draw_confirm(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         if (!$this->auth->acl_get('u_zone_draw')) {
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
         }
@@ -175,6 +234,14 @@ class api
      */
     public function logged_in_players(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         $logged_in_players = zone_util::players()->get_logged_in();
         return $this->jsonResponse($logged_in_players);
     }
@@ -188,6 +255,14 @@ class api
      */
     public function all_players(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         $all_players = zone_util::players()->get_all();
         return $this->jsonResponse($all_players);
     }
@@ -201,6 +276,14 @@ class api
      */
     public function rmatches(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         $rmatches = zone_util::matches()->get_all_rmatches();
         return $this->jsonResponse($rmatches);
     }
@@ -214,18 +297,42 @@ class api
      */
     public function pmatches(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         $rmatches = zone_util::matches()->get_all_pmatches();
         return $this->jsonResponse($rmatches);
     }
 
     public function match(string $match_id): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         $match = zone_util::matches()->get_match((int)$match_id);
         return $this->jsonResponse($match);
     }
 
     public function match_post_result(string $match_id): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         if (!$this->auth->acl_get('u_zone_draw')) {
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT'], self::CODE_FORBIDDEN);
         }
@@ -250,6 +357,14 @@ class api
 
     public function information(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
         if (!$this->auth->acl_get('u_zone_view_info')) { // todo: this does not work
             return $this->jsonResponse([]);
         }
@@ -262,5 +377,17 @@ class api
     private static function get_request_data(): array
     {
         return json_decode(file_get_contents('php://input'), true) ?: [];
+    }
+
+    private static function is_options(): bool
+    {
+        $server = phpbb_util::request()->get_super_global(request_interface::SERVER);
+        return isset($server['REQUEST_METHOD']) && $server['REQUEST_METHOD'] === 'OPTIONS';
+    }
+
+    private static function is_update_session_request(): bool
+    {
+        $server = phpbb_util::request()->get_super_global(request_interface::SERVER);
+        return isset($server['HTTP_X_UPDATE_SESSION']) && $server['HTTP_X_UPDATE_SESSION'] === '1';
     }
 }
