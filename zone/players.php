@@ -128,7 +128,7 @@ class players
     public function get_player(int $user_id): array
     {
         $playerRow = db_util::get_row($this->db, [
-            'SELECT' => 'p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss, p.bets_won AS bets_won, p.bets_loss AS bets_loss',
+            'SELECT' => 'p.user_id AS id, p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss, p.bets_won AS bets_won, p.bets_loss AS bets_loss',
             'FROM' => [$this->players_table => 'p'],
             'WHERE' => 'p.user_id = ' . $user_id
         ]) ?: [];

@@ -133,57 +133,77 @@ class matches {
 
         if(array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players))
         {
+            unset($match_players[$player1_id]);
+            $draw_players = [];
+            $draw_players[] = zone_util::players()->get_player($player2_id);
+            foreach($match_players as $user_id => $mp)
+            {
+                $mp['id'] = (int)$user_id;
+                $draw_players[] = $mp;
+            }
+
             $this->clean_match($match_id);
 
-            unset($match_players[$player1_id]);
-            // todo: this contains much more information than needed, but is it much overhead?
-            $match_players[$player2_id] = zone_util::players()->get_player($player2_id);
-
-            [$match] = zone_util::draw_teams()->make_matches($match_players);
+            [$match] = zone_util::draw_teams()->make_matches($draw_players);
             [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            return $this->create_match($replace_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+            $match_id = $this->create_match($replace_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+            if($match_id)
+            {
+                zone_util::players()->logout_player($player1_id);
+                return $match_id;
+            }
         }
-        else
-        {
-            return 0;
-        }
+        return 0;
     }
 
     public function add_pair(int $add_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
         $match_players = $this->get_match_players($match_id);
 
-        if(\count($match_players) < 8)
+        if(\count($match_players) < 8 && !array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players))
         {
+            $draw_players = [];
+            $draw_players[] = zone_util::players()->get_player($player1_id);
+            $draw_players[] = zone_util::players()->get_player($player2_id);
+            foreach($match_players as $user_id => $mp)
+            {
+                $mp['id'] = (int)$user_id;
+                $draw_players[] = $mp;
+            }
+
             $this->clean_match($match_id);
 
-            // todo: this contains much more information than needed, but is it much overhead?
-            $match_players[$player1_id] = zone_util::players()->get_player($player1_id);
-            $match_players[$player2_id] = zone_util::players()->get_player($player2_id);
-
-            [$match] = zone_util::draw_teams()->make_matches($match_players);
+            [$match] = zone_util::draw_teams()->make_matches($draw_players);
             [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
             return $this->create_match($add_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
         }
-        else
-        {
-            return 0;
-        }
+        return 0;
     }
 
     public function remove_pair(int $remove_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
         $match_players = $this->get_match_players($match_id);
 
-        if(\count($match_players) > 2)
+        if(\count($match_players) > 2 && array_key_exists($player1_id, $match_players) && array_key_exists($player2_id, $match_players))
         {
+            unset($match_players[$player1_id], $match_players[$player2_id]);
+            $draw_players = [];
+            foreach($match_players as $user_id => $mp)
+            {
+                $mp['id'] = (int)$user_id;
+                $draw_players[] = $mp;
+            }
+
             $this->clean_match($match_id);
 
-            unset($match_players[$player1_id], $match_players[$player2_id]);
-
-            [$match] = zone_util::draw_teams()->make_matches($match_players);
+            [$match] = zone_util::draw_teams()->make_matches($draw_players);
             [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            return $this->create_match($remove_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+            $match_id =  $this->create_match($remove_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+            if($match_id)
+            {
+                zone_util::players()->logout_players($player1_id, $player2_id);
+                return $match_id;
+            }
         }
         else
         {
@@ -198,9 +218,9 @@ class matches {
         $where_match_id = ' WHERE `match_id` = ' . $match_id;
         $where_team_id = ' WHERE ' . $this->db->sql_in_set('team_id', $team_ids);
         $this->db->sql_query('DELETE FROM ' . $this->match_players_table . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->match_civs . $where_match_id);
-        $this->db->sql_query('DELETE FROM ' . $this->team_civs . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->match_player_civs . $where_match_id);
+        $this->db->sql_query('DELETE FROM ' . $this->match_civs_table . $where_match_id);
+        $this->db->sql_query('DELETE FROM ' . $this->team_civs_table . $where_team_id);
+        $this->db->sql_query('DELETE FROM ' . $this->match_player_civs_table . $where_match_id);
         $this->db->sql_query('DELETE FROM ' . $this->match_teams_table . $where_team_id);
         $this->db->sql_query('DELETE FROM ' . $this->matches_table . $where_match_id);
     }
