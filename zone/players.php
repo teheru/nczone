@@ -260,11 +260,15 @@ class players
         }
     }
 
-    public function match_changes(int $user_id, int $rating_change, bool $winner): void
+    public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
     {
         $col = $winner ? '`matches_won`' : '`matches_loss`';
 
-        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($winner ? 1 : -1) * $rating_change) . ', ' . $col . ' = ' . $col . ' + 1 WHERE `user_id` = ' . $user_id);
+        $last_streak = $this->last_streak($user_id);
+        $new_streak = $winner ? (($last_streak > 0) ? ($last_streak + 1) : 1) : (($last_streak > 0) ? -1 : ($last_streak - 1));
+
+        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($winner ? 1 : -1) * $match_points) . ', ' . $col . ' = ' . $col . ' + 1 WHERE `user_id` = ' . $user_id);
+        db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner ? 1 : -1) * $match_points, 'streak' => $new_streak], ['user_id' => $user_id, 'team_id' => $team_id]);
     }
 
     public function match_changes_undo(int $user_id, int $rating_change, bool $former_winner): void
@@ -310,7 +314,24 @@ class players
             'WHERE' => 'p.user_id = u.user_id',
             'ORDER_BY' => 'username ASC'
         ]);
-        return array_map(function($row) {
+
+        $players = [];
+        foreach($rows as $row)
+        {
+            $mp = db_util::get_row($this->db, [
+                'SELECT' => 't.rating_change, t.streak',
+                'FROM' => [$this->match_players_table => 't'],
+                'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $row['id'],
+                'ORDER_BY' => 't.team_id DESC',
+            ]);
+            $rating_change = 0;
+            $streak = 0;
+            if($mp)
+            {
+                $rating_change = (int)$mp['rating_change'];
+                $streak = (int)$mp['streak'];
+            }
+
             [$wins, $losses] = [(int)$row['matches_won'], (int)$row['matches_loss']];
             $games = $wins + $losses;
             if($games > 0)
@@ -322,7 +343,7 @@ class players
                 $winrate = 0.0;
             }
             
-            return [
+            $players[] = [
                 'id' => (int)$row['id'],
                 'username' => $row['username'],
                 'rating' => (int)$row['rating'],
@@ -331,8 +352,11 @@ class players
                 'wins' => $wins,
                 'losses' => $losses,
                 'winrate' => $winrate,
+                'ratingchange' => $rating_change,
+                'streak' => $streak,
             ];
-        }, $rows);
+        }
+        return $players;
     }
 
     public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array
@@ -393,5 +417,15 @@ class players
     public function is_activated(int $user_id): bool
     {
         return array_key_exists('rating', $this->get_player($user_id));
+    }
+
+    public function last_streak(int $user_id): int
+    {
+        return (int)db_util::get_var($this->db, [
+            'SELECT' => 't.streak',
+            'FROM' => [$this->match_players_table => 't'],
+            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id,
+            'ORDER_BY' => 't.team_id DESC',
+        ]);
     }
 }

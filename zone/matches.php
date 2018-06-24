@@ -193,7 +193,6 @@ class matches {
 
     public function clean_match(int $match_id): void
     {
-        // note: team ids where certainly be fetched before, but I rather have the match id as an argument only
         $team_ids = $this->get_match_team_ids($match_id);
 
         $where_match_id = ' WHERE `match_id` = ' . $match_id;
@@ -208,6 +207,7 @@ class matches {
 
     public function post(int $match_id, int $post_user_id, int $winner): void
     {
+        // todo: lock tables
 
         $already_posted = (int)db_util::get_var($this->db, [
             'SELECT' => 't.post_user_id',
@@ -277,23 +277,22 @@ class matches {
             foreach($match_players as $user_id => $user_info)
             {
                 $user_ids[] = $user_id;
+                $team_id = (int)$user_info['team_id'];
 
                 $civ_ids = array_merge(
                     $match_civ_ids,
-                    $user_info['team_id'] == $team1_id ? $team1_civ_ids : $team2_civ_ids,
+                    $team_id === $team1_id ? $team1_civ_ids : $team2_civ_ids,
                     array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                 );
 
                 db_util::update($this->db, $this->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
-                $players->match_changes($user_id, $match_points, $user_info['team_id'] == $winner_team_id);
+                $players->match_changes($user_id, $team_id, $match_points, $team_id === $winner_team_id);
             }
-            db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 1 ? 1 : -1) * $match_points], ['team_id' => $team1_id]);
-            db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner == 2 ? 1 : -1) * $match_points], ['team_id' => $team2_id]);
 
             db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
 
-            $this->evaluate_bets($winner == 1 ? $team1_id : $team2_id, $winner == 1 ? $team2_id : $team1_id, $end_time);
+            $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
         }
         else
         {
