@@ -322,7 +322,7 @@ class matches {
         }
 
         // we don't want to create duplicate topics for a match
-        if(!$topic_id)
+        if(!$topic_id && phpbb_util::config()['nczone_match_forum_id'])
         {
             $topic_id = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
         }
