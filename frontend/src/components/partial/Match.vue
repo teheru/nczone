@@ -49,11 +49,11 @@
   <div class="zone-match-title" v-t="'NCZONE_MATCH_TEAMS'"></div>
   <div class="zone-match-team-table">
 
-    <nczone-team :matchId="matchId" :team="1"></nczone-team>
+    <nczone-team :match="match" :team="1"></nczone-team>
 
     <div class="zone-match-vs" v-t="'NCZONE_MATCH_VS'"></div>
 
-    <nczone-team :matchId="matchId" :team="2"></nczone-team>
+    <nczone-team :match="match" :team="2"></nczone-team>
 
   </div>
 
@@ -75,8 +75,8 @@ export default {
   name: 'nczone-match',
   components: {NczoneTeam, NczoneCsv},
   props: {
-    matchId: {
-      type: Number,
+    match: {
+      type: Object,
       required: true
     }
   },
@@ -86,9 +86,6 @@ export default {
     }
   },
   computed: {
-    match () {
-      return this.matchById(this.matchId)
-    },
     matchLength () {
       const hours = parseInt(this.gameSeconds / 3600, 10)
       const minutes = parseInt(this.gameSeconds % 3600 / 60, 10)
@@ -109,7 +106,6 @@ export default {
         this.match.players.team2.map(p => p.id).includes(this.me.id)
     },
     ...mapGetters([
-      'matchById',
       'me'
     ])
   },

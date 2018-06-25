@@ -5,19 +5,6 @@ import * as api from './api'
 
 Vue.use(Vuex)
 
-const mergeMatches = (m, m2) => {
-  const matches = []
-  m.forEach(match => {
-    matches.push(match)
-  })
-  m2.forEach(match => {
-    if (!matches.find(m => m.id === match.id)) {
-      matches.push(match)
-    }
-  })
-  return matches
-}
-
 export default new Vuex.Store({
   state: {
     me: {
@@ -39,7 +26,8 @@ export default new Vuex.Store({
       players: []
     },
     players: [],
-    matches: [],
+    pastMatches: [],
+    runningMatches: [],
     information: [],
     informationIndex: 0,
     // idea: to reduce number of ajax calls, we save timestamps
@@ -77,10 +65,10 @@ export default new Vuex.Store({
     },
     canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn,
     isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
-    runningMatches: (s) => s.matches.filter(m => m.timestampEnd === 0),
-    pastMatches: (s) => s.matches.filter(m => m.timestampEnd > 0),
+    runningMatches: (s) => s.runningMatches,
+    pastMatches: (s) => s.pastMatches,
     drawPreview: (s) => s.drawPreview,
-    matchById: (s) => (id) => s.matches.find(m => m.id === id),
+    matchById: (s) => (id, type) => (type === 'running' ? s.runningMatches : s.pastMatches).find(m => m.id === id),
     info: (s) => s.information[s.informationIndex] || '',
     informationIndex: (s) => s.informationIndex,
     playerById: (s) => (id) => s.players.find(p => p.id === id)
@@ -131,17 +119,14 @@ export default new Vuex.Store({
       state.players = players
     },
     setRunningMatches (state, payload) {
-      state.matches = mergeMatches(payload, state.matches)
+      state.runningMatches = payload
     },
     setPastMatches (state, payload) {
-      state.matches = mergeMatches(payload, state.matches)
+      state.pastMatches = payload
     },
     setInformation (state, payload) {
       state.information = payload
       state.informationIndex = 0
-    },
-    setMatch (state, payload) {
-      state.matches = mergeMatches(payload ? [payload] : [], state.matches)
     },
     showDrawPreview (state, payload) {
       state.drawPreview.visible = true
@@ -197,7 +182,7 @@ export default new Vuex.Store({
     },
     async postMatchResult ({ commit, dispatch }, {matchId, winner}) {
       await api.postMatchResult(matchId, winner)
-      commit('setMatch', await api.match(matchId))
+      await dispatch('getRunningMatches')
     },
     async getInformation ({ commit }) {
       commit('setInformation', await api.getInformation())

@@ -6,26 +6,17 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
 export default {
   name: 'nczone-player-login-row',
   props: {
-    playerId: {
-      type: Number,
+    player: {
+      type: Object,
       required: true
     },
     idx: {
       type: Number,
       required: true
     }
-  },
-  computed: {
-    player () {
-      return this.playerById(this.playerId)
-    },
-    ...mapGetters([
-      'playerById'
-    ])
   }
 }
 </script>

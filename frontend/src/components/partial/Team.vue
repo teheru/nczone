@@ -33,8 +33,8 @@ import {mapGetters} from 'vuex'
 export default {
   name: 'nczone-team',
   props: {
-    matchId: {
-      type: Number,
+    match: {
+      type: Object,
       required: true
     },
     team: {
@@ -43,9 +43,6 @@ export default {
     }
   },
   computed: {
-    match () {
-      return this.matchById(this.matchId)
-    },
     canManage () {
       return this.match.players.team1.map(p => p.id).includes(this.me.id) ||
         this.match.players.team2.map(p => p.id).includes(this.me.id)
@@ -76,7 +73,6 @@ export default {
       return r
     },
     ...mapGetters([
-      'matchById',
       'me'
     ])
   }
