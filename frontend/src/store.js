@@ -28,10 +28,16 @@ export default () => {
       },
       match: null, // single match
       players: [],
-      pastMatches: [],
       runningMatches: [],
-      information: [],
-      informationIndex: 0,
+      pastMatches: {
+        items: [],
+        total: 0,
+        page: 1
+      },
+      information: {
+        items: [],
+        index: 0
+      },
       // idea: to reduce number of ajax calls, we save timestamps
       //       when certain actions were executed last and only
       //       make the ajax call if there is no data or timestamp
@@ -70,11 +76,10 @@ export default () => {
       canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn,
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
       runningMatches: (s) => s.runningMatches,
-      pastMatches: (s) => s.pastMatches,
+      pastMatches: (s) => s.pastMatches.items,
       drawPreview: (s) => s.drawPreview,
-      matchById: (s) => (id, type) => (type === 'running' ? s.runningMatches : s.pastMatches).find(m => m.id === id),
-      info: (s) => s.information[s.informationIndex] || '',
-      informationIndex: (s) => s.informationIndex,
+      info: (s) => s.information.items[s.information.index] || '',
+      informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
       match: (s) => s.match
     },
@@ -137,11 +142,11 @@ export default () => {
         state.runningMatches = payload
       },
       setPastMatches (state, payload) {
-        state.pastMatches = payload
+        state.pastMatches.items = payload
       },
       setInformation (state, payload) {
-        state.information = payload
-        state.informationIndex = 0
+        state.information.items = payload
+        state.information.index = 0
       },
       showDrawPreview (state, payload) {
         state.drawPreview.visible = true
@@ -152,9 +157,9 @@ export default () => {
         state.drawPreview.players = []
       },
       increaseInformationIndex (state) {
-        state.informationIndex += 1
-        if (state.informationIndex > state.information.length - 1) {
-          state.informationIndex = 0
+        state.information.index += 1
+        if (state.information.index > state.information.items.length - 1) {
+          state.information.index = 0
         }
       }
     },
