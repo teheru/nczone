@@ -21,7 +21,7 @@
         <div class="zone-menu-block">
           <ul class="zone-menu">
             <li><router-link :to="{name: 'settings'}" v-t="'NCZONE_SETTINGS'"></router-link></li>
-            <li><div @click="toggleLang" v-t="'NCZONE_SWITCH_LANG'"></div></li>
+            <li><a @click="toggleLang" v-t="'NCZONE_SWITCH_LANG'"></a></li>
           </ul>
         </div>
       </div>
@@ -29,14 +29,11 @@
   </div>
 </template>
 <script>
-import Vue from 'vue'
 export default {
   name: 'nczone-navigation',
   methods: {
-    toggleLang () {
-      Vue.config.lang = Vue.config.lang === 'de' ? 'en' : 'de'
-      this.$i18n.locale = Vue.config.lang
-      localStorage.setItem('nczone-lang', Vue.config.lang)
+    async toggleLang () {
+      this.$store.dispatch('toggleLanguage')
     }
   }
 }

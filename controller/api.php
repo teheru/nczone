@@ -72,6 +72,7 @@ class api
         return $this->jsonResponse([
             'id' => $user_id,
             'sid' => $this->user->session_id,
+            'lang' => $this->user->data['user_lang'],
             'permissions' => [
                 'u_zone_view_login' => (bool)$this->auth->acl_get('u_zone_view_login'),
                 'u_zone_view_info' => (bool)$this->auth->acl_get('u_zone_view_info'),
@@ -83,6 +84,27 @@ class api
                 'm_zone_change_match' => (bool)$this->auth->acl_get('m_zone_change_match'),
             ],
         ]);
+    }
+
+    public function me_set_language(): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        $data = self::get_request_data();
+        $lang = $data['lang'] ?? 'de';
+        $lang = \in_array($lang, ['de', 'en'], true) ? $lang : 'de';
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        zone_util::players()->set_player_language($user_id, $lang);
+
+        return $this->jsonResponse([]);
     }
 
     /**

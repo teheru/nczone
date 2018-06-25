@@ -79,19 +79,20 @@ export const setSid = (s) => {
 
 // me
 export const me = () => doGet('/me')
-export const login = () => doGet('/me/login')
-export const logout = () => doGet('/me/logout')
+export const login = () => post('/me/login')
+export const logout = () => post('/me/logout')
+export const setLang = (lang) => post('/me/set_language', {body: JSON.stringify({lang})})
 
 // draw
-export const drawPreview = () => doGet('/draw/preview')
-export const drawConfirm = () => doGet('/draw/confirm')
-export const drawCancel = () => doGet('/draw/cancel')
+export const drawPreview = () => post('/draw/preview')
+export const drawConfirm = () => post('/draw/confirm')
+export const drawCancel = () => post('/draw/cancel')
 
 // matches
 export const runningMatches = () => get('/matches/running')
 export const pastMatches = () => get('/matches/past')
 export const match = (matchId) => get(`/matches/${matchId}`)
-export const postMatchResult = (matchId, winner) => post(`/matches/${matchId}/post_result`, {body: JSON.stringify({winner: winner})})
+export const postMatchResult = (matchId, winner) => post(`/matches/${matchId}/post_result`, {body: JSON.stringify({winner})})
 
 // players
 export const loggedInPlayers = () => get('/players/logged_in')

@@ -10,7 +10,7 @@
           <nczone-player-login-row v-for="(player, idx) in players" :key="idx" :idx="idx" :player="player"></nczone-player-login-row>
         </div>
       </div>
-      <div class="zone-actions">
+      <div class="zone-actions" v-if="havePossibleActions">
         <button class="zone-button" v-if="canLogin" @click="login" v-t="'NCZONE_LOGIN'"></button>
         <button class="zone-button" v-if="isLoggedIn" @click="logout" v-t="'NCZONE_LOGOUT'"></button>
 
@@ -34,7 +34,10 @@ export default {
     ]),
     ...mapGetters({
       players: 'loggedInPlayers'
-    })
+    }),
+    havePossibleActions () {
+      return this.canDraw || this.canLogin || this.isLoggedIn
+    }
   },
   methods: {
     login () {

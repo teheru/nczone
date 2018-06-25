@@ -34,6 +34,10 @@ eru_nczone_controller__api__me:
     path: /nczone/api/me
     defaults: { _controller: eru.nczone.controller.api:me }
 
+eru_nczone_controller__api__me_set_language:
+    path: /nczone/api/me/set_language
+    defaults: { _controller: eru.nczone.controller.api:me_set_language }
+
 eru_nczone_controller__api__me_login:
     path: /nczone/api/me/login
     defaults: { _controller: eru.nczone.controller.api:me_login }
