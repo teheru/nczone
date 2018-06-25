@@ -78,9 +78,9 @@ class api
                 'u_zone_draw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
                 'u_zone_login' => $is_activated && $this->auth->acl_get('u_zone_login'),
                 'u_zone_change_match' => $is_activated && $this->auth->acl_get('u_zone_change_match'),
-                'm_zone_draw_match' => (int)$this->auth->acl_get('m_zone_draw_match'),
-                'm_zone_login_players' => (int)$this->auth->acl_get('m_zone_login_players'),
-                'm_zone_change_match' => (int)$this->auth->acl_get('m_zone_change_match'),
+                'm_zone_draw_match' => (bool)$this->auth->acl_get('m_zone_draw_match'),
+                'm_zone_login_players' => (bool)$this->auth->acl_get('m_zone_login_players'),
+                'm_zone_change_match' => (bool)$this->auth->acl_get('m_zone_change_match'),
             ],
         ]);
     }
@@ -345,7 +345,7 @@ class api
 
         $user_id = (int)$this->user->data['user_id'];
 
-        if (!$this->auth->acl_get('m_zone_login_players') &&
+        if (!$this->auth->acl_get('m_zone_draw_match') &&
             !zone_util::matches()->is_player_in_match($user_id, (int)$match_id)
         ) {
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT'], self::CODE_FORBIDDEN);

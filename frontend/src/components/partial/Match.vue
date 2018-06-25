@@ -103,10 +103,12 @@ export default {
     },
     canManage () {
       return this.match.players.team1.map(p => p.id).includes(this.me.id) ||
-        this.match.players.team2.map(p => p.id).includes(this.me.id)
+        this.match.players.team2.map(p => p.id).includes(this.me.id) ||
+        this.canModPost
     },
     ...mapGetters([
-      'me'
+      'me',
+      'canModPost'
     ])
   },
   data () {
