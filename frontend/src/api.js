@@ -92,6 +92,7 @@ export const drawCancel = () => post('/draw/cancel')
 export const runningMatches = () => get('/matches/running')
 export const pastMatches = () => get('/matches/past')
 export const match = (matchId) => get(`/matches/${matchId}`)
+export const bet = (matchId, team) => post(`/matches/${matchId}/bet`, {body: JSON.stringify({team})})
 export const postMatchResult = (matchId, winner) => post(`/matches/${matchId}/post_result`, {body: JSON.stringify({winner})})
 
 // players

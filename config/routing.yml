@@ -24,6 +24,12 @@ eru_nczone_controller__api__match:
     requirements:
         match_id: \d+
 
+eru_nczone_controller__api__match_bet:
+    path: /nczone/api/matches/{match_id}/bet
+    defaults: { _controller: eru.nczone.controller.api:match_bet }
+    requirements:
+        match_id: \d+
+
 eru_nczone_controller__api__matches_post_result:
     path: /nczone/api/matches/{match_id}/post_result
     defaults: { _controller: eru.nczone.controller.api:match_post_result }

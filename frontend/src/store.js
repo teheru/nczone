@@ -207,6 +207,10 @@ export default () => {
         await api.postMatchResult(matchId, winner)
         await dispatch('getRunningMatches')
       },
+      async bet ({commit, dispatch}, {matchId, team}) {
+        await api.bet(matchId, team)
+        await dispatch('getRunningMatches')
+      },
       async getInformation ({commit}) {
         commit('setInformation', await api.getInformation())
       },

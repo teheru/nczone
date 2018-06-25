@@ -346,6 +346,27 @@ class api
         return $this->jsonResponse($match);
     }
 
+    public function match_bet(string $match_id): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        $data = self::get_request_data();
+        if (!isset($data['team'])) {
+            return $this->jsonResponse(['reason' => 'team is not set'], self::CODE_BAD_REQUEST);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        zone_util::matches()->bet($user_id, (int)$match_id, (int)$data['team']);
+        return $this->jsonResponse([]);
+    }
+
     public function match_post_result(string $match_id): JsonResponse
     {
         if (self::is_options()) {

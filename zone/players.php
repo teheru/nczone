@@ -233,7 +233,7 @@ class players
         $this->edit_player($user_id, ['logged_in' => 0]);
     }
 
-    public function logout_players(array $user_ids): void
+    public function logout_players(int ...$user_ids): void
     {
         db_util::update($this->db, $this->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
     }
