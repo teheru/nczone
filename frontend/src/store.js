@@ -25,6 +25,7 @@ export default new Vuex.Store({
       visible: false,
       players: []
     },
+    match: null, // single match
     players: [],
     pastMatches: [],
     runningMatches: [],
@@ -71,7 +72,8 @@ export default new Vuex.Store({
     matchById: (s) => (id, type) => (type === 'running' ? s.runningMatches : s.pastMatches).find(m => m.id === id),
     info: (s) => s.information[s.informationIndex] || '',
     informationIndex: (s) => s.informationIndex,
-    playerById: (s) => (id) => s.players.find(p => p.id === id)
+    playerById: (s) => (id) => s.players.find(p => p.id === id),
+    match: (s) => s.match
   },
   mutations: {
     setMe (state, payload) {
@@ -118,6 +120,9 @@ export default new Vuex.Store({
       })
       state.players = players
     },
+    setMatch (state, payload) {
+      state.match = payload
+    },
     setRunningMatches (state, payload) {
       state.runningMatches = payload
     },
@@ -144,7 +149,10 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async init ({ state, commit, dispatch }) {
+    async init ({ state, commit, dispatch }, payload) {
+      if (payload && payload.matchId) {
+        commit('setMatch', await api.match(payload.matchId))
+      }
       commit('setMe', await api.me())
       dispatch('getLoggedInPlayers')
       dispatch('getInformation')
