@@ -308,7 +308,7 @@ class matches {
                 db_util::update($this->db, $this->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
                 $players->match_changes($user_id, $team_id, $match_points, $team_id === $winner_team_id);
-                $players->fix_streak($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
             }
 
             db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
