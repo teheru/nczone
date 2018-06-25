@@ -19,13 +19,15 @@ class misc
 {
     /** @var driver_interface */
     private $db;
-
+    /** @var \phpbb\user */
+    private $user;
     /** @var string */
     private $posts_table;
 
-    public function __construct(driver_interface $db, string $posts_table)
+    public function __construct(driver_interface $db, \phpbb\user $user, string $posts_table)
     {
         $this->db = $db;
+        $this->user = $user;
         $this->posts_table = $posts_table;
     }
 
@@ -54,6 +56,36 @@ class misc
         }
 
         return $posts;
+    }
+
+    public function create_post(string $title, string $message, int $forum_id): int
+    {
+        include_once(phpbb_util::file_url('includes/functions_posting'));
+
+        $uid = $bitfield = $options = '';
+        generate_text_for_storage($message, $uid, $bitfield, $options, true, true, false);
+
+        $data = array(
+                'topic_title' => $title,
+                'post_time' => time(),
+                'poster_ip' => $this->user->ip,
+                'force_approved_state' => true,
+                'enable_bbcode' => true,
+                'enable_smilies' => false,
+                'enable_urls' => true,
+                'enable_sig' => false,
+                'message' => $message,
+                'message_md5' => md5($message),
+                'post_edit_locked' => true,
+                'forum_id' => $forum_id,
+                'icon_id' => 0,
+                'bbcode_bitfield' => $bitfield,
+                'bbcode_uid' => $uid,
+        );
+        $poll = [];
+        submit_post('post', $title, $this->user->data['username'], POST_NORMAL, $poll, $data);
+        
+        return (int)$data['topic_id'];
     }
 }
 

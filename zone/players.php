@@ -460,4 +460,31 @@ class players
             'ORDER_BY' => 't.team_id DESC',
         ]);
     }
+
+    public function get_team_usernames(int ...$team_ids): array
+    {
+        if(!$team_ids)
+        {
+            return [];
+        }
+
+        $team_usernames = [];
+        foreach($team_ids as $team_id)
+        {
+            $team_usernames[$team_id] = [];
+        }
+
+        $rows = db_util::get_rows($this->db, [
+            'SELECT' => 'mp.team_id, u.username',
+            'FROM' => [$this->match_players_table => 'mp', $this->users_table => 'u'],
+            'WHERE' => 'mp.user_id = u.user_id AND ' . $this->db->sql_in_set('team_id', $team_ids),
+            'ORDER_BY' => 'mp.draw_rating DESC',
+        ]);
+        
+        foreach($rows as $r)
+        {
+            $team_username[(int)$r['team_id']][] = $r['username'];
+        }
+        return $team_username;
+    }
 }

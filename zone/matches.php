@@ -225,7 +225,7 @@ class matches {
         $this->db->sql_query('DELETE FROM ' . $this->matches_table . $where_match_id);
     }
 
-    public function post(int $match_id, int $post_user_id, int $winner): void
+    public function post(int $match_id, int $post_user_id, int $winner, int $topic_id=0): void
     {
         // todo: lock tables
 
@@ -241,6 +241,8 @@ class matches {
 
         $end_time = time();
 
+        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+
         if($winner === 1 || $winner === 2)
         {
             $map_id = (int)db_util::get_var($this->db, [
@@ -249,7 +251,6 @@ class matches {
                 'WHERE' => 't.match_id = ' . $match_id
             ]);
 
-            [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
             $winner_team_id = ($winner === 1) ? $team1_id : $team2_id;
             $match_players = $this->get_teams_players($team1_id, $team2_id);
             $match_size = \count($match_players) / 2;
@@ -308,7 +309,7 @@ class matches {
                 db_util::update($this->db, $this->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
                 $players->match_changes($user_id, $team_id, $match_points, $team_id === $winner_team_id);
-                $players->fix_streak($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
             }
 
             db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
@@ -320,13 +321,40 @@ class matches {
             $winner_team_id = 0;
         }
 
+        // we don't want to create duplicate topics for a match
+        if(!$topic_id)
+        {
+            $topic_id = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
+        }
+
         db_util::update($this->db, $this->matches_table, [
             'post_user_id' => $post_user_id,
             'post_time' => $end_time,
             'winner_team_id' => $winner_team_id,
+            'forum_topic_id' => $topic_id,
         ], [
             'match_id' => $match_id
         ]);
+    }
+
+    protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner)
+    {
+        $team_names = zone_util::players()->get_team_usernames($team1_id, $team2_id);
+        $team1_str = $team2_str = '';
+        if($winner === 1)
+        {
+            $team1_str = ' (W)';
+            $team2_str = ' (L)';
+        }
+        elseif($winner === 2)
+        {
+            $team1_str = ' (L)';
+            $team2_str = ' (W)';
+        }
+
+        $title = join(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . join(', ', $team_names[$team2_id]) . $team2_str;
+        $message = '[match]' . $match_id . '[/match]';
+        zone_util::misc()->create_post($title, $message, phpbb_util::config()['nczone_match_forum_id']);
     }
 
     public function post_undo(int $match_id): void // todo: test this xD
@@ -500,6 +528,7 @@ class matches {
             'draw_time' => time(),
             'post_time' => 0,
             'winner_team_id' => 0,
+            'forum_topic_id' => 0,
         ]);
 
         $team1_id = $this->insert_new_match_team($match_id);

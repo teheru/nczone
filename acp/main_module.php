@@ -112,6 +112,7 @@ class main_module
 
         if($submit)
         {
+            $config->set('nczone_match_forum_id', (int)$request->variable('nczone_match_forum_id', 0));
             $config->set('nczone_bet_time', (int)$request->variable('nczone_bet_time', 1200));
             $config->set('nczone_info_posts', join(',', array_map(function($a) { return (int)$a; }, preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
 
@@ -120,6 +121,7 @@ class main_module
 
         phpbb_util::template()->assign_vars(array(
             'U_ACTION' => $this->u_action,
+            'nczone_match_forum_id' => $config['nczone_match_forum_id'],
             'nczone_bet_time' => $config['nczone_bet_time'],
             'nczone_info_posts' => str_replace(',', "\n", $config['nczone_info_posts']),
         ));

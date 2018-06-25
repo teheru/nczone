@@ -6,6 +6,15 @@
 	<legend>{{ lang('ACP_NCZONE_GENERAL_TITLE') }}</legend>
 	<dl>
 		<dt>
+			<label for="nczone_match_forum_id">{{ lang('NCZONE_MATCH_FORUM_ID') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_MATCH_FORUM_ID_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="nczone_match_forum_id" value="{{ nczone_match_forum_id }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
 			<label for="nczone_bet_time">{{ lang('NCZONE_BET_TIME') }}{{ lang('COLON') }}</label><br />
 			<span>{{ lang('NCZONE_BET_TIME_DESCR') }}</span>
 		</dt>

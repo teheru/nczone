@@ -128,4 +128,5 @@ services:
       class: eru\nczone\zone\misc
       arguments:
         - '@dbal.conn'
+        - '@user'
         - '%tables.posts%'

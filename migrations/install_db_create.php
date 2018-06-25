@@ -41,13 +41,15 @@ class install_db_create extends \phpbb\db\migration\migration
 						'post_user_id' => array('UINT', 0),
 						'draw_time' => array('TIMESTAMP', 0),
 						'post_time' => array('TIMESTAMP', 0),
-						'winner_team_id' => array('UINT', 0)
+						'winner_team_id' => array('UINT', 0),
+						'forum_topic_id' => array('UINT', 0)
 					),
 					'PRIMARY_KEY' => 'match_id',
 					'KEYS' => array(
 						'map_id' => array('INDEX', 'map_id'),
 						'draw_uid' => array('INDEX', 'draw_user_id'),
-						'post_uid' => array('INDEX', 'post_user_id')
+						'post_uid' => array('INDEX', 'post_user_id'),
+						'post_tid' => array('INDEX', 'forum_topic_id')
 					)
 				),
 				$this->table_prefix . 'zone_match_teams' => array(

@@ -21,6 +21,8 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'ACP_NCZONE_SAVED' => 'Saved!',
 
+	'NCZONE_MATCH_FORUM_ID' => 'Forum ID for match posts',
+	'NCZONE_MATCH_FORUM_ID_DESCR' => 'The ID of the forum in which match results will be posted.',
 	'NCZONE_BET_TIME' => 'Bet time',
 	'NCZONE_BET_TIME_DESCR' => 'Time (in seconds) a bet has to be placed before the ending of a match to be counted.',
 	'NCZONE_INFO_POSTS' => 'Information post IDs',
