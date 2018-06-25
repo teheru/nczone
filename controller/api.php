@@ -388,7 +388,6 @@ class api
 
     private static function is_update_session_request(): bool
     {
-        $server = phpbb_util::request()->get_super_global(request_interface::SERVER);
-        return isset($server['HTTP_X_UPDATE_SESSION']) && $server['HTTP_X_UPDATE_SESSION'] === '1';
+        return phpbb_util::request()->header('x-update-session') === '1';
     }
 }
