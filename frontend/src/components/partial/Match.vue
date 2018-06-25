@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     sendResult () {
-      this.$store.dispatch('postMatchResult', {matchId: this.matchId, winner: this.matchResult})
+      this.$store.dispatch('postMatchResult', {matchId: this.match.id, winner: this.matchResult})
     }
   },
   computed: {
