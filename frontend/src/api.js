@@ -64,13 +64,11 @@ const request = (method, path, options, onProgress) => {
 const actively = (method, path, options, onProgress) => {
   return request(method, path, Object.assign(options || {}, {headers: {'X-Update-Session': '1'}}), onProgress)
 }
-const passively = (method, path, options, onProgress) => {
-  return request(method, path, options, onProgress)
-}
+const passively = (...params) => request(...params)
 
-const get = (...params) => passively('GET', ...params)
 const put = (...params) => actively('PUT', ...params)
 const post = (...params) => actively('POST', ...params)
+const get = (...params) => passively('GET', ...params)
 const doGet = (...params) => actively('GET', ...params)
 
 const url = (path) => apiBase + path + (sid !== '' ? `?sid=${sid}` : '')

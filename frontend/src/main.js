@@ -25,10 +25,14 @@ export async function init (settings) {
     messages: lang
   })
 
+  const el = typeof settings.target === 'string'
+    ? (document.getElementById(settings.target) || document.querySelector(settings.target))
+    : settings.target
+
   const initSingle = (matchId) => {
     // eslint-disable-next-line no-new
     new Vue({
-      el: typeof settings.target === 'string' ? document.getElementById(settings.target) : settings.target,
+      el,
       i18n,
       store,
       render: h => h(AppSingle)
@@ -75,7 +79,7 @@ export async function init (settings) {
 
     // eslint-disable-next-line no-new
     new Vue({
-      el: typeof settings.target === 'string' ? document.getElementById(settings.target) : settings.target,
+      el,
       i18n,
       router,
       store,
