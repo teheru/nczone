@@ -74,6 +74,7 @@ export default new Vuex.Store({
       }
       return s.me.permissions.m_zone_draw_match
     },
+    canModPost: (s) => s.me.permissions.m_zone_draw_match,
     canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn,
     isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
     runningMatches: (s) => s.matches.filter(m => m.timestampEnd === 0),
