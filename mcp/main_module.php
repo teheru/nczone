@@ -10,7 +10,7 @@
 
 namespace eru\nczone\mcp;
 
-use eru\nczone\utility\db_util;
+use eru\nczone\utility\db;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
 
@@ -65,9 +65,10 @@ class main_module
 
         $user_id = $request->variable('user_id', '');
         if ($user_id == '') {
-            $db = phpbb_util::db();
+            // why is there no dependency injection for mcp?
+            $db = new db($GLOBALS['db'], $GLOBALS['table_prefix']);
             $username = $request->variable('username', '');
-            $user_id = (int)db_util::get_var($db, [
+            $user_id = (int)$db->get_var([
                 'SELECT' => 'user_id',
                 'FROM' => [USERS_TABLE => 'u'],
                 'WHERE' => 'username_clean = \'' . $db->sql_escape(utf8_clean_string($username)) . '\'',

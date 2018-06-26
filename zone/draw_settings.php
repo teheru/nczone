@@ -11,27 +11,24 @@
 
 namespace eru\nczone\zone;
 
-use eru\nczone\utility\db_util;
+use eru\nczone\utility\db;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
 use eru\nczone\utility\phpbb_util;
-use phpbb\db\driver\driver_interface;
 
 class draw_settings {
 
-    const MATCH_CIVS = 'match_civs';
-    const PLAYER_CIVS = 'player_civs';
-    const TEAM_CIVS = 'team_civs';
+    private const MATCH_CIVS = 'match_civs';
+    private const PLAYER_CIVS = 'player_civs';
+    private const TEAM_CIVS = 'team_civs';
 
-    public function __construct(driver_interface $db, string $maps_table, string $map_civs_table, string $player_map_table, string $player_civ_table)
+    /** @var db */
+    private $db;
+
+    public function __construct(db $db)
     {
         $this->db = $db;
-        $this->maps_table = $maps_table;
-        $this->map_civs_table = $map_civs_table;
-        $this->player_map_table = $player_map_table;
-        $this->player_civ_table = $player_civ_table;
     }
-
 
     public function draw_settings(array $team1, array $team2): array
     {
@@ -97,9 +94,9 @@ class draw_settings {
         }
         $user_num = \count($user_ids);
 
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 't.map_id, SUM(' . time() . ' - t.time) * m.weight AS val',
-            'FROM' => [$this->player_map_table => 't', $this->maps_table => 'm'],
+            'FROM' => [$this->db->player_map_table => 't', $this->db->maps_table => 'm'],
             'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('t.user_id', $user_ids),
             'GROUP_BY' => 't.map_id, t.user_id',
             'ORDER_BY' => 'val DESC'
@@ -168,9 +165,9 @@ class draw_settings {
         $force_civ = [];
         if(!$ignore_force)
         {
-            $force_civ = db_util::get_row($this->db, [
+            $force_civ = $this->db->get_row([
                 'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
-                'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
+                'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
                 'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
                 'GROUP_BY' => 'c.civ_id',
                 'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
@@ -184,9 +181,9 @@ class draw_settings {
         }
 
         // get additional civs
-        $draw_civs = db_util::get_num_rows($this->db, [
+        $draw_civs = $this->db->get_num_rows([
             'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
-            'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
+            'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
             'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids) . $sql_add,
             'GROUP_BY' => 'c.civ_id',
             'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
@@ -610,5 +607,3 @@ class draw_settings {
         return $best_civ_combination;
     }
 }
-
-?>
