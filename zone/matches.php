@@ -304,13 +304,21 @@ class matches {
             }
 
             $players = zone_util::players();
-            $user_ids = [];
+            $user1_ids = $user2_ids = [];
             foreach($match_players as $user_id => $user_info)
             {
-                $user_ids[] = $user_id;
                 $team_id = (int)$user_info['team_id'];
                 $is_team1 = $team_id === $team1_id;
                 $has_won = $team_id === $winner_team_id;
+
+                if($is_team1)
+                {
+                    $user1_ids[] = $user_id;
+                }
+                else
+                {
+                    $user2_ids[] = $user_id;
+                }
 
                 $civ_ids = array_merge(
                     $match_civ_ids,
@@ -322,17 +330,13 @@ class matches {
 
                 $players->match_changes($user_id, $team_id, $match_points, $has_won);
                 $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+            }
+            $user_ids = array_merge($user1_ids, $user2_ids);
 
-                $team_players = $is_team1 ? $team1_players : $team2_players;
-                foreach($team_players as $other_user_id => $tp)
-                {
-                    if($user_id < $other_user_id)
-                    {
-                        $col = $has_won ? 'matches_won' : 'matches_loss';
-                        $this->db->sql_query('UPDATE `' . $this->dreamteams_table . '` SET `' . $col . '` = `' . $col . '` + 1 WHERE `user1_id` = ' . $user_id . ' AND `user2_id` = ' . $other_user_id);
-            }
-                }
-            }
+            $col1 = $winner === 1 ? 'matches_won' : 'matches_loss';
+            $col2 = $winner === 2 ? 'matches_won' : 'matches_loss';
+            $this->db->sql_query('UPDATE `' . $this->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
+            $this->db->sql_query('UPDATE `' . $this->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
             db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
 
