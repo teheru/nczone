@@ -62,6 +62,15 @@ class install_db_create extends \phpbb\db\migration\migration
 						'mid' => array('INDEX', 'match_id')
 					)
 				),
+				$this->table_prefix . 'zone_dreamteams' => array(
+					'COLUMNS' => array(
+						'user1_id' => array('UINT', 0),
+						'user2_id' => array('UINT', 0),
+						'matches_won' => array('UINT', 0),
+						'matches_loss' => array('UINT', 0),
+					),
+					'PRIMARY_KEY' => array('user1_id', 'user2_id'),
+				),
 				$this->table_prefix . 'zone_match_players' => array(
 					'COLUMNS' => array(
 						'team_id' => array('UINT', 0),

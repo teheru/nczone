@@ -28,6 +28,8 @@ class matches {
     /** @var string */
     private $match_teams_table;
     /** @var string */
+    private $dreamteams_table;
+    /** @var string */
     private $match_players_table;
     /** @var string */
     private $match_civs_table;
@@ -60,6 +62,7 @@ class matches {
      * @param driver_interface  $db                       Database object
      * @param string                             $matches_table            Name of the matches table
      * @param string                             $match_teams_table        Name of the table for the players of the teams
+     * @param string                             $dreamteams_table        
      * @param string                             $match_players_table      Name of the table for the teams
      * @param string                             $match_civs_table         Name of the match civs table
      * @param string                             $team_civs_table          Name of the team civs table
@@ -75,7 +78,7 @@ class matches {
      * @param string                             $players_table
      * @param string                             $users_table
      */
-    public function __construct(driver_interface $db, string $matches_table, string $match_teams_table,
+    public function __construct(driver_interface $db, string $matches_table, string $match_teams_table, string $dreamteams_table,
                                 string $match_players_table, string $match_civs_table, string $team_civs_table,
                                 string $match_player_civs_table, string $maps_table, string $civs_table, string $player_map_table,
                                 string $map_civs_table, string $player_civ_table, string $draw_process_table, string $draw_players_table,
@@ -84,6 +87,7 @@ class matches {
         $this->db = $db;
         $this->matches_table = $matches_table;
         $this->match_teams_table = $match_teams_table;
+        $this->dreamteams_table = $dreamteams_table;
         $this->match_players_table = $match_players_table;
         $this->match_civs_table = $match_civs_table;
         $this->match_player_civs_table = $match_player_civs_table;
@@ -256,8 +260,10 @@ class matches {
             ]);
 
             $winner_team_id = ($winner === 1) ? $team1_id : $team2_id;
-            $match_players = $this->get_teams_players($team1_id, $team2_id);
-            $match_size = \count($match_players) / 2;
+            $team1_players = $this->get_teams_players($team1_id);
+            $team2_players = $this->get_teams_players($team2_id);
+            $match_players = $team1_players + $team2_players;
+            $match_size = \count($team1_players);
             $match_points = $this->get_match_points($match_size);
 
 
@@ -303,17 +309,29 @@ class matches {
             {
                 $user_ids[] = $user_id;
                 $team_id = (int)$user_info['team_id'];
+                $is_team1 = $team_id === $team1_id;
+                $has_won = $team_id === $winner_team_id;
 
                 $civ_ids = array_merge(
                     $match_civ_ids,
-                    $team_id === $team1_id ? $team1_civ_ids : $team2_civ_ids,
+                    $is_team1 ? $team1_civ_ids : $team2_civ_ids,
                     array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                 );
 
                 db_util::update($this->db, $this->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
 
-                $players->match_changes($user_id, $team_id, $match_points, $team_id === $winner_team_id);
+                $players->match_changes($user_id, $team_id, $match_points, $has_won);
                 $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+
+                $team_players = $is_team1 ? $team1_players : $team2_players;
+                foreach($team_players as $other_user_id => $tp)
+                {
+                    if($user_id < $other_user_id)
+                    {
+                        $col = $has_won ? 'matches_won' : 'matches_loss';
+                        $this->db->sql_query('UPDATE `' . $this->dreamteams_table . '` SET `' . $col . '` = `' . $col . '` + 1 WHERE `user1_id` = ' . $user_id . ' AND `user2_id` = ' . $other_user_id);
+            }
+                }
             }
 
             db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
@@ -377,8 +395,7 @@ class matches {
 
         [$end_time, $winner_team_id] = [(int)$row['post_time'], (int)$row['winner_team_id']];
         [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $match_players = $this->get_teams_players($team1_id, $team2_id);
-        $match_size = \count($match_players) / 2;
+        $match_size = \count($this->get_teams_players($team1_id));
         $match_points = $this->get_match_points($match_size);
 
         foreach($this->get_teams_players($team1_id, $team2_id) as $user_id => $user_info)
@@ -740,8 +757,6 @@ class matches {
 
         return [
             'id' => $match_id,
-            'game_type' => 'IP', // todo: remove
-            'ip' => '', // todo: remove
             'timestampStart' => (int)$m['draw_time'],
             'timestampEnd' => (int)($m['post_time'] ?? 0),
             'winner' => $winner,

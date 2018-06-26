@@ -27,6 +27,8 @@ class players
     /** @var string */
     private $users_table;
     /** @var string */
+    private $dreamteams_table;
+    /** @var string */
     private $match_players_table;
     /** @var string */
     private $match_player_civs_table;
@@ -49,6 +51,7 @@ class players
      * @param \phpbb\user $user
      * @param string $players_table
      * @param string $users_table
+     * @param string $dreamteams_table
      * @param string $match_players_table
      * @param string $match_player_civs_table
      * @param string $maps_table
@@ -59,7 +62,7 @@ class players
      * @param string $bets_table
      */
     public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
-                                string $users_table, string $match_players_table, string $match_player_civs_table,
+                                string $users_table, string $dreamteams_table, string $match_players_table, string $match_player_civs_table,
                                 string $maps_table, string $civs_table, string $map_civs_table, string $player_map_table,
                                 string $player_civ_table, string $bets_table)
     {
@@ -67,6 +70,7 @@ class players
         $this->user = $user;
         $this->players_table = $players_table;
         $this->users_table = $users_table;
+        $this->dreamteams_table = $dreamteams_table;
         $this->match_players_table = $match_players_table;
         $this->match_player_civs_table = $match_player_civs_table;
         $this->maps_table = $maps_table;
@@ -170,8 +174,11 @@ class players
             'bets_loss' => 0
         ]);
 
-        $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT "'. $user_id .'", map_id, "'. time() .'" FROM `'. $this->maps_table .'`');
-        $this->db->sql_query('INSERT INTO `'. $this->player_civ_table .'` (`user_id`, `civ_id`, `time`) SELECT "'. $user_id .'", civ_id, "'. time() .'" FROM `'. $this->civs_table .'`');
+        $this->db->sql_query('INSERT INTO `' . $this->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) SELECT `user_id`, ' . $user_id . ', 0, 0 FROM `' . $this->players_table . '` WHERE `user_id` < ' . $user_id);
+        $this->db->sql_query('INSERT INTO `' . $this->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) SELECT ' . $user_id . ', `user_id`, 0, 0 FROM `' . $this->players_table . '` WHERE `user_id` > ' . $user_id);
+
+        $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT "' . $user_id . '", map_id, "'. time() .'" FROM `' . $this->maps_table . '`');
+        $this->db->sql_query('INSERT INTO `'. $this->player_civ_table .'` (`user_id`, `civ_id`, `time`) SELECT "' . $user_id . '", civ_id, "'. time() .'" FROM `' . $this->civs_table . '`');
 
         return true;
     }
