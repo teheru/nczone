@@ -10,6 +10,8 @@
 
 namespace eru\nczone\controller;
 
+use eru\nczone\utility\phpbb_util;
+
 /**
  * nC Zone main controller.
  */
@@ -30,6 +32,14 @@ class main
 
     public function zone()
     {
+        if(false) // todo: any relevant m_ rights
+        {
+            phpbb_util::template()->assign_var('U_MCP', append_sid(phpbb_util::file_url('mcp'), 'i=-eru-nczone-mcp-main_module'));
+        }
+        if(false) // todo: any a_ rights
+        {
+            phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
+        }
         return $this->helper->render('zone.html');
     }
 }
