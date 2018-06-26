@@ -171,7 +171,7 @@ class draw_settings {
             $force_civ = db_util::get_row($this->db, [
                 'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
                 'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
-                'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND '. $this->db->sql_in_set('p.user_id', $user_ids),
+                'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
                 'GROUP_BY' => 'c.civ_id',
                 'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
             ]);
@@ -187,7 +187,7 @@ class draw_settings {
         $draw_civs = db_util::get_num_rows($this->db, [
             'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
             'FROM' => array($this->map_civs_table => 'c', $this->player_civ_table => 'p'),
-            'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . $sql_add,
+            'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids) . $sql_add,
             'GROUP_BY' => 'c.civ_id',
             'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
         ], $num_civs - \count($civ_ids) + $extra_civs);
