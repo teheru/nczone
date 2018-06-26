@@ -136,6 +136,8 @@ class matches {
 
     public function replace_player(int $replace_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
+        $this->db->sql_transaction('begin');
+
         $match_players = $this->get_match_players($match_id);
 
         if(array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players))
@@ -157,14 +159,20 @@ class matches {
             if($match_id)
             {
                 zone_util::players()->logout_player($player1_id);
+
+                $this->db->sql_transaction('commit');
                 return $match_id;
             }
         }
+
+        $this->db->sql_transaction('commit');
         return 0;
     }
 
     public function add_pair(int $add_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
+        $this->db->sql_transaction('begin');
+
         $match_players = $this->get_match_players($match_id);
 
         if(\count($match_players) < 8 && !array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players))
@@ -182,13 +190,19 @@ class matches {
 
             [$match] = zone_util::draw_teams()->make_matches($draw_players);
             [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
+
+            $this->db->sql_transaction('commit');
             return $this->create_match($add_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
         }
+
+        $this->db->sql_transaction('commit');
         return 0;
     }
 
     public function remove_pair(int $remove_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
+        $this->db->sql_transaction('begin');
+        
         $match_players = $this->get_match_players($match_id);
 
         if(\count($match_players) > 2 && array_key_exists($player1_id, $match_players) && array_key_exists($player2_id, $match_players))
@@ -209,13 +223,14 @@ class matches {
             if($match_id)
             {
                 zone_util::players()->logout_players($player1_id, $player2_id);
+
+                $this->db->sql_transaction('commit');
                 return $match_id;
             }
         }
-        else
-        {
-            return 0;
-        }
+
+        $this->db->sql_transaction('commit');
+        return 0;
     }
 
     public function clean_match(int $match_id): void

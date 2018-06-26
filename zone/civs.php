@@ -107,9 +107,14 @@ class civs
      */
     public function create_civ($civ_name): string
     {
+        $this->db->sql_transaction('begin');
+
         $civ_id = $this->insert_civ($civ_name);
         $this->create_civ_maps($civ_id);
         $this->db->sql_query('INSERT INTO `'. $this->player_civ_table .'` (`user_id`, `civ_id`, `time`) SELECT user_id, "'. $civ_id .'", "'. time() .'" FROM `'. $this->players_table .'`');
+
+        $this->db->sql_transaction('commit');
+
         return $civ_id;
     }
 

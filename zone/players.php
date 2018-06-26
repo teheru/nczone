@@ -155,6 +155,8 @@ class players
      */
     public function activate_player(int $user_id, int $rating): bool
     {
+        $this->db->sql_transaction('begin');
+
         $count = (int)db_util::get_var($this->db, [
             'SELECT' => 'COUNT(*) AS n',
             'FROM' => [$this->players_table => 'u'],
@@ -179,6 +181,8 @@ class players
 
         $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT "' . $user_id . '", map_id, "'. time() .'" FROM `' . $this->maps_table . '`');
         $this->db->sql_query('INSERT INTO `'. $this->player_civ_table .'` (`user_id`, `civ_id`, `time`) SELECT "' . $user_id . '", civ_id, "'. time() .'" FROM `' . $this->civs_table . '`');
+
+        $this->db->sql_transaction('commit');
 
         return true;
     }

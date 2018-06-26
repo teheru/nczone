@@ -130,6 +130,8 @@ class maps
      */
     public function create_map(string $map_name, float $weight, int $copy_map_id = 0): string
     {
+        $this->db->sql_transaction('begin');
+
         $map_id = $this->insert_map($map_name, $weight);
 
         if ($copy_map_id) {
@@ -139,6 +141,8 @@ class maps
         }
 
         $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT user_id, "'. $map_id .'", "'. time() .'" FROM `'. $this->players_table .'`');
+
+        $this->db->sql_transaction('commit');
 
         return $map_id;
     }
