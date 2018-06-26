@@ -53,10 +53,15 @@ class db_util
         return $row;
     }
 
-    // todo: build this without getting the whole row
-    public static function get_var(driver_interface $db, array $sqlArray)
+    /**
+     * @param driver_interface $db
+     * @param array|string $sql
+     * @return mixed|null
+     */
+    public static function get_var(driver_interface $db, $sql)
     {
-        $row = self::get_row($db, $sqlArray);
+        // todo: build this without getting the whole row
+        $row = self::get_row($db, $sql);
         return $row ? reset($row) : null;
     }
 

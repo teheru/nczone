@@ -364,6 +364,14 @@ class api
 
         $user_id = (int)$this->user->data['user_id'];
 
+        if (zone_util::matches()->has_bet($user_id, (int)$match_id)) {
+            return $this->jsonResponse(['reason' => 'already bet'], self::CODE_BAD_REQUEST);
+        }
+
+        if (zone_util::matches()->is_over((int)$match_id)) {
+            return $this->jsonResponse(['reason' => 'match is over'], self::CODE_BAD_REQUEST);
+        }
+
         zone_util::matches()->bet($user_id, (int)$match_id, (int)$data['team']);
         return $this->jsonResponse([]);
     }

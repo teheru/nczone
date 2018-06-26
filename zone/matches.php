@@ -62,7 +62,7 @@ class matches {
      * @param driver_interface  $db                       Database object
      * @param string                             $matches_table            Name of the matches table
      * @param string                             $match_teams_table        Name of the table for the players of the teams
-     * @param string                             $dreamteams_table        
+     * @param string                             $dreamteams_table
      * @param string                             $match_players_table      Name of the table for the teams
      * @param string                             $match_civs_table         Name of the match civs table
      * @param string                             $team_civs_table          Name of the team civs table
@@ -202,7 +202,7 @@ class matches {
     public function remove_pair(int $remove_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
         $this->db->sql_transaction('begin');
-        
+
         $match_players = $this->get_match_players($match_id);
 
         if(\count($match_players) > 2 && array_key_exists($player1_id, $match_players) && array_key_exists($player2_id, $match_players))
@@ -853,6 +853,40 @@ class matches {
             'time' => time(),
             'team_id' => $team_ids[$team - 1],
         ]);
+    }
+
+    public function has_bet(int $user_id, int $match_id): bool
+    {
+        $sql = '
+            SELECT
+                COUNT(*)
+            FROM
+                ' . $this->bets_table . ' b
+                INNER JOIN ' . $this->match_teams_table . ' t 
+                ON b.team_id = t.team_id
+                INNER JOIN ' . $this->matches_table . ' m 
+                ON m.match_id = t.match_id AND m.match_id = ' . $match_id . ' 
+            WHERE
+                b.user_id = ' . $user_id . '
+            ;
+        ';
+        return (int)db_util::get_var($this->db, $sql);
+    }
+
+    public function is_over(int $match_id): bool
+    {
+        $sql = '
+            SELECT 
+                COUNT(*) 
+            FROM 
+                ' . $this->matches_table . ' 
+            WHERE 
+                match_id = ' . $match_id . ' 
+                AND 
+                post_time > 0
+            ;
+        ';
+        return (int)db_util::get_var($this->db, $sql) > 0;
     }
 
     public function get_bets(int $team1_id, int $team2_id): array
