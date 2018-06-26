@@ -100,7 +100,6 @@ class matches {
         $this->users_table = $users_table;
     }
 
-
     public function draw(int $draw_user_id, array $draw_players): array
     {
         $match_ids = [];
@@ -124,7 +123,7 @@ class matches {
             }
         }
 
-        zone_util::players()->logout_players($user_ids);
+        zone_util::players()->logout_players(...$user_ids);
 
         $this->db->sql_transaction('commit');
 
@@ -344,7 +343,7 @@ class matches {
         $this->db->sql_transaction('commit');
     }
 
-    protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner)
+    protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner): int
     {
         $team_names = zone_util::players()->get_team_usernames($team1_id, $team2_id);
         $team1_str = $team2_str = '';
@@ -361,7 +360,7 @@ class matches {
 
         $title = join(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . join(', ', $team_names[$team2_id]) . $team2_str;
         $message = '[match]' . $match_id . '[/match]';
-        zone_util::misc()->create_post($title, $message, phpbb_util::config()['nczone_match_forum_id']);
+        return zone_util::misc()->create_post($title, $message, phpbb_util::config()['nczone_match_forum_id']);
     }
 
     public function post_undo(int $match_id): void // todo: test this xD
@@ -411,6 +410,7 @@ class matches {
 
     public function get_match_team_ids(int $match_id): array
     {
+        // todo: should order by team_id, because there is no guarantee that they are always returned in insert order
         $team_rows = db_util::get_rows($this->db, [
             'SELECT' => 't.team_id AS team_id',
             'FROM' => [$this->match_teams_table => 't'],
@@ -457,7 +457,6 @@ class matches {
         }
     }
 
-
     public function evaluate_bets(int $winner_team, int $loser_team, int $end_time): void
     {
         $config = phpbb_util::config();
@@ -473,7 +472,7 @@ class matches {
             'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
 
-        if($$users_right)
+        if($users_right)
         {
             $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
         }
@@ -482,7 +481,6 @@ class matches {
             $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
         }
     }
-
 
     public function evaluate_bets_undo(int $winner_team, int $loser_team, int $end_time): void
     {
@@ -499,7 +497,7 @@ class matches {
             'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
 
-        if($$users_right)
+        if($users_right)
         {
             $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
         }
@@ -508,7 +506,6 @@ class matches {
             $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
         }
     }
-
 
     /**
      * Creates a match and returns the match id
@@ -566,7 +563,6 @@ class matches {
             $this->db->sql_multi_insert($this->match_players_table, $team_data);
         }
 
-
         $match_civ_data = [];
         $match_civ_numbers = array_count_values($match_civ_ids);
         $unique_match_civ_ids = array_unique($match_civ_ids);
@@ -582,7 +578,6 @@ class matches {
         {
             $this->db->sql_multi_insert($this->match_civs_table, $match_civ_data);
         }
-
 
         $team_civ_data = [];
         $team1_civ_numbers = array_count_values($team1_civ_ids);
@@ -608,7 +603,6 @@ class matches {
             $this->db->sql_multi_insert($this->team_civs_table, $team_civ_data);
         }
 
-
         $player_civ_data = [];
         foreach($player_civ_ids as $user_id => $civ_id)
         {
@@ -625,7 +619,6 @@ class matches {
 
         return $match_id;
     }
-
 
     private function insert_new_match_team(int $match_id): int
     {
@@ -766,7 +759,7 @@ class matches {
                 'title' => $m['map_name'],
             ],
             'civs' => array_merge(['both' => $this->get_match_civs($match_id, $map_id)], $this->get_team_civs($team1_id, $team2_id, $map_id)),
-            'bets' => ['team1' => [], 'team2' => []],
+            'bets' => $this->get_bets($team1_id, $team2_id),
             'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id),
         ];
     }
@@ -813,6 +806,16 @@ class matches {
         return $teams;
     }
 
+    public function bet(int $user_id, int $match_id, int $team): void
+    {
+        $team_ids = $this->get_match_team_ids($match_id);
+        db_util::insert($this->db, $this->bets_table, [
+            'user_id' => $user_id,
+            'time' => time(),
+            'team_id' => $team_ids[$team - 1],
+        ]);
+    }
+
     public function get_bets(int $team1_id, int $team2_id): array
     {
         $rows = db_util::get_rows($this->db, [
@@ -821,15 +824,19 @@ class matches {
             'WHERE' => 'b.user_id = u.user_id AND (b.team_id = ' . $team1_id . ' OR b.team_id = ' . $team2_id . ')'
         ]);
 
-        $bets = ['team1' => [], 'team2' => []];
+        $bets = [
+            'team1' => [],
+            'team2' => [],
+        ];
         foreach($rows as $r)
         {
-            $bets[($r['team_id'] === $team1_id) ? 'team1' : 'team2'][] = [
+            $teamIndex = (int)$r['team_id'] === $team1_id ? 'team1' : 'team2';
+            $bets[$teamIndex][] = [
                 'timestamp' => (int)$r['time'],
                 'user' => [
                     'id' => (int)$r['user_id'],
-                    'name' => $r['username']
-                ]
+                    'name' => $r['username'],
+                ],
             ];
         }
 
@@ -860,7 +867,7 @@ class matches {
             return 0;
         }
 
-        return (int)$draw_id;
+        return $draw_id;
     }
 
     private function get_draw_players(int $draw_id): array

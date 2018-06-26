@@ -50,7 +50,7 @@ $block_bg: $base_color;
   padding-left: 1.8em;
 }
 
-.nczone-overlay {
+.zone-overlay {
   position: fixed;
   z-index: 1;
   top: 0;
@@ -59,7 +59,7 @@ $block_bg: $base_color;
   right: 0;
   background: $overlay_bg;
 
-  .nczone-overlay-panel {
+  .zone-overlay-panel {
     position: absolute;
     z-index: 2;
     top: 50%;

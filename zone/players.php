@@ -233,7 +233,7 @@ class players
         $this->edit_player($user_id, ['logged_in' => 0]);
     }
 
-    public function logout_players(array $user_ids): void
+    public function logout_players(int ...$user_ids): void
     {
         db_util::update($this->db, $this->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
     }
@@ -260,7 +260,7 @@ class players
         }
     }
 
-    
+
     public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
     {
         $col = $winner ? '`matches_won`' : '`matches_loss`';
@@ -374,7 +374,7 @@ class players
             {
                 $winrate = 0.0;
             }
-            
+
             $players[] = [
                 'id' => (int)$row['id'],
                 'username' => $row['username'],
@@ -480,11 +480,16 @@ class players
             'WHERE' => 'mp.user_id = u.user_id AND ' . $this->db->sql_in_set('team_id', $team_ids),
             'ORDER_BY' => 'mp.draw_rating DESC',
         ]);
-        
+
         foreach($rows as $r)
         {
             $team_username[(int)$r['team_id']][] = $r['username'];
         }
         return $team_username;
+    }
+
+    public function set_player_language(int $user_id, string $lang): void
+    {
+        db_util::update($this->db, $this->users_table, ['user_lang' => $lang], ['user_id' => $user_id]);
     }
 }

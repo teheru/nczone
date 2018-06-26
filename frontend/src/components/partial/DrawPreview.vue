@@ -1,6 +1,6 @@
 <template>
-  <div class="nczone-draw-preview nczone-overlay" v-if="drawPreview.visible">
-    <div class="nczone-overlay-panel">
+  <div class="zone-draw-preview zone-overlay" v-if="drawPreview.visible">
+    <div class="zone-overlay-panel">
       <div class="zone-block">
         <div class="zone-title" v-t="'NCZONE_DRAW_PREVIEW'"></div>
         <div class="zone-content">
@@ -26,7 +26,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import {mapGetters} from 'vuex'
 

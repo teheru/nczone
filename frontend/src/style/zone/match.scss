@@ -147,6 +147,15 @@
     color: #fff;
   }
 
+  .zone-match-bets-bet-button {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+
   .zone-match-bets-percentage-bar {
     position: absolute;
     z-index: 1;

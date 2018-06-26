@@ -3,7 +3,7 @@ import VueI18n from 'vue-i18n'
 import App from './App.vue'
 import AppSingle from './AppSingle.vue'
 import lang from './lang'
-import store from './store'
+import createStore from './store'
 import {sync} from 'vuex-router-sync'
 import Router from 'vue-router'
 import RunningMatches from './components/RunningMatches.vue'
@@ -11,32 +11,37 @@ import PastMatches from './components/PastMatches.vue'
 import Players from './components/Players.vue'
 import Settings from './components/Settings.vue'
 import Rules from './components/Rules.vue'
+import * as api from './api'
 
 import './style/zone.scss'
 
 export async function init (settings) {
+  const me = await api.me()
+
   Vue.config.productionTip = false
   Vue.use(VueI18n)
 
-  Vue.config.lang = localStorage.getItem('nczone-lang') || 'en'
-
   const i18n = new VueI18n({
-    locale: Vue.config.lang,
+    locale: me.lang || 'de',
     messages: lang
   })
+
+  const el = typeof settings.target === 'string'
+    ? (document.getElementById(settings.target) || document.querySelector(settings.target))
+    : settings.target
+
+  const store = createStore()
 
   const initSingle = (matchId) => {
     // eslint-disable-next-line no-new
     new Vue({
-      el: typeof settings.target === 'string' ? document.getElementById(settings.target) : settings.target,
+      el,
       i18n,
       store,
       render: h => h(AppSingle)
     })
 
-    store.dispatch('init', {
-      matchId
-    })
+    store.dispatch('init', {me, i18n, matchId})
   }
 
   const initZone = () => {
@@ -75,13 +80,13 @@ export async function init (settings) {
 
     // eslint-disable-next-line no-new
     new Vue({
-      el: typeof settings.target === 'string' ? document.getElementById(settings.target) : settings.target,
+      el,
       i18n,
       router,
       store,
       render: h => h(App)
     })
-    store.dispatch('init')
+    store.dispatch('init', {me, i18n})
   }
 
   if (typeof settings.matchId === 'undefined') {

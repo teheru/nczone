@@ -3,6 +3,7 @@
 
     <div class="zone-match-bets">
       <div class="zone-match-bets-percentage">
+        <a v-if="canBet" @click="bet" class="zone-match-bets-bet-button"></a>
         <div class="zone-match-bets-percentage-number">{{ perc }}%</div>
         <div class="zone-match-bets-percentage-bar" :style="`height: ${perc}%`"></div>
       </div>
@@ -42,10 +43,15 @@ export default {
       required: true
     }
   },
+  methods: {
+    bet () {
+      this.$store.dispatch('bet', {matchId: this.match.id, team: this.team})
+    }
+  },
   computed: {
-    canManage () {
-      return this.match.players.team1.map(p => p.id).includes(this.me.id) ||
-        this.match.players.team2.map(p => p.id).includes(this.me.id)
+    canBet () {
+      return !this.match.bets.team1.map(p => p.user.id).includes(this.me.id) &&
+        !this.match.bets.team2.map(p => p.user.id).includes(this.me.id)
     },
     perc () {
       const betCount = this.match.bets.team1.length + this.match.bets.team2.length
