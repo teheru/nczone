@@ -845,34 +845,6 @@ class matches {
         return $teams;
     }
 
-    public function bet(int $user_id, int $match_id, int $team): void
-    {
-        $team_ids = $this->get_match_team_ids($match_id);
-        db_util::insert($this->db, $this->bets_table, [
-            'user_id' => $user_id,
-            'time' => time(),
-            'team_id' => $team_ids[$team - 1],
-        ]);
-    }
-
-    public function has_bet(int $user_id, int $match_id): bool
-    {
-        $sql = '
-            SELECT
-                COUNT(*)
-            FROM
-                ' . $this->bets_table . ' b
-                INNER JOIN ' . $this->match_teams_table . ' t 
-                ON b.team_id = t.team_id
-                INNER JOIN ' . $this->matches_table . ' m 
-                ON m.match_id = t.match_id AND m.match_id = ' . $match_id . ' 
-            WHERE
-                b.user_id = ' . $user_id . '
-            ;
-        ';
-        return (int)db_util::get_var($this->db, $sql);
-    }
-
     public function is_over(int $match_id): bool
     {
         $sql = '

@@ -44,6 +44,10 @@ class players
     private $player_civ_table;
     /** @var string */
     private $bets_table;
+    /** @var string */
+    private $match_teams_table;
+    /** @var string */
+    private $matches_table;
 
     /**
      * nC Zone players management class.
@@ -60,11 +64,13 @@ class players
      * @param string $player_map_table
      * @param string $player_civ_table
      * @param string $bets_table
+     * @param string $match_teams_table
+     * @param string $matches_table
      */
     public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
                                 string $users_table, string $dreamteams_table, string $match_players_table, string $match_player_civs_table,
                                 string $maps_table, string $civs_table, string $map_civs_table, string $player_map_table,
-                                string $player_civ_table, string $bets_table)
+                                string $player_civ_table, string $bets_table, string $match_teams_table, string $matches_table)
     {
         $this->db = $db;
         $this->user = $user;
@@ -79,6 +85,8 @@ class players
         $this->player_map_table = $player_map_table;
         $this->player_civ_table = $player_civ_table;
         $this->bets_table = $bets_table;
+        $this->match_teams_table = $match_teams_table;
+        $this->matches_table = $matches_table;
     }
 
     public static function sort_by_ratings(array $players): array
@@ -249,28 +257,33 @@ class players
         db_util::update($this->db, $this->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
     }
 
-    public function place_bet(int $user_id, int $match_id, int $team_id): void
+    public function place_bet(int $user_id, int $match_id, int $team): void
     {
-        [$team1_id, $team2_id] = zone_util::matches()->get_match_team_ids($match_id);
-        if($team_id === $team1_id || $team_id === $team2_id)
-        {
-            $num_bets = (int)db_util::get_var($this->db, [
-                'SELECT' => 'COUNT(*)',
-                'FROM' => [$this->bets_table => 't'],
-                'WHERE' => 'user_id = ' . $user_id . ' AND (team_id = ' . $team1_id . ' OR team_id = ' . $team2_id . ')'
-            ]);
-
-            if($num_bets === 0)
-            {
-                db_util::insert($this->db, $this->bets_table, [
-                    'user_id' => $user_id,
-                    'team_id' => $team_id,
-                    'time' => time(),
-                ]);
-            }
-        }
+        $team_ids = zone_util::matches()->get_match_team_ids($match_id);
+        db_util::insert($this->db, $this->bets_table, [
+            'user_id' => $user_id,
+            'time' => time(),
+            'team_id' => $team_ids[$team - 1],
+        ]);
     }
 
+    public function has_bet(int $user_id, int $match_id): bool
+    {
+        $sql = '
+            SELECT
+                COUNT(*)
+            FROM
+                ' . $this->bets_table . ' b
+                INNER JOIN ' . $this->match_teams_table . ' t 
+                ON b.team_id = t.team_id
+                INNER JOIN ' . $this->matches_table . ' m 
+                ON m.match_id = t.match_id AND m.match_id = ' . $match_id . ' 
+            WHERE
+                b.user_id = ' . $user_id . '
+            ;
+        ';
+        return (int)db_util::get_var($this->db, $sql);
+    }
 
     public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
     {

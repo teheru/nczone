@@ -69,6 +69,8 @@ services:
         - '%tables.eru.nczone.player_map%'
         - '%tables.eru.nczone.player_civ%'
         - '%tables.eru.nczone.bets%'
+        - '%tables.eru.nczone.match_teams%'
+        - '%tables.eru.nczone.matches%'
 
     eru.nczone.zone.matches:
       class: eru\nczone\zone\matches
