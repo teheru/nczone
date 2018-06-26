@@ -431,14 +431,18 @@ class matches {
 
     public function get_match_team_ids(int $match_id): array
     {
-        // todo: should order by team_id, because there is no guarantee that they are always returned in insert order
-        $team_rows = db_util::get_rows($this->db, [
-            'SELECT' => 't.team_id AS team_id',
+        $col = db_util::get_col($this->db, [
+            'SELECT' => 't.team_id',
             'FROM' => [$this->match_teams_table => 't'],
             'WHERE' => 't.match_id = ' . $match_id,
+            'ORDER_BY' => 't.match_team ASC',
         ]);
-        // todo: check if these teams exists and do something if not
-        return [(int)$team_rows[0]['team_id'], (int)$team_rows[1]['team_id']];
+        if(!$col)
+        {
+            return [];
+        }
+
+        return array_map(function($a) { return (int)$a; }, $col);
     }
 
     public function get_teams_players(int ...$team_ids): array
@@ -557,8 +561,8 @@ class matches {
             'forum_topic_id' => 0,
         ]);
 
-        $team1_id = $this->insert_new_match_team($match_id);
-        $team2_id = $this->insert_new_match_team($match_id);
+        $team1_id = $this->insert_new_match_team($match_id, 1);
+        $team2_id = $this->insert_new_match_team($match_id, 2);
 
         $team_data = [];
         foreach($team1 as $player)
@@ -641,11 +645,12 @@ class matches {
         return $match_id;
     }
 
-    private function insert_new_match_team(int $match_id): int
+    private function insert_new_match_team(int $match_id, int $match_team): int
     {
         return (int)db_util::insert($this->db, $this->match_teams_table, [
             'team_id' => 0,
             'match_id' => $match_id,
+            'match_team' => $match_team,
         ]);
     }
 

@@ -55,7 +55,8 @@ class install_db_create extends \phpbb\db\migration\migration
 				$this->table_prefix . 'zone_match_teams' => array(
 					'COLUMNS' => array(
 						'team_id' => array('UINT', null, 'auto_increment'),
-						'match_id' => array('UINT', 0)
+						'match_id' => array('UINT', 0),
+						'match_team' => array('UINT:2', 0),
 					),
 					'PRIMARY_KEY' => 'team_id',
 					'KEYS' => array(
