@@ -4,7 +4,7 @@
       <div class="zone-title" v-t="'NCZONE_LOGGEDIN'"></div>
       <div class="zone-content">
         <div v-if="players.length === 0" class="zone-user-table-no-login">
-          <span v-if="'NCZONE_NO_LOGIN'"></span>
+          <span v-t="'NCZONE_NO_LOGIN'"></span>
         </div>
         <div v-else="" class="zone-user-table">
           <nczone-player-login-row v-for="(player, idx) in players" :key="idx" :idx="idx" :player="player"></nczone-player-login-row>

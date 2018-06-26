@@ -1,10 +1,10 @@
-$base_color: #0076b1;
+$base_color: #333333;
 $base_light_color: lighten($base_color, 85);
 
-$border_light_color: #ccc;
+$border_light_color: $base_color;
 
 $input_bg: $base_color;
-$input_bg_disabled: #d0d0d0;
+$input_bg_disabled: rgba(0, 0, 0, .0);
 $input_fg: $base_light_color;
 $input_fg_disabled: #000;
 $overlay_bg: rgba(255, 255, 255, .8);

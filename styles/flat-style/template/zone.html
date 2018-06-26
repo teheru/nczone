@@ -1,0 +1,22 @@
+{{ include('overall_header.html') }}
+
+<div id="nczone"></div>
+<script>
+
+
+function ready(fn) {
+  if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading"){
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
+ready(function() {
+  nczone.init({
+    target: 'nczone'
+  })
+})
+
+</script>
+
+{{ include('overall_footer.html') }}
