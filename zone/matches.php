@@ -378,6 +378,7 @@ class matches {
 
         [$end_time, $winner_team_id] = [(int)$row['post_time'], (int)$row['winner_team_id']];
         [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $match_players = $this->get_teams_players($team1_id, $team2_id);
         $match_size = \count($match_players) / 2;
         $match_points = $this->get_match_points($match_size);
 
@@ -387,7 +388,7 @@ class matches {
             zone_util::players()->match_changes_undo($user_id, $team_id, $match_points, $team_id === $winner_team_id);
         }
 
-        $this->evaluate_bets_undo($winner == 1 ? $team1_id : $team2_id, $winner == 1 ? $team2_id : $team1_id, $end_time);
+        $this->evaluate_bets_undo($winner_team_id == $team1_id ? $team1_id : $team2_id, $winner_team_id == $team2_id ? $team2_id : $team1_id, $end_time);
 
         db_util::update($this->db, $this->matches_table, [
             'post_user_id' => 0,
