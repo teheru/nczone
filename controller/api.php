@@ -8,6 +8,7 @@ use phpbb\auth\auth;
 use phpbb\config\config;
 use phpbb\request\request_interface;
 use phpbb\user;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class api
@@ -416,6 +417,11 @@ class api
         $misc = zone_util::misc();
         $post_ids = $misc->get_information_ids();
         return $this->jsonResponse($misc->get_posts(...$post_ids));
+    }
+
+    public function rules(): Response
+    {
+        return new Response(end(zone_util::misc()->get_posts((int)(phpbb_util::config()['nczone_rules_post_id']))));
     }
 
     private static function get_request_data(): array

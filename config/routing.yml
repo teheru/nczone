@@ -67,3 +67,7 @@ eru_nczone_controller__api__draw_confirm:
 eru_nczone_controller__api__information:
     path: /nczone/api/information
     defaults: { _controller: eru.nczone.controller.api:information }
+
+eru_nczone_controller__api__rules:
+    path: /nczone/api/rules
+    defaults: { _controller: eru.nczone.controller.api:rules }

@@ -48,11 +48,7 @@ class misc
         $posts = [];
         foreach($rows as $r)
         {
-            $post_id = (int)$r['post_id'];
-            $posts[$post_id] = [
-                'number' => $numbers[$post_id],
-                'info' => generate_text_for_display($r['post_text'], $r['bbcode_uid'], $r['bbcode_bitfield'], ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true)
-            ];
+            $posts[(int)$r['post_id']] = generate_text_for_display($r['post_text'], $r['bbcode_uid'], $r['bbcode_bitfield'], ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true);
         }
 
         return $posts;
