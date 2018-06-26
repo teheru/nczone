@@ -110,6 +110,8 @@ class matches {
             return [];
         }
 
+        $this->db->sql_transaction('begin');
+
         $matches = zone_util::draw_teams()->make_matches($draw_players);
         foreach ($matches as $match) {
             [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids]
@@ -123,6 +125,8 @@ class matches {
         }
 
         zone_util::players()->logout_players($user_ids);
+
+        $this->db->sql_transaction('commit');
 
         return $match_ids;
     }
@@ -227,7 +231,7 @@ class matches {
 
     public function post(int $match_id, int $post_user_id, int $winner, int $topic_id=0): void
     {
-        // todo: lock tables
+        $this->db->sql_transaction('begin');
 
         $already_posted = (int)db_util::get_var($this->db, [
             'SELECT' => 't.post_user_id',
@@ -236,6 +240,7 @@ class matches {
         ]);
         if($already_posted)
         {
+            $this->db->sql_transaction('commit');
             return;
         }
 
@@ -335,6 +340,8 @@ class matches {
         ], [
             'match_id' => $match_id
         ]);
+
+        $this->db->sql_transaction('commit');
     }
 
     protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner)
@@ -875,18 +882,17 @@ class matches {
 
     public function start_draw_process(int $user_id): array
     {
-        $this->db->sql_query('LOCK TABLES `' . $this->draw_process_table . '` WRITE, `' . $this->draw_process_table . '` AS `t` WRITE, `' . $this->draw_players_table . '` WRITE, `'. $this->players_table .'` AS `p` READ, `'. $this->users_table .'` AS `u` READ');
-
+        $this->db->sql_transaction('begin');
         if($this->check_draw_process())
         {
-            $this->db->sql_query('UNLOCK TABLES');
+            $this->db->sql_transaction('commit');
             return [];
         }
 
         $logged_in = zone_util::players()->get_logged_in();
         if(\count($logged_in) < 2)
         {
-            $this->db->sql_query('UNLOCK TABLES');
+            $this->db->sql_transaction('commit');
             return [];
         }
 
@@ -907,13 +913,13 @@ class matches {
         }
         $this->db->sql_multi_insert($this->draw_players_table, $sql_array);
 
-        $this->db->sql_query('UNLOCK TABLES');
+        $this->db->sql_transaction('commit');
         return $logged_in;
     }
 
     public function confirm_draw_process(int $user_id): array
     {
-        $this->db->sql_query('LOCK TABLES `' . $this->draw_process_table . '` WRITE, `' . $this->draw_process_table . '` AS `t` WRITE, `' . $this->draw_players_table . '` WRITE, `' . $this->draw_players_table . '` AS `d` READ, `'. $this->players_table .'` AS `p` READ, `'. $this->users_table .'` AS `u` READ');
+        $this->db->sql_transaction('begin');
 
         $draw_id = $this->check_draw_process($user_id);
         if(!$draw_id)
@@ -926,14 +932,14 @@ class matches {
 
         $this->db->sql_query('TRUNCATE `' . $this->draw_process_table . '`');
         $this->db->sql_query('TRUNCATE `' . $this->draw_players_table . '`');
-        $this->db->sql_query('UNLOCK TABLES');
+        $this->db->sql_transaction('commit');
 
         return $draw_players;
     }
 
     public function deny_draw_process(int $user_id): void
     {
-        $this->db->sql_query('LOCK TABLES `' . $this->draw_process_table . '` WRITE, `' . $this->draw_process_table . '` AS `t` WRITE, `' . $this->draw_players_table . '` WRITE');
+        $this->db->sql_transaction('begin');
 
         if($this->check_draw_process($user_id))
         {
@@ -941,6 +947,6 @@ class matches {
             $this->db->sql_query('TRUNCATE `' . $this->draw_players_table . '`');
         }
 
-        $this->db->sql_query('UNLOCK TABLES');
+        $this->db->sql_transaction('commit');
     }
 }
