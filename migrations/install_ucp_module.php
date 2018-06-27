@@ -33,19 +33,19 @@ class install_ucp_module extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
-			array('module.add', array(
-				'ucp',
-				0,
-				'UCP_DEMO_TITLE'
-			)),
-			array('module.add', array(
-				'ucp',
-				'UCP_DEMO_TITLE',
-				array(
-					'module_basename'	=> '\eru\nczone\ucp\main_module',
-					'modes'				=> array('settings'),
-				),
-			)),
+			// array('module.add', array(
+			// 	'ucp',
+			// 	0,
+			// 	'UCP_DEMO_TITLE'
+			// )),
+			// array('module.add', array(
+			// 	'ucp',
+			// 	'UCP_DEMO_TITLE',
+			// 	array(
+			// 		'module_basename'	=> '\eru\nczone\ucp\main_module',
+			// 		'modes'				=> array('settings'),
+			// 	),
+			// )),
 		);
 	}
 }

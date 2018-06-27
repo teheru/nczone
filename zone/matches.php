@@ -690,7 +690,7 @@ class matches {
 
     public function get_pmatches(int $page=0): array
     {
-        $page_size = 10; // todo: ACP var
+        $page_size = (int)phpbb_util::config()['nczone_pmatches_page_size'];
 
         $sql = '
             SELECT 
@@ -729,7 +729,7 @@ class matches {
 
     public function get_pmatches_pages(): int
     {
-        $page_size = 10; // todo: ACP var
+        $page_size = (int)phpbb_util::config()['nczone_pmatches_page_size'];
         $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE t.post_time > 0');
         return (int)ceil($num_matches / $page_size);
     }
@@ -886,7 +886,7 @@ class matches {
             return 0;
         }
 
-        if($draw_process_time && time() - $draw_process_time > 60)
+        if($draw_process_time && time() - $draw_process_time > phpbb_util::config()['nczone_draw_time'])
         {
             $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
             $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
