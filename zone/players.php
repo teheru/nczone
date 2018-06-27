@@ -14,6 +14,7 @@ namespace eru\nczone\zone;
 use eru\nczone\utility\db;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
+use eru\nczone\utility\phpbb_util;
 
 class players
 {
@@ -488,19 +489,19 @@ class players
                     user_id,
                     COUNT(*) AS activity_matches
                 FROM
-                    ' . $this->db->zone_match_players_table . '
+                    ' . $this->db->match_players_table . '
                 WHERE
                     team_id IN (
                         SELECT
                             team_id
                         FROM
-                            ' . $this->db->zone_match_teamss_table . '
+                            ' . $this->db->match_teams_table . '
                         WHERE
                             match_id IN (
                                 SELECT
                                     match_id
                                 FROM
-                                    ' . $this->db->zone_matches . '
+                                    ' . $this->db->matches_table . '
                                 WHERE
                                     post_time > ' . time() . ' - ' . phpbb_util::config()['nczone_activity_time'] . '*60*60*24
                             )

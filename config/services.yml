@@ -30,12 +30,11 @@ services:
         tags:
             - { name: event.listener }
 
-    eru.nczone.cron.task.demo:
-        class: eru\nczone\cron\task\demo
+    eru.nczone.cron.task.activity:
+        class: eru\nczone\cron\task\activity
         arguments:
-            - '@config'
         calls:
-            - [set_name, [cron.task.demo]]
+            - [set_name, [cron.task.activity]]
         tags:
             - { name: cron.task }
 
