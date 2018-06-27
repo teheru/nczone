@@ -29,7 +29,8 @@ class install_db_create extends \phpbb\db\migration\migration
 						'matches_won' => array('UINT', 0),
 						'matches_loss' => array('UINT', 0),
 						'bets_won' => array('UINT', 0),
-						'bets_loss' => array('UINT', 0)
+						'bets_loss' => array('UINT', 0),
+						'activity' => array('UINT:3', 0),
 					),
 					'PRIMARY_KEY' => 'user_id'
 				),
