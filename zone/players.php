@@ -11,74 +11,27 @@
 
 namespace eru\nczone\zone;
 
-use eru\nczone\utility\db_util;
+use eru\nczone\utility\db;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
-use phpbb\db\driver\driver_interface;
 
 class players
 {
-    /** @var driver_interface */
-    private $db;
     /** @var \phpbb\user */
     private $user;
-    /** @var string */
-    private $players_table;
-    /** @var string */
-    private $users_table;
-    /** @var string */
-    private $dreamteams_table;
-    /** @var string */
-    private $match_players_table;
-    /** @var string */
-    private $match_player_civs_table;
-    /** @var string */
-    private $maps_table;
-    /** @var string */
-    private $civs_table;
-    /** @var string */
-    private $map_civs_table;
-    /** @var string */
-    private $player_map_table;
-    /** @var string */
-    private $player_civ_table;
-    /** @var string */
-    private $bets_table;
+    /** @var db */
+    private $db;
 
     /**
      * nC Zone players management class.
-     * @param driver_interface $db
+     *
      * @param \phpbb\user $user
-     * @param string $players_table
-     * @param string $users_table
-     * @param string $dreamteams_table
-     * @param string $match_players_table
-     * @param string $match_player_civs_table
-     * @param string $maps_table
-     * @param string $civs_table
-     * @param string $map_civs_table
-     * @param string $player_map_table
-     * @param string $player_civ_table
-     * @param string $bets_table
+     * @param db $db
      */
-    public function __construct(driver_interface $db, \phpbb\user $user, string $players_table,
-                                string $users_table, string $dreamteams_table, string $match_players_table, string $match_player_civs_table,
-                                string $maps_table, string $civs_table, string $map_civs_table, string $player_map_table,
-                                string $player_civ_table, string $bets_table)
+    public function __construct(\phpbb\user $user, db $db)
     {
-        $this->db = $db;
         $this->user = $user;
-        $this->players_table = $players_table;
-        $this->users_table = $users_table;
-        $this->dreamteams_table = $dreamteams_table;
-        $this->match_players_table = $match_players_table;
-        $this->match_player_civs_table = $match_player_civs_table;
-        $this->maps_table = $maps_table;
-        $this->civs_table = $civs_table;
-        $this->map_civs_table = $map_civs_table;
-        $this->player_map_table = $player_map_table;
-        $this->player_civ_table = $player_civ_table;
-        $this->bets_table = $bets_table;
+        $this->db = $db;
     }
 
     public static function sort_by_ratings(array $players): array
@@ -131,15 +84,15 @@ class players
      */
     public function get_player(int $user_id): array
     {
-        $playerRow = db_util::get_row($this->db, [
+        $playerRow = $this->db->get_row([
             'SELECT' => 'p.user_id AS id, p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss, p.bets_won AS bets_won, p.bets_loss AS bets_loss',
-            'FROM' => [$this->players_table => 'p'],
+            'FROM' => [$this->db->players_table => 'p'],
             'WHERE' => 'p.user_id = ' . $user_id
         ]) ?: [];
 
-        $userRow = db_util::get_row($this->db, [
+        $userRow = $this->db->get_row([
             'SELECT' => 'u.username AS username',
-            'FROM' => [$this->users_table => 'u'],
+            'FROM' => [$this->db->users_table => 'u'],
             'WHERE' => 'u.user_id = ' . $user_id,
         ]) ?: [];
         return array_merge($playerRow, $userRow);
@@ -148,43 +101,56 @@ class players
     /**
      * Creates an entry for an user for the zone
      *
-     * @param int    $user_id    Id of the user
-     * @param int    $rating     Start rating for the user
+     * @param int $user_id Id of the user
+     * @param int $rating Start rating for the user
      *
      * @return bool
+     * @throws \Throwable
      */
     public function activate_player(int $user_id, int $rating): bool
     {
-        $this->db->sql_transaction('begin');
+        return $this->db->run_txn(function () use ($user_id, $rating) {
+            $count = (int)$this->db->get_var([
+                'SELECT' => 'COUNT(*) AS n',
+                'FROM' => [$this->db->players_table => 'u'],
+                'WHERE' => 'u.user_id = ' . $user_id,
+            ]);
+            if ($count > 0) {
+                return false;
+            }
 
-        $count = (int)db_util::get_var($this->db, [
-            'SELECT' => 'COUNT(*) AS n',
-            'FROM' => [$this->players_table => 'u'],
-            'WHERE' => 'u.user_id = ' . $user_id,
-        ]);
-        if ($count > 0) {
-            return false;
-        }
+            $this->db->insert($this->db->players_table, [
+                'user_id' => $user_id,
+                'rating' => $rating,
+                'logged_in' => 0,
+                'matches_won' => 0,
+                'matches_loss' => 0,
+                'bets_won' => 0,
+                'bets_loss' => 0
+            ]);
 
-        db_util::insert($this->db, $this->players_table, [
-            'user_id' => $user_id,
-            'rating' => $rating,
-            'logged_in' => 0,
-            'matches_won' => 0,
-            'matches_loss' => 0,
-            'bets_won' => 0,
-            'bets_loss' => 0
-        ]);
+            $this->db->sql_query(
+                'INSERT INTO `' . $this->db->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) ' .
+                'SELECT `user_id`, ' . $user_id . ', 0, 0 FROM `' . $this->db->players_table . '` WHERE `user_id` < ' . $user_id
+            );
 
-        $this->db->sql_query('INSERT INTO `' . $this->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) SELECT `user_id`, ' . $user_id . ', 0, 0 FROM `' . $this->players_table . '` WHERE `user_id` < ' . $user_id);
-        $this->db->sql_query('INSERT INTO `' . $this->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) SELECT ' . $user_id . ', `user_id`, 0, 0 FROM `' . $this->players_table . '` WHERE `user_id` > ' . $user_id);
+            $this->db->sql_query(
+                'INSERT INTO `' . $this->db->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) ' .
+                'SELECT ' . $user_id . ', `user_id`, 0, 0 FROM `' . $this->db->players_table . '` WHERE `user_id` > ' . $user_id
+            );
 
-        $this->db->sql_query('INSERT INTO `'. $this->player_map_table .'` (`user_id`, `map_id`, `time`) SELECT "' . $user_id . '", map_id, "'. time() .'" FROM `' . $this->maps_table . '`');
-        $this->db->sql_query('INSERT INTO `'. $this->player_civ_table .'` (`user_id`, `civ_id`, `time`) SELECT "' . $user_id . '", civ_id, "'. time() .'" FROM `' . $this->civs_table . '`');
+            $this->db->sql_query(
+                'INSERT INTO `' . $this->db->player_map_table . '` (`user_id`, `map_id`, `time`) ' .
+                'SELECT "' . $user_id . '", map_id, "' . time() . '" FROM `' . $this->db->maps_table . '`'
+            );
 
-        $this->db->sql_transaction('commit');
+            $this->db->sql_query(
+                'INSERT INTO `' . $this->db->player_civ_table . '` (`user_id`, `civ_id`, `time`) ' .
+                'SELECT "' . $user_id . '", civ_id, "' . time() . '" FROM `' . $this->db->civs_table . '`'
+            );
 
-        return true;
+            return true;
+        });
     }
 
     /**
@@ -217,7 +183,7 @@ class players
             $sql_array['bets_loss'] = (int)$player_info['bets_loss'];
         }
 
-        db_util::update($this->db, $this->players_table, $sql_array, ['user_id' => $user_id]);
+        $this->db->update($this->db->players_table, $sql_array, ['user_id' => $user_id]);
     }
 
     /**
@@ -235,7 +201,7 @@ class players
     /**
      * Logouts a player
      *
-     * @param int    $user_id    Id of the user
+     * @param int $user_id Id of the user
      *
      * @return void
      */
@@ -246,77 +212,93 @@ class players
 
     public function logout_players(int ...$user_ids): void
     {
-        db_util::update($this->db, $this->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
+        $this->db->update($this->db->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
     }
 
-    public function place_bet(int $user_id, int $match_id, int $team_id): void
+    public function place_bet(int $user_id, int $match_id, int $team): void
     {
-        [$team1_id, $team2_id] = zone_util::matches()->get_match_team_ids($match_id);
-        if($team_id === $team1_id || $team_id === $team2_id)
-        {
-            $num_bets = (int)db_util::get_var($this->db, [
-                'SELECT' => 'COUNT(*)',
-                'FROM' => [$this->bets_table => 't'],
-                'WHERE' => 'user_id = ' . $user_id . ' AND (team_id = ' . $team1_id . ' OR team_id = ' . $team2_id . ')'
-            ]);
-
-            if($num_bets === 0)
-            {
-                db_util::insert($this->db, $this->bets_table, [
-                    'user_id' => $user_id,
-                    'team_id' => $team_id,
-                    'time' => time(),
-                ]);
-            }
-        }
+        $team_ids = zone_util::matches()->get_match_team_ids($match_id);
+        $this->db->insert($this->db->bets_table, [
+            'user_id' => $user_id,
+            'time' => time(),
+            'team_id' => $team_ids[$team - 1],
+        ]);
     }
 
+    public function has_bet(int $user_id, int $match_id): bool
+    {
+        $sql = '
+            SELECT
+                COUNT(*)
+            FROM
+                ' . $this->db->bets_table . ' b
+                INNER JOIN ' . $this->db->match_teams_table . ' t 
+                ON b.team_id = t.team_id
+                INNER JOIN ' . $this->db->matches_table . ' m 
+                ON m.match_id = t.match_id AND m.match_id = ' . $match_id . ' 
+            WHERE
+                b.user_id = ' . $user_id . '
+            ;
+        ';
+        return (int)$this->db->get_var($sql);
+    }
 
     public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
     {
         $col = $winner ? '`matches_won`' : '`matches_loss`';
 
-        $last_streak = $this->last_streak($user_id);
-        $new_streak = $winner ? (($last_streak > 0) ? ($last_streak + 1) : 1) : (($last_streak > 0) ? -1 : ($last_streak - 1));
-
-        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($winner ? 1 : -1) * $match_points) . ', ' . $col . ' = ' . $col . ' + 1 WHERE `user_id` = ' . $user_id);
-        db_util::update($this->db, $this->match_players_table, ['rating_change' => ($winner ? 1 : -1) * $match_points, 'streak' => $new_streak], ['user_id' => $user_id, 'team_id' => $team_id]);
+        $this->db->sql_query('UPDATE `' . $this->db->players_table . '` SET `rating` = `rating` + ' . (($winner ? 1 : -1) * $match_points) . ', ' . $col . ' = ' . $col . ' + 1 WHERE `user_id` = ' . $user_id);
+        $this->db->update($this->db->match_players_table, [
+            'rating_change' => ($winner ? 1 : -1) * $match_points,
+            'streak' => self::calculate_new_streak($winner, $this->last_streak($user_id)),
+        ], [
+            'user_id' => $user_id,
+            'team_id' => $team_id,
+        ]);
     }
-
 
     public function match_changes_undo(int $user_id, int $team_id, int $match_points, bool $winner): void
     {
         $col = $winner ? '`matches_won`' : '`matches_loss`';
 
-        $this->db->sql_query('UPDATE `' . $this->players_table . '` SET `rating` = `rating` + ' . (($winner ? -1 : 1) * $match_points) . ', ' . $col . ' = ' . $col . ' - 1 WHERE `user_id` = ' . $user_id);
-        db_util::update($this->db, $this->match_players_table, ['rating_change' => 0, 'streak' => 0], ['user_id' => $user_id, 'team_id' => $team_id]);
+        $this->db->sql_query('UPDATE `' . $this->db->players_table . '` SET `rating` = `rating` + ' . (($winner ? -1 : 1) * $match_points) . ', ' . $col . ' = ' . $col . ' - 1 WHERE `user_id` = ' . $user_id);
+        $this->db->update($this->db->match_players_table, [
+            'rating_change' => 0,
+            'streak' => 0,
+        ], [
+            'user_id' => $user_id,
+            'team_id' => $team_id,
+        ]);
     }
 
-
-    public function fix_streaks(int $user_id, int $match_id)
+    public function fix_streaks(int $user_id, int $match_id): void
     {
         $team_id = min(zone_util::matches()->get_match_team_ids($match_id));
 
-        $last_streak = (int)db_util::get_var($this->db, [
+        $last_streak = (int)$this->db->get_var([
             'SELECT' => 't.streak',
-            'FROM' => [$this->match_players_table => 't'],
+            'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id < ' . $team_id,
             'ORDER_BY' => 't.team_id DESC'
         ]);
 
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 't.team_id, t.rating_change',
-            'FROM' => [$this->match_players_table => 't'],
+            'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id >= ' . $team_id,
             'ORDER_BY' => 't.team_id ASC'
         ]);
 
-        foreach($rows as $r)
-        {
+        foreach ($rows as $r) {
             $won = (int)$r['rating_change'] > 0;
 
-            $new_streak = $won ? (($last_streak > 0) ? ($last_streak + 1) : 1) : (($last_streak > 0) ? -1 : ($last_streak - 1));
-            db_util::update($this->db, $this->match_players_table, ['streak' => $new_streak], ['user_id' => $user_id, 'team_id' => $r['team_id']]);
+            $new_streak = self::calculate_new_streak($won, $last_streak);
+            $this->db->update($this->db->match_players_table, [
+                'streak' => $new_streak,
+            ], [
+                'user_id' => $user_id,
+                'team_id' => $r['team_id'],
+            ]);
             $last_streak = $new_streak;
         }
     }
@@ -328,9 +310,9 @@ class players
      */
     public function get_logged_in(): array
     {
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in',
-            'FROM' => [$this->players_table => 'p', $this->users_table => 'u'],
+            'FROM' => [$this->db->players_table => 'p', $this->db->users_table => 'u'],
             'WHERE' => 'logged_in > 0 AND p.user_id = u.user_id',
             'ORDER_BY' => 'logged_in ASC'
         ]);
@@ -351,9 +333,9 @@ class players
      */
     public function get_all(): array
     {
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in, p.matches_won, p.matches_loss',
-            'FROM' => [$this->players_table => 'p', $this->users_table => 'u'],
+            'FROM' => [$this->db->players_table => 'p', $this->db->users_table => 'u'],
             'WHERE' => 'p.user_id = u.user_id',
             'ORDER_BY' => 'username ASC'
         ]);
@@ -361,30 +343,14 @@ class players
         $players = [];
         foreach($rows as $row)
         {
-            $mp = db_util::get_row($this->db, [
+            $mp = $this->db->get_row([
                 'SELECT' => 't.rating_change, t.streak',
-                'FROM' => [$this->match_players_table => 't'],
+                'FROM' => [$this->db->match_players_table => 't'],
                 'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $row['id'],
                 'ORDER_BY' => 't.team_id DESC',
             ]);
-            $rating_change = 0;
-            $streak = 0;
-            if($mp)
-            {
-                $rating_change = (int)$mp['rating_change'];
-                $streak = (int)$mp['streak'];
-            }
-
             [$wins, $losses] = [(int)$row['matches_won'], (int)$row['matches_loss']];
             $games = $wins + $losses;
-            if($games > 0)
-            {
-                $winrate = $wins / $games * 100;
-            }
-            else
-            {
-                $winrate = 0.0;
-            }
 
             $players[] = [
                 'id' => (int)$row['id'],
@@ -394,9 +360,9 @@ class players
                 'games' => $games,
                 'wins' => $wins,
                 'losses' => $losses,
-                'winrate' => $winrate,
-                'ratingchange' => $rating_change,
-                'streak' => $streak,
+                'winrate' => $games <= 0 ? 0.0 : ($wins / $games * 100),
+                'ratingchange' => $mp ? (int)$mp['rating_change'] : 0,
+                'streak' => $mp ? (int)$mp['streak'] : 0,
             ];
         }
         return $players;
@@ -404,7 +370,7 @@ class players
 
     public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array
     {
-        $player_rows = db_util::get_rows($this->db, '
+        $player_rows = $this->db->get_rows('
             SELECT 
                 mp.user_id as id, 
                 mp.team_id,
@@ -415,11 +381,11 @@ class players
                 c.civ_name,
                 mc.multiplier
             FROM 
-                ' . $this->match_players_table . ' mp
-                INNER JOIN ' . $this->users_table . ' u ON u.user_id = mp.user_id
-                LEFT JOIN ' . $this->match_player_civs_table . ' pc ON pc.user_id = mp.user_id AND pc.match_id = ' . $match_id . '
-                LEFT JOIN ' . $this->civs_table . ' c ON c.civ_id = pc.civ_id
-                LEFT JOIN ' . $this->map_civs_table . ' mc ON mc.map_id = ' . $map_id . ' AND mc.civ_id = c.civ_id
+                ' . $this->db->match_players_table . ' mp
+                INNER JOIN ' . $this->db->users_table . ' u ON u.user_id = mp.user_id
+                LEFT JOIN ' . $this->db->match_player_civs_table . ' pc ON pc.user_id = mp.user_id AND pc.match_id = ' . $match_id . '
+                LEFT JOIN ' . $this->db->civs_table . ' c ON c.civ_id = pc.civ_id
+                LEFT JOIN ' . $this->db->map_civs_table . ' mc ON mc.map_id = ' . $map_id . ' AND mc.civ_id = c.civ_id
             WHERE 
                 mp.team_id IN (' . $team1_id . ', ' . $team2_id . ')
             ORDER BY
@@ -464,9 +430,9 @@ class players
 
     public function last_streak(int $user_id): int
     {
-        return (int)db_util::get_var($this->db, [
+        return (int)$this->db->get_var([
             'SELECT' => 't.streak',
-            'FROM' => [$this->match_players_table => 't'],
+            'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id,
             'ORDER_BY' => 't.team_id DESC',
         ]);
@@ -485,9 +451,9 @@ class players
             $team_usernames[$team_id] = [];
         }
 
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 'mp.team_id, u.username',
-            'FROM' => [$this->match_players_table => 'mp', $this->users_table => 'u'],
+            'FROM' => [$this->db->match_players_table => 'mp', $this->db->users_table => 'u'],
             'WHERE' => 'mp.user_id = u.user_id AND ' . $this->db->sql_in_set('team_id', $team_ids),
             'ORDER_BY' => 'mp.draw_rating DESC',
         ]);
@@ -501,6 +467,14 @@ class players
 
     public function set_player_language(int $user_id, string $lang): void
     {
-        db_util::update($this->db, $this->users_table, ['user_lang' => $lang], ['user_id' => $user_id]);
+        $this->db->update($this->db->users_table, ['user_lang' => $lang], ['user_id' => $user_id]);
+    }
+
+    public static function calculate_new_streak(bool $winner, int $last_streak)
+    {
+        /** @noinspection NestedTernaryOperatorInspection */
+        return $winner
+            ? ($last_streak > 0 ? $last_streak + 1 : 1)
+            : ($last_streak < 0 ? $last_streak - 1 : -1);
     }
 }

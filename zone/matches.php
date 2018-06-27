@@ -11,226 +11,162 @@
 
 namespace eru\nczone\zone;
 
-use eru\nczone\utility\db_util;
+use eru\nczone\utility\db;
 use eru\nczone\utility\zone_util;
 use eru\nczone\utility\phpbb_util;
-use phpbb\db\driver\driver_interface;
 
 /**
  * nC Zone matches management class.
  */
 class matches {
 
-    /** @var driver_interface */
+    /** @var db */
     private $db;
-    /** @var string */
-    private $matches_table;
-    /** @var string */
-    private $match_teams_table;
-    /** @var string */
-    private $dreamteams_table;
-    /** @var string */
-    private $match_players_table;
-    /** @var string */
-    private $match_civs_table;
-    /** @var string */
-    private $team_civs_table;
-    /** @var string */
-    private $match_player_civs_table;
-    /** @var string */
-    private $maps_table;
-    /** @var string */
-    private $civs_table;
-    /** @var string */
-    private $player_map_table;
-    /** @var string */
-    private $map_civs_table;
-    /** @var string */
-    private $player_civ_table;
-    /** @var string */
-    private $bets_table;
-    /** @var string */
-    private $draw_process_table;
-    /** @var string */
-    private $draw_players_table;
-    /** @var string */
-    private $users_table;
 
     /**
      * Constructor
      *
-     * @param driver_interface  $db                       Database object
-     * @param string                             $matches_table            Name of the matches table
-     * @param string                             $match_teams_table        Name of the table for the players of the teams
-     * @param string                             $dreamteams_table        
-     * @param string                             $match_players_table      Name of the table for the teams
-     * @param string                             $match_civs_table         Name of the match civs table
-     * @param string                             $team_civs_table          Name of the team civs table
-     * @param string                             $match_player_civs_table  Name of the player civs table
-     * @param string                             $maps_table               Name of the maps table
-     * @param string                             $civs_table               Name of the civs table
-     * @param string                             $player_map_table         Name of the table with the last time a player played a map
-     * @param string                             $map_civs_table           Name of the table which contains civ information for maps
-     * @param string                             $player_civ_table         Name of the table which contains the last time a player played a civ
-     * @param string                             $bets_table               Name of the bets table
-     * @param string                             $draw_process_table
-     * @param string                             $draw_players_table
-     * @param string                             $players_table
-     * @param string                             $users_table
+     * @param db $db Database object
      */
-    public function __construct(driver_interface $db, string $matches_table, string $match_teams_table, string $dreamteams_table,
-                                string $match_players_table, string $match_civs_table, string $team_civs_table,
-                                string $match_player_civs_table, string $maps_table, string $civs_table, string $player_map_table,
-                                string $map_civs_table, string $player_civ_table, string $draw_process_table, string $draw_players_table,
-                                string $bets_table, string $players_table, string $users_table)
+    public function __construct(db $db)
     {
         $this->db = $db;
-        $this->matches_table = $matches_table;
-        $this->match_teams_table = $match_teams_table;
-        $this->dreamteams_table = $dreamteams_table;
-        $this->match_players_table = $match_players_table;
-        $this->match_civs_table = $match_civs_table;
-        $this->match_player_civs_table = $match_player_civs_table;
-        $this->maps_table = $maps_table;
-        $this->civs_table = $civs_table;
-        $this->map_civs_table = $map_civs_table;
-        $this->team_civs_table = $team_civs_table;
-        $this->player_map_table = $player_map_table;
-        $this->player_civ_table = $player_civ_table;
-        $this->draw_process_table = $draw_process_table;
-        $this->draw_players_table = $draw_players_table;
-        $this->bets_table = $bets_table;
-        $this->players_table = $players_table;
-        $this->users_table = $users_table;
     }
 
+    /**
+     * @param int $draw_user_id
+     * @param array $draw_players
+     * @return array
+     * @throws \Throwable
+     */
     public function draw(int $draw_user_id, array $draw_players): array
     {
-        $match_ids = [];
-        $user_ids = [];
-
-        if(\count($draw_players) < 2) {
+        if (\count($draw_players) < 2) {
             return [];
         }
 
-        $this->db->sql_transaction('begin');
+        return $this->db->run_txn(function () use ($draw_user_id, $draw_players) {
+            $match_ids = [];
+            $user_ids = [];
+            $matches = zone_util::draw_teams()->make_matches($draw_players);
+            foreach ($matches as $match) {
+                [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids]
+                    = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
+                $match_ids[] = $this->create_match($draw_user_id, $match[0], $match[1], $map_id, $match_civ_ids,
+                    $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
 
-        $matches = zone_util::draw_teams()->make_matches($draw_players);
-        foreach ($matches as $match) {
-            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids]
-                = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            $match_ids[] = $this->create_match($draw_user_id, $match[0], $match[1], $map_id, $match_civ_ids,
-                $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
-
-            foreach (array_merge($match[0], $match[1]) as $player) {
-                $user_ids[] = (int)$player['id'];
+                foreach (array_merge($match[0], $match[1]) as $player) {
+                    $user_ids[] = (int)$player['id'];
+                }
             }
-        }
-
-        zone_util::players()->logout_players(...$user_ids);
-
-        $this->db->sql_transaction('commit');
-
-        return $match_ids;
+            zone_util::players()->logout_players(...$user_ids);
+            return $match_ids;
+        });
     }
 
+    /**
+     * @param int $replace_user_id
+     * @param int $match_id
+     * @param int $player1_id
+     * @param int $player2_id
+     * @return int
+     * @throws \Throwable
+     */
     public function replace_player(int $replace_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
-        $this->db->sql_transaction('begin');
+        return $this->db->run_txn(function () use ($replace_user_id, $match_id, $player1_id, $player2_id) {
+            $match_players = $this->get_match_players($match_id);
+            if (array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players)) {
+                unset($match_players[$player1_id]);
+                $draw_players = [];
+                $draw_players[] = zone_util::players()->get_player($player2_id);
+                foreach ($match_players as $user_id => $mp) {
+                    $mp['id'] = (int)$user_id;
+                    $draw_players[] = $mp;
+                }
 
-        $match_players = $this->get_match_players($match_id);
+                $this->clean_match($match_id);
 
-        if(array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players))
-        {
-            unset($match_players[$player1_id]);
-            $draw_players = [];
-            $draw_players[] = zone_util::players()->get_player($player2_id);
-            foreach($match_players as $user_id => $mp)
-            {
-                $mp['id'] = (int)$user_id;
-                $draw_players[] = $mp;
+                [$match] = zone_util::draw_teams()->make_matches($draw_players);
+                [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
+                $match_id = $this->create_match($replace_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+                if ($match_id) {
+                    zone_util::players()->logout_player($player1_id);
+                    return $match_id;
+                }
             }
 
-            $this->clean_match($match_id);
-
-            [$match] = zone_util::draw_teams()->make_matches($draw_players);
-            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            $match_id = $this->create_match($replace_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
-            if($match_id)
-            {
-                zone_util::players()->logout_player($player1_id);
-
-                $this->db->sql_transaction('commit');
-                return $match_id;
-            }
-        }
-
-        $this->db->sql_transaction('commit');
-        return 0;
+            return 0;
+        });
     }
 
+    /**
+     * @param int $add_user_id
+     * @param int $match_id
+     * @param int $player1_id
+     * @param int $player2_id
+     * @return int
+     * @throws \Throwable
+     */
     public function add_pair(int $add_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
-        $this->db->sql_transaction('begin');
+        return $this->db->run_txn(function () use ($add_user_id, $match_id, $player1_id, $player2_id) {
+            $match_players = $this->get_match_players($match_id);
+            if (!array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players) && \count($match_players) < 8) {
+                $draw_players = [];
+                $draw_players[] = zone_util::players()->get_player($player1_id);
+                $draw_players[] = zone_util::players()->get_player($player2_id);
+                foreach ($match_players as $user_id => $mp) {
+                    $mp['id'] = (int)$user_id;
+                    $draw_players[] = $mp;
+                }
 
-        $match_players = $this->get_match_players($match_id);
+                $this->clean_match($match_id);
 
-        if(\count($match_players) < 8 && !array_key_exists($player1_id, $match_players) && !array_key_exists($player2_id, $match_players))
-        {
-            $draw_players = [];
-            $draw_players[] = zone_util::players()->get_player($player1_id);
-            $draw_players[] = zone_util::players()->get_player($player2_id);
-            foreach($match_players as $user_id => $mp)
-            {
-                $mp['id'] = (int)$user_id;
-                $draw_players[] = $mp;
+                [$match] = zone_util::draw_teams()->make_matches($draw_players);
+                [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
+
+                return $this->create_match($add_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
             }
 
-            $this->clean_match($match_id);
-
-            [$match] = zone_util::draw_teams()->make_matches($draw_players);
-            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-
-            $this->db->sql_transaction('commit');
-            return $this->create_match($add_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
-        }
-
-        $this->db->sql_transaction('commit');
-        return 0;
+            return 0;
+        });
     }
 
+    /**
+     * @param int $remove_user_id
+     * @param int $match_id
+     * @param int $player1_id
+     * @param int $player2_id
+     * @return int
+     * @throws \Throwable
+     */
     public function remove_pair(int $remove_user_id, int $match_id, int $player1_id, int $player2_id): int
     {
-        $this->db->sql_transaction('begin');
-        
-        $match_players = $this->get_match_players($match_id);
+        return $this->db->run_txn(function () use ($remove_user_id, $match_id, $player1_id, $player2_id) {
+            $match_players = $this->get_match_players($match_id);
+            if (array_key_exists($player1_id, $match_players) && array_key_exists($player2_id, $match_players) && \count($match_players) > 2) {
+                unset($match_players[$player1_id], $match_players[$player2_id]);
+                $draw_players = [];
+                foreach ($match_players as $user_id => $mp) {
+                    $mp['id'] = (int)$user_id;
+                    $draw_players[] = $mp;
+                }
 
-        if(\count($match_players) > 2 && array_key_exists($player1_id, $match_players) && array_key_exists($player2_id, $match_players))
-        {
-            unset($match_players[$player1_id], $match_players[$player2_id]);
-            $draw_players = [];
-            foreach($match_players as $user_id => $mp)
-            {
-                $mp['id'] = (int)$user_id;
-                $draw_players[] = $mp;
+                $this->clean_match($match_id);
+
+                [$match] = zone_util::draw_teams()->make_matches($draw_players);
+                [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
+                $match_id = $this->create_match($remove_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
+                if ($match_id) {
+                    zone_util::players()->logout_players($player1_id, $player2_id);
+
+                    return $match_id;
+                }
             }
 
-            $this->clean_match($match_id);
-
-            [$match] = zone_util::draw_teams()->make_matches($draw_players);
-            [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids] = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            $match_id =  $this->create_match($remove_user_id, $match[0], $match[1], $map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids);
-            if($match_id)
-            {
-                zone_util::players()->logout_players($player1_id, $player2_id);
-
-                $this->db->sql_transaction('commit');
-                return $match_id;
-            }
-        }
-
-        $this->db->sql_transaction('commit');
-        return 0;
+            return 0;
+        });
     }
 
     public function clean_match(int $match_id): void
@@ -239,145 +175,135 @@ class matches {
 
         $where_match_id = ' WHERE `match_id` = ' . $match_id;
         $where_team_id = ' WHERE ' . $this->db->sql_in_set('team_id', $team_ids);
-        $this->db->sql_query('DELETE FROM ' . $this->match_players_table . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->match_civs_table . $where_match_id);
-        $this->db->sql_query('DELETE FROM ' . $this->team_civs_table . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->match_player_civs_table . $where_match_id);
-        $this->db->sql_query('DELETE FROM ' . $this->match_teams_table . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->matches_table . $where_match_id);
+        $this->db->sql_query('DELETE FROM ' . $this->db->match_players_table . $where_team_id);
+        $this->db->sql_query('DELETE FROM ' . $this->db->match_civs_table . $where_match_id);
+        $this->db->sql_query('DELETE FROM ' . $this->db->match_team_civs_table . $where_team_id);
+        $this->db->sql_query('DELETE FROM ' . $this->db->match_player_civs_table . $where_match_id);
+        $this->db->sql_query('DELETE FROM ' . $this->db->match_teams_table . $where_team_id);
+        $this->db->sql_query('DELETE FROM ' . $this->db->matches_table . $where_match_id);
     }
 
+    /**
+     * @param int $match_id
+     * @param int $post_user_id
+     * @param int $winner
+     * @param int $topic_id
+     * @throws \Throwable
+     */
     public function post(int $match_id, int $post_user_id, int $winner, int $topic_id=0): void
     {
-        $this->db->sql_transaction('begin');
-
-        $already_posted = (int)db_util::get_var($this->db, [
-            'SELECT' => 't.post_user_id',
-            'FROM' => [$this->matches_table => 't'],
-            'WHERE' => 't.match_id = ' . $match_id,
-        ]);
-        if($already_posted)
-        {
-            $this->db->sql_transaction('commit');
-            return;
-        }
-
-        $end_time = time();
-
-        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-
-        if($winner === 1 || $winner === 2)
-        {
-            $map_id = (int)db_util::get_var($this->db, [
-                'SELECT' => 't.map_id',
-                'FROM' => [$this->matches_table => 't'],
-                'WHERE' => 't.match_id = ' . $match_id
-            ]);
-
-            $winner_team_id = ($winner === 1) ? $team1_id : $team2_id;
-            $team1_players = $this->get_teams_players($team1_id);
-            $team2_players = $this->get_teams_players($team2_id);
-            $match_players = $team1_players + $team2_players;
-            $match_size = \count($team1_players);
-            $match_points = $this->get_match_points($match_size);
-
-
-            $match_civ_ids = db_util::get_col($this->db, [
-                'SELECT' => 't.civ_id',
-                'FROM' => [$this->match_civs_table => 't'],
+        $this->db->run_txn(function () use ($match_id, $post_user_id, $winner, $topic_id) {
+            $already_posted = (int)$this->db->get_var([
+                'SELECT' => 't.post_user_id',
+                'FROM' => [$this->db->matches_table => 't'],
                 'WHERE' => 't.match_id = ' . $match_id,
             ]);
+            if ($already_posted) {
+                return;
+            }
 
-            $team1_civ_ids = [];
-            $team2_civ_ids = [];
-            $team_civ_rows = db_util::get_rows($this->db, [
-                'SELECT' => 't.civ_id, t.team_id',
-                'FROM' => [$this->team_civs_table => 't'],
-                'WHERE' => 't.team_id = ' . $team1_id . ' OR t.team_id = ' . $team2_id,
+            $end_time = time();
+
+            [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+
+            if ($winner === 1 || $winner === 2) {
+                $map_id = (int)$this->db->get_var([
+                    'SELECT' => 't.map_id',
+                    'FROM' => [$this->db->matches_table => 't'],
+                    'WHERE' => 't.match_id = ' . $match_id
+                ]);
+
+                $winner_team_id = ($winner === 1) ? $team1_id : $team2_id;
+                $team1_players = $this->get_teams_players($team1_id);
+                $team2_players = $this->get_teams_players($team2_id);
+                $match_players = $team1_players + $team2_players;
+                $match_size = \count($team1_players);
+                $match_points = $this->get_match_points($match_size);
+
+
+                $match_civ_ids = $this->db->get_col([
+                    'SELECT' => 't.civ_id',
+                    'FROM' => [$this->db->match_civs_table => 't'],
+                    'WHERE' => 't.match_id = ' . $match_id,
+                ]);
+
+                $team1_civ_ids = [];
+                $team2_civ_ids = [];
+                $team_civ_rows = $this->db->get_rows([
+                    'SELECT' => 't.civ_id, t.team_id',
+                    'FROM' => [$this->db->match_team_civs_table => 't'],
+                    'WHERE' => 't.team_id = ' . $team1_id . ' OR t.team_id = ' . $team2_id,
+                ]);
+                foreach ($team_civ_rows as $r) {
+                    if ($r['team_id'] == $team1_id) {
+                        $team1_civ_ids[] = (int)$r['civ_id'];
+                    } else {
+                        $team2_civ_ids[] = (int)$r['civ_id'];
+                    }
+                }
+
+                $player_civ_ids = [];
+                $player_civ_rows = $this->db->get_rows([
+                    'SELECT' => 't.civ_id, t.user_id',
+                    'FROM' => [$this->db->match_player_civs_table => 't'],
+                    'WHERE' => 't.match_id = ' . $match_id
+                ]);
+                foreach ($player_civ_rows as $r) {
+                    $player_civ_ids[(int)$r['user_id']] = (int)$r['civ_id'];
+                }
+
+                $players = zone_util::players();
+                $user1_ids = $user2_ids = [];
+                foreach ($match_players as $user_id => $user_info) {
+                    $team_id = (int)$user_info['team_id'];
+                    $is_team1 = $team_id === $team1_id;
+                    $has_won = $team_id === $winner_team_id;
+
+                    if ($is_team1) {
+                        $user1_ids[] = $user_id;
+                    } else {
+                        $user2_ids[] = $user_id;
+                    }
+
+                    $civ_ids = array_merge(
+                        $match_civ_ids,
+                        $is_team1 ? $team1_civ_ids : $team2_civ_ids,
+                        array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
+                    );
+
+                    $this->db->update($this->db->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
+
+                    $players->match_changes($user_id, $team_id, $match_points, $has_won);
+                    $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                }
+                $user_ids = array_merge($user1_ids, $user2_ids);
+
+                $col1 = $winner === 1 ? 'matches_won' : 'matches_loss';
+                $col2 = $winner === 2 ? 'matches_won' : 'matches_loss';
+                $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
+                $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
+
+                $this->db->update($this->db->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
+
+                $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
+            } else {
+                $winner_team_id = 0;
+            }
+
+            // we don't want to create duplicate topics for a match
+            if (!$topic_id && phpbb_util::config()['nczone_match_forum_id']) {
+                $topic_id = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
+            }
+
+            $this->db->update($this->db->matches_table, [
+                'post_user_id' => $post_user_id,
+                'post_time' => $end_time,
+                'winner_team_id' => $winner_team_id,
+                'forum_topic_id' => $topic_id,
+            ], [
+                'match_id' => $match_id
             ]);
-            foreach($team_civ_rows as $r)
-            {
-                if($r['team_id'] == $team1_id)
-                {
-                    $team1_civ_ids[] = (int)$r['civ_id'];
-                }
-                else
-                {
-                    $team2_civ_ids[] = (int)$r['civ_id'];
-                }
-            }
-
-            $player_civ_ids = [];
-            $player_civ_rows = db_util::get_rows($this->db, [
-                'SELECT' => 't.civ_id, t.user_id',
-                'FROM' => [$this->match_player_civs_table => 't'],
-                'WHERE' => 't.match_id = ' . $match_id
-            ]);
-            foreach($player_civ_rows as $r)
-            {
-                $player_civ_ids[(int)$r['user_id']] = (int)$r['civ_id'];
-            }
-
-            $players = zone_util::players();
-            $user1_ids = $user2_ids = [];
-            foreach($match_players as $user_id => $user_info)
-            {
-                $team_id = (int)$user_info['team_id'];
-                $is_team1 = $team_id === $team1_id;
-                $has_won = $team_id === $winner_team_id;
-
-                if($is_team1)
-                {
-                    $user1_ids[] = $user_id;
-                }
-                else
-                {
-                    $user2_ids[] = $user_id;
-                }
-
-                $civ_ids = array_merge(
-                    $match_civ_ids,
-                    $is_team1 ? $team1_civ_ids : $team2_civ_ids,
-                    array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
-                );
-
-                db_util::update($this->db, $this->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
-
-                $players->match_changes($user_id, $team_id, $match_points, $has_won);
-                $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
-            }
-            $user_ids = array_merge($user1_ids, $user2_ids);
-
-            $col1 = $winner === 1 ? 'matches_won' : 'matches_loss';
-            $col2 = $winner === 2 ? 'matches_won' : 'matches_loss';
-            $this->db->sql_query('UPDATE `' . $this->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
-            $this->db->sql_query('UPDATE `' . $this->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
-
-            db_util::update($this->db, $this->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
-
-            $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
-        }
-        else
-        {
-            $winner_team_id = 0;
-        }
-
-        // we don't want to create duplicate topics for a match
-        if(!$topic_id && phpbb_util::config()['nczone_match_forum_id'])
-        {
-            $topic_id = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
-        }
-
-        db_util::update($this->db, $this->matches_table, [
-            'post_user_id' => $post_user_id,
-            'post_time' => $end_time,
-            'winner_team_id' => $winner_team_id,
-            'forum_topic_id' => $topic_id,
-        ], [
-            'match_id' => $match_id
-        ]);
-
-        $this->db->sql_transaction('commit');
+        });
     }
 
     protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner): int
@@ -395,16 +321,16 @@ class matches {
             $team2_str = ' (W)';
         }
 
-        $title = join(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . join(', ', $team_names[$team2_id]) . $team2_str;
+        $title = implode(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . implode(', ', $team_names[$team2_id]) . $team2_str;
         $message = '[match]' . $match_id . '[/match]';
         return zone_util::misc()->create_post($title, $message, phpbb_util::config()['nczone_match_forum_id']);
     }
 
     public function post_undo(int $match_id): void // todo: test this xD
     {
-        $row = db_util::get_row($this->db, [
+        $row = $this->db->get_row([
             'SELECT' => 't.post_time, t.winner_team_id',
-            'FROM' => [$this->matches_table => 't'],
+            'FROM' => [$this->db->matches_table => 't'],
             'WHERE' => 't.match_id = ' . $match_id,
         ]);
         if(!$row)
@@ -425,7 +351,7 @@ class matches {
 
         $this->evaluate_bets_undo($winner_team_id == $team1_id ? $team1_id : $team2_id, $winner_team_id == $team2_id ? $team2_id : $team1_id, $end_time);
 
-        db_util::update($this->db, $this->matches_table, [
+        $this->db->update($this->db->matches_table, [
             'post_user_id' => 0,
             'post_time' => 0,
             'winner_team_id' => 0,
@@ -446,9 +372,9 @@ class matches {
 
     public function get_match_team_ids(int $match_id): array
     {
-        $col = db_util::get_col($this->db, [
+        $col = $this->db->get_col([
             'SELECT' => 't.team_id',
-            'FROM' => [$this->match_teams_table => 't'],
+            'FROM' => [$this->db->match_teams_table => 't'],
             'WHERE' => 't.match_id = ' . $match_id,
             'ORDER_BY' => 't.match_team ASC',
         ]);
@@ -466,9 +392,9 @@ class matches {
             return [];
         }
 
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 't.team_id, t.user_id, t.draw_rating as rating',
-            'FROM' => [$this->match_players_table => 't'],
+            'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
         ]);
 
@@ -501,24 +427,24 @@ class matches {
     {
         $config = phpbb_util::config();
 
-        $users_right = db_util::get_col($this->db, [
+        $users_right = $this->db->get_col([
             'SELECT' => 't.user_id',
-            'FROM' => [$this->bets_table => 't'],
+            'FROM' => [$this->db->bets_table => 't'],
             'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
-        $users_wrong = db_util::get_col($this->db, [
+        $users_wrong = $this->db->get_col([
             'SELECT' => 't.user_id',
-            'FROM' => [$this->bets_table => 't'],
+            'FROM' => [$this->db->bets_table => 't'],
             'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
 
         if($users_right)
         {
-            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
+            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
         }
         if($users_wrong)
         {
-            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
+            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
         }
     }
 
@@ -526,24 +452,24 @@ class matches {
     {
         $config = phpbb_util::config();
 
-        $users_right = db_util::get_col($this->db, [
+        $users_right = $this->db->get_col([
             'SELECT' => 't.user_id',
-            'FROM' => [$this->bets_table => 't'],
+            'FROM' => [$this->db->bets_table => 't'],
             'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
-        $users_wrong = db_util::get_col($this->db, [
+        $users_wrong = $this->db->get_col([
             'SELECT' => 't.user_id',
-            'FROM' => [$this->bets_table => 't'],
+            'FROM' => [$this->db->bets_table => 't'],
             'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - (int)$config['nczone_bet_time']),
         ]);
 
         if($users_right)
         {
-            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_won` = `bets_won` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
+            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_won` = `bets_won` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
         }
         if($users_wrong)
         {
-            $this->db->sql_query('UPDATE ' . $this->players_table . ' SET `bets_loss` = `bets_loss` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
+            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_loss` = `bets_loss` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
         }
     }
 
@@ -565,7 +491,7 @@ class matches {
                                  array $match_civ_ids=[], array $team1_civ_ids=[], array $team2_civ_ids=[],
                                  array $player_civ_ids=[]): int
     {
-        $match_id = (int)db_util::insert($this->db, $this->matches_table, [
+        $match_id = (int)$this->db->insert($this->db->matches_table, [
             'match_id' => 0,
             'map_id' => $map_id,
             'draw_user_id' => $draw_user_id,
@@ -600,7 +526,7 @@ class matches {
         }
         if(!empty($team_data))
         {
-            $this->db->sql_multi_insert($this->match_players_table, $team_data);
+            $this->db->sql_multi_insert($this->db->match_players_table, $team_data);
         }
 
         $match_civ_data = [];
@@ -616,7 +542,7 @@ class matches {
         }
         if(!empty($match_civ_data))
         {
-            $this->db->sql_multi_insert($this->match_civs_table, $match_civ_data);
+            $this->db->sql_multi_insert($this->db->match_civs_table, $match_civ_data);
         }
 
         $team_civ_data = [];
@@ -640,7 +566,7 @@ class matches {
         }
         if(!empty($team_civ_data))
         {
-            $this->db->sql_multi_insert($this->team_civs_table, $team_civ_data);
+            $this->db->sql_multi_insert($this->db->match_team_civs_table, $team_civ_data);
         }
 
         $player_civ_data = [];
@@ -654,7 +580,7 @@ class matches {
         }
         if(!empty($player_civ_data))
         {
-            $this->db->sql_multi_insert($this->match_player_civs_table, $player_civ_data);
+            $this->db->sql_multi_insert($this->db->match_player_civs_table, $player_civ_data);
         }
 
         return $match_id;
@@ -662,7 +588,7 @@ class matches {
 
     private function insert_new_match_team(int $match_id, int $match_team): int
     {
-        return (int)db_util::insert($this->db, $this->match_teams_table, [
+        return (int)$this->db->insert($this->db->match_teams_table, [
             'team_id' => 0,
             'match_id' => $match_id,
             'match_team' => $match_team,
@@ -684,15 +610,15 @@ class matches {
                 t.draw_time,
                 t.post_time
             FROM
-                '.$this->matches_table.' t
-                LEFT JOIN '.$this->maps_table.' m ON t.map_id = m.map_id
-                LEFT JOIN '.$this->users_table.' u ON t.draw_user_id = u.user_id
-                LEFT JOIN '.$this->users_table.' u2 ON t.draw_user_id = u2.user_id
+                '.$this->db->matches_table.' t
+                LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
+                LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
+                LEFT JOIN '.$this->db->users_table.' u2 ON t.draw_user_id = u2.user_id
             WHERE
                 t.match_id = '.$match_id.'
             ;
         ';
-        $m = db_util::get_row($this->db, $sql);
+        $m = $this->db->get_row($sql);
         if (!$m) {
             return null;
         }
@@ -713,16 +639,16 @@ class matches {
                 t.draw_time,
                 t.post_time
             FROM
-                '.$this->matches_table.' t
-                LEFT JOIN '.$this->maps_table.' m ON t.map_id = m.map_id
-                LEFT JOIN '.$this->users_table.' u ON t.draw_user_id = u.user_id
+                '.$this->db->matches_table.' t
+                LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
+                LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
             WHERE
                 t.post_time = 0
             ORDER BY
                 t.draw_time DESC
             ;
         ';
-        $match_rows = db_util::get_rows($this->db, $sql);
+        $match_rows = $this->db->get_rows($sql);
         $matches = [];
         foreach($match_rows as $m)
         {
@@ -746,17 +672,17 @@ class matches {
                 t.draw_time,
                 t.post_time
             FROM
-                '.$this->matches_table.' t
-                LEFT JOIN '.$this->maps_table.' m ON t.map_id = m.map_id
-                LEFT JOIN '.$this->users_table.' u ON t.draw_user_id = u.user_id
-                LEFT JOIN '.$this->users_table.' u2 ON t.draw_user_id = u2.user_id
+                '.$this->db->matches_table.' t
+                LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
+                LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
+                LEFT JOIN '.$this->db->users_table.' u2 ON t.draw_user_id = u2.user_id
             WHERE
                 t.post_time > 0
             ORDER BY
                 t.post_time DESC
             ;
         ';
-        $match_rows = db_util::get_rows($this->db, $sql);
+        $match_rows = $this->db->get_rows($sql);
         $matches = [];
         foreach($match_rows as $m)
         {
@@ -805,9 +731,9 @@ class matches {
 
     public function get_match_civs(int $match_id, int $map_id): array
     {
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 'm.civ_id AS id, c.civ_name AS title, mc.multiplier, m.number',
-            'FROM' => [$this->match_civs_table => 'm', $this->civs_table => 'c', $this->map_civs_table => 'mc'],
+            'FROM' => [$this->db->match_civs_table => 'm', $this->db->civs_table => 'c', $this->db->map_civs_table => 'mc'],
             'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND mc.map_id = ' . $map_id . ' AND m.match_id = ' . $match_id,
             'ORDER_BY' => 'mc.multiplier DESC'
         ]);
@@ -823,9 +749,9 @@ class matches {
 
     public function get_team_civs(int $team1_id, int $team2_id, int $map_id): array
     {
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 'm.team_id, m.civ_id AS id, c.civ_name AS title, mc.multiplier, m.number',
-            'FROM' => [$this->team_civs_table => 'm', $this->civs_table => 'c', $this->map_civs_table => 'mc'],
+            'FROM' => [$this->db->match_team_civs_table => 'm', $this->db->civs_table => 'c', $this->db->map_civs_table => 'mc'],
             'WHERE' => 'm.civ_id = c.civ_id AND m.civ_id = mc.civ_id AND mc.map_id = ' . $map_id . ' AND (m.team_id = ' . $team1_id . ' OR m.team_id = ' . $team2_id . ')',
             'ORDER_BY' => 'mc.multiplier DESC'
         ]);
@@ -845,21 +771,27 @@ class matches {
         return $teams;
     }
 
-    public function bet(int $user_id, int $match_id, int $team): void
+    public function is_over(int $match_id): bool
     {
-        $team_ids = $this->get_match_team_ids($match_id);
-        db_util::insert($this->db, $this->bets_table, [
-            'user_id' => $user_id,
-            'time' => time(),
-            'team_id' => $team_ids[$team - 1],
-        ]);
+        $sql = '
+            SELECT 
+                COUNT(*) 
+            FROM 
+                ' . $this->db->matches_table . ' 
+            WHERE 
+                match_id = ' . $match_id . ' 
+                AND 
+                post_time > 0
+            ;
+        ';
+        return (int)$this->db->get_var($sql) > 0;
     }
 
     public function get_bets(int $team1_id, int $team2_id): array
     {
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 'b.user_id, b.team_id, b.time, u.username',
-            'FROM' => [$this->bets_table => 'b', $this->users_table => 'u'],
+            'FROM' => [$this->db->bets_table => 'b', $this->db->users_table => 'u'],
             'WHERE' => 'b.user_id = u.user_id AND (b.team_id = ' . $team1_id . ' OR b.team_id = ' . $team2_id . ')'
         ]);
 
@@ -884,9 +816,9 @@ class matches {
 
     private function check_draw_process(int $user_id=0): int
     {
-        $row = db_util::get_row($this->db, [
+        $row = $this->db->get_row([
             'SELECT' => 't.draw_id, t.time',
-            'FROM' => [$this->draw_process_table => 't'],
+            'FROM' => [$this->db->draw_process_table => 't'],
             'WHERE' => $user_id ? ('t.user_id = ' . $user_id) : '1',
         ]);
         if($row)
@@ -901,8 +833,8 @@ class matches {
 
         if($draw_process_time && time() - $draw_process_time > 60)
         {
-            $this->db->sql_query('TRUNCATE `' . $this->draw_process_table . '`');
-            $this->db->sql_query('TRUNCATE `' . $this->draw_players_table . '`');
+            $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
+            $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
             return 0;
         }
 
@@ -911,9 +843,9 @@ class matches {
 
     private function get_draw_players(int $draw_id): array
     {
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 'p.user_id AS id, u.username, p.rating, d.logged_in',
-            'FROM' => [$this->draw_players_table => 'd', $this->players_table => 'p', $this->users_table => 'u'],
+            'FROM' => [$this->db->draw_players_table => 'd', $this->db->players_table => 'p', $this->db->users_table => 'u'],
             'WHERE' => 'd.draw_id = ' . $draw_id . ' AND d.user_id = p.user_id AND p.user_id = u.user_id',
             'ORDER_BY' => 'd.logged_in ASC'
         ]);
@@ -927,73 +859,72 @@ class matches {
         }, $rows);
     }
 
+    /**
+     * @param int $user_id
+     * @return array
+     * @throws \Throwable
+     */
     public function start_draw_process(int $user_id): array
     {
-        $this->db->sql_transaction('begin');
-        if($this->check_draw_process())
-        {
-            $this->db->sql_transaction('commit');
-            return [];
-        }
+        return $this->db->run_txn(function () use ($user_id) {
+            if ($this->check_draw_process()) {
+                return [];
+            }
 
-        $logged_in = zone_util::players()->get_logged_in();
-        if(\count($logged_in) < 2)
-        {
-            $this->db->sql_transaction('commit');
-            return [];
-        }
+            $logged_in = zone_util::players()->get_logged_in();
+            if (\count($logged_in) < 2) {
+                return [];
+            }
 
-        $draw_id = (int)db_util::insert($this->db, $this->draw_process_table, [
-            'draw_id' => 0,
-            'user_id' => $user_id,
-            'time' => time(),
-        ]);
+            $draw_id = (int)$this->db->insert($this->db->draw_process_table, [
+                'draw_id' => 0,
+                'user_id' => $user_id,
+                'time' => time(),
+            ]);
 
-        $sql_array = [];
-        foreach($logged_in as $u)
-        {
-            $sql_array[] = [
-                'draw_id' => $draw_id,
-                'user_id' => $u['id'],
-                'logged_in' => $u['logged_in'],
-            ];
-        }
-        $this->db->sql_multi_insert($this->draw_players_table, $sql_array);
-
-        $this->db->sql_transaction('commit');
-        return $logged_in;
+            $sql_array = [];
+            foreach ($logged_in as $u) {
+                $sql_array[] = [
+                    'draw_id' => $draw_id,
+                    'user_id' => $u['id'],
+                    'logged_in' => $u['logged_in'],
+                ];
+            }
+            $this->db->sql_multi_insert($this->db->draw_players_table, $sql_array);
+            return $logged_in;
+        });
     }
 
+    /**
+     * @param int $user_id
+     * @return array
+     * @throws \Throwable
+     */
     public function confirm_draw_process(int $user_id): array
     {
-        $this->db->sql_transaction('begin');
-
-        $draw_id = $this->check_draw_process($user_id);
-        if(!$draw_id)
-        {
-            $this->db->sql_query('UNLOCK TABLES');
-            return [];
-        }
-
-        $draw_players = $this->get_draw_players($draw_id);
-
-        $this->db->sql_query('TRUNCATE `' . $this->draw_process_table . '`');
-        $this->db->sql_query('TRUNCATE `' . $this->draw_players_table . '`');
-        $this->db->sql_transaction('commit');
-
-        return $draw_players;
+        return $this->db->run_txn(function () use ($user_id) {
+            $draw_id = $this->check_draw_process($user_id);
+            if (!$draw_id) {
+                return [];
+            }
+            $draw_players = $this->get_draw_players($draw_id);
+            $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
+            $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
+            return $draw_players;
+        });
     }
 
+    /**
+     * @param int $user_id
+     * @throws \Throwable
+     */
     public function deny_draw_process(int $user_id): void
     {
-        $this->db->sql_transaction('begin');
-
-        if($this->check_draw_process($user_id))
-        {
-            $this->db->sql_query('TRUNCATE `' . $this->draw_process_table . '`');
-            $this->db->sql_query('TRUNCATE `' . $this->draw_players_table . '`');
-        }
-
-        $this->db->sql_transaction('commit');
+        $this->db->run_txn(function () use ($user_id) {
+            if ($this->check_draw_process($user_id)) {
+                $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
+                $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
+            }
+        });
     }
 }

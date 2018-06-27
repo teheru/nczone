@@ -25,6 +25,7 @@ class install_acp_module extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
+			array('config.add', array('nczone_rules_post_id', 0)),
 			array('config.add', array('nczone_match_forum_id', 0)),
 			array('config.add', array('nczone_bet_time', 1200)),
 			array('config.add', array('nczone_info_posts', '')),

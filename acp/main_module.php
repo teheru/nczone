@@ -87,6 +87,7 @@ class main_module
 
         phpbb_util::template()->assign_vars(array(
             'U_ACTION' => $this->u_action,
+            'nczone_rules_post_id' => $config['nczone_rules_post_id'],
             'nczone_draw_player_civs' => $config['nczone_draw_player_civs'],
             'nczone_draw_team_civs' => $config['nczone_draw_team_civs'],
             'nczone_draw_match_extra_civs_1vs1' => $config['nczone_draw_match_extra_civs_1vs1'],
@@ -112,6 +113,7 @@ class main_module
 
         if($submit)
         {
+            $config->set('nczone_rules_post_id', (int)$request->variable('nczone_rules_post_id', 0));
             $config->set('nczone_match_forum_id', (int)$request->variable('nczone_match_forum_id', 0));
             $config->set('nczone_bet_time', (int)$request->variable('nczone_bet_time', 1200));
             $config->set('nczone_info_posts', join(',', array_map(function($a) { return (int)$a; }, preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
@@ -121,6 +123,7 @@ class main_module
 
         phpbb_util::template()->assign_vars(array(
             'U_ACTION' => $this->u_action,
+            'nczone_rules_post_id' => $config['nczone_rules_post_id'],
             'nczone_match_forum_id' => $config['nczone_match_forum_id'],
             'nczone_bet_time' => $config['nczone_bet_time'],
             'nczone_info_posts' => str_replace(',', "\n", $config['nczone_info_posts']),

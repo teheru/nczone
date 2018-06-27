@@ -7,7 +7,7 @@
           <div v-if="drawPossible">
             <span v-t="'NCZONE_DRAW_LOGGED_IN_PLAYERS'"></span>
             <ol class="zone-numeric-list">
-              <li v-for="(player, idx) in players" :key="idx">{{ player.username }}</li>
+              <li v-for="player in players" :key="player.id">{{ player.username }}</li>
             </ol>
             <span v-t="'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW'"></span>
           </div>

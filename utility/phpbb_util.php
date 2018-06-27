@@ -26,16 +26,6 @@ class phpbb_util
         return $GLOBALS['template'];
     }
 
-    public static function db(): \phpbb\db\driver\driver_interface
-    {
-        return $GLOBALS['db'];
-    }
-
-    public static function root_path(): string
-    {
-        return $GLOBALS['phpbb_root_path'];
-    }
-
     public static function auth(): \phpbb\auth\auth
     {
         return $GLOBALS['auth'];
@@ -43,7 +33,7 @@ class phpbb_util
 
     public static function file_url(string $basename): string
     {
-        return self::root_path() . $basename . '.' . $GLOBALS['phpEx'];
+        return $GLOBALS['phpbb_root_path'] . $basename . '.' . $GLOBALS['phpEx'];
     }
 
     public static function config(): \phpbb\config\config

@@ -11,24 +11,20 @@
 
 namespace eru\nczone\zone;
 
-use eru\nczone\utility\db_util;
+use eru\nczone\utility\db;
 use eru\nczone\utility\phpbb_util;
-use phpbb\db\driver\driver_interface;
 
 class misc
 {
-    /** @var driver_interface */
+    /** @var db */
     private $db;
     /** @var \phpbb\user */
     private $user;
-    /** @var string */
-    private $posts_table;
 
-    public function __construct(driver_interface $db, \phpbb\user $user, string $posts_table)
+    public function __construct(\phpbb\user $user, db $db)
     {
         $this->db = $db;
         $this->user = $user;
-        $this->posts_table = $posts_table;
     }
 
     public function get_information_ids(): array
@@ -38,21 +34,16 @@ class misc
 
     public function get_posts(int ...$post_ids): array
     {
-        $rows = db_util::get_rows($this->db, [
+        $rows = $this->db->get_rows([
             'SELECT' => 't.post_id, t.post_text, t.bbcode_uid, t.bbcode_bitfield',
-            'FROM' => [$this->posts_table => 't'],
+            'FROM' => [$this->db->posts_table => 't'],
             'WHERE' => $this->db->sql_in_set('t.post_id', $post_ids),
         ]);
-        
-        $numbers = array_count_values($post_ids);
+
         $posts = [];
         foreach($rows as $r)
         {
-            $post_id = (int)$r['post_id'];
-            $posts[$post_id] = [
-                'number' => $numbers[$post_id],
-                'info' => generate_text_for_display($r['post_text'], $r['bbcode_uid'], $r['bbcode_bitfield'], ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true)
-            ];
+            $posts[(int)$r['post_id']] = generate_text_for_display($r['post_text'], $r['bbcode_uid'], $r['bbcode_bitfield'], ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true);
         }
 
         return $posts;
@@ -60,7 +51,7 @@ class misc
 
     public function create_post(string $title, string $message, int $forum_id): int
     {
-        include_once(phpbb_util::file_url('includes/functions_posting'));
+        include_once phpbb_util::file_url('includes/functions_posting');
 
         $uid = $bitfield = $options = '';
         generate_text_for_storage($message, $uid, $bitfield, $options, true, true, false);
@@ -84,9 +75,7 @@ class misc
         );
         $poll = [];
         submit_post('post', $title, $this->user->data['username'], POST_NORMAL, $poll, $data);
-        
+
         return (int)$data['topic_id'];
     }
 }
-
-?>

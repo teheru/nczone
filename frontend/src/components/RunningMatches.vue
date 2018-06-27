@@ -6,7 +6,7 @@
       <div class="error" v-else-if="error" v-t="'NCZONE_ERROR_LOADING'"></div>
       <template v-else="">
         <div v-if="matches.length === 0" v-t="'NCZONE_NO_RMATCHES'"></div>
-        <nczone-match v-for="(match, idx) in matches" :key="idx" :match="match"></nczone-match>
+        <nczone-match v-for="match in matches" :key="match.id" :match="match"></nczone-match>
       </template>
     </div>
   </div>
