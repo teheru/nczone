@@ -80,7 +80,7 @@
                             </tr>
                             {% for civ in map_civs %}
                                 <tr>
-                                    <td>{{ civ.CIV_NAME }}</td>
+                                    <td>{{ lang(civ.CIV_NAME) }}</td>
                                     <td><input id="multiplier_{{ civ.CIV_ID }}"
                                                name="multiplier_{{ civ.CIV_ID }}" type="text"
                                                class="inputbox" value="{{ civ.MULTIPLIER }}"/></td>

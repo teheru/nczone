@@ -1,0 +1,38 @@
+{% extends "mcp/base.html" %}
+
+{% block content %}
+    {% if S_SELECT_MATCH %}
+
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="match_id">{{ lang('MCP_SELECT_MATCH') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_SELECT_MATCH_HINT') }}</span>
+                </dt>
+                <dd>
+                    <input class="inputbox" type="number" id="match_id" name="match_id" />
+                </dd>
+            </dl>
+        </fieldset>
+    
+    {% else %}
+
+    <fieldset>
+        <dl>
+            <dt>
+                <label for="match_winner">{{ lang('MCP_MATCH_WINNER') }}{{ lang('COLON') }}</label><br/>
+                <span>{{ lang('MCP_MATCH_WINNER_HINT') }}</span>
+            </dt>
+            <dd>
+                <select name="match_winner">
+                    <option value="1" {% if S_MATCH_WINNER == 1 %}selected="selected"{% endif %}>{{ lang('MCP_TEAM1') }}</option>
+                    <option value="2" {% if S_MATCH_WINNER == 2 %}selected="selected"{% endif %}>{{ lang('MCP_TEAM2') }}</option>
+                    <option value="0" {% if S_MATCH_WINNER == 0 %}selected="selected"{% endif %}>{{ lang('MCP_NO_RESULT') }}</option>
+                </select>
+            </dd>
+        </dl>
+        <input type="hidden" name="match_id" value="{{ S_MATCH_ID }}" />
+    </fieldset>
+
+    {% endif %}
+{% endblock %}

@@ -51,7 +51,7 @@ class draw_settings {
             $match_civs = $this->draw_match_civs($map_id, $players, 0, $config['nczone_draw_match_extra_civs_' . $vs_str]);
             foreach($match_civs as $civ)
             {
-                $match_civ_ids[] = $civ['id'];
+                $match_civ_ids[] = (int)$civ['id'];
             }
         }
         elseif($civ_kind === self::TEAM_CIVS)
@@ -59,11 +59,11 @@ class draw_settings {
             [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, 0, $config['nczone_draw_team_extra_civs_' . $vs_str]);
             foreach($team1_civs as $civ)
             {
-                $team1_civ_ids[] = $civ['id'];
+                $team1_civ_ids[] = (int)$civ['id'];
             }
             foreach($team2_civs as $civ)
             {
-                $team2_civ_ids[] = $civ['id'];
+                $team2_civ_ids[] = (int)$civ['id'];
             }
         }
         else
@@ -213,7 +213,7 @@ class draw_settings {
             }
         }
 
-        return [$force_civ ?: NULL, $best_civs];
+        return [$force_civ ?: [], $best_civs];
     }
 
     public function draw_match_civs(int $map_id, array $users, int $num_civs=0, int $extra_civs=4): array

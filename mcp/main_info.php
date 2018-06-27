@@ -36,6 +36,11 @@ class main_info
 					'auth'	=> 'ext_eru/nczone && acl_m_zone_manage_maps',
 					'cat'	=> array('MCP_ZONE_TITLE')
 				),
+				'matches'	=> array(
+					'title'	=> 'MCP_MATCHES_TITLE',
+					'auth'	=> 'ext_eru/nczone && acl_m_zone_change_match',
+					'cat'	=> array('MCP_ZONE_TITLE')
+				),
 			),
 		);
 	}
