@@ -688,8 +688,10 @@ class matches {
         return $matches;
     }
 
-    public function get_all_pmatches(): array
+    public function get_pmatches(int $page=0): array
     {
+        $page_size = 10; // todo: ACP var
+
         $sql = '
             SELECT 
                 t.match_id, 
@@ -711,6 +713,9 @@ class matches {
                 t.post_time > 0
             ORDER BY
                 t.post_time DESC
+            LIMIT
+                '.($page * $page_size).',
+                '.$page_size.'
             ;
         ';
         $match_rows = $this->db->get_rows($sql);
@@ -720,6 +725,13 @@ class matches {
             $matches[] = $this->create_match_by_row($m);
         }
         return $matches;
+    }
+
+    public function get_pmatches_pages(): int
+    {
+        $page_size = 10; // todo: ACP var
+        $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE t.post_time > 0');
+        return (int)ceil($num_matches / $page_size);
     }
 
     private function create_match_by_row(array $m): array
