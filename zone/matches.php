@@ -382,7 +382,7 @@ class matches {
         $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
         $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
-        $this->evaluate_bets_undo($winner_team_id == $team1_id ? $team1_id : $team2_id, $winner_team_id == $team2_id ? $team2_id : $team1_id, $end_time);
+        $this->evaluate_bets_undo($winner_team_id == $team1_id ? $team1_id : $team2_id, $winner_team_id == $team1_id ? $team2_id : $team1_id, $end_time);
 
         $this->db->update($this->db->matches_table, [
             'winner_team_id' => 0,
@@ -496,7 +496,7 @@ class matches {
             'WHERE' => 't.team_id = '. $loser_team .' AND t.counted',
         ]);
 
-        $this->db->sql_query('UPDATE ' . $this->db->bets_table . ' SET counted = 0 WHERE (team_id = '. $winner_team .' OR team_id = '. $loser_team .') AND counted');
+        $this->db->sql_query('UPDATE ' . $this->db->bets_table . ' SET counted = 0 WHERE team_id = '. $winner_team .' OR team_id = '. $loser_team);
 
         if($users_right)
         {
