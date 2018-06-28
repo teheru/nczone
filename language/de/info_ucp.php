@@ -19,15 +19,11 @@ if (empty($lang) || !is_array($lang))
 }
 
 $lang = array_merge($lang, array(
-	'NCZONE' => 'nC Zone',
-	
-	'ACP_NCZONE_TITLE' => 'nC Zone',
-	'ACP_NCZONE_GENERAL_TITLE' => 'General settings',
-	'ACP_NCZONE_DRAW_TITLE' => 'Draw settings',
+	'UCP_DEMO'				=> 'Settings',
+	'UCP_DEMO_TITLE'		=> 'Demo Module',
+	'UCP_DEMO_USER'			=> 'Acme user',
+	'UCP_DEMO_USER_EXPLAIN'	=> 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+	'UCP_DEMO_SAVED'		=> 'Settings have been saved successfully!',
 
-	'MCP_ZONE_TITLE'		=> 'nC Zone',
-	'MCP_PLAYERS_TITLE'		=> 'Player',
-	'MCP_CIVS_TITLE'		=> 'Civilizations',
-	'MCP_MAPS_TITLE'		=> 'Maps',
-    'MCP_MATCHES_TITLE' => 'Matches',
+	'NOTIFICATION_TYPE_DEMO'	=> 'Use Acme demo notifications',
 ));
