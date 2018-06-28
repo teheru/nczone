@@ -115,6 +115,14 @@ class main_module
         {
             $config->set('nczone_rules_post_id', (int)$request->variable('nczone_rules_post_id', 0));
             $config->set('nczone_match_forum_id', (int)$request->variable('nczone_match_forum_id', 0));
+            $config->set('nczone_pmatches_page_size', (int)$request->variable('nczone_pmatches_page_size', 10));
+            $config->set('nczone_activity_time', (int)$request->variable('nczone_activity_time', 56));
+            $config->set('nczone_activity_1', (int)$request->variable('nczone_activity_1', 14));
+            $config->set('nczone_activity_2', (int)$request->variable('nczone_activity_2', 28));
+            $config->set('nczone_activity_3', (int)$request->variable('nczone_activity_3', 56));
+            $config->set('nczone_activity_4', (int)$request->variable('nczone_activity_4', 112));
+            $config->set('nczone_activity_5', (int)$request->variable('nczone_activity_5', 224));
+            $config->set('nczone_draw_time', (int)$request->variable('nczone_draw_time', 60));
             $config->set('nczone_bet_time', (int)$request->variable('nczone_bet_time', 1200));
             $config->set('nczone_info_posts', join(',', array_map(function($a) { return (int)$a; }, preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
 
@@ -125,6 +133,14 @@ class main_module
             'U_ACTION' => $this->u_action,
             'nczone_rules_post_id' => $config['nczone_rules_post_id'],
             'nczone_match_forum_id' => $config['nczone_match_forum_id'],
+            'nczone_pmatches_page_size' => $config['nczone_pmatches_page_size'],
+            'nczone_activity_time' => $config['nczone_activity_time'],
+            'nczone_activity_1' => $config['nczone_activity_1'],
+            'nczone_activity_2' => $config['nczone_activity_2'],
+            'nczone_activity_3' => $config['nczone_activity_3'],
+            'nczone_activity_4' => $config['nczone_activity_4'],
+            'nczone_activity_5' => $config['nczone_activity_5'],
+            'nczone_draw_time' => $config['nczone_draw_time'],
             'nczone_bet_time' => $config['nczone_bet_time'],
             'nczone_info_posts' => str_replace(',', "\n", $config['nczone_info_posts']),
         ));

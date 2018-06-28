@@ -14,6 +14,7 @@ namespace eru\nczone\zone;
 use eru\nczone\utility\db;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
+use eru\nczone\utility\phpbb_util;
 
 class players
 {
@@ -126,7 +127,8 @@ class players
                 'matches_won' => 0,
                 'matches_loss' => 0,
                 'bets_won' => 0,
-                'bets_loss' => 0
+                'bets_loss' => 0,
+                'activity' => 0,
             ]);
 
             $this->db->sql_query(
@@ -181,6 +183,9 @@ class players
         }
         if (array_key_exists('bets_loss', $player_info)) {
             $sql_array['bets_loss'] = (int)$player_info['bets_loss'];
+        }
+        if (array_key_exists('activity', $player_info)) {
+            $sql_array['activity'] = (int)$player_info['activity'];
         }
 
         $this->db->update($this->db->players_table, $sql_array, ['user_id' => $user_id]);
@@ -476,5 +481,53 @@ class players
         return $winner
             ? ($last_streak > 0 ? $last_streak + 1 : 1)
             : ($last_streak < 0 ? $last_streak - 1 : -1);
+    }
+
+    public function calculate_all_activities()
+    {
+        $sql = 'SELECT
+                    user_id,
+                    COUNT(*) AS activity_matches
+                FROM
+                    ' . $this->db->match_players_table . '
+                WHERE
+                    team_id IN (
+                        SELECT
+                            team_id
+                        FROM
+                            ' . $this->db->match_teams_table . '
+                        WHERE
+                            match_id IN (
+                                SELECT
+                                    match_id
+                                FROM
+                                    ' . $this->db->matches_table . '
+                                WHERE
+                                    post_time > ' . time() . ' - ' . phpbb_util::config()['nczone_activity_time'] . '*60*60*24
+                            )
+                        )
+                GROUP BY
+                    user_id';
+        $rows = $this->db->get_rows($sql);
+
+        $users_activity = [];
+        foreach($rows as $row) {
+            $user_id = (int)$row['user_id'];
+            $activity_matches = (int)$row['activity_matches'];
+            $activity = 0;
+            if($activity_matches >= (int)phpbb_util::config()['nczone_activity_5']) {
+                $activity = 5;
+            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_4']) {
+                $activity = 4;
+            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_3']) {
+                $activity = 3;
+            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_2']) {
+                $activity = 2;
+            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_1']) {
+                $activity = 1;
+            }
+            
+            $this->edit_player($user_id, ['activity' => $activity]);
+        }
     }
 }

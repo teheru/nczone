@@ -190,19 +190,31 @@ class matches {
      * @param int $topic_id
      * @throws \Throwable
      */
-    public function post(int $match_id, int $post_user_id, int $winner, int $topic_id=0): void
+    public function post(int $match_id, int $post_user_id, int $winner, bool $repost=false): void
     {
-        $this->db->run_txn(function () use ($match_id, $post_user_id, $winner, $topic_id) {
+
+        $this->db->run_txn(function () use ($match_id, $post_user_id, $winner, $repost) {
+            $players = zone_util::players();
+            
             $already_posted = (int)$this->db->get_var([
                 'SELECT' => 't.post_user_id',
                 'FROM' => [$this->db->matches_table => 't'],
                 'WHERE' => 't.match_id = ' . $match_id,
             ]);
-            if ($already_posted) {
+            if ($already_posted && !$repost) {
                 return;
             }
 
-            $end_time = time();
+            $end_time = 0;
+            if(!$repost) {
+                $end_time = time();
+            } else {
+                $end_time = $this->db->get_var([
+                    'SELECT' => 't.post_time',
+                    'FROM' => [$this->db->matches_table => 't'],
+                    'WHERE' => 't.match_id = ' . $match_id,
+                ]);
+            }
 
             [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
 
@@ -252,7 +264,6 @@ class matches {
                     $player_civ_ids[(int)$r['user_id']] = (int)$r['civ_id'];
                 }
 
-                $players = zone_util::players();
                 $user1_ids = $user2_ids = [];
                 foreach ($match_players as $user_id => $user_info) {
                     $team_id = (int)$user_info['team_id'];
@@ -271,7 +282,7 @@ class matches {
                         array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                     );
 
-                    $this->db->update($this->db->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id);
+                    $this->db->update($this->db->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id . ' AND `time` < ' . $end_time);
 
                     $players->match_changes($user_id, $team_id, $match_points, $has_won);
                     $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
@@ -287,20 +298,26 @@ class matches {
 
                 $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {
+                $match_players = $this->get_teams_players($team1_id, $team2_id);
+                foreach($match_players as $user_id => $mp) {
+                    $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                }
+
                 $winner_team_id = 0;
             }
 
-            // we don't want to create duplicate topics for a match
-            if (!$topic_id && phpbb_util::config()['nczone_match_forum_id']) {
-                $topic_id = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
-            }
-
-            $this->db->update($this->db->matches_table, [
+            $update_sql = [
                 'post_user_id' => $post_user_id,
                 'post_time' => $end_time,
                 'winner_team_id' => $winner_team_id,
-                'forum_topic_id' => $topic_id,
-            ], [
+            ];
+
+            // we don't want to create duplicate topics for a match
+            if (!$repost && phpbb_util::config()['nczone_match_forum_id']) {
+                $update_sql['forum_topic_id'] = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
+            }
+
+            $this->db->update($this->db->matches_table, $update_sql, [
                 'match_id' => $match_id
             ]);
         });
@@ -321,12 +338,12 @@ class matches {
             $team2_str = ' (W)';
         }
 
-        $title = implode(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . implode(', ', $team_names[$team2_id]) . $team2_str;
+        $title = '[#' . $match_id . '] ' . implode(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . implode(', ', $team_names[$team2_id]) . $team2_str;
         $message = '[match]' . $match_id . '[/match]';
         return zone_util::misc()->create_post($title, $message, phpbb_util::config()['nczone_match_forum_id']);
     }
 
-    public function post_undo(int $match_id): void // todo: test this xD
+    public function post_undo(int $match_id): void // todo: test this xD // todo: dreamteams
     {
         $row = $this->db->get_row([
             'SELECT' => 't.post_time, t.winner_team_id',
@@ -337,23 +354,37 @@ class matches {
         {
             return;
         }
+        if(!$row['winner_team_id'])
+        {
+            return;
+        }
 
         [$end_time, $winner_team_id] = [(int)$row['post_time'], (int)$row['winner_team_id']];
         [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
         $match_size = \count($this->get_teams_players($team1_id));
         $match_points = $this->get_match_points($match_size);
 
+        $user1_ids = $user2_ids = [];
         foreach($this->get_teams_players($team1_id, $team2_id) as $user_id => $user_info)
         {
+            if ((int)$user_info['team_id'] == $team1_id) {
+                $user1_ids[] = $user_id;
+            } else {
+                $user2_ids[] = $user_id;
+            }
+
             $team_id = (int)$user_info['team_id'];
             zone_util::players()->match_changes_undo($user_id, $team_id, $match_points, $team_id === $winner_team_id);
         }
 
+        $col1 = $winner_team_id == $team1_id ? 'matches_won' : 'matches_loss';
+        $col2 = $winner_team_id == $team2_id ? 'matches_won' : 'matches_loss';
+        $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
+        $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
+
         $this->evaluate_bets_undo($winner_team_id == $team1_id ? $team1_id : $team2_id, $winner_team_id == $team2_id ? $team2_id : $team1_id, $end_time);
 
         $this->db->update($this->db->matches_table, [
-            'post_user_id' => 0,
-            'post_time' => 0,
             'winner_team_id' => 0,
         ], [
             'match_id' => $match_id
@@ -657,8 +688,10 @@ class matches {
         return $matches;
     }
 
-    public function get_all_pmatches(): array
+    public function get_pmatches(int $page=0): array
     {
+        $page_size = (int)phpbb_util::config()['nczone_pmatches_page_size'];
+
         $sql = '
             SELECT 
                 t.match_id, 
@@ -680,6 +713,9 @@ class matches {
                 t.post_time > 0
             ORDER BY
                 t.post_time DESC
+            LIMIT
+                '.($page * $page_size).',
+                '.$page_size.'
             ;
         ';
         $match_rows = $this->db->get_rows($sql);
@@ -689,6 +725,13 @@ class matches {
             $matches[] = $this->create_match_by_row($m);
         }
         return $matches;
+    }
+
+    public function get_pmatches_pages(): int
+    {
+        $page_size = (int)phpbb_util::config()['nczone_pmatches_page_size'];
+        $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE t.post_time > 0');
+        return (int)ceil($num_matches / $page_size);
     }
 
     private function create_match_by_row(array $m): array
@@ -787,6 +830,18 @@ class matches {
         return (int)$this->db->get_var($sql) > 0;
     }
 
+    public function get_winner(int $match_id): int
+    {
+        $sql = 'SELECT
+                    t.match_team
+                FROM
+                    ' . $this->db->match_teams_table . ' t
+                    LEFT JOIN ' . $this->db->matches_table . ' m ON t.team_id = m.winner_team_id
+                WHERE
+                    m.match_id = ' . $match_id;
+        return (int)$this->db->get_var($sql);
+    }
+
     public function get_bets(int $team1_id, int $team2_id): array
     {
         $rows = $this->db->get_rows([
@@ -831,7 +886,7 @@ class matches {
             return 0;
         }
 
-        if($draw_process_time && time() - $draw_process_time > 60)
+        if($draw_process_time && time() - $draw_process_time > phpbb_util::config()['nczone_draw_time'])
         {
             $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
             $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');

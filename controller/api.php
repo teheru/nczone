@@ -329,7 +329,7 @@ class api
             $this->user->update_session_infos();
         }
 
-        $rmatches = zone_util::matches()->get_all_pmatches();
+        $rmatches = zone_util::matches()->get_pmatches();
         return $this->jsonResponse($rmatches);
     }
 

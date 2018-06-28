@@ -51,6 +51,11 @@ class main_module
                 $this->maps();
                 $this->tpl_name = 'mcp/maps';
                 break;
+
+            case 'matches':
+                $this->matches();
+                $this->tpl_name = 'mcp/matches';
+                break;
         }
 
         phpbb_util::template()->assign_var('U_POST_ACTION', $this->u_action);
@@ -220,6 +225,35 @@ class main_module
                     'BOTH_TEAMS' => $map_civ['both_teams'] ? 'checked' : ''
                 ]);
             }
+        }
+    }
+
+    function matches()
+    {
+        $request = phpbb_util::request();
+        $template = phpbb_util::template();
+
+        $match_id = (int)$request->variable('match_id', '0');
+
+        if($match_id) {
+            if(zone_util::matches()->is_over($match_id)) {
+                $old_match_winner = zone_util::matches()->get_winner($match_id);
+                $new_match_winner = (int)$request->variable('match_winner', '-1');
+                if($new_match_winner >= 0 && $new_match_winner <= 2) {
+                    if($new_match_winner != $old_match_winner) {
+                        zone_util::matches()->post_undo($match_id);
+                        zone_util::matches()->post($match_id, 0, $new_match_winner, true); // todo: find out who I am
+                        trigger_error('MCP_MATCH_REPOSTED');
+                    }
+                } else {
+                    $template->assign_var('S_MATCH_ID', $match_id);
+                    $template->assign_var('S_MATCH_WINNER', $old_match_winner);
+                }
+            } else {
+                trigger_error('MCP_NO_POSTED_MATCH', E_USER_WARNING);
+            }
+        } else {
+            $template->assign_var('S_SELECT_MATCH', true);
         }
     }
 }
