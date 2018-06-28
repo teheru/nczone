@@ -339,7 +339,7 @@ class players
     public function get_all(): array
     {
         $rows = $this->db->get_rows([
-            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in, p.matches_won, p.matches_loss',
+            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in, p.matches_won, p.matches_loss, p.activity',
             'FROM' => [$this->db->players_table => 'p', $this->db->users_table => 'u'],
             'WHERE' => 'p.user_id = u.user_id',
             'ORDER_BY' => 'username ASC'

@@ -74,7 +74,7 @@ export default {
     'NCZONE_MATCH_CIVS_TEAM1': 'Team 1',
     'NCZONE_MATCH_CIVS_TEAM2': 'Team 2',
     'NCZONE_MATCH_TIME_SINCE_DRAW': 'Zeit seit dem Losen',
-    'NCZONE_MATCH_LENGTH': 'Length',
+    'NCZONE_MATCH_LENGTH': 'Länge',
     'NCZONE_MATCH_TEAMS': 'Teams',
     'NCZONE_MATCH_TEAM1': 'Team 1',
     'NCZONE_MATCH_TEAM2': 'Team 2',
