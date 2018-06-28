@@ -153,7 +153,8 @@ class install_db_create extends \phpbb\db\migration\migration
 					'COLUMNS' => array(
 						'user_id' => array('UINT', 0),
 						'team_id' => array('UINT', 0),
-						'time' => array('TIMESTAMP', 0)
+						'time' => array('TIMESTAMP', 0),
+						'counted' => array('TINYINT', 0),
 					),
 					'PRIMARY_KEY' => array('user_id', 'team_id')
 				),

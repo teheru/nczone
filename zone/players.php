@@ -257,6 +257,7 @@ class players
             'user_id' => $user_id,
             'time' => time(),
             'team_id' => $team_ids[$team - 1],
+            'counted' => 0,
         ]);
     }
 
