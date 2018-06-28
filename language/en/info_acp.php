@@ -23,7 +23,7 @@ $lang = array_merge($lang, array(
 
 	'NCZONE_RULES_POST_ID' => 'Rules post ID',
 	'NCZONE_RULES_POST_ID_DESCR' => 'The ID of the post which should be displayed on the rules page.',
-	'NCZONE_MATCH_FORUM_ID' => 'Forum ID for match posts',
+	'NCZONE_MATCH_FORUM_ID' => 'Post forum ID',
 	'NCZONE_MATCH_FORUM_ID_DESCR' => 'The ID of the forum in which match results will be posted.',
 	'NCZONE_PMATCHES_PAGE_SIZE' => 'Past matches page size',
 	'NCZONE_PMATCHES_PAGE_SIZE_DESCR' => 'Number of past matches showed on a single page in the zone.',

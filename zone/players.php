@@ -198,9 +198,39 @@ class players
      *
      * @return void
      */
-    public function login_player(int $user_id): void
+    public function login_player(int $user_id, bool $force=false): void
     {
+        if(!$force && $this->in_match($user_id)) {
+            return;
+        }
         $this->edit_player($user_id, ['logged_in' => time()]);
+    }
+
+    public function in_match(int $user_id): bool
+    {
+        $sql = 'SELECT
+                    COUNT(*)
+                FROM
+                    ' . $this->db->match_players_table . '
+                WHERE
+                    user_id = ' . $user_id . ' AND
+                    team_id IN (
+                        SELECT
+                            team_id
+                        FROM
+                        ' . $this->db->match_teams_table . '
+                        WHERE
+                            match_id IN (
+                                SELECT
+                                    match_id
+                                FROM
+                                ' . $this->db->matches_table . '
+                                WHERE
+                                    post_time = 0
+                            )
+                    )';
+
+        return (bool)$this->db->get_var($sql);
     }
 
     /**
@@ -227,6 +257,7 @@ class players
             'user_id' => $user_id,
             'time' => time(),
             'team_id' => $team_ids[$team - 1],
+            'counted' => 0,
         ]);
     }
 
@@ -339,7 +370,7 @@ class players
     public function get_all(): array
     {
         $rows = $this->db->get_rows([
-            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in, p.matches_won, p.matches_loss',
+            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in, p.matches_won, p.matches_loss, p.activity',
             'FROM' => [$this->db->players_table => 'p', $this->db->users_table => 'u'],
             'WHERE' => 'p.user_id = u.user_id',
             'ORDER_BY' => 'username ASC'

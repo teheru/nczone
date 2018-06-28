@@ -82,7 +82,6 @@ $lang = array_merge($lang, array(
 	'MCP_PREVENT_DRAW' => 'Prevent drawing',
     'MCP_BOTH_TEAMS' => 'Draw for both teams only',
     
-    'MCP_MATCHES_TITLE' => 'Matches',
     'MCP_SELECT_MATCH' => 'Select match ID',
     'MCP_SELECT_MATCH_HINT' => 'Enter here the ID of the match you want to edit.',
     'MCP_MATCH_WINNER' => 'Select match winner',
