@@ -29,6 +29,7 @@ $lang = array_merge($lang, array(
 	'MCP_PLAYERS_TITLE'		=> 'Player',
 	'MCP_CIVS_TITLE'		=> 'Civilizations',
 	'MCP_MAPS_TITLE'		=> 'Maps',
+    'MCP_MATCHES_TITLE' => 'Matches',
 
 	'NCZONE_LOGGEDIN'		=> 'Logged in',
 	'NCZONE_LOGIN'			=> 'Login',
