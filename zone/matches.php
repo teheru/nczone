@@ -205,16 +205,13 @@ class matches {
                 return;
             }
 
-            $end_time = 0;
-            if(!$repost) {
-                $end_time = time();
-            } else {
-                $end_time = $this->db->get_var([
-                    'SELECT' => 't.post_time',
-                    'FROM' => [$this->db->matches_table => 't'],
-                    'WHERE' => 't.match_id = ' . $match_id,
-                ]);
-            }
+            $row = $this->db->get_row([
+                'SELECT' => 't.draw_time, t.post_time',
+                'FROM' => [$this->db->matches_table => 't'],
+                'WHERE' => 't.match_id = ' . $match_id,
+            ]);
+            $draw_time = (int)$row['draw_time'];
+            $end_time = $repost ? (int)$row['post_time'] : time();
 
             [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
 
@@ -282,7 +279,7 @@ class matches {
                         array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                     );
 
-                    $this->db->update($this->db->player_civ_table, ['time' => $end_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id . ' AND `time` < ' . $end_time);
+                    $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id . ' AND `time` < ' . $draw_time);
 
                     $players->match_changes($user_id, $team_id, $match_points, $has_won);
                     $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
@@ -294,7 +291,7 @@ class matches {
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
-                $this->db->update($this->db->player_map_table, ['time' => $end_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $end_time);
+                $this->db->update($this->db->player_map_table, ['time' => $draw_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $draw_time);
 
                 $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {
