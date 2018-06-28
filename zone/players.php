@@ -198,9 +198,39 @@ class players
      *
      * @return void
      */
-    public function login_player(int $user_id): void
+    public function login_player(int $user_id, bool $force=false): void
     {
+        if(!$force && $this->in_match($user_id)) {
+            return;
+        }
         $this->edit_player($user_id, ['logged_in' => time()]);
+    }
+
+    public function in_match(int $user_id): bool
+    {
+        $sql = 'SELECT
+                    COUNT(*)
+                FROM
+                    ' . $this->db->match_players_table . '
+                WHERE
+                    user_id = ' . $user_id . ' AND
+                    team_id IN (
+                        SELECT
+                            team_id
+                        FROM
+                        ' . $this->db->match_teams_table . '
+                        WHERE
+                            match_id IN (
+                                SELECT
+                                    match_id
+                                FROM
+                                ' . $this->db->matches_table . '
+                                WHERE
+                                    post_time = 0
+                            )
+                    )';
+
+        return (bool)$this->db->get_var($sql);
     }
 
     /**
