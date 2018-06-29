@@ -194,33 +194,35 @@ class matches {
     {
 
         $this->db->run_txn(function () use ($match_id, $post_user_id, $winner, $repost) {
-            $players = zone_util::players();
-            
-            $already_posted = (int)$this->db->get_var([
-                'SELECT' => 't.post_user_id',
-                'FROM' => [$this->db->matches_table => 't'],
-                'WHERE' => 't.match_id = ' . $match_id,
-            ]);
+            $row = $this->db->get_row('
+                SELECT
+                    t.map_id,
+                    t.draw_time,
+                    t.post_time,
+                    t.post_user_id,
+                    t1.team_id AS team1_id,
+                    t2.team_id AS team2_id
+                FROM 
+                    ' . $this->db->matches_table . ' t
+                    INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
+                    INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
+                WHERE
+                    t.match_id = ' . $match_id . ' 
+                ;
+            ');
+            $already_posted = (int)$row['post_user_id'];
             if ($already_posted && !$repost) {
                 return;
             }
 
-            $row = $this->db->get_row([
-                'SELECT' => 't.draw_time, t.post_time',
-                'FROM' => [$this->db->matches_table => 't'],
-                'WHERE' => 't.match_id = ' . $match_id,
-            ]);
+            $players = zone_util::players();
             $draw_time = (int)$row['draw_time'];
             $end_time = $repost ? (int)$row['post_time'] : time();
-
-            [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+            $team1_id = (int)$row['team1_id'];
+            $team2_id = (int)$row['team2_id'];
 
             if ($winner === 1 || $winner === 2) {
-                $map_id = (int)$this->db->get_var([
-                    'SELECT' => 't.map_id',
-                    'FROM' => [$this->db->matches_table => 't'],
-                    'WHERE' => 't.match_id = ' . $match_id
-                ]);
+                $map_id = (int)$row['map_id'];
 
                 $winner_team_id = ($winner === 1) ? $team1_id : $team2_id;
                 $team1_players = $this->get_teams_players($team1_id);
@@ -640,9 +642,13 @@ class matches {
                 u.username AS draw_username, 
                 u2.username AS post_username, 
                 t.draw_time,
-                t.post_time
+                t.post_time,
+                t1.team_id AS team1_id,
+                t2.team_id AS team2_id
             FROM
                 '.$this->db->matches_table.' t
+                INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
+                INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
                 LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
                 LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
                 LEFT JOIN '.$this->db->users_table.' u2 ON t.draw_user_id = u2.user_id
@@ -669,9 +675,13 @@ class matches {
                 t.post_user_id, 
                 u.username AS draw_username,  
                 t.draw_time,
-                t.post_time
+                t.post_time,
+                t1.team_id AS team1_id,
+                t2.team_id AS team2_id
             FROM
                 '.$this->db->matches_table.' t
+                INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
+                INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
                 LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
                 LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
             WHERE
@@ -704,9 +714,13 @@ class matches {
                 u.username AS draw_username, 
                 u2.username AS post_username, 
                 t.draw_time,
-                t.post_time
+                t.post_time,
+                t1.team_id AS team1_id,
+                t2.team_id AS team2_id
             FROM
                 '.$this->db->matches_table.' t
+                INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
+                INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
                 LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
                 LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
                 LEFT JOIN '.$this->db->users_table.' u2 ON t.draw_user_id = u2.user_id
@@ -739,7 +753,8 @@ class matches {
     {
         $match_id = (int)$m['match_id'];
         $map_id = (int)$m['map_id'];
-        [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
+        $team1_id = (int)$m['team1_id'];
+        $team2_id = (int)$m['team2_id'];
         $winner_team_id = (int)($m['winner_team_id'] ?? 0);
         if ($winner_team_id === $team1_id) {
             $winner = 1;
@@ -870,31 +885,24 @@ class matches {
         return $bets;
     }
 
-    private function check_draw_process(int $user_id=0): int
+    private function check_draw_process(int $user_id = 0): int
     {
         $row = $this->db->get_row([
             'SELECT' => 't.draw_id, t.time',
             'FROM' => [$this->db->draw_process_table => 't'],
             'WHERE' => $user_id ? ('t.user_id = ' . $user_id) : '1',
         ]);
-        if($row)
-        {
-            $draw_id = (int)$row['draw_id'];
-            $draw_process_time = (int)$row['time'];
-        }
-        else
-        {
+        if (!$row) {
             return 0;
         }
 
-        if($draw_process_time && time() - $draw_process_time > phpbb_util::config()['nczone_draw_time'])
-        {
-            $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
-            $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
+        $draw_process_time = (int)$row['time'];
+        if ($draw_process_time && time() - $draw_process_time < phpbb_util::config()['nczone_draw_time']) {
+            $this->clear_draw_tables();
             return 0;
         }
 
-        return $draw_id;
+        return (int)$row['draw_id'];
     }
 
     private function get_draw_players(int $draw_id): array
@@ -964,8 +972,7 @@ class matches {
                 return [];
             }
             $draw_players = $this->get_draw_players($draw_id);
-            $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
-            $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
+            $this->clear_draw_tables();
             return $draw_players;
         });
     }
@@ -978,9 +985,14 @@ class matches {
     {
         $this->db->run_txn(function () use ($user_id) {
             if ($this->check_draw_process($user_id)) {
-                $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
-                $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
+                $this->clear_draw_tables();
             }
         });
+    }
+
+    private function clear_draw_tables(): void
+    {
+        $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
+        $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
     }
 }

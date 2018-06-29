@@ -11,6 +11,9 @@ $overlay_bg: rgba(255, 255, 255, .8);
 
 $block_bg: $base_color;
 
+$activity_color_worst: #d72b4a;
+$activity_color_best: #1fb10c;
+
 @import "zone/block";
 @import "zone/players-table";
 @import "zone/menu";

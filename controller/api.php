@@ -167,6 +167,10 @@ class api
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
+        if (zone_util::players()->in_match($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_ALREADY_IN_A_MATCH'], self::CODE_BAD_REQUEST);
+        }
+
         zone_util::players()->login_player($user_id);
         return $this->jsonResponse([]);
     }
@@ -242,7 +246,7 @@ class api
         $players = zone_util::matches()->confirm_draw_process($user_id);
         if (empty($players)) {
             // todo: maybe add reason or something, but use normal status code
-            return $this->jsonResponse([]);
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_PLAYERS'], self::CODE_BAD_REQUEST);
         }
 
         $match_ids = zone_util::matches()->draw($user_id, $players);

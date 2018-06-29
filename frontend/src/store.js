@@ -73,8 +73,9 @@ export default () => {
         return s.me.permissions.m_zone_draw_match
       },
       canModPost: (s) => s.me.permissions.m_zone_draw_match,
-      canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn,
+      canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn && !g.isPlaying,
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
+      isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
       pastMatches: (s) => s.pastMatches.items,
       drawPreview: (s) => s.drawPreview,
