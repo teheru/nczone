@@ -32,7 +32,7 @@ export default {
   methods: {
     fetchData () {
       this.loading = true
-      this.$store.dispatch('getRunningMatches')
+      this.$store.dispatch('getRunningMatches', {passive: false})
         .then(_ => {
           this.loading = false
         })

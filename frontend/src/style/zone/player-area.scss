@@ -23,3 +23,11 @@ $steps: 11;
 .zone-player-table-rating {
   text-align: right;
 }
+
+
+#zone-player-area {
+  .zone-content {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}

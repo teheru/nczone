@@ -1,0 +1,13 @@
+.zone-draw-preview {
+  .zone-content {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .zone-numeric-list {
+    list-style: decimal;
+    padding-left: 1.8em;
+    column-count: 4;
+    column-gap: 5vw;
+  }
+}

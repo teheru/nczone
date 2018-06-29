@@ -31,7 +31,7 @@ export default {
   methods: {
     fetchData () {
       this.loading = true
-      this.$store.dispatch('getPastMatches')
+      this.$store.dispatch('getPastMatches', {passive: false})
         .then(_ => {
           this.loading = false
         })

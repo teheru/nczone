@@ -120,6 +120,7 @@ export default () => {
           const loggedInPlayer = payload.find(m => m.id === player.id)
           if (loggedInPlayer) {
             player.logged_in = loggedInPlayer.logged_in
+            player.last_activity = loggedInPlayer.last_activity
           } else {
             player.logged_in = 0
           }
@@ -176,33 +177,34 @@ export default () => {
     actions: {
       async init ({state, commit, dispatch}, payload) {
         if (payload.matchId) {
-          commit('setMatch', await api.match(payload.matchId))
+          commit('setMatch', await api.passively.getMatch(payload.matchId))
           commit('init', {me: payload.me, i18n: payload.i18n})
         } else {
           commit('init', {me: payload.me, i18n: payload.i18n})
           dispatch('poll')
         }
       },
+
       async poll ({rootState, state, commit, dispatch}) {
         // todo: all these should trigger passive api requests
         // todo: check if 30sec is a good value for all the api calls. getInformation for example could have a slower interval..
 
         // always refresh logged in players
-        dispatch('getLoggedInPlayers')
+        dispatch('getLoggedInPlayers', {passive: true})
 
         // always fetch information
-        dispatch('getInformation')
+        dispatch('getInformation', {passive: true})
 
         // only refresh the rest of the stuff when the route matches
         if (rootState.route.name === routes.ROUTE_RMATCHES) {
           // console.log('fetching rmatches')
-          dispatch('getRunningMatches')
+          dispatch('getRunningMatches', {passive: true})
         } else if (rootState.route.name === routes.ROUTE_PMATCHES) {
           // console.log('fetching pmatches')
-          dispatch('getPastMatches')
+          dispatch('getPastMatches', {passive: true})
         } else if (rootState.route.name === routes.ROUTE_PLAYERS) {
           // console.log('fetching players')
-          dispatch('getAllPlayers')
+          dispatch('getAllPlayers', {passive: true})
         } else if (rootState.route.name === routes.ROUTE_SETTINGS) {
           // console.log('fetching settings')
           // todo
@@ -216,54 +218,93 @@ export default () => {
 
         dispatch('poll')
       },
-      async getLoggedInPlayers ({commit}) {
-        commit('setLoggedInPlayers', await api.loggedInPlayers())
+
+      async getLoggedInPlayers ({commit, dispatch}, {passive}) {
+        if (passive) {
+          commit('setLoggedInPlayers', await api.passively.getLoggedInPlayers())
+        } else {
+          commit('setLoggedInPlayers', await api.actively.getLoggedInPlayers())
+          dispatch('getLoggedInPlayers', {passive: true})
+        }
       },
-      async getAllPlayers ({commit}) {
-        commit('setAllPlayers', await api.allPlayers())
+
+      async getAllPlayers ({commit, dispatch}, {passive}) {
+        if (passive) {
+          commit('setAllPlayers', await api.passively.getAllPlayers())
+        } else {
+          commit('setAllPlayers', await api.actively.getAllPlayers())
+          dispatch('getLoggedInPlayers', {passive: true})
+        }
       },
-      async getRunningMatches ({commit}) {
-        commit('setRunningMatches', await api.runningMatches())
+
+      async getRunningMatches ({commit, dispatch}, {passive}) {
+        if (passive) {
+          commit('setRunningMatches', await api.passively.getRunningMatches())
+        } else {
+          commit('setRunningMatches', await api.actively.getRunningMatches())
+          dispatch('getLoggedInPlayers', {passive: true})
+        }
       },
-      async getPastMatches ({commit}) {
-        commit('setPastMatches', await api.pastMatches())
+
+      async getPastMatches ({commit, dispatch}, {passive}) {
+        if (passive) {
+          commit('setPastMatches', await api.passively.getPastMatches())
+        } else {
+          commit('setPastMatches', await api.actively.getPastMatches())
+          dispatch('getLoggedInPlayers', {passive: true})
+        }
       },
+
+      async getInformation ({commit, dispatch}, {passive}) {
+        if (passive) {
+          commit('setInformation', await api.passively.getInformation())
+        } else {
+          commit('setInformation', await api.actively.getInformation())
+          dispatch('getLoggedInPlayers', {passive: true})
+        }
+      },
+
       async login ({commit, dispatch}) {
-        await api.login()
-        await dispatch('getLoggedInPlayers')
+        await api.actively.doLogin()
+        await dispatch('getLoggedInPlayers', {passive: true})
       },
+
       async logout ({commit, dispatch}) {
-        await api.logout()
-        await dispatch('getLoggedInPlayers')
+        await api.actively.doLogout()
+        await dispatch('getLoggedInPlayers', {passive: true})
       },
+
       async drawPreview ({commit}) {
-        commit('showDrawPreview', await api.drawPreview())
+        commit('showDrawPreview', await api.actively.drawPreview())
       },
+
       async drawConfirm ({commit, dispatch}) {
-        commit('hideDrawPreview', await api.drawConfirm())
-        dispatch('getRunningMatches')
-        dispatch('getLoggedInPlayers')
+        commit('hideDrawPreview', await api.actively.drawConfirm())
+        dispatch('getRunningMatches', {passive: true})
+        dispatch('getLoggedInPlayers', {passive: true})
       },
+
       async drawCancel ({commit}) {
-        commit('hideDrawPreview', await api.drawCancel())
+        commit('hideDrawPreview', await api.actively.drawCancel())
       },
+
       async postMatchResult ({commit, dispatch}, {matchId, winner}) {
-        await api.postMatchResult(matchId, winner)
-        await dispatch('getRunningMatches')
+        await api.actively.postMatchResult(matchId, winner)
+        await dispatch('getRunningMatches', {passive: true})
       },
+
       async bet ({commit, dispatch}, {matchId, team}) {
-        await api.bet(matchId, team)
-        await dispatch('getRunningMatches')
+        await api.actively.placeBet(matchId, team)
+        await dispatch('getRunningMatches', {passive: true})
       },
-      async getInformation ({commit}) {
-        commit('setInformation', await api.getInformation())
-      },
+
       async nextInformation ({state, commit}) {
         commit('increaseInformationIndex')
       },
+
       toggleLanguage ({state, commit}) {
         const lang = state.i18n.locale === 'en' ? 'de' : 'en'
-        api.setLang(lang) // async language set
+        api.actively.setLang(lang) // async language set
         commit('setLang', lang)
       }
     }
