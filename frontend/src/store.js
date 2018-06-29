@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as api from './api'
+import * as routes from './routes'
 
 const waitMs = async (time) => {
   return new Promise((resolve) => {
@@ -193,19 +194,19 @@ export default () => {
         dispatch('getInformation')
 
         // only refresh the rest of the stuff when the route matches
-        if (rootState.route.name === 'rmatches') {
+        if (rootState.route.name === routes.ROUTE_RMATCHES) {
           // console.log('fetching rmatches')
           dispatch('getRunningMatches')
-        } else if (rootState.route.name === 'pmatches') {
+        } else if (rootState.route.name === routes.ROUTE_PMATCHES) {
           // console.log('fetching pmatches')
           dispatch('getPastMatches')
-        } else if (rootState.route.name === 'players') {
+        } else if (rootState.route.name === routes.ROUTE_PLAYERS) {
           // console.log('fetching players')
           dispatch('getAllPlayers')
-        } else if (rootState.route.name === 'settings') {
+        } else if (rootState.route.name === routes.ROUTE_SETTINGS) {
           // console.log('fetching settings')
           // todo
-        } else if (rootState.route.name === 'rules') {
+        } else if (rootState.route.name === routes.ROUTE_RULES) {
           // console.log('fetching rules')
           // todo
         }
