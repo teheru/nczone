@@ -2,6 +2,15 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as api from './api'
+import * as routes from './routes'
+
+const waitMs = async (time) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
 
 export default () => {
   Vue.use(Vuex)
@@ -73,8 +82,9 @@ export default () => {
         return s.me.permissions.m_zone_draw_match
       },
       canModPost: (s) => s.me.permissions.m_zone_draw_match,
-      canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn,
+      canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn && !g.isPlaying,
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
+      isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
       pastMatches: (s) => s.pastMatches.items,
       drawPreview: (s) => s.drawPreview,
@@ -167,10 +177,44 @@ export default () => {
       async init ({state, commit, dispatch}, payload) {
         if (payload.matchId) {
           commit('setMatch', await api.match(payload.matchId))
+          commit('init', {me: payload.me, i18n: payload.i18n})
+        } else {
+          commit('init', {me: payload.me, i18n: payload.i18n})
+          dispatch('poll')
         }
-        commit('init', {me: payload.me, i18n: payload.i18n})
+      },
+      async poll ({rootState, state, commit, dispatch}) {
+        // todo: all these should trigger passive api requests
+        // todo: check if 30sec is a good value for all the api calls. getInformation for example could have a slower interval..
+
+        // always refresh logged in players
         dispatch('getLoggedInPlayers')
+
+        // always fetch information
         dispatch('getInformation')
+
+        // only refresh the rest of the stuff when the route matches
+        if (rootState.route.name === routes.ROUTE_RMATCHES) {
+          // console.log('fetching rmatches')
+          dispatch('getRunningMatches')
+        } else if (rootState.route.name === routes.ROUTE_PMATCHES) {
+          // console.log('fetching pmatches')
+          dispatch('getPastMatches')
+        } else if (rootState.route.name === routes.ROUTE_PLAYERS) {
+          // console.log('fetching players')
+          dispatch('getAllPlayers')
+        } else if (rootState.route.name === routes.ROUTE_SETTINGS) {
+          // console.log('fetching settings')
+          // todo
+        } else if (rootState.route.name === routes.ROUTE_RULES) {
+          // console.log('fetching rules')
+          // todo
+        }
+
+        // wait a bit, then dispatch poll again
+        await waitMs(30000)
+
+        dispatch('poll')
       },
       async getLoggedInPlayers ({commit}) {
         commit('setLoggedInPlayers', await api.loggedInPlayers())

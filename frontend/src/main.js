@@ -12,6 +12,7 @@ import Players from './components/Players.vue'
 import Settings from './components/Settings.vue'
 import Rules from './components/Rules.vue'
 import * as api from './api'
+import * as routes from './routes'
 
 import './style/zone.scss'
 
@@ -49,27 +50,27 @@ export async function init (settings) {
     const router = new Router({
       routes: [
         {
-          name: 'rmatches',
+          name: routes.ROUTE_RMATCHES,
           path: '/',
           component: RunningMatches
         },
         {
-          name: 'pmatches',
+          name: routes.ROUTE_PMATCHES,
           path: '/pmatches',
           component: PastMatches
         },
         {
-          name: 'players',
+          name: routes.ROUTE_PLAYERS,
           path: '/players',
           component: Players
         },
         {
-          name: 'settings',
+          name: routes.ROUTE_SETTINGS,
           path: '/settings',
           component: Settings
         },
         {
-          name: 'rules',
+          name: routes.ROUTE_RULES,
           path: '/rules',
           component: Rules
         }

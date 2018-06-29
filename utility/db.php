@@ -12,6 +12,8 @@ class db
     /** @var string */
     public $users_table;
     /** @var string */
+    public $session_table;
+    /** @var string */
     public $posts_table;
     /** @var string */
     public $bets_table;
@@ -51,6 +53,7 @@ class db
         $this->db = $db;
 
         $this->users_table = $table_prefix . 'users';
+        $this->session_table = $table_prefix . 'sessions';
         $this->posts_table = $table_prefix . 'posts';
 
         $this->bets_table = $table_prefix . 'zone_bets';

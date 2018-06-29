@@ -1,0 +1,5 @@
+export const ROUTE_RMATCHES = 'rmatches'
+export const ROUTE_PMATCHES = 'pmatches'
+export const ROUTE_PLAYERS = 'players'
+export const ROUTE_SETTINGS = 'settings'
+export const ROUTE_RULES = 'rules'

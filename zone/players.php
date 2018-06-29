@@ -198,38 +198,27 @@ class players
      *
      * @return void
      */
-    public function login_player(int $user_id, bool $force=false): void
+    public function login_player(int $user_id): void
     {
-        if(!$force && $this->in_match($user_id)) {
-            return;
-        }
         $this->edit_player($user_id, ['logged_in' => time()]);
     }
 
     public function in_match(int $user_id): bool
     {
-        $sql = 'SELECT
-                    COUNT(*)
-                FROM
-                    ' . $this->db->match_players_table . '
-                WHERE
-                    user_id = ' . $user_id . ' AND
-                    team_id IN (
-                        SELECT
-                            team_id
-                        FROM
-                        ' . $this->db->match_teams_table . '
-                        WHERE
-                            match_id IN (
-                                SELECT
-                                    match_id
-                                FROM
-                                ' . $this->db->matches_table . '
-                                WHERE
-                                    post_time = 0
-                            )
-                    )';
-
+        $sql = '
+            SELECT
+                COUNT(*)
+            FROM
+                ' . $this->db->match_players_table . ' p
+                INNER JOIN ' . $this->db->match_teams_table . ' t
+                ON t.team_id = p.team_id
+                INNER JOIN '.$this->db->matches_table.' m
+                ON m.match_id = t.match_id
+                AND m.post_time = 0
+            WHERE
+                user_id = ' . $user_id . '
+            ;
+        ';
         return (bool)$this->db->get_var($sql);
     }
 
@@ -339,6 +328,16 @@ class players
         }
     }
 
+    public function last_streak(int $user_id): int
+    {
+        return (int)$this->db->get_var([
+            'SELECT' => 't.streak',
+            'FROM' => [$this->db->match_players_table => 't'],
+            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id,
+            'ORDER_BY' => 't.team_id DESC',
+        ]);
+    }
+
     /**
      * Gets the user id, name and rating of all logged in players
      *
@@ -346,18 +345,33 @@ class players
      */
     public function get_logged_in(): array
     {
-        $rows = $this->db->get_rows([
-            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in',
-            'FROM' => [$this->db->players_table => 'p', $this->db->users_table => 'u'],
-            'WHERE' => 'logged_in > 0 AND p.user_id = u.user_id',
-            'ORDER_BY' => 'logged_in ASC'
-        ]);
+        $rows = $this->db->get_rows('
+            SELECT
+                p.user_id AS id, 
+                u.username, 
+                p.rating, 
+                p.logged_in, 
+                MAX(s.session_time) AS last_activity
+            FROM
+                '.$this->db->players_table.' p
+                INNER JOIN '.$this->db->users_table .' u ON u.user_id = p.user_id
+                LEFT JOIN '.$this->db->session_table.' s ON s.session_user_id = p.user_id
+            WHERE
+                p.logged_in > 0
+            GROUP BY
+                p.user_id
+            ORDER BY 
+                p.logged_in ASC
+            ;
+        ');
+
         return array_map(function($row) {
             return [
                 'id' => (int)$row['id'],
                 'username' => $row['username'],
                 'rating' => (int)$row['rating'],
                 'logged_in' => (int)$row['logged_in'],
+                'last_activity' => (int)$row['last_activity'],
             ];
         }, $rows);
     }
@@ -369,22 +383,38 @@ class players
      */
     public function get_all(): array
     {
-        $rows = $this->db->get_rows([
-            'SELECT' => 'p.user_id AS id, u.username, p.rating, p.logged_in, p.matches_won, p.matches_loss, p.activity',
-            'FROM' => [$this->db->players_table => 'p', $this->db->users_table => 'u'],
-            'WHERE' => 'p.user_id = u.user_id',
-            'ORDER_BY' => 'username ASC'
-        ]);
-
+        $rows = $this->db->get_rows('
+            SELECT
+                p.user_id AS id, 
+                u.username, 
+                p.rating, 
+                p.logged_in, 
+                p.matches_won, 
+                p.matches_loss, 
+                p.activity, 
+                MAX(s.session_time) AS last_activity,
+                COALESCE(t.rating_change, 0) AS rating_change,
+                COALESCE(t.streak, 0) AS streak
+            FROM
+                ' . $this->db->players_table . ' p
+                INNER JOIN ' . $this->db->users_table . ' u 
+                ON u.user_id = p.user_id
+                
+                LEFT JOIN ' . $this->db->session_table . ' s 
+                ON s.session_user_id = p.user_id
+                
+                LEFT JOIN ' . $this->db->match_players_table . ' t 
+                ON t.user_id = p.user_id 
+                AND t.team_id = (SELECT MAX(team_id) FROM ' . $this->db->match_players_table . ' WHERE user_id = p.user_id AND rating_change != 0)
+            GROUP BY
+                p.user_id
+            ORDER BY 
+                u.username ASC
+            ;
+        ');
         $players = [];
         foreach($rows as $row)
         {
-            $mp = $this->db->get_row([
-                'SELECT' => 't.rating_change, t.streak',
-                'FROM' => [$this->db->match_players_table => 't'],
-                'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $row['id'],
-                'ORDER_BY' => 't.team_id DESC',
-            ]);
             [$wins, $losses] = [(int)$row['matches_won'], (int)$row['matches_loss']];
             $games = $wins + $losses;
 
@@ -393,12 +423,13 @@ class players
                 'username' => $row['username'],
                 'rating' => (int)$row['rating'],
                 'logged_in' => (int)$row['logged_in'],
+                'last_activity' => (int)$row['last_activity'],
                 'games' => $games,
                 'wins' => $wins,
                 'losses' => $losses,
                 'winrate' => $games <= 0 ? 0.0 : ($wins / $games * 100),
-                'ratingchange' => $mp ? (int)$mp['rating_change'] : 0,
-                'streak' => $mp ? (int)$mp['streak'] : 0,
+                'ratingchange' => (int)$row['rating_change'],
+                'streak' => (int)$row['streak'],
             ];
         }
         return $players;
@@ -464,16 +495,6 @@ class players
         return array_key_exists('rating', $this->get_player($user_id));
     }
 
-    public function last_streak(int $user_id): int
-    {
-        return (int)$this->db->get_var([
-            'SELECT' => 't.streak',
-            'FROM' => [$this->db->match_players_table => 't'],
-            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id,
-            'ORDER_BY' => 't.team_id DESC',
-        ]);
-    }
-
     public function get_team_usernames(int ...$team_ids): array
     {
         if(!$team_ids)
@@ -514,38 +535,27 @@ class players
             : ($last_streak < 0 ? $last_streak - 1 : -1);
     }
 
-    public function calculate_all_activities()
+    public function calculate_all_activities(): void
     {
-        $sql = 'SELECT
-                    user_id,
-                    COUNT(*) AS activity_matches
-                FROM
-                    ' . $this->db->match_players_table . '
-                WHERE
-                    team_id IN (
-                        SELECT
-                            team_id
-                        FROM
-                            ' . $this->db->match_teams_table . '
-                        WHERE
-                            match_id IN (
-                                SELECT
-                                    match_id
-                                FROM
-                                    ' . $this->db->matches_table . '
-                                WHERE
-                                    post_time > ' . time() . ' - ' . phpbb_util::config()['nczone_activity_time'] . '*60*60*24
-                            )
-                        )
-                GROUP BY
-                    user_id';
+        $min_time = time() - (int)phpbb_util::config()['nczone_activity_time'] * 60 * 60 * 24;
+        $sql = '
+            SELECT
+                user_id,
+                COUNT(*) AS activity_matches
+            FROM
+                ' . $this->db->match_players_table . ' p
+                INNER JOIN ' . $this->db->match_teams_table . ' t ON p.team_id = t.team_id
+                INNER JOIN ' . $this->db->matches_table . ' m ON m.match_id = t.match_id
+                AND m.post_time > '.$min_time.'
+            GROUP BY 
+                p.user_id
+            ;
+        ';
         $rows = $this->db->get_rows($sql);
 
-        $users_activity = [];
         foreach($rows as $row) {
             $user_id = (int)$row['user_id'];
             $activity_matches = (int)$row['activity_matches'];
-            $activity = 0;
             if($activity_matches >= (int)phpbb_util::config()['nczone_activity_5']) {
                 $activity = 5;
             } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_4']) {
@@ -556,8 +566,10 @@ class players
                 $activity = 2;
             } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_1']) {
                 $activity = 1;
+            } else {
+                $activity = 0;
             }
-            
+
             $this->edit_player($user_id, ['activity' => $activity]);
         }
     }

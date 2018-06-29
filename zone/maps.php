@@ -110,6 +110,7 @@ class maps
      * @param string $map_name Name of the new map
      * @param float $weight Drawing weight
      * @param int $copy_map_id id of a map to be copied
+     * @return string
      * @throws \Throwable
      */
     public function create_map(string $map_name, float $weight, int $copy_map_id = 0): string
