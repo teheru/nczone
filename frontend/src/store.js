@@ -3,6 +3,14 @@ import Vuex from 'vuex'
 
 import * as api from './api'
 
+const waitMs = async (time) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
+
 export default () => {
   Vue.use(Vuex)
 
@@ -168,10 +176,44 @@ export default () => {
       async init ({state, commit, dispatch}, payload) {
         if (payload.matchId) {
           commit('setMatch', await api.match(payload.matchId))
+          commit('init', {me: payload.me, i18n: payload.i18n})
+        } else {
+          commit('init', {me: payload.me, i18n: payload.i18n})
+          dispatch('poll')
         }
-        commit('init', {me: payload.me, i18n: payload.i18n})
+      },
+      async poll ({rootState, state, commit, dispatch}) {
+        // todo: all these should trigger passive api requests
+        // todo: check if 30sec is a good value for all the api calls. getInformation for example could have a slower interval..
+
+        // always refresh logged in players
         dispatch('getLoggedInPlayers')
+
+        // always fetch information
         dispatch('getInformation')
+
+        // only refresh the rest of the stuff when the route matches
+        if (rootState.route.name === 'rmatches') {
+          // console.log('fetching rmatches')
+          dispatch('getRunningMatches')
+        } else if (rootState.route.name === 'pmatches') {
+          // console.log('fetching pmatches')
+          dispatch('getPastMatches')
+        } else if (rootState.route.name === 'players') {
+          // console.log('fetching players')
+          dispatch('getAllPlayers')
+        } else if (rootState.route.name === 'settings') {
+          // console.log('fetching settings')
+          // todo
+        } else if (rootState.route.name === 'rules') {
+          // console.log('fetching rules')
+          // todo
+        }
+
+        // wait a bit, then dispatch poll again
+        await waitMs(30000)
+
+        dispatch('poll')
       },
       async getLoggedInPlayers ({commit}) {
         commit('setLoggedInPlayers', await api.loggedInPlayers())
