@@ -897,7 +897,7 @@ class matches {
         }
 
         $draw_process_time = (int)$row['time'];
-        if ($draw_process_time && time() - $draw_process_time < phpbb_util::config()['nczone_draw_time']) {
+        if ($draw_process_time && ((time() - $draw_process_time) > phpbb_util::config()['nczone_draw_time'])) {
             $this->clear_draw_tables();
             return 0;
         }
