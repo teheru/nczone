@@ -409,7 +409,7 @@ class players
             GROUP BY
                 p.user_id
             ORDER BY 
-                p.username ASC
+                u.username ASC
             ;
         ');
         $players = [];
