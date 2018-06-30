@@ -358,6 +358,10 @@ class api
             $this->user->update_session_infos();
         }
 
+        if (!$this->auth->acl_get('u_zone_bet')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_BET'], self::CODE_FORBIDDEN);
+        }
+
         $data = self::get_request_data();
         if (!isset($data['team'])) {
             return $this->jsonResponse(['reason' => 'team is not set'], self::CODE_BAD_REQUEST);
