@@ -14,8 +14,6 @@ import Rules from './components/Rules.vue'
 import * as api from './api'
 import * as routes from './routes'
 
-import './style/zone.scss'
-
 export async function init (settings) {
   const me = await api.actively.getMe()
 

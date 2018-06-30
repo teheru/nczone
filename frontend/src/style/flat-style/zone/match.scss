@@ -15,7 +15,7 @@
 
   &:first-child {
     background-color: $base_color;
-    color: #FFF;
+    color: #fff;
 
     border-style: solid;
     border-color: $border_light_color;
@@ -189,7 +189,9 @@
 .zone-match-post-result-form {
   text-align: center;
 
-  span, select, button {
-    margin: 0.5em;
+  span,
+  select,
+  button {
+    margin: .5em;
   }
 }

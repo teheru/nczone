@@ -1,0 +1,32 @@
+$steps: 11;
+
+.zone-user-table {
+  display: table;
+  width: 100%;
+}
+
+.zone-player-login-row {
+  display: table-row;
+  font-weight: bold;
+
+  > div {
+    display: table-cell;
+  }
+
+  @for $i from 0 to $steps {
+    &.zone-player-activity-#{$i + 1} {
+      color: mix($activity_color_worst, $activity_color_best, percentage($i / ($steps - 1)));
+    }
+  }
+}
+
+.zone-player-table-rating {
+  text-align: right;
+}
+
+#zone-player-area {
+  .zone-content {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}

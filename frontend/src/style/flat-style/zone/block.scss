@@ -2,6 +2,7 @@
   padding: 5px;
   background-color: $block_bg;
   margin-bottom: 2em;
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -19,7 +20,7 @@
 
   .zone-content {
     padding: 5px;
-    background-color: #eeeeee;
+    background-color: #eee;
   }
 
   .zone-actions {
