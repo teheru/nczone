@@ -1,18 +1,18 @@
-$base_color: #0076b1;
+$base_color: #333333;
 $base_light_color: lighten($base_color, 85);
 
-$border_light_color: #ccc;
+$border_light_color: $base_color;
 
 $input_bg: $base_color;
-$input_bg_disabled: #d0d0d0;
+$input_bg_disabled: rgba(0, 0, 0, .0);
 $input_fg: $base_light_color;
 $input_fg_disabled: #000;
 $overlay_bg: rgba(255, 255, 255, .8);
 
 $block_bg: $base_color;
 
-$activity_color_worst: #d72b4a;
-$activity_color_best: #1fb10c;
+$activity_color_worst: #BC2A4D;
+$activity_color_best: #229621;
 
 @import "zone/block";
 @import "zone/players-table";
@@ -28,6 +28,7 @@ $activity_color_best: #1fb10c;
   grid-template-columns: 216px auto 216px;
   grid-gap: 18px;
   align-items: start;
+  font-size: 9pt;
 
   a {
     cursor: pointer;

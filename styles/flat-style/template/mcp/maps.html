@@ -1,0 +1,114 @@
+{% extends "mcp/base.html" %}
+
+{% block content %}
+    {% if S_SELECT_MAP %}
+
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="map_id">{{ lang('MCP_SELECT_MAP') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_MAP_HINT') }}</span>
+                </dt>
+                <dd>
+                    <select id="map_id" name="map_id">
+                        {% if S_CAN_CREATE_MAP %}
+                            <option value="0">{{ lang('MCP_CREATE_MAP') }}</option>
+                        {% endif %}
+                        {% for map in maps %}
+                            <option value="{{ map.ID }}">{{ map.NAME }}</option>
+                        {% endfor %}
+                    </select>
+                </dd>
+            </dl>
+        </fieldset>
+
+    {% elseif S_NEW_MAP or S_EDIT_MAP %}
+
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="map_name">{{ lang('MCP_MAP_NAME') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_MAP_NAME_HINT') }}</span>
+                </dt>
+                <dd>
+                    <input id="map_name" name="map_name" type="text" class="inputbox" {% if S_EDIT_MAP %}
+                        value="{{ S_MAP_NAME }}" {% endif %} />
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    <label for="map_name">{{ lang('MCP_MAP_WEIGHT') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_MAP_WEIGHT_HINT') }}</span>
+                </dt>
+                <dd>
+                    <input id="map_weight" name="map_weight" type="text" class="inputbox" {% if S_EDIT_MAP %}
+                        value="{{ S_MAP_WEIGHT }}" {% else %} value="1.0" {% endif %} />
+                </dd>
+            </dl>
+
+            {% if S_NEW_MAP %}
+                <dl>
+                    <dt>
+                        <label for="copy_map_id">{{ lang('MCP_COPY_MAP') }}{{ lang('COLON') }}</label><br/>
+                        <span>{{ lang('MCP_COPY_MAP_HINT') }}</span>
+                    </dt>
+                    <dd>
+                        <select id="copy_map_id" name="copy_map_id">
+                            <option value="0">{{ lang('MCP_DONT_COPY') }}</option>
+                            {% for map in maps %}
+                                <option value="{{ map.ID }}">{{ map.NAME }}</option>
+                            {% endfor %}
+                        </select>
+                    </dd>
+                </dl>
+            {% endif %}
+
+            {% if S_EDIT_MAP %}
+                <dl>
+                    <dt>
+                        <label for="map_civs">{{ lang('MCP_MAP_CIVS') }}{{ lang('COLON') }}</label><br/>
+                        <span>{{ lang('MCP_MAP_CIVS_HINT') }}</span>
+                    </dt>
+                    <dd>
+                        <table class="mcp_nczone">
+                            <tr>
+                                <th>{{ lang('MCP_CIV_NAME') }}</th>
+                                <th>{{ lang('MCP_MULTIPLIER') }}</th>
+                                <th>{{ lang('MCP_FORCE_DRAW') }}</th>
+                                <th>{{ lang('MCP_PREVENT_DRAW') }}</th>
+                                <th>{{ lang('MCP_BOTH_TEAMS') }}</th>
+                            </tr>
+                            {% for civ in map_civs %}
+                                <tr>
+                                    <td>{{ lang(civ.CIV_NAME) }}</td>
+                                    <td><input id="multiplier_{{ civ.CIV_ID }}"
+                                               name="multiplier_{{ civ.CIV_ID }}" type="text"
+                                               class="inputbox" value="{{ civ.MULTIPLIER }}"/></td>
+                                    <td><input id="force_draw_{{ civ.CIV_ID }}"
+                                               name="force_draw_{{ civ.CIV_ID }}"
+                                               type="checkbox"
+                                            {{ civ.FORCE_DRAW }}/></td>
+                                    <td><input id="prevent_draw_{{ civ.CIV_ID }}"
+                                               name="prevent_draw_{{ civ.CIV_ID }}"
+                                               type="checkbox" {{ civ.PREVENT_DRAW }}/></td>
+                                    <td><input id="both_teams_{{ civ.CIV_ID }}"
+                                               name="both_teams_{{ civ.CIV_ID }}"
+                                               type="checkbox"
+                                            {{ civ.BOTH_TEAMS }}/></td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </dd>
+                </dl>
+            {% endif %}
+
+        </fieldset>
+        {% if S_EDIT_MAP %}
+            <input id="map_id" name="map_id" type="hidden" value="{{ S_MAP_ID }}"/>
+            <input id="edit_map" name="edit_map" type="hidden" value="1"/>
+        {% else %}
+            <input id="create_map" name="create_map" type="hidden" value="1"/>
+        {% endif %}
+
+    {% endif %}
+{% endblock %}

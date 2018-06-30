@@ -1,0 +1,44 @@
+{% extends "mcp/base.html" %}
+
+{% block content %}
+    {% if S_SELECT_CIV %}
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="civ_id">{{ lang('MCP_SELECT_CIV') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_CIV_HINT') }}</span>
+                </dt>
+                <dd>
+                    <select id="civ_id" name="civ_id">
+                        <option value="0">{{ lang('MCP_CREATE_CIV') }}</option>
+                        {% for civ in civs %}
+                            <option value="{{ civ.ID }}">{{ lang(civ.NAME) }}</option>
+                        {% endfor %}
+                    </select>
+                </dd>
+            </dl>
+        </fieldset>
+
+    {% elseif S_NEW_CIV or S_EDIT_CIV %}
+
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="civ_name">{{ lang('MCP_CIV_NAME') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_CIV_NAME_HINT') }}</span>
+                </dt>
+                <dd>
+                    <input id="civ_name" name="civ_name" type="text" class="inputbox" {% if S_EDIT_CIV %}
+                        value="{{ S_CIV_NAME }}" {% endif %} />
+                </dd>
+            </dl>
+        </fieldset>
+        {% if S_EDIT_CIV %}
+            <input id="civ_id" name="civ_id" type="hidden" value="{{ S_CIV_ID }}"/>
+            <input id="edit_civ" name="edit_civ" type="hidden" value="1"/>
+        {% else %}
+            <input id="create_civ" name="create_civ" type="hidden" value="1"/>
+        {% endif %}
+
+    {% endif %}
+{% endblock %}
