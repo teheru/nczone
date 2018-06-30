@@ -11,10 +11,10 @@
 
 namespace eru\nczone\zone;
 
+use eru\nczone\config\config;
 use eru\nczone\utility\db;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
-use eru\nczone\utility\phpbb_util;
 
 class draw_settings {
 
@@ -32,8 +32,6 @@ class draw_settings {
 
     public function draw_settings(array $team1, array $team2): array
     {
-        $config = phpbb_util::config();
-
         $players = array_merge($team1, $team2);
 
         $match_civ_ids = [];
@@ -48,7 +46,7 @@ class draw_settings {
         $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
         if($civ_kind === self::MATCH_CIVS)
         {
-            $match_civs = $this->draw_match_civs($map_id, $players, 0, $config['nczone_draw_match_extra_civs_' . $vs_str]);
+            $match_civs = $this->draw_match_civs($map_id, $players, 0, config::get('nczone_draw_match_extra_civs_' . $vs_str));
             foreach($match_civs as $civ)
             {
                 $match_civ_ids[] = (int)$civ['id'];
@@ -56,7 +54,7 @@ class draw_settings {
         }
         elseif($civ_kind === self::TEAM_CIVS)
         {
-            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, 0, $config['nczone_draw_team_extra_civs_' . $vs_str]);
+            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, 0, config::get('nczone_draw_team_extra_civs_' . $vs_str));
             foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = (int)$civ['id'];
@@ -68,7 +66,7 @@ class draw_settings {
         }
         else
         {
-            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, $config['nczone_draw_player_num_civs_' . $vs_str]);
+            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, config::get('nczone_draw_player_num_civs_' . $vs_str));
             foreach($player_civs as $user_id => $pc)
             {
                 $player_civ_ids[$user_id] = $pc['id'];
@@ -125,14 +123,12 @@ class draw_settings {
 
     public function decide_draw_civs_kind(array $team1_users, array $team2_users): string
     {
-        $config = phpbb_util::config();
-
         $min_max_diff = number_util::diff(
             players::get_max_rating($team1_users, $team2_users),
             players::get_min_rating($team1_users, $team2_users)
         );
 
-        if ($min_max_diff >= $config['nczone_draw_player_civs']) {
+        if ($min_max_diff >= config::get('nczone_draw_player_civs')) {
             return self::PLAYER_CIVS;
         }
 
@@ -141,7 +137,7 @@ class draw_settings {
             players::get_rating_sum($team2_users)
         );
 
-        if($rating_sum_diff >= $config['nczone_draw_team_civs']) {
+        if($rating_sum_diff >= config::get('nczone_draw_team_civs')) {
             return self::TEAM_CIVS;
         }
 

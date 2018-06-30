@@ -10,22 +10,24 @@
 
 namespace eru\nczone\migrations;
 
+use eru\nczone\config\config;
+
 class install_cron extends \phpbb\db\migration\migration
 {
-	public function effectively_installed()
-	{
-		return isset($this->config['nczone_activity_cron']);
-	}
+    public function effectively_installed()
+    {
+        return isset($this->config['nczone_activity_cron']);
+    }
 
-	static public function depends_on()
-	{
-		return array('\phpbb\db\migration\data\v31x\v314');
-	}
+    static public function depends_on()
+    {
+        return array('\phpbb\db\migration\data\v31x\v314');
+    }
 
-	public function update_data()
-	{
-		return array(
-			array('config.add', array('nczone_activity_cron', 0)),
-		);
-	}
+    public function update_data()
+    {
+        return [
+            ['config.add', ['nczone_activity_cron', config::default('nczone_activity_cron')]],
+        ];
+    }
 }

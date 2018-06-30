@@ -10,8 +10,8 @@
 
 namespace eru\nczone\cron\task;
 
+use eru\nczone\config\config;
 use eru\nczone\utility\zone_util;
-use eru\nczone\utility\phpbb_util;
 
 /**
  * nC Zone cron task.
@@ -32,7 +32,7 @@ class activity extends \phpbb\cron\task\base
 	public function run()
 	{
 		zone_util::players()->calculate_all_activities();
-		phpbb_util::config()->set('nczone_activity_cron', time(), false);
+		config::set('nczone_activity_cron', time(), false);
 	}
 
 	/**
@@ -53,6 +53,6 @@ class activity extends \phpbb\cron\task\base
 	 */
 	public function should_run()
 	{
-		return (int)phpbb_util::config()['nczone_activity_cron'] < time() - $this->cron_frequency;
+		return (int)config::get('nczone_activity_cron') < time() - $this->cron_frequency;
 	}
 }

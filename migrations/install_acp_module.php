@@ -10,6 +10,8 @@
 
 namespace eru\nczone\migrations;
 
+use eru\nczone\config\config;
+
 class install_acp_module extends \phpbb\db\migration\migration
 {
 	public function effectively_installed()
@@ -25,32 +27,32 @@ class install_acp_module extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
-			array('config.add', array('nczone_rules_post_id', 0)),
-			array('config.add', array('nczone_match_forum_id', 0)),
-			array('config.add', array('nczone_pmatches_page_size', 10)),
-			array('config.add', array('nczone_activity_time', 56)),
-			array('config.add', array('nczone_activity_1', 14)),
-			array('config.add', array('nczone_activity_2', 28)),
-			array('config.add', array('nczone_activity_3', 56)),
-			array('config.add', array('nczone_activity_4', 112)),
-			array('config.add', array('nczone_activity_5', 224)),
-			array('config.add', array('nczone_draw_time', 60)),
-			array('config.add', array('nczone_bet_time', 1200)),
-			array('config.add', array('nczone_info_posts', '')),
-			array('config.add', array('nczone_draw_player_civs', 600)),
-			array('config.add', array('nczone_draw_team_civs', 120)),
-			array('config.add', array('nczone_draw_match_extra_civs_1vs1', 7)),
-			array('config.add', array('nczone_draw_match_extra_civs_2vs2', 6)),
-			array('config.add', array('nczone_draw_match_extra_civs_3vs3', 5)),
-			array('config.add', array('nczone_draw_match_extra_civs_4vs4', 4)),
-			array('config.add', array('nczone_draw_team_extra_civs_1vs1', 5)),
-			array('config.add', array('nczone_draw_team_extra_civs_2vs2', 4)),
-			array('config.add', array('nczone_draw_team_extra_civs_3vs3', 3)),
-			array('config.add', array('nczone_draw_team_extra_civs_4vs4', 2)),
-			array('config.add', array('nczone_draw_player_num_civs_1vs1', 9)),
-			array('config.add', array('nczone_draw_player_num_civs_2vs2', 5)),
-			array('config.add', array('nczone_draw_player_num_civs_3vs3', 4)),
-			array('config.add', array('nczone_draw_player_num_civs_4vs4', 3)),
+			array('config.add', array('nczone_rules_post_id', config::default('nczone_rules_post_id'))),
+			array('config.add', array('nczone_match_forum_id', config::default('nczone_match_forum_id'))),
+			array('config.add', array('nczone_pmatches_page_size', config::default('nczone_pmatches_page_size'))),
+			array('config.add', array('nczone_activity_time', config::default('nczone_activity_time'))),
+			array('config.add', array('nczone_activity_1', config::default('nczone_activity_1'))),
+			array('config.add', array('nczone_activity_2', config::default('nczone_activity_2'))),
+			array('config.add', array('nczone_activity_3', config::default('nczone_activity_3'))),
+			array('config.add', array('nczone_activity_4', config::default('nczone_activity_4'))),
+			array('config.add', array('nczone_activity_5', config::default('nczone_activity_5'))),
+			array('config.add', array('nczone_draw_time', config::default('nczone_draw_time'))),
+			array('config.add', array('nczone_bet_time', config::default('nczone_bet_time'))),
+			array('config.add', array('nczone_info_posts', config::default('nczone_info_posts'))),
+			array('config.add', array('nczone_draw_player_civs', config::default('nczone_draw_player_civs'))),
+			array('config.add', array('nczone_draw_team_civs', config::default('nczone_draw_team_civs'))),
+			array('config.add', array('nczone_draw_match_extra_civs_1vs1', config::default('nczone_draw_match_extra_civs_1vs1'))),
+			array('config.add', array('nczone_draw_match_extra_civs_2vs2', config::default('nczone_draw_match_extra_civs_2vs2'))),
+			array('config.add', array('nczone_draw_match_extra_civs_3vs3', config::default('nczone_draw_match_extra_civs_3vs3'))),
+			array('config.add', array('nczone_draw_match_extra_civs_4vs4', config::default('nczone_draw_match_extra_civs_4vs4'))),
+			array('config.add', array('nczone_draw_team_extra_civs_1vs1', config::default('nczone_draw_team_extra_civs_1vs1'))),
+			array('config.add', array('nczone_draw_team_extra_civs_2vs2', config::default('nczone_draw_team_extra_civs_2vs2'))),
+			array('config.add', array('nczone_draw_team_extra_civs_3vs3', config::default('nczone_draw_team_extra_civs_3vs3'))),
+			array('config.add', array('nczone_draw_team_extra_civs_4vs4', config::default('nczone_draw_team_extra_civs_4vs4'))),
+			array('config.add', array('nczone_draw_player_num_civs_1vs1', config::default('nczone_draw_player_num_civs_1vs1'))),
+			array('config.add', array('nczone_draw_player_num_civs_2vs2', config::default('nczone_draw_player_num_civs_2vs2'))),
+			array('config.add', array('nczone_draw_player_num_civs_3vs3', config::default('nczone_draw_player_num_civs_3vs3'))),
+			array('config.add', array('nczone_draw_player_num_civs_4vs4', config::default('nczone_draw_player_num_civs_4vs4'))),
 
 			array('module.add', array(
 				'acp',
