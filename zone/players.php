@@ -381,7 +381,7 @@ class players
      *
      * @return array
      */
-    public function get_all(): array
+    public function get_all(int $min_matches=0): array
     {
         $rows = $this->db->get_rows('
             SELECT
@@ -406,6 +406,8 @@ class players
                 LEFT JOIN ' . $this->db->match_players_table . ' t 
                 ON t.user_id = p.user_id 
                 AND t.team_id = (SELECT MAX(team_id) FROM ' . $this->db->match_players_table . ' WHERE user_id = p.user_id AND rating_change != 0)
+            WHERE
+                (p.matches_won + p.matches_loss) >= ' . $min_matches . '
             GROUP BY
                 p.user_id
             ORDER BY 
