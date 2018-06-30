@@ -113,7 +113,7 @@ export default {
     },
     fetchData () {
       this.loading = true
-      this.$store.dispatch('getAllPlayers')
+      this.$store.dispatch('getAllPlayers', {passive: false})
         .then(_ => {
           this.loading = false
         })

@@ -11,24 +11,19 @@ export default {
   name: 'nczone-information',
   computed: {
     ...mapGetters([
-      'info'
+      'info',
+      'timer'
     ])
   },
   methods: {
+    cb () {
+      this.$store.dispatch('nextInformation')
+    },
     start () {
-      this.timer = setTimeout(async () => {
-        await this.$store.dispatch('nextInformation')
-        this.start()
-      }, 15000)
+      this.timer.every(15, this.cb)
     },
     stop () {
-      clearTimeout(this.timer)
-      this.timer = null
-    }
-  },
-  data () {
-    return {
-      timer: null
+      this.timer.off(this.cb)
     }
   },
   mounted () {

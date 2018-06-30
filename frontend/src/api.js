@@ -61,15 +61,15 @@ const request = (method, path, options, onProgress) => {
     })
 }
 
-const actively = (method, path, options, onProgress) => {
+const _actively = (method, path, options, onProgress) => {
   return request(method, path, Object.assign(options || {}, {headers: {'X-Update-Session': '1'}}), onProgress)
 }
-const passively = (...params) => request(...params)
+const _passively = (...params) => request(...params)
 
-const put = (...params) => actively('PUT', ...params)
-const post = (...params) => actively('POST', ...params)
-const get = (...params) => passively('GET', ...params)
-const doGet = (...params) => actively('GET', ...params)
+const put = (...params) => _actively('PUT', ...params)
+const post = (...params) => _actively('POST', ...params)
+const get = (...params) => _passively('GET', ...params)
+const doGet = (...params) => _actively('GET', ...params)
 
 const url = (path) => apiBase + path + (sid !== '' ? `?sid=${sid}` : '')
 
@@ -77,27 +77,37 @@ export const setSid = (s) => {
   sid = s
 }
 
-// me
-export const me = () => doGet('/me')
-export const login = () => post('/me/login')
-export const logout = () => post('/me/logout')
-export const setLang = (lang) => post('/me/set_language', {body: JSON.stringify({lang})})
+export const passively = {
+  getRunningMatches: () => get('/matches/running'),
+  getPastMatches: () => get('/matches/past'),
+  getLoggedInPlayers: () => get('/players/logged_in'),
+  getAllPlayers: () => get('/players'),
+  getInformation: () => get('/information'),
+  getMatch: (matchId) => get(`/matches/${matchId}`)
+}
 
-// draw
-export const drawPreview = () => post('/draw/preview')
-export const drawConfirm = () => post('/draw/confirm')
-export const drawCancel = () => post('/draw/cancel')
+export const actively = {
+  // me
+  getMe: () => doGet('/me'),
+  doLogin: () => post('/me/login'),
+  doLogout: () => post('/me/logout'),
+  setLang: (lang) => post('/me/set_language', {body: JSON.stringify({lang})}),
 
-// matches
-export const runningMatches = () => get('/matches/running')
-export const pastMatches = () => get('/matches/past')
-export const match = (matchId) => get(`/matches/${matchId}`)
-export const bet = (matchId, team) => post(`/matches/${matchId}/bet`, {body: JSON.stringify({team})})
-export const postMatchResult = (matchId, winner) => post(`/matches/${matchId}/post_result`, {body: JSON.stringify({winner})})
+  // draw
+  drawPreview: () => post('/draw/preview'),
+  drawConfirm: () => post('/draw/confirm'),
+  drawCancel: () => post('/draw/cancel'),
 
-// players
-export const loggedInPlayers = () => get('/players/logged_in')
-export const allPlayers = () => get('/players')
+  // matches
+  getRunningMatches: () => doGet('/matches/running'),
+  getPastMatches: () => doGet('/matches/past'),
+  placeBet: (matchId, team) => post(`/matches/${matchId}/bet`, {body: JSON.stringify({team})}),
+  postMatchResult: (matchId, winner) => post(`/matches/${matchId}/post_result`, {body: JSON.stringify({winner})}),
 
-// information
-export const getInformation = () => get('/information')
+  // players
+  getLoggedInPlayers: () => doGet('/players/logged_in'),
+  getAllPlayers: () => doGet('/players'),
+
+  // information
+  getInformation: () => doGet('/information')
+}

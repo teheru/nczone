@@ -11,6 +11,7 @@
 
 namespace eru\nczone\zone;
 
+use eru\nczone\config\config;
 use eru\nczone\utility\db;
 use eru\nczone\utility\phpbb_util;
 
@@ -29,7 +30,7 @@ class misc
 
     public function get_information_ids(): array
     {
-        return array_map(function($a): int { return (int)$a; }, explode(',', phpbb_util::config()['nczone_info_posts']));
+        return array_map(function($a): int { return (int)$a; }, explode(',', config::get('nczone_info_posts')));
     }
 
     public function get_posts(int ...$post_ids): array

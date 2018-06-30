@@ -13,8 +13,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class api
 {
-    /** @var config */
-    protected $config;
     /** @var user */
     protected $user;
     /** @var auth */
@@ -24,9 +22,8 @@ class api
     private const CODE_OK = 200;
     private const CODE_BAD_REQUEST = 400;
 
-    public function __construct(config $config, user $user, auth $auth)
+    public function __construct(user $user, auth $auth)
     {
-        $this->config = $config;
         $this->user = $user;
         $this->auth = $auth;
     }
@@ -433,7 +430,7 @@ class api
 
     public function rules(): Response
     {
-        return new Response(end(zone_util::misc()->get_posts((int)(phpbb_util::config()['nczone_rules_post_id']))));
+        return new Response(end(zone_util::misc()->get_posts((int)(config::get('nczone_rules_post_id')))));
     }
 
     private static function get_request_data(): array

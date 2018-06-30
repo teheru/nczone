@@ -16,7 +16,6 @@ services:
     eru.nczone.controller.api:
         class: eru\nczone\controller\api
         arguments:
-            - '@config'
             - '@user'
             - '@auth'
 

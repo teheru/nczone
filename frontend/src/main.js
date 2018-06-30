@@ -17,7 +17,7 @@ import * as routes from './routes'
 import './style/zone.scss'
 
 export async function init (settings) {
-  const me = await api.me()
+  const me = await api.actively.getMe()
 
   Vue.config.productionTip = false
   Vue.use(VueI18n)
@@ -87,6 +87,7 @@ export async function init (settings) {
       store,
       render: h => h(App)
     })
+
     store.dispatch('init', {me, i18n})
   }
 

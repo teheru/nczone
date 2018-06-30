@@ -11,10 +11,10 @@
 
 namespace eru\nczone\zone;
 
+use eru\nczone\config\config;
 use eru\nczone\utility\db;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
-use eru\nczone\utility\phpbb_util;
 
 class players
 {
@@ -537,7 +537,7 @@ class players
 
     public function calculate_all_activities(): void
     {
-        $min_time = time() - (int)phpbb_util::config()['nczone_activity_time'] * 60 * 60 * 24;
+        $min_time = time() - (int)config::get('nczone_activity_time') * 60 * 60 * 24;
         $sql = '
             SELECT
                 user_id,
@@ -556,15 +556,15 @@ class players
         foreach($rows as $row) {
             $user_id = (int)$row['user_id'];
             $activity_matches = (int)$row['activity_matches'];
-            if($activity_matches >= (int)phpbb_util::config()['nczone_activity_5']) {
+            if($activity_matches >= (int)config::get('nczone_activity_5')) {
                 $activity = 5;
-            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_4']) {
+            } elseif($activity_matches >= (int)config::get('nczone_activity_4')) {
                 $activity = 4;
-            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_3']) {
+            } elseif($activity_matches >= (int)config::get('nczone_activity_3')) {
                 $activity = 3;
-            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_2']) {
+            } elseif($activity_matches >= (int)config::get('nczone_activity_2')) {
                 $activity = 2;
-            } elseif($activity_matches >= (int)phpbb_util::config()['nczone_activity_1']) {
+            } elseif($activity_matches >= (int)config::get('nczone_activity_1')) {
                 $activity = 1;
             } else {
                 $activity = 0;

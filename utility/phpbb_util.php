@@ -35,9 +35,4 @@ class phpbb_util
     {
         return $GLOBALS['phpbb_root_path'] . $basename . '.' . $GLOBALS['phpEx'];
     }
-
-    public static function config(): \phpbb\config\config
-    {
-        return $GLOBALS['config'];
-    }
 }
