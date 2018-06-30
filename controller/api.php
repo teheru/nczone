@@ -425,7 +425,7 @@ class api
 
         $misc = zone_util::misc();
         $post_ids = $misc->get_information_ids();
-        return $this->jsonResponse($misc->get_posts(...$post_ids));
+        return $this->jsonResponse(array_values($misc->get_posts(...$post_ids)));
     }
 
     public function rules(): Response
