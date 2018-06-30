@@ -12,7 +12,7 @@
                     <select id="civ_id" name="civ_id">
                         <option value="0">{{ lang('MCP_CREATE_CIV') }}</option>
                         {% for civ in civs %}
-                            <option value="{{ civ.ID }}">{{ civ.NAME }}</option>
+                            <option value="{{ civ.ID }}">{{ lang(civ.NAME) }}</option>
                         {% endfor %}
                     </select>
                 </dd>
