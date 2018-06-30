@@ -109,6 +109,13 @@ export default () => {
       setLang (state, payload) {
         state.i18n.locale = payload
       },
+      setMeActive (state) {
+        state.players.forEach(player => {
+          if (player.id === state.me.id) {
+            player.last_activity = parseInt(Date.now() / 1000)
+          }
+        })
+      },
       setLoggedInPlayers (state, payload) {
         // all players are updated to be logged in if needed
         state.players.forEach(player => {
@@ -225,7 +232,6 @@ export default () => {
           commit('setLoggedInPlayers', await api.passively.getLoggedInPlayers())
         } else {
           commit('setLoggedInPlayers', await api.actively.getLoggedInPlayers())
-          dispatch('getLoggedInPlayers', {passive: true})
         }
       },
 
@@ -234,7 +240,7 @@ export default () => {
           commit('setAllPlayers', await api.passively.getAllPlayers())
         } else {
           commit('setAllPlayers', await api.actively.getAllPlayers())
-          dispatch('getLoggedInPlayers', {passive: true})
+          commit('setMeActive')
         }
       },
 
@@ -243,7 +249,7 @@ export default () => {
           commit('setRunningMatches', await api.passively.getRunningMatches())
         } else {
           commit('setRunningMatches', await api.actively.getRunningMatches())
-          dispatch('getLoggedInPlayers', {passive: true})
+          commit('setMeActive')
         }
       },
 
@@ -252,7 +258,7 @@ export default () => {
           commit('setPastMatches', await api.passively.getPastMatches())
         } else {
           commit('setPastMatches', await api.actively.getPastMatches())
-          dispatch('getLoggedInPlayers', {passive: true})
+          commit('setMeActive')
         }
       },
 
@@ -261,7 +267,7 @@ export default () => {
           commit('setInformation', await api.passively.getInformation())
         } else {
           commit('setInformation', await api.actively.getInformation())
-          dispatch('getLoggedInPlayers', {passive: true})
+          commit('setMeActive')
         }
       },
 
