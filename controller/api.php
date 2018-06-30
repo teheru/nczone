@@ -288,7 +288,7 @@ class api
             $this->user->update_session_infos();
         }
 
-        $all_players = zone_util::players()->get_all();
+        $all_players = zone_util::players()->get_all(1); // todo: replace min matches by something with activity
         return $this->jsonResponse($all_players);
     }
 
