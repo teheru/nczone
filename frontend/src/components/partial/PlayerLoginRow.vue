@@ -1,7 +1,7 @@
 <template>
   <div class="zone-player-login-row" :class="activityClass">
     <div class="zone-player-table-idx">{{ idx + 1 }}.</div>
-    <div class="zone-player-table-username">{{ player.username }}</div>
+    <div class="zone-player-table-username" v-html="player.username"></div>
     <div class="zone-player-table-rating">{{ player.rating }}</div>
   </div>
 </template>

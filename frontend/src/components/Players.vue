@@ -20,7 +20,7 @@
           <div class="zone-players-table-activity" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
           <template v-for="(player, idx) in players">
             <div class="zone-players-table-idx" :key="`idx-${idx}`">{{ idx+1 }}</div>
-            <div class="zone-players-table-name" :key="`name-${idx}`">{{ player.username }}</div>
+            <div class="zone-players-table-name" :key="`name-${idx}`" v-html="player.username"></div>
             <div class="zone-players-table-games" :key="`games-${idx}`">{{ player.games || 0 }}</div>
             <div class="zone-players-table-wins" :key="`wins-${idx}`">{{ player.wins || 0 }}</div>
             <div class="zone-players-table-losses" :key="`losses-${idx}`">{{ player.losses || 0 }}</div>

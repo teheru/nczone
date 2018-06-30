@@ -768,11 +768,11 @@ class matches {
             'whiner' => 'Snyper',
             'result_poster' => empty($m['post_user_id']) ? null : [
                 'id' => (int)$m['post_user_id'],
-                'name' => $m['post_username'],
+                'username' => $m['post_username'],
             ],
             'drawer' => empty($m['draw_user_id']) ? null : [
                 'id' => (int)$m['draw_user_id'],
-                'name' => $m['draw_username'],
+                'username' => $m['draw_username'],
             ],
             'map' => empty($map_id) ? null : [
                 'id' => $map_id,

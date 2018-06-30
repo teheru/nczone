@@ -21,7 +21,7 @@
       <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ" v-t="'NCZONE_MATCH_CIVS'"></div>
 
       <template v-for="(player, idx) in players">
-        <div class="zone-match-player-name" :key="`name-${idx}`">{{ player.name }}<span v-if="match.winner">({{ player.rating_change }})</span></div>
+        <div class="zone-match-player-name" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
         <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ $t(player.civ.title) }}</span></div>
       </template>

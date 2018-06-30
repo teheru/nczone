@@ -443,7 +443,7 @@ class players
             SELECT 
                 mp.user_id as id, 
                 mp.team_id,
-                u.username AS name, 
+                u.username AS username, 
                 mp.draw_rating AS rating, 
                 mp.rating_change, 
                 pc.civ_id, 

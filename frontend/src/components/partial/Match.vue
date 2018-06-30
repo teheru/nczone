@@ -9,11 +9,11 @@
     </template>
 
     <div v-t="'NCZONE_MATCH_DRAWER'"></div>
-    <div>{{ match.drawer.name }}</div>
+    <div v-html="match.drawer.username"></div>
 
     <template v-if="match.result_poster">
       <div v-t="'NCZONE_MATCH_RESULT_POSTER'"></div>
-      <div>{{ match.result_poster.name }}</div>
+      <div v-html="match.result_poster.username"></div>
     </template>
 
     <template v-if="match.map">
