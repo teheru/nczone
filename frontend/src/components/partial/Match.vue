@@ -149,7 +149,7 @@ export default {
     if (!this.match.timestampEnd) {
       this.start()
     } else {
-      this.cb()
+      this.gameSeconds = this.match.timestampEnd - this.match.timestampStart
     }
   },
   beforeDestroy () {
