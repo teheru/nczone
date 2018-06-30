@@ -2,15 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as api from './api'
+import * as timer from './timer'
 import * as routes from './routes'
-
-const waitMs = async (time) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, time)
-  })
-}
 
 export default () => {
   Vue.use(Vuex)
@@ -57,7 +50,8 @@ export default () => {
         getAllPlayers: 0,
         getLoggedInPlayers: 0
       },
-      i18n: null
+      i18n: null,
+      timer: timer
     },
     getters: {
       players: (s) => s.players,
@@ -91,7 +85,8 @@ export default () => {
       info: (s) => s.information.items[s.information.index] || '',
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
-      match: (s) => s.match
+      match: (s) => s.match,
+      timer: (s) => s.timer
     },
     mutations: {
       init (state, {me, i18n}) {
@@ -175,26 +170,37 @@ export default () => {
       }
     },
     actions: {
-      async init ({state, commit, dispatch}, payload) {
+      async init ({rootState, state, commit, dispatch}, payload) {
         if (payload.matchId) {
           commit('setMatch', await api.passively.getMatch(payload.matchId))
           commit('init', {me: payload.me, i18n: payload.i18n})
         } else {
           commit('init', {me: payload.me, i18n: payload.i18n})
+
+          dispatch('getInformation', {passive: true})
+          dispatch('getLoggedInPlayers', {passive: true})
+          dispatch('loadCurrentRouteData', {passive: true})
+
           dispatch('poll')
         }
       },
 
-      async poll ({rootState, state, commit, dispatch}) {
-        // todo: all these should trigger passive api requests
-        // todo: check if 30sec is a good value for all the api calls. getInformation for example could have a slower interval..
+      async poll ({dispatch, state}) {
+        state.timer.start()
+        state.timer.every(60, () => {
+          // always fetch information
+          dispatch('getInformation', {passive: true})
+        })
+        state.timer.every(10, () => {
+          // always refresh logged in players
+          dispatch('getLoggedInPlayers', {passive: true})
+        })
+        state.timer.every(30, () => {
+          dispatch('loadCurrentRouteData')
+        })
+      },
 
-        // always refresh logged in players
-        dispatch('getLoggedInPlayers', {passive: true})
-
-        // always fetch information
-        dispatch('getInformation', {passive: true})
-
+      async loadCurrentRouteData ({rootState, dispatch}) {
         // only refresh the rest of the stuff when the route matches
         if (rootState.route.name === routes.ROUTE_RMATCHES) {
           // console.log('fetching rmatches')
@@ -212,11 +218,6 @@ export default () => {
           // console.log('fetching rules')
           // todo
         }
-
-        // wait a bit, then dispatch poll again
-        await waitMs(30000)
-
-        dispatch('poll')
       },
 
       async getLoggedInPlayers ({commit, dispatch}, {passive}) {

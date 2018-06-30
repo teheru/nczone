@@ -83,6 +83,15 @@ export default {
   methods: {
     sendResult () {
       this.$store.dispatch('postMatchResult', {matchId: this.match.id, winner: this.matchResult})
+    },
+    cb (now, ticks) {
+      this.gameSeconds = new Date().getTime() / 1000 - this.match.timestampStart
+    },
+    start () {
+      this.timer.every(1, this.cb)
+    },
+    stop () {
+      this.timer.off(this.cb)
     }
   },
   computed: {
@@ -108,6 +117,7 @@ export default {
     },
     ...mapGetters([
       'me',
+      'timer',
       'canModPost'
     ])
   },
@@ -137,15 +147,13 @@ export default {
   },
   mounted () {
     if (!this.match.timestampEnd) {
-      this.$options.interval = setInterval(() => {
-        this.gameSeconds = new Date().getTime() / 1000 - this.match.timestampStart
-      }, 1000)
+      this.start()
     } else {
-      this.gameSeconds = this.match.timestampEnd - this.match.timestampStart
+      this.cb()
     }
   },
   beforeDestroy () {
-    clearInterval(this.$options.interval)
+    this.stop()
   }
 }
 </script>

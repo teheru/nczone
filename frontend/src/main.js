@@ -87,6 +87,7 @@ export async function init (settings) {
       store,
       render: h => h(App)
     })
+
     store.dispatch('init', {me, i18n})
   }
 

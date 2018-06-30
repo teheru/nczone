@@ -6,6 +6,7 @@
   </div>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 export default {
   name: 'nczone-player-login-row',
   props: {
@@ -25,25 +26,25 @@ export default {
     this.stop()
   },
   methods: {
-    // todo: should not really start a timer for each row. hmmm
+    cb (now, ticks) {
+      this.t = now / 1000
+    },
     start () {
-      this.timer = setTimeout(async () => {
-        this.t = new Date().getTime() / 1000
-        this.start()
-      }, 10000)
+      this.timer.every(5, this.cb)
     },
     stop () {
-      clearTimeout(this.timer)
-      this.timer = null
+      this.timer.off(this.cb)
     }
   },
   data () {
     return {
-      t: new Date().getTime() / 1000,
-      timer: null
+      t: new Date().getTime() / 1000
     }
   },
   computed: {
+    ...mapGetters([
+      'timer'
+    ]),
     activityClass () {
       const diff = this.t - this.player.last_activity
       const breakpoints = [450, 525, 600, 675, 750, 825, 900, 975, 1050, 1125, 1200]
