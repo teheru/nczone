@@ -6,21 +6,10 @@ use eru\nczone\utility\number_util;
 
 class match_players_list
 {
+    /** @var match_player[] */
     private $items = [];
 
-    public function __construct(array...$arrays)
-    {
-        foreach ($arrays as $array) {
-            foreach ($array as $item) {
-                $this->items[] = $item;
-            }
-        }
-    }
-
-    // todo: work with player objects instead of array
-    // the items put in here look like players, but the only things that are surely defined are `id` and `rating`
-    // ['id' => (int), 'rating' => (int), ...]
-    public function add(array $p): void
+    public function add(match_player $p): void
     {
         $this->items[] = $p;
     }
@@ -28,7 +17,7 @@ class match_players_list
     public function contains_id(int $id): bool
     {
         foreach ($this->items as $p) {
-            if ($p['id'] === $id) {
+            if ($p->get_id() === $id) {
                 return true;
             }
         }
@@ -39,13 +28,16 @@ class match_players_list
     {
         $items = [];
         foreach ($this->items as $p) {
-            if ($p['id'] !== $id) {
+            if ($p->get_id() !== $id) {
                 $items[] = $p;
             }
         }
         $this->items = $items;
     }
 
+    /**
+     * @return match_player[]
+     */
     public function items(): array
     {
         return $this->items;
@@ -56,19 +48,19 @@ class match_players_list
         return \count($this->items);
     }
 
-    public function unshift(array $p): void
+    public function unshift(match_player $p): void
     {
         array_unshift($this->items, $p);
     }
 
-    public function pop(): ?array
+    public function pop(): ?match_player
     {
         return array_pop($this->items);
     }
 
     public function slice($offset, $size): match_players_list
     {
-        $list = new match_players_list;
+        $list = new self;
         foreach (\array_slice($this->items, $offset, $size) as $p) {
             $list->add($p);
         }
@@ -77,36 +69,21 @@ class match_players_list
 
     public function sorted_by_rating(): match_players_list
     {
-        return $this->sorted_by('rating');
-    }
-
-    private function sorted_by(string $prop): match_players_list
-    {
-        $list = new match_players_list;
-        foreach (self::sort($this->items, $prop) as $p) {
-            $list->add($p);
-        }
+        $list = new self;
+        $item = $this->items;
+        usort($item, function (match_player $p1, match_player $p2) {
+            return number_util::cmp($p1->get_rating(), $p2->get_rating());
+        });
         return $list;
     }
 
-    // only works for numeric props for now
-    private static function sort(array $players, $prop): array
-    {
-        usort($players, function ($p1, $p2) use ($prop) {
-            return number_util::cmp($p1[$prop], $p2[$prop]);
-        });
-        return $players;
-    }
-
-    private function map(callable $func): array
-    {
-        return array_map($func, $this->items);
-    }
-
+    /**
+     * @return int[]
+     */
     public function get_ids(): array
     {
-        return $this->map(function ($p) {
-            return (int)$p['id'];
-        });
+        return array_map(function (match_player $p) {
+            return $p->get_id();
+        }, $this->items);
     }
 }

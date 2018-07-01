@@ -5,7 +5,6 @@ namespace eru\nczone\controller;
 use eru\nczone\config\config;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
-use eru\nczone\zone\match_players_list;
 use phpbb\auth\auth;
 use phpbb\request\request_interface;
 use phpbb\user;
@@ -241,17 +240,13 @@ class api
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
-        $players = zone_util::matches()->confirm_draw_process($user_id);
-        if (empty($players)) {
+        $match_players_list = zone_util::matches()->confirm_draw_process($user_id);
+        if ($match_players_list->length() === 0) {
             // todo: maybe add reason or something, but use normal status code
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_PLAYERS'], self::CODE_BAD_REQUEST);
         }
 
-        $match_players = new match_players_list();
-        foreach ($players as $player) {
-            $match_players->add($player);
-        }
-        $match_ids = zone_util::matches()->draw($user_id, $match_players);
+        $match_ids = zone_util::matches()->draw($user_id, $match_players_list);
         return $this->jsonResponse($match_ids);
     }
 

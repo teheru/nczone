@@ -83,7 +83,7 @@ class matches {
 
             $p = zone_util::players()->get_player($player2_id);
 
-            $match_players->unshift(['id' => $p->get_id(), 'rating' => $p->get_rating()]);
+            $match_players->unshift(new match_player($p->get_id(), $p->get_rating()));
 
             $this->clean_match($match_id);
 
@@ -118,8 +118,8 @@ class matches {
             $p1 = zone_util::players()->get_player($player1_id);
             $p2 = zone_util::players()->get_player($player2_id);
 
-            $match_players->unshift(['id' => $p1->get_id(), 'rating' => $p1->get_rating()]);
-            $match_players->unshift(['id' => $p2->get_id(), 'rating' => $p2->get_rating()]);
+            $match_players->unshift(new match_player($p1->get_id(), $p1->get_rating()));
+            $match_players->unshift(new match_player($p2->get_id(), $p2->get_rating()));
 
             $this->clean_match($match_id);
 
@@ -256,32 +256,30 @@ class matches {
                     $player_civ_ids[(int)$r['user_id']] = (int)$r['civ_id'];
                 }
 
-                foreach ($team1_list as $mp) {
-                    $user_id = $mp['id'];
+                foreach ($team1_list->items() as $mp) {
                     $civ_ids = array_merge(
                         $match_civ_ids,
                         $team1_civ_ids,
-                        array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
+                        array_key_exists($mp->get_id(), $player_civ_ids) ? [$player_civ_ids[$mp->get_id()]] : []
                     );
 
-                    $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id . ' AND `time` < ' . $draw_time);
+                    $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $mp->get_id() . ' AND `time` < ' . $draw_time);
 
-                    $players->match_changes($user_id, $team1_id, $match_points, $team1_id === $winner_team_id);
-                    $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                    $players->match_changes($mp->get_id(), $team1_id, $match_points, $team1_id === $winner_team_id);
+                    $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
                 }
 
-                foreach ($team2_list as $mp) {
-                    $user_id = $mp['id'];
+                foreach ($team2_list->items() as $mp) {
                     $civ_ids = array_merge(
                         $match_civ_ids,
                         $team2_civ_ids,
-                        array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
+                        array_key_exists($mp->get_id(), $player_civ_ids) ? [$player_civ_ids[$mp->get_id()]] : []
                     );
 
-                    $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id . ' AND `time` < ' . $draw_time);
+                    $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $mp->get_id() . ' AND `time` < ' . $draw_time);
 
-                    $players->match_changes($user_id, $team2_id, $match_points, $team2_id === $winner_team_id);
-                    $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                    $players->match_changes($mp->get_id(), $team2_id, $match_points, $team2_id === $winner_team_id);
+                    $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
                 }
                 $user1_ids = $team1_list->get_ids();
                 $user2_ids = $team2_list->get_ids();
@@ -296,8 +294,8 @@ class matches {
 
                 $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {
-                foreach($this->get_teams_players($team1_id, $team2_id)->get_ids() as $uid) {
-                    $players->fix_streaks($uid, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                foreach($this->get_teams_players($team1_id, $team2_id)->items() as $mp) {
+                    $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
                 }
 
                 $winner_team_id = 0;
@@ -365,11 +363,11 @@ class matches {
 
         foreach($team1_list->items() as $mp)
         {
-            zone_util::players()->match_changes_undo($mp['id'], $team1_id, $match_points, $team1_id === $winner_team_id);
+            zone_util::players()->match_changes_undo($mp->get_id(), $team1_id, $match_points, $team1_id === $winner_team_id);
         }
         foreach($team2_list->items() as $mp)
         {
-            zone_util::players()->match_changes_undo($mp['id'], $team2_id, $match_points, $team2_id === $winner_team_id);
+            zone_util::players()->match_changes_undo($mp->get_id(), $team2_id, $match_points, $team2_id === $winner_team_id);
         }
 
         $user1_ids = $team1_list->get_ids();
@@ -424,10 +422,7 @@ class matches {
 
         $list = new match_players_list;
         foreach ($rows as $r) {
-            $list->add([
-                'id' => (int)$r['user_id'],
-                'rating' => (int)$r['rating'],
-            ]);
+            $list->add(new match_player((int)$r['user_id'], (int)$r['rating']));
         }
         return $list;
     }
@@ -896,7 +891,7 @@ class matches {
         return (int)$row['draw_id'];
     }
 
-    private function get_draw_players(int $draw_id): array
+    private function get_draw_players(int $draw_id): match_players_list
     {
         $rows = $this->db->get_rows([
             'SELECT' => 'p.user_id AS id, u.username, p.rating, d.logged_in',
@@ -904,14 +899,11 @@ class matches {
             'WHERE' => 'd.draw_id = ' . $draw_id . ' AND d.user_id = p.user_id AND p.user_id = u.user_id',
             'ORDER_BY' => 'd.logged_in ASC'
         ]);
-        return array_map(function($row) {
-            return [
-                'id' => (int)$row['id'],
-                'username' => $row['username'], // todo: probably not needed
-                'rating' => (int)$row['rating'],
-                'logged_in' => (int)$row['logged_in'],
-            ];
-        }, $rows);
+        $list = new match_players_list;
+        foreach ($rows as $row) {
+            $list->add(new match_player((int)$row['id'], (int)$row['rating']));
+        }
+        return $list;
     }
 
     /**
@@ -952,10 +944,10 @@ class matches {
 
     /**
      * @param int $user_id
-     * @return array
+     * @return match_players_list
      * @throws \Throwable
      */
-    public function confirm_draw_process(int $user_id): array
+    public function confirm_draw_process(int $user_id): match_players_list
     {
         return $this->db->run_txn(function () use ($user_id) {
             $draw_id = $this->check_draw_process($user_id);

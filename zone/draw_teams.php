@@ -181,7 +181,7 @@ class draw_teams
         if ($num_players === 2) {
             return [
                 'teams' => [[$player_list[0]], [$player_list[1]]],
-                'value' => $player_list[0]['rating'] - $player_list[1]['rating']
+                'value' => $player_list[0]->get_rating() - $player_list[1]->get_rating()
             ];
         }
 
@@ -191,8 +191,8 @@ class draw_teams
                     [$player_list[0], $player_list[3]],
                     [$player_list[1], $player_list[2]]
                 ],
-                'value' => abs($player_list[0]['rating'] + $player_list[3]['rating'] -
-                    $player_list[1]['rating'] - $player_list[2]['rating'])
+                'value' => abs($player_list[0]->get_rating() + $player_list[3]->get_rating() -
+                    $player_list[1]->get_rating() - $player_list[2]->get_rating())
             ];
         }
 
@@ -211,9 +211,9 @@ class draw_teams
                     $player_list[$teams[1][1]],
                     $player_list[$teams[1][2]]
                 ];
-                $value = abs($team1[0]['rating'] + $team1[1]['rating'] +
-                    $team1[2]['rating'] - $team2[0]['rating'] -
-                    $team2[1]['rating'] - $team2[2]['rating']);
+                $value = abs($team1[0]->get_rating() + $team1[1]->get_rating() +
+                    $team1[2]->get_rating() - $team2[0]->get_rating() -
+                    $team2[1]->get_rating() - $team2[2]->get_rating());
                 if ($best_value < 0.0 || $value < $best_value) {
                     $best_value = $value;
                     $best_teams = [$team1, $team2];
@@ -239,10 +239,10 @@ class draw_teams
                     $player_list[$teams[1][2]],
                     $player_list[$teams[1][3]]
                 ];
-                $value = abs($team1[0]['rating'] + $team1[1]['rating'] +
-                    $team1[2]['rating'] + $team1[3]['rating'] -
-                    $team2[0]['rating'] - $team2[1]['rating'] -
-                    $team2[2]['rating'] - $team2[3]['rating']);
+                $value = abs($team1[0]->get_rating() + $team1[1]->get_rating() +
+                    $team1[2]->get_rating() + $team1[3]->get_rating() -
+                    $team2[0]->get_rating() - $team2[1]->get_rating() -
+                    $team2[2]->get_rating() - $team2[3]->get_rating());
                 if ($best_value < 0.0 || $value < $best_value) {
                     $best_value = $value;
                     $best_teams = [$team1, $team2];
