@@ -44,7 +44,8 @@ class maps
     {
         return $this->db->get_rows([
             'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight',
-            'FROM' => [$this->db->maps_table => 'm']
+            'FROM' => [$this->db->maps_table => 'm'],
+            'ORDER_BY' => 'name ASC',
         ]);
     }
 
