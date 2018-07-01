@@ -935,8 +935,8 @@ class matches {
             foreach ($logged_in as $u) {
                 $sql_array[] = [
                     'draw_id' => $draw_id,
-                    'user_id' => $u['id'],
-                    'logged_in' => $u['logged_in'],
+                    'user_id' => $u->get_id(),
+                    'logged_in' => $u->get_logged_in(),
                 ];
             }
             $this->db->sql_multi_insert($this->db->draw_players_table, $sql_array);

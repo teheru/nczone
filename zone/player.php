@@ -67,6 +67,11 @@ class player implements \JsonSerializable
         return $this->rating;
     }
 
+    public function get_logged_in(): int
+    {
+        return $this->logged_in;
+    }
+
     private function get_games_count(): int
     {
         return $this->wins + $this->losses;
