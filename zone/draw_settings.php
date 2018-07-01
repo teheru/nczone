@@ -537,21 +537,26 @@ class draw_settings {
             }
         }
 
-        // calculate all possible combinations of civs for the players
+        $combinations = $this->get_user_civ_combinations($user_civpools, $user_ids);
+
+        $best_civ_combination = $this->get_best_user_civ_combination($team1, $combinations, $user_ratings);
+
+        return $best_civ_combination;
+    }
+
+    // calculate all possible combinations of civs for the players
+    private function get_user_civ_combinations(array $user_civpools, array $user_ids): array
+    {
         $civ_combinations = [];
         $first_user_id = array_shift($user_ids);
-        foreach($user_civpools[$first_user_id] as $civ)
-        {
+        foreach ($user_civpools[$first_user_id] as $civ) {
             $civ_combinations[] = [$first_user_id => $civ];
         }
 
-        foreach($user_ids as $user_id)
-        {
+        foreach ($user_ids as $user_id) {
             $new_civ_combinations = [];
-            foreach($civ_combinations as $cc)
-            {
-                foreach($user_civpools[$user_id] as $civ)
-                {
+            foreach ($civ_combinations as $cc) {
+                foreach ($user_civpools[$user_id] as $civ) {
                     $temp = $cc;
                     $temp[$user_id] = $civ;
                     $new_civ_combinations[] = $temp;
@@ -559,34 +564,30 @@ class draw_settings {
             }
             $civ_combinations = $new_civ_combinations;
         }
+        return $civ_combinations;
+    }
 
-
-        // calculate sum rating * multiplier and minimize the abs difference for the teams
+    // calculate sum rating * multiplier and minimize the abs difference for the teams
+    private function get_best_user_civ_combination(match_players_list $team1, array $combinations, array $user_ratings): array
+    {
         $best_civ_combination = [];
         $best_diff = -1;
-        foreach($civ_combinations as $cc)
-        {
+        foreach ($combinations as $cc) {
             $team1_sum = 0;
             $team2_sum = 0;
-            foreach($cc as $user_id => $civ)
-            {
-                if($team1->contains_id($user_id))
-                {
+            foreach ($cc as $user_id => $civ) {
+                if ($team1->contains_id($user_id)) {
                     $team1_sum += $user_ratings[$user_id] * $civ['multiplier'];
-                }
-                else
-                {
+                } else {
                     $team2_sum += $user_ratings[$user_id] * $civ['multiplier'];
                 }
             }
             $diff = number_util::diff($team1_sum, $team2_sum);
-            if($diff < $best_diff || $best_diff < 0)
-            {
+            if ($diff < $best_diff || $best_diff < 0) {
                 $best_civ_combination = $cc;
                 $best_diff = $diff;
             }
         }
-
         return $best_civ_combination;
     }
 }
