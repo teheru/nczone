@@ -143,9 +143,9 @@ class civs
         }
     }
 
-    public function get_map_players_multiple_civs($map_id, $user_ids, array $civ_ids = [], $neg_civ_ids = False, $force = False): array
+    public function get_map_players_multiple_civs($map_id, $user_ids, array $civ_ids = []): array
     {
-        $sql_array = $this->get_map_players_civs_build_sql_array($map_id, $user_ids, $civ_ids, $neg_civ_ids, $force);
+        $sql_array = $this->get_map_players_civs_build_sql_array($map_id, $user_ids, $civ_ids, true, false);
         return $this->db->get_rows($sql_array);
     }
 

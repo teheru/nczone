@@ -482,7 +482,7 @@ class draw_settings {
         $keep_civ_ids = array_merge($force_civ_ids, $both_teams_civ_ids);
 
 
-        $user_civs = $civs_module->get_map_players_multiple_civs($map_id, $user_ids, $force_civ_ids, True, False);
+        $user_civs = $civs_module->get_map_players_multiple_civs($map_id, $user_ids, $force_civ_ids);
 
         // remember civs that were already drawed so we don't draw them twice
         $civpool_civs = [];
