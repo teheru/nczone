@@ -220,9 +220,10 @@ class matches {
                 $map_id = (int)$row['map_id'];
 
                 $winner_team_id = ($winner === 1) ? $team1_id : $team2_id;
-                $match_players = $this->get_teams_players($team1_id, $team2_id);
+                $team1_list = $this->get_teams_players($team1_id);
+                $team2_list = $this->get_teams_players($team2_id);
 
-                $match_points = $this->get_match_points_by_player_list($match_players);
+                $match_points = $this->get_match_points_by_match_size($team1_list->length());
 
                 $match_civ_ids = $this->db->get_col([
                     'SELECT' => 't.civ_id',
@@ -255,43 +256,48 @@ class matches {
                     $player_civ_ids[(int)$r['user_id']] = (int)$r['civ_id'];
                 }
 
-                $user1_ids = $user2_ids = [];
-                foreach ($match_players as $mp) {
+                foreach ($team1_list as $mp) {
                     $user_id = $mp['id'];
-                    $team_id = (int)$mp['team_id'];
-                    $is_team1 = $team_id === $team1_id;
-                    $has_won = $team_id === $winner_team_id;
-
-                    if ($is_team1) {
-                        $user1_ids[] = $user_id;
-                    } else {
-                        $user2_ids[] = $user_id;
-                    }
-
                     $civ_ids = array_merge(
                         $match_civ_ids,
-                        $is_team1 ? $team1_civ_ids : $team2_civ_ids,
+                        $team1_civ_ids,
                         array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
                     );
 
                     $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id . ' AND `time` < ' . $draw_time);
 
-                    $players->match_changes($user_id, $team_id, $match_points, $has_won);
+                    $players->match_changes($user_id, $team1_id, $match_points, $team1_id === $winner_team_id);
                     $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
                 }
-                $user_ids = array_merge($user1_ids, $user2_ids);
+
+                foreach ($team2_list as $mp) {
+                    $user_id = $mp['id'];
+                    $civ_ids = array_merge(
+                        $match_civ_ids,
+                        $team2_civ_ids,
+                        array_key_exists($user_id, $player_civ_ids) ? [$player_civ_ids[$user_id]] : []
+                    );
+
+                    $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $user_id . ' AND `time` < ' . $draw_time);
+
+                    $players->match_changes($user_id, $team2_id, $match_points, $team2_id === $winner_team_id);
+                    $players->fix_streaks($user_id, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                }
+                $user1_ids = $team1_list->get_ids();
+                $user2_ids = $team2_list->get_ids();
 
                 $col1 = $winner === 1 ? 'matches_won' : 'matches_loss';
                 $col2 = $winner === 2 ? 'matches_won' : 'matches_loss';
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
+                $user_ids = array_merge($user1_ids, $user2_ids);
                 $this->db->update($this->db->player_map_table, ['time' => $draw_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $draw_time);
 
                 $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {
-                foreach($this->get_teams_players($team1_id, $team2_id)->items() as $mp) {
-                    $players->fix_streaks($mp['id'], $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                foreach($this->get_teams_players($team1_id, $team2_id)->get_ids() as $uid) {
+                    $players->fix_streaks($uid, $match_id); // note: this isn't needed for normal game posting, but for fixing matches
                 }
 
                 $winner_team_id = 0;
@@ -352,25 +358,26 @@ class matches {
 
         [$end_time, $winner_team_id] = [(int)$row['post_time'], (int)$row['winner_team_id']];
         [$team1_id, $team2_id] = $this->get_match_team_ids($match_id);
-        $player_list = $this->get_teams_players($team1_id, $team2_id);
-        $match_points = $this->get_match_points_by_player_list($player_list);
+        $team1_list = $this->get_teams_players($team1_id);
+        $team2_list = $this->get_teams_players($team2_id);
 
-        $user1_ids = $user2_ids = [];
-        foreach($player_list->items() as $mp)
+        $match_points = $this->get_match_points_by_match_size($team1_list->length());
+
+        foreach($team1_list->items() as $mp)
         {
-            if ((int)$mp['team_id'] == $team1_id) {
-                $user1_ids[] = $mp['id'];
-            } else {
-                $user2_ids[] = $mp['id'];
-            }
-
-            $team_id = (int)$mp['team_id'];
-            zone_util::players()->match_changes_undo($mp['id'], $team_id, $match_points, $team_id === $winner_team_id);
+            zone_util::players()->match_changes_undo($mp['id'], $team1_id, $match_points, $team1_id === $winner_team_id);
+        }
+        foreach($team2_list->items() as $mp)
+        {
+            zone_util::players()->match_changes_undo($mp['id'], $team2_id, $match_points, $team2_id === $winner_team_id);
         }
 
+        $user1_ids = $team1_list->get_ids();
         $col1 = $winner_team_id == $team1_id ? 'matches_won' : 'matches_loss';
-        $col2 = $winner_team_id == $team2_id ? 'matches_won' : 'matches_loss';
         $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
+
+        $user2_ids = $team2_list->get_ids();
+        $col2 = $winner_team_id == $team2_id ? 'matches_won' : 'matches_loss';
         $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
         $this->evaluate_bets_undo($winner_team_id == $team1_id ? $team1_id : $team2_id, $winner_team_id == $team1_id ? $team2_id : $team1_id, $end_time);
@@ -410,7 +417,7 @@ class matches {
         }
 
         $rows = $this->db->get_rows([
-            'SELECT' => 't.team_id, t.user_id, t.draw_rating as rating',
+            'SELECT' => 't.user_id, t.draw_rating as rating',
             'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
         ]);
@@ -419,7 +426,6 @@ class matches {
         foreach ($rows as $r) {
             $list->add([
                 'id' => (int)$r['user_id'],
-                'team_id' => (int)$r['team_id'],
                 'rating' => (int)$r['rating'],
             ]);
         }

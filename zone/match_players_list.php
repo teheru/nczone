@@ -97,4 +97,16 @@ class match_players_list
         });
         return $players;
     }
+
+    private function map(callable $func): array
+    {
+        return array_map($func, $this->items);
+    }
+
+    public function get_ids(): array
+    {
+        return $this->map(function ($p) {
+            return (int)$p['id'];
+        });
+    }
 }
