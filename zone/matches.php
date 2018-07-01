@@ -272,34 +272,22 @@ class matches {
                  */
                 foreach ($teams as $idx => $team_list) {
                     $is_team1 = $idx === 0;
+                    $team_id = $is_team1 ? $team1_id : $team2_id;
+                    $team_civ_ids = $is_team1 ? $team1_civ_ids : $team2_civ_ids;
                     foreach ($team_list->items() as $mp) {
                         $civ_ids = array_merge(
                             $match_civ_ids,
-                            $is_team1 ? $team1_civ_ids : $team2_civ_ids,
+                            $team_civ_ids,
                             array_key_exists($mp->get_id(), $player_civ_ids) ? [$player_civ_ids[$mp->get_id()]] : []
                         );
                         if (!empty($civ_ids)) {
                             $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $mp->get_id() . ' AND `time` < ' . $draw_time);
                         }
-                        $players->match_changes($mp->get_id(), $is_team1 ? $team1_id : $team2_id, $match_points, $team1_id === $winner_team_id);
+                        $players->match_changes($mp->get_id(), $team_id, $match_points, $team_id === $winner_team_id);
                         $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
                     }
                 }
 
-                foreach ($team2_list->items() as $mp) {
-                    $civ_ids = array_merge(
-                        $match_civ_ids,
-                        $team2_civ_ids,
-                        array_key_exists($mp->get_id(), $player_civ_ids) ? [$player_civ_ids[$mp->get_id()]] : []
-                    );
-
-                    if (!empty($civ_ids)) {
-                        $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $mp->get_id() . ' AND `time` < ' . $draw_time);
-                    }
-
-                    $players->match_changes($mp->get_id(), $team2_id, $match_points, $team2_id === $winner_team_id);
-                    $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
-                }
                 $user1_ids = $team1_list->get_ids();
                 $user2_ids = $team2_list->get_ids();
 
