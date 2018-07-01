@@ -952,7 +952,7 @@ class matches {
         return $this->db->run_txn(function () use ($user_id) {
             $draw_id = $this->check_draw_process($user_id);
             if (!$draw_id) {
-                return [];
+                return new match_players_list;
             }
             $draw_players = $this->get_draw_players($draw_id);
             $this->clear_draw_tables();
