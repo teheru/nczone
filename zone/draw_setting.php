@@ -8,11 +8,11 @@ class draw_setting
     /** @var int */
     private $draw_user_id = 0;
     // Array of the players in team 1
-    /** @var array */
-    private $team1 = [];
+    /** @var match_players_list */
+    private $team1;
     // Array of the players in team 2
-    /** @var array */
-    private $team2 = [];
+    /** @var match_players_list */
+    private $team2;
     /** @var int */
     private $map_id = 0;
     /** @var array */
@@ -29,12 +29,12 @@ class draw_setting
         $this->draw_user_id = $draw_user_id;
     }
 
-    public function set_team1(array $team1)
+    public function set_team1(match_players_list $team1)
     {
         $this->team1 = $team1;
     }
 
-    public function set_team2(array $team2)
+    public function set_team2(match_players_list $team2)
     {
         $this->team2 = $team2;
     }
@@ -68,11 +68,13 @@ class draw_setting
     {
         return $this->draw_user_id;
     }
-    public function get_team1(): array
+
+    public function get_team1(): match_players_list
     {
         return $this->team1;
     }
-    public function get_team2(): array
+
+    public function get_team2(): match_players_list
     {
         return $this->team2;
     }

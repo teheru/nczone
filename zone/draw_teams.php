@@ -179,20 +179,30 @@ class draw_teams
 
         $num_players = \count($player_list);
         if ($num_players === 2) {
+            $team1 = new match_players_list;
+            $team1->add($player_list[0]);
+
+            $team2 = new match_players_list;
+            $team2->add($player_list[1]);
+
             return [
-                'teams' => [[$player_list[0]], [$player_list[1]]],
-                'value' => $player_list[0]->get_rating() - $player_list[1]->get_rating()
+                'teams' => [$team1, $team2],
+                'value' => $team1->get_rating_difference($team2)
             ];
         }
 
         if ($num_players === 4) {
+            $team1 = new match_players_list;
+            $team1->add($player_list[0]);
+            $team1->add($player_list[3]);
+
+            $team2 = new match_players_list;
+            $team2->add($player_list[1]);
+            $team2->add($player_list[2]);
+
             return [
-                'teams' => [
-                    [$player_list[0], $player_list[3]],
-                    [$player_list[1], $player_list[2]]
-                ],
-                'value' => abs($player_list[0]->get_rating() + $player_list[3]->get_rating() -
-                    $player_list[1]->get_rating() - $player_list[2]->get_rating())
+                'teams' => [$team1, $team2],
+                'value' => $team1->get_rating_difference($team2),
             ];
         }
 
@@ -201,19 +211,17 @@ class draw_teams
             $best_teams = [];
 
             foreach (self::$teams_3vs3 as $teams) {
-                $team1 = [
-                    $player_list[$teams[0][0]],
-                    $player_list[$teams[0][1]],
-                    $player_list[$teams[0][2]]
-                ];
-                $team2 = [
-                    $player_list[$teams[1][0]],
-                    $player_list[$teams[1][1]],
-                    $player_list[$teams[1][2]]
-                ];
-                $value = abs($team1[0]->get_rating() + $team1[1]->get_rating() +
-                    $team1[2]->get_rating() - $team2[0]->get_rating() -
-                    $team2[1]->get_rating() - $team2[2]->get_rating());
+                $team1 = new match_players_list;
+                $team1->add($player_list[$teams[0][0]]);
+                $team1->add($player_list[$teams[0][1]]);
+                $team1->add($player_list[$teams[0][2]]);
+
+                $team2 = new match_players_list;
+                $team2->add($player_list[$teams[1][0]]);
+                $team2->add($player_list[$teams[1][1]]);
+                $team2->add($player_list[$teams[1][2]]);
+
+                $value = $team1->get_rating_difference($team2);
                 if ($best_value < 0.0 || $value < $best_value) {
                     $best_value = $value;
                     $best_teams = [$team1, $team2];
@@ -227,22 +235,19 @@ class draw_teams
             $best_teams = [];
 
             foreach (self::$teams_4vs4 as $teams) {
-                $team1 = [
-                    $player_list[$teams[0][0]],
-                    $player_list[$teams[0][1]],
-                    $player_list[$teams[0][2]],
-                    $player_list[$teams[0][3]]
-                ];
-                $team2 = [
-                    $player_list[$teams[1][0]],
-                    $player_list[$teams[1][1]],
-                    $player_list[$teams[1][2]],
-                    $player_list[$teams[1][3]]
-                ];
-                $value = abs($team1[0]->get_rating() + $team1[1]->get_rating() +
-                    $team1[2]->get_rating() + $team1[3]->get_rating() -
-                    $team2[0]->get_rating() - $team2[1]->get_rating() -
-                    $team2[2]->get_rating() - $team2[3]->get_rating());
+                $team1 = new match_players_list;
+                $team1->add($player_list[$teams[0][0]]);
+                $team1->add($player_list[$teams[0][1]]);
+                $team1->add($player_list[$teams[0][2]]);
+                $team1->add($player_list[$teams[0][3]]);
+
+                $team2 = new match_players_list;
+                $team2->add($player_list[$teams[1][0]]);
+                $team2->add($player_list[$teams[1][1]]);
+                $team2->add($player_list[$teams[1][2]]);
+                $team2->add($player_list[$teams[1][3]]);
+
+                $value = $team1->get_rating_difference($team2);
                 if ($best_value < 0.0 || $value < $best_value) {
                     $best_value = $value;
                     $best_teams = [$team1, $team2];

@@ -34,39 +34,6 @@ class players
         $this->db = $db;
     }
 
-    public static function get_rating_sum(array $players): int
-    {
-        return array_reduce($players, function ($p1, $p2) {
-            return $p1 + $p2['rating'];
-        });
-    }
-
-    public static function get_max_rating(...$players_lists): int
-    {
-        $max = PHP_INT_MIN;
-        foreach ($players_lists as $player_list) {
-            foreach ($player_list as $player) {
-                if ($player['rating'] > $max) {
-                    $max = $player['rating'];
-                }
-            }
-        }
-        return $max === PHP_INT_MIN ? 0 : $max;
-    }
-
-    public static function get_min_rating(...$players_lists): int
-    {
-        $min = PHP_INT_MAX;
-        foreach ($players_lists as $player_list) {
-            foreach ($player_list as $player) {
-                if ($player['rating'] < $min) {
-                    $min = $player['rating'];
-                }
-            }
-        }
-        return $min === PHP_INT_MAX ? 0 : $min;
-    }
-
     /**
      * Returns the zone information of a user/player
      *
