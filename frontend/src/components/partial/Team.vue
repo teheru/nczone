@@ -9,7 +9,7 @@
       <div class="zone-match-bets-overlay">
         <div class="zone-match-bets-title" v-t="bets.length > 0 ? 'NCZONE_MATCH_HAVE_BET' : 'NCZONE_MATCH_NO_BETS'"></div>
         <ul class="zone-match-betters">
-          <li v-for="(bet, idx) in bets" :key="idx">{{ bet.user.name }} ({{ bet.timestamp }})</li>
+          <li v-for="(bet, idx) in bets" :key="idx"><span v-html="bet.user.username"></span> ({{ bet.timestamp }})</li>
         </ul>
       </div>
     </div>

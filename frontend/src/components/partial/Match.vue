@@ -36,6 +36,9 @@
       </div>
     </template>
 
+    <div v-t="'NCZONE_MATCH_START_TIME'"></div>
+    <div>{{ matchStartTime }}</div>
+
     <template v-if="match.timestampEnd">
       <div v-t="'NCZONE_MATCH_LENGTH'"></div>
       <div>{{ matchLength }}</div>
@@ -71,6 +74,8 @@ import {mapGetters} from 'vuex'
 import NczoneCsv from './Csv'
 import NczoneTeam from './Team'
 
+const pad = (n) => n > 9 ? n : `0${n}`
+
 export default {
   name: 'nczone-match',
   components: {NczoneTeam, NczoneCsv},
@@ -95,15 +100,16 @@ export default {
     }
   },
   computed: {
+    matchStartTime () {
+      const d = new Date(this.match.timestampStart * 1000)
+      return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' +
+        pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds())
+    },
     matchLength () {
       const hours = parseInt(this.gameSeconds / 3600, 10)
-      const minutes = parseInt(this.gameSeconds % 3600 / 60, 10)
-      const seconds = parseInt(this.gameSeconds % 3600 % 60, 10)
-      return [
-        (hours > 9 ? hours : '0' + hours),
-        (minutes > 9 ? minutes : '0' + minutes),
-        (seconds > 9 ? seconds : '0' + seconds)
-      ].join(':')
+      const min = parseInt(this.gameSeconds % 3600 / 60, 10)
+      const sec = parseInt(this.gameSeconds % 3600 % 60, 10)
+      return pad(hours) + ':' + pad(min) + ':' + pad(sec)
     },
     haveGlobalCivs () {
       return this.match.civs.both.length > 0 ||

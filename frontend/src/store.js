@@ -123,6 +123,7 @@ export default () => {
           if (loggedInPlayer) {
             player.logged_in = loggedInPlayer.logged_in
             player.last_activity = loggedInPlayer.last_activity
+            player.rating = loggedInPlayer.rating
           } else {
             player.logged_in = 0
           }
