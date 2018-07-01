@@ -14,6 +14,16 @@ class match_players_list
         $this->items[] = $p;
     }
 
+    public function get_by_id(int $id): ?match_player
+    {
+        foreach ($this->items as $p) {
+            if ($p->get_id() === $id) {
+                return $p;
+            }
+        }
+        return null;
+    }
+
     public function contains_id(int $id): bool
     {
         foreach ($this->items as $p) {
