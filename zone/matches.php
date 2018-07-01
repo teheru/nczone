@@ -657,7 +657,7 @@ class matches {
             return null;
         }
 
-        return $this->create_match_by_row($m);
+        return $this->create_match_by_row($m, true);
     }
 
     public function get_all_rmatches(): array
