@@ -96,11 +96,7 @@ export default {
       return !!this.players.find(p => !!p.civ)
     },
     totalRating () {
-      let r = 0
-      this.players.forEach(p => {
-        r += p.rating
-      })
-      return r
+      return this.players.reduce((total, player) => total + player.rating, 0)
     },
     ...mapGetters([
       'me'
