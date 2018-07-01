@@ -169,7 +169,7 @@ class draw_teams
     /**
      * Calculates the best teams for a single match.
      *
-     * @param match_players_list $player_list List of the players (must have index 'rating') to be put in teams
+     * @param match_players_list $match_players_list List of the players (must have index 'rating') to be put in teams
      *
      * @return array
      */
