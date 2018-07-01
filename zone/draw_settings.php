@@ -567,24 +567,16 @@ class draw_settings {
     // calculate sum rating * multiplier and minimize the abs difference for the teams
     private function get_best_user_civ_combination(array $combinations, match_players_list $team1, match_players_list $team2): array
     {
-        $user_ratings = [];
-        foreach ($team1->items() as $user) {
-            $user_ratings[$user->get_id()] = $user->get_rating();
-        }
-        foreach ($team2->items() as $user) {
-            $user_ratings[$user->get_id()] = $user->get_rating();
-        }
-
         $best_civ_combination = [];
         $best_diff = -1;
         foreach ($combinations as $cc) {
             $team1_sum = 0;
             $team2_sum = 0;
             foreach ($cc as $user_id => $civ) {
-                if ($team1->contains_id($user_id)) {
-                    $team1_sum += $user_ratings[$user_id] * $civ['multiplier'];
-                } else {
-                    $team2_sum += $user_ratings[$user_id] * $civ['multiplier'];
+                if ($team1->get_by_id($user_id)) {
+                    $team1_sum += $team1->get_by_id($user_id)->get_rating() * $civ['multiplier'];
+                } elseif ($team2->get_by_id($user_id)) {
+                    $team2_sum += $team2->get_by_id($user_id)->get_rating() * $civ['multiplier'];
                 }
             }
             $diff = number_util::diff($team1_sum, $team2_sum);
