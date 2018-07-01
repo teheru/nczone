@@ -15,7 +15,7 @@
 
   &:first-child {
     background-color: $base_color;
-    color: #fff;
+    color: $input_fg;
 
     border-style: solid;
     border-color: $border_light_color;

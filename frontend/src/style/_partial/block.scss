@@ -1,5 +1,6 @@
 .zone-block {
   padding: 5px;
+  border-radius: $block_border_radius;
   background-color: $block_bg;
   margin-bottom: 2em;
 
@@ -20,7 +21,7 @@
 
   .zone-content {
     padding: 5px;
-    background-color: #eee;
+    background-color: $base_light_bg;
   }
 
   .zone-actions {
