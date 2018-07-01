@@ -425,16 +425,13 @@ class draw_settings {
         $both_teams_civ_ids = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
 
         $user_ids = array_merge($team1->get_ids(), $team2->get_ids());
-        $user_ratings = [];
         $user_civpools = [];
 
         foreach ($team1->items() as $user) {
-            $user_ratings[$user->get_id()] = $user->get_rating();
             $user_civpools[$user->get_id()] = [];
         }
 
         foreach ($team2->items() as $user) {
-            $user_ratings[$user->get_id()] = $user->get_rating();
             $user_civpools[$user->get_id()] = [];
         }
 
@@ -539,6 +536,13 @@ class draw_settings {
 
         $combinations = $this->get_user_civ_combinations($user_civpools, $user_ids);
 
+        $user_ratings = [];
+        foreach ($team1->items() as $user) {
+            $user_ratings[$user->get_id()] = $user->get_rating();
+        }
+        foreach ($team2->items() as $user) {
+            $user_ratings[$user->get_id()] = $user->get_rating();
+        }
         $best_civ_combination = $this->get_best_user_civ_combination($team1, $combinations, $user_ratings);
 
         return $best_civ_combination;
