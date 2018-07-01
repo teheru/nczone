@@ -536,14 +536,7 @@ class draw_settings {
 
         $combinations = $this->get_user_civ_combinations($user_civpools, $user_ids);
 
-        $user_ratings = [];
-        foreach ($team1->items() as $user) {
-            $user_ratings[$user->get_id()] = $user->get_rating();
-        }
-        foreach ($team2->items() as $user) {
-            $user_ratings[$user->get_id()] = $user->get_rating();
-        }
-        $best_civ_combination = $this->get_best_user_civ_combination($team1, $combinations, $user_ratings);
+        $best_civ_combination = $this->get_best_user_civ_combination($combinations, $team1, $team2);
 
         return $best_civ_combination;
     }
@@ -572,8 +565,16 @@ class draw_settings {
     }
 
     // calculate sum rating * multiplier and minimize the abs difference for the teams
-    private function get_best_user_civ_combination(match_players_list $team1, array $combinations, array $user_ratings): array
+    private function get_best_user_civ_combination(array $combinations, match_players_list $team1, match_players_list $team2): array
     {
+        $user_ratings = [];
+        foreach ($team1->items() as $user) {
+            $user_ratings[$user->get_id()] = $user->get_rating();
+        }
+        foreach ($team2->items() as $user) {
+            $user_ratings[$user->get_id()] = $user->get_rating();
+        }
+
         $best_civ_combination = [];
         $best_diff = -1;
         foreach ($combinations as $cc) {
