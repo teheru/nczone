@@ -873,7 +873,7 @@ class matches {
                 'timestamp' => (int)$r['time'],
                 'user' => [
                     'id' => (int)$r['user_id'],
-                    'name' => $r['username'],
+                    'username' => $r['username'],
                 ],
             ];
         }
