@@ -16,64 +16,54 @@ namespace eru\nczone\zone;
  */
 class draw_teams
 {
+    // These are number of players, which doesn't work with the scheme in get_match_sizes()
+    // so these are taken instead
     /** @var array */
-    private $special_match_sizes;
+    private static $special_match_sizes = [
+        0 => [],
+        2 => [1 => 1],
+        4 => [2 => 1],
+        6 => [3 => 1],
+        10 => [2 => 1, 3 => 1],
+        12 => [3 => 2],
+        18 => [3 => 3],
+    ];
+
+    // all combinations of players in two teams which makes sense for 3vs3
     /** @var array */
-    private $teams_3vs3;
+    private static $teams_3vs3 = [
+        [[0, 3, 4], [1, 2, 5]],
+        [[0, 2, 5], [1, 3, 4]],
+        [[0, 3, 5], [1, 2, 4]],
+        [[0, 1, 5], [2, 3, 4]],
+        [[0, 4, 5], [1, 2, 3]]
+    ];
+
+    // same thing for 4vs4
     /** @var array */
-    private $teams_4vs4;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        // These are number of players, which doesn't work with the scheme in get_match_sizes()
-        // so these are taken instead
-        $this->special_match_sizes = [
-            0 => [],
-            2 => [1 => 1],
-            4 => [2 => 1],
-            6 => [3 => 1],
-            10 => [2 => 1, 3 => 1],
-            12 => [3 => 2],
-            18 => [3 => 3],
-        ];
-
-        // all combinations of players in two teams which makes sense for 3vs3
-        $this->teams_3vs3 = [
-            [[0, 3, 4], [1, 2, 5]],
-            [[0, 2, 5], [1, 3, 4]],
-            [[0, 3, 5], [1, 2, 4]],
-            [[0, 1, 5], [2, 3, 4]],
-            [[0, 4, 5], [1, 2, 3]]
-        ];
-
-        // same thing for 4vs4
-        $this->teams_4vs4 = [
-            [[0, 3, 4, 7], [1, 2, 5, 6]],
-            [[0, 3, 5, 6], [1, 2, 4, 7]],
-            [[0, 2, 5, 7], [1, 3, 4, 6]],
-            [[0, 1, 6, 7], [2, 3, 4, 5]],
-            [[0, 3, 4, 6], [1, 2, 5, 7]],
-            [[0, 2, 5, 6], [1, 3, 4, 7]],
-            [[0, 2, 6, 7], [1, 3, 4, 5]],
-            [[0, 1, 5, 7], [2, 3, 4, 6]],
-            [[0, 4, 5, 6], [1, 2, 3, 7]],
-            [[0, 3, 4, 5], [1, 2, 6, 7]],
-            [[0, 1, 5, 6], [2, 3, 4, 7]],
-            [[0, 3, 5, 7], [1, 2, 4, 6]],
-            [[0, 2, 4, 7], [1, 3, 5, 6]],
-            [[0, 3, 6, 7], [1, 2, 4, 5]],
-            [[0, 4, 5, 7], [1, 2, 3, 6]],
-            [[0, 1, 4, 7], [2, 3, 5, 6]],
-            [[0, 2, 3, 7], [1, 4, 5, 6]],
-            [[0, 5, 6, 7], [1, 2, 3, 4]],
-            [[0, 1, 2, 7], [3, 4, 5, 6]],
-            [[0, 1, 3, 7], [2, 4, 5, 6]],
-            [[0, 4, 6, 7], [1, 2, 3, 5]]
-        ];
-    }
+    private static $teams_4vs4 = [
+        [[0, 3, 4, 7], [1, 2, 5, 6]],
+        [[0, 3, 5, 6], [1, 2, 4, 7]],
+        [[0, 2, 5, 7], [1, 3, 4, 6]],
+        [[0, 1, 6, 7], [2, 3, 4, 5]],
+        [[0, 3, 4, 6], [1, 2, 5, 7]],
+        [[0, 2, 5, 6], [1, 3, 4, 7]],
+        [[0, 2, 6, 7], [1, 3, 4, 5]],
+        [[0, 1, 5, 7], [2, 3, 4, 6]],
+        [[0, 4, 5, 6], [1, 2, 3, 7]],
+        [[0, 3, 4, 5], [1, 2, 6, 7]],
+        [[0, 1, 5, 6], [2, 3, 4, 7]],
+        [[0, 3, 5, 7], [1, 2, 4, 6]],
+        [[0, 2, 4, 7], [1, 3, 5, 6]],
+        [[0, 3, 6, 7], [1, 2, 4, 5]],
+        [[0, 4, 5, 7], [1, 2, 3, 6]],
+        [[0, 1, 4, 7], [2, 3, 5, 6]],
+        [[0, 2, 3, 7], [1, 4, 5, 6]],
+        [[0, 5, 6, 7], [1, 2, 3, 4]],
+        [[0, 1, 2, 7], [3, 4, 5, 6]],
+        [[0, 1, 3, 7], [2, 4, 5, 6]],
+        [[0, 4, 6, 7], [1, 2, 3, 5]]
+    ];
 
     /**
      * Calculates the best sizes of matches. We avoid 1vs1 and 2vs2 if possible and prefer 4vs4 over 3vs3.
@@ -82,12 +72,12 @@ class draw_teams
      *
      * @return array
      */
-    public function get_match_sizes(int $num_players): array
+    public static function get_match_sizes(int $num_players): array
     {
         $even_num_players = $num_players - ($num_players % 2);
 
-        if (array_key_exists($even_num_players, $this->special_match_sizes)) {
-            return $this->special_match_sizes[$even_num_players];
+        if (array_key_exists($even_num_players, self::$special_match_sizes)) {
+            return self::$special_match_sizes[$even_num_players];
         }
 
         if (($even_num_players % 8) === 0) {
@@ -108,11 +98,11 @@ class draw_teams
     /**
      * Permutes match sizes in all possible combinations without redundancy.
      *
-     * @param array    $match_sizes    The number of match sizes n vs n (n => number)
+     * @param array $match_sizes The number of match sizes n vs n (n => number)
      *
      * @return array
      */
-    public function permute_match_sizes(array $match_sizes): array
+    public static function permute_match_sizes(array $match_sizes): array
     {
         if (\count($match_sizes) === 1) {
             $match_size = key($match_sizes);
@@ -179,13 +169,13 @@ class draw_teams
     /**
      * Calculates the best teams for a single match.
      *
-     * @param array  $player_list  List of the players (must have index 'rating') to be put in teams
+     * @param match_players_list $player_list List of the players (must have index 'rating') to be put in teams
      *
      * @return array
      */
-    public function make_match(array $player_list): array
+    public function make_match(match_players_list $match_players_list): array
     {
-        $player_list = players::sort_by_ratings($player_list);
+        $player_list = $match_players_list->sorted_by_rating()->items();
 
         $num_players = \count($player_list);
         if ($num_players === 2) {
@@ -210,7 +200,7 @@ class draw_teams
             $best_value = -1.0;
             $best_teams = [];
 
-            foreach ($this->teams_3vs3 as $teams) {
+            foreach (self::$teams_3vs3 as $teams) {
                 $team1 = [
                     $player_list[$teams[0][0]],
                     $player_list[$teams[0][1]],
@@ -236,7 +226,7 @@ class draw_teams
             $best_value = -1.0;
             $best_teams = [];
 
-            foreach ($this->teams_4vs4 as $teams) {
+            foreach (self::$teams_4vs4 as $teams) {
                 $team1 = [
                     $player_list[$teams[0][0]],
                     $player_list[$teams[0][1]],
@@ -268,34 +258,31 @@ class draw_teams
     /**
      * Divides players in usable groups to make teams and than calculate the optimal teams.
      *
-     * @param array $player_list  List of the players (must have index 'rating') to be put in teams
+     * @param match_players_list $player_list List of the players (must have index 'rating') to be put in teams
      *
      * @return array
      */
-    public function make_matches(array $player_list): array
+    public function make_matches(match_players_list $player_list): array
     {
-        $num_players = \count($player_list);
-        if ($num_players % 2 === 1) {
-            array_pop($player_list);
-            $num_players--;
+        if ($player_list->length() % 2 === 1) {
+            $player_list->pop();
         }
 
-        $player_list = players::sort_by_ratings($player_list);
+        $sorted_player_list = $player_list->sorted_by_rating();
 
-        $match_sizes = $this->get_match_sizes($num_players);
-        $permutes = $this->permute_match_sizes($match_sizes);
+        $match_sizes = self::get_match_sizes($sorted_player_list->length());
+        $permutes = self::permute_match_sizes($match_sizes);
         $best_value = -1;
         $best_teams = [];
+
         foreach ($permutes as $permute) {
             $curr_value = 0;
             $curr_teams = [];
 
             $offset = 0;
             foreach ($permute as $match_size) {
-                $temp_player_list = \array_slice($player_list, $offset, $match_size * 2);
+                $result = $this->make_match($sorted_player_list->slice($offset, $match_size * 2));
                 $offset += $match_size * 2;
-
-                $result = $this->make_match($temp_player_list);
                 $curr_value += $result['value'];
                 $curr_teams[] = $result['teams'];
             }

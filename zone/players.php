@@ -13,7 +13,6 @@ namespace eru\nczone\zone;
 
 use eru\nczone\config\config;
 use eru\nczone\utility\db;
-use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
 
 class players
@@ -33,14 +32,6 @@ class players
     {
         $this->user = $user;
         $this->db = $db;
-    }
-
-    public static function sort_by_ratings(array $players): array
-    {
-        usort($players, function ($p1, $p2) {
-            return number_util::cmp($p1['rating'], $p2['rating']);
-        });
-        return $players;
     }
 
     public static function get_rating_sum(array $players): int
@@ -79,24 +70,42 @@ class players
     /**
      * Returns the zone information of a user/player
      *
-     * @param int    $user_id    The id of the user
+     * @param int $user_id The id of the user
      *
-     * @return array
+     * @return player
      */
-    public function get_player(int $user_id): array
+    public function get_player(int $user_id): player
     {
-        $playerRow = $this->db->get_row([
-            'SELECT' => 'p.user_id AS id, p.logged_in AS logged_in, p.rating AS rating, p.matches_won AS matches_won, p.matches_loss AS matches_loss, p.bets_won AS bets_won, p.bets_loss AS bets_loss',
-            'FROM' => [$this->db->players_table => 'p'],
-            'WHERE' => 'p.user_id = ' . $user_id
-        ]) ?: [];
-
-        $userRow = $this->db->get_row([
-            'SELECT' => 'u.username AS username',
-            'FROM' => [$this->db->users_table => 'u'],
-            'WHERE' => 'u.user_id = ' . $user_id,
-        ]) ?: [];
-        return array_merge($playerRow, $userRow);
+        $row = $this->db->get_row('
+            SELECT
+                u.username AS username,
+                p.user_id AS id,
+                p.rating AS rating,
+                p.logged_in AS logged_in,
+                MAX(s.session_time) AS last_activity,
+                p.matches_won AS matches_won,
+                p.matches_loss AS matches_loss,
+                COALESCE(t.rating_change, 0) AS rating_change,
+                COALESCE(t.streak, 0) AS streak,
+                p.bets_won AS bets_won,
+                p.bets_loss AS bets_loss,
+                p.activity
+            FROM
+                ' . $this->db->players_table . ' p
+                INNER JOIN ' . $this->db->users_table . ' u 
+                ON u.user_id = p.user_id
+                
+                LEFT JOIN ' . $this->db->session_table . ' s 
+                ON s.session_user_id = p.user_id
+                
+                LEFT JOIN ' . $this->db->match_players_table . ' t 
+                ON t.user_id = p.user_id 
+                AND t.team_id = (SELECT MAX(team_id) FROM ' . $this->db->match_players_table . ' WHERE user_id = p.user_id AND rating_change != 0)
+            WHERE
+                u.user_id = ' . $user_id.'
+            ;
+        ');
+        return player::create_player_by_row($row);
     }
 
     /**
@@ -341,48 +350,35 @@ class players
     /**
      * Gets the user id, name and rating of all logged in players
      *
-     * @return array
+     * @return player[]
      */
     public function get_logged_in(): array
     {
-        $rows = $this->db->get_rows('
-            SELECT
-                p.user_id AS id, 
-                u.username, 
-                p.rating, 
-                p.logged_in, 
-                MAX(s.session_time) AS last_activity
-            FROM
-                '.$this->db->players_table.' p
-                INNER JOIN '.$this->db->users_table .' u ON u.user_id = p.user_id
-                LEFT JOIN '.$this->db->session_table.' s ON s.session_user_id = p.user_id
-            WHERE
-                p.logged_in > 0
-            GROUP BY
-                p.user_id
-            ORDER BY 
-                p.logged_in ASC
-            ;
-        ');
-
-        return array_map(function($row) {
-            return [
-                'id' => (int)$row['id'],
-                'username' => $row['username'],
-                'rating' => (int)$row['rating'],
-                'logged_in' => (int)$row['logged_in'],
-                'last_activity' => (int)$row['last_activity'],
-            ];
-        }, $rows);
+        return $this->get_players(['logged_in' => true]);
     }
 
     /**
      * Gets the user id, name and rating of all players
      *
-     * @return array
+     * @param int $min_matches Minimum count of matches that the returned players must have.
+     * @return player[]
      */
-    public function get_all(int $min_matches=0): array
+    public function get_all(int $min_matches = 0): array
     {
+        return $this->get_players(['min_matches' => $min_matches]);
+    }
+
+    private function get_players(array $filter): array
+    {
+        $where = [];
+        if (isset($filter['logged_in']) && $filter['logged_in']) {
+            $where[] = 'p.logged_in > 0';
+        }
+
+        if (isset($filter['min_matches'])) {
+            $where[] = '(p.matches_won + p.matches_loss) >= ' . (int)$filter['min_matches'];
+        }
+
         $rows = $this->db->get_rows('
             SELECT
                 p.user_id AS id, 
@@ -394,7 +390,10 @@ class players
                 p.activity, 
                 MAX(s.session_time) AS last_activity,
                 COALESCE(t.rating_change, 0) AS rating_change,
-                COALESCE(t.streak, 0) AS streak
+                COALESCE(t.streak, 0) AS streak,
+                p.bets_won AS bets_won,
+                p.bets_loss AS bets_loss,
+                p.activity
             FROM
                 ' . $this->db->players_table . ' p
                 INNER JOIN ' . $this->db->users_table . ' u 
@@ -407,34 +406,12 @@ class players
                 ON t.user_id = p.user_id 
                 AND t.team_id = (SELECT MAX(team_id) FROM ' . $this->db->match_players_table . ' WHERE user_id = p.user_id AND rating_change != 0)
             WHERE
-                (p.matches_won + p.matches_loss) >= ' . $min_matches . '
+                '.(empty($where) ? '1=1' : implode(' AND ', $where)).'
             GROUP BY
                 p.user_id
-            ORDER BY 
-                u.username ASC
             ;
         ');
-        $players = [];
-        foreach($rows as $row)
-        {
-            [$wins, $losses] = [(int)$row['matches_won'], (int)$row['matches_loss']];
-            $games = $wins + $losses;
-
-            $players[] = [
-                'id' => (int)$row['id'],
-                'username' => $row['username'],
-                'rating' => (int)$row['rating'],
-                'logged_in' => (int)$row['logged_in'],
-                'last_activity' => (int)$row['last_activity'],
-                'games' => $games,
-                'wins' => $wins,
-                'losses' => $losses,
-                'winrate' => $games <= 0 ? 0.0 : ($wins / $games * 100),
-                'ratingchange' => (int)$row['rating_change'],
-                'streak' => (int)$row['streak'],
-            ];
-        }
-        return $players;
+        return array_map([player::class, 'create_player_by_row'], $rows);
     }
 
     public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array
@@ -494,7 +471,7 @@ class players
 
     public function is_activated(int $user_id): bool
     {
-        return array_key_exists('rating', $this->get_player($user_id));
+        return $this->get_player($user_id)->is_activated();
     }
 
     public function get_team_usernames(int ...$team_ids): array

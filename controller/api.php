@@ -2,10 +2,11 @@
 
 namespace eru\nczone\controller;
 
+use eru\nczone\config\config;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
+use eru\nczone\zone\match_players_list;
 use phpbb\auth\auth;
-use phpbb\config\config;
 use phpbb\request\request_interface;
 use phpbb\user;
 use Symfony\Component\HttpFoundation\Response;
@@ -246,7 +247,11 @@ class api
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_PLAYERS'], self::CODE_BAD_REQUEST);
         }
 
-        $match_ids = zone_util::matches()->draw($user_id, $players);
+        $match_players = new match_players_list();
+        foreach ($players as $player) {
+            $match_players->add($player);
+        }
+        $match_ids = zone_util::matches()->draw($user_id, $match_players);
         return $this->jsonResponse($match_ids);
     }
 
@@ -434,7 +439,8 @@ class api
 
     public function rules(): Response
     {
-        return new Response(end(zone_util::misc()->get_posts((int)(config::get('nczone_rules_post_id')))));
+        $rulesPosts = zone_util::misc()->get_posts((int)config::get('nczone_rules_post_id'));
+        return new Response(end($rulesPosts));
     }
 
     private static function get_request_data(): array

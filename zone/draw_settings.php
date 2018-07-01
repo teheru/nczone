@@ -30,7 +30,7 @@ class draw_settings {
         $this->db = $db;
     }
 
-    public function draw_settings(array $team1, array $team2): array
+    public function draw_settings(array $team1, array $team2): draw_setting
     {
         $players = array_merge($team1, $team2);
 
@@ -73,7 +73,15 @@ class draw_settings {
             }
         }
 
-        return [$map_id, $match_civ_ids, $team1_civ_ids, $team2_civ_ids, $player_civ_ids];
+        $draw_setting = new draw_setting();
+        $draw_setting->set_map_id($map_id);
+        $draw_setting->set_match_civ_ids($match_civ_ids);
+        $draw_setting->set_team1_civ_ids($team1_civ_ids);
+        $draw_setting->set_team2_civ_ids($team2_civ_ids);
+        $draw_setting->set_player_civ_ids($player_civ_ids);
+        $draw_setting->set_team1($team1);
+        $draw_setting->set_team2($team2);
+        return $draw_setting;
     }
 
     /**

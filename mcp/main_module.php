@@ -93,11 +93,11 @@ class main_module
             $template->assign_var('USER_ID', $user_id);
 
             $player = zone_util::players()->get_player((int)$user_id);
-            if (array_key_exists('rating', $player)) {
+            if ($player->is_activated()) {
                 $template->assign_var('S_EDIT_PLAYER', true);
 
-                $template->assign_var('USERNAME', $player['username']);
-                $template->assign_var('PLAYER_RATING', $player['rating']);
+                $template->assign_var('USERNAME', $player->get_username());
+                $template->assign_var('PLAYER_RATING', $player->get_rating());
             } else {
                 $template->assign_var('S_NEW_PLAYER', true);
             }
