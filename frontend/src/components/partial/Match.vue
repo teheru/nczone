@@ -1,5 +1,5 @@
 <template>
-<div class="zone-match">
+<div class="zone-match" :class="{'zone-match-finished': match.timestampEnd > 0}">
   <div class="zone-match-title">{{ $t('NCZONE_MATCH_MATCH') }} #{{ match.id }}</div>
   <div class="zone-match-data">
     <template v-if="match.timestampEnd">
@@ -85,7 +85,7 @@ export default {
       this.$store.dispatch('postMatchResult', {matchId: this.match.id, winner: this.matchResult})
     },
     cb (now, ticks) {
-      this.gameSeconds = new Date().getTime() / 1000 - this.match.timestampStart
+      this.gameSeconds = now / 1000 - this.match.timestampStart
     },
     start () {
       this.timer.every(1, this.cb)

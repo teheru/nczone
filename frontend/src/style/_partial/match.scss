@@ -120,6 +120,24 @@
   }
 }
 
+.zone-match-team-winner {
+  .zone-highlight-color {
+    color: $positive_color;
+  }
+}
+
+.zone-match-team-loser {
+  .zone-highlight-color {
+    color: $negative_color;
+  }
+}
+
+.zone-match-team-no-result {
+  .zone-highlight-color {
+    color: $neutral_color;
+  }
+}
+
 /* Bets
 ===================================================================*/
 .zone-match-bets {

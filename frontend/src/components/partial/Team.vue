@@ -1,6 +1,5 @@
 <template>
-  <div :class="`zone-match-team-${team}`">
-
+  <div :class="classes">
     <div class="zone-match-bets">
       <div class="zone-match-bets-percentage">
         <a v-if="canBet" @click="bet" class="zone-match-bets-bet-button"></a>
@@ -16,12 +15,12 @@
     </div>
 
     <div class="zone-match-team">
-      <div class="zone-match-team-header zone-match-player-name" v-t="title"></div>
+      <div class="zone-match-team-header zone-match-player-name zone-highlight-color" v-t="title"></div>
       <div class="zone-match-team-header zone-match-player-rating">({{ totalRating }})</div>
       <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ" v-t="'NCZONE_MATCH_CIVS'"></div>
 
       <template v-for="(player, idx) in players">
-        <div class="zone-match-player-name" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
+        <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
         <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ $t(player.civ.title) }}</span></div>
       </template>
@@ -49,8 +48,33 @@ export default {
     }
   },
   computed: {
+    classes () {
+      if (!this.isFinished) {
+        return [`zone-match-team-${this.team}`]
+      }
+
+      if (this.isWinnerTeam) {
+        return [`zone-match-team-${this.team}`, 'zone-match-team-winner']
+      }
+
+      if (this.isLoserTeam) {
+        return [`zone-match-team-${this.team}`, 'zone-match-team-loser']
+      }
+
+      return [`zone-match-team-${this.team}`, 'zone-match-team-no-result']
+    },
+    isFinished () {
+      return this.match.timestampEnd > 0
+    },
+    isWinnerTeam () {
+      return this.match.winner && this.team === this.match.winner
+    },
+    isLoserTeam () {
+      return this.match.winner && this.team !== this.match.winner
+    },
     canBet () {
-      return !this.match.bets.team1.map(p => p.user.id).includes(this.me.id) &&
+      return !this.isFinished &&
+        !this.match.bets.team1.map(p => p.user.id).includes(this.me.id) &&
         !this.match.bets.team2.map(p => p.user.id).includes(this.me.id)
     },
     perc () {
