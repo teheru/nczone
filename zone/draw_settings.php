@@ -104,13 +104,10 @@ class draw_settings {
      */
     public function get_players_map_id(match_players_list $users): int
     {
-        $user_ids = $users->get_ids();
-        $user_num = \count($user_ids);
-
         $rows = $this->db->get_rows([
             'SELECT' => 't.map_id, SUM(' . time() . ' - t.time) * m.weight AS val',
             'FROM' => [$this->db->player_map_table => 't', $this->db->maps_table => 'm'],
-            'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('t.user_id', $user_ids),
+            'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('t.user_id', $users->get_ids()),
             'GROUP_BY' => 't.map_id, t.user_id',
             'ORDER_BY' => 'val DESC'
         ]);
@@ -127,7 +124,7 @@ class draw_settings {
                 $counter[$r['map_id']]++;
             }
 
-            if($counter[$r['map_id']] === $user_num)
+            if($counter[$r['map_id']] === $users->length())
             {
                 return (int)$r['map_id'];
             }
