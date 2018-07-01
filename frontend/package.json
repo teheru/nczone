@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "build": "vue-cli-service build && npm run build-css",
+    "lint": "vue-cli-service lint",
+    "build-css": "node-sass src/css/styles/flat-style/zone.scss dist/styles/flat-style/zone.css --output-style compressed && node-sass src/css/styles/prosilver/zone.scss dist/styles/prosilver/zone.css --output-style compressed"
   },
   "dependencies": {
     "vue": "^2.5.16",
@@ -20,8 +21,7 @@
     "@vue/cli-service": "^3.0.0-beta.15",
     "@vue/eslint-config-standard": "^3.0.0-rc.2",
     "node-sass": "^4.9.0",
-    "sass-loader": "^7.0.3",
-    "vue-template-compiler": "^2.5.16"
+    "sass-loader": "^7.0.3"
   },
   "browserslist": [
     "> 1%",

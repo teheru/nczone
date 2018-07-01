@@ -1,9 +1,9 @@
-@import "_partial/block";
-@import "_partial/players-table";
-@import "_partial/menu";
-@import "_partial/match";
-@import "_partial/player-area";
-@import "_partial/draw-preview";
+@import "partial/block.scss";
+@import "partial/players-table.scss";
+@import "partial/menu.scss";
+@import "partial/match.scss";
+@import "partial/player-area.scss";
+@import "partial/draw-preview.scss";
 
 .zone-container {
   margin-top: 20px;
