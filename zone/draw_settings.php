@@ -424,7 +424,6 @@ class draw_settings {
         // find out which civs have to be in both teams
         $both_teams_civ_ids = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
 
-        $user_ids = array_merge($team1->get_ids(), $team2->get_ids());
         $user_civpools = [];
 
         foreach ($team1->items() as $user) {
@@ -475,11 +474,12 @@ class draw_settings {
             $user_civpools[$team1_force_civ['user_id']][] = ['id' => $team1_force_civ['civ_id'], 'multiplier' => $team1_force_civ['multiplier']];
             $user_civpools[$team2_force_civ['user_id']][] = ['id' => $team2_force_civ['civ_id'], 'multiplier' => $team2_force_civ['multiplier']];
         }
+
+        $user_ids = array_merge($team1->get_ids(), $team2->get_ids());
+        $user_civs = $civs_module->get_map_players_multiple_civs($map_id, $user_ids, $force_civ_ids);
+
         // civs we don't want to drop
         $keep_civ_ids = array_merge($force_civ_ids, $both_teams_civ_ids);
-
-
-        $user_civs = $civs_module->get_map_players_multiple_civs($map_id, $user_ids, $force_civ_ids);
 
         // remember civs that were already drawed so we don't draw them twice
         $civpool_civs = [];
@@ -536,9 +536,7 @@ class draw_settings {
 
         $combinations = $this->get_user_civ_combinations($user_civpools, $user_ids);
 
-        $best_civ_combination = $this->get_best_user_civ_combination($combinations, $team1, $team2);
-
-        return $best_civ_combination;
+        return $this->get_best_user_civ_combination($combinations, $team1, $team2);
     }
 
     // calculate all possible combinations of civs for the players
@@ -570,21 +568,25 @@ class draw_settings {
         $best_civ_combination = [];
         $best_diff = -1;
         foreach ($combinations as $cc) {
-            $team1_sum = 0;
-            $team2_sum = 0;
-            foreach ($cc as $user_id => $civ) {
-                if ($team1->get_by_id($user_id)) {
-                    $team1_sum += $team1->get_by_id($user_id)->get_rating() * $civ['multiplier'];
-                } elseif ($team2->get_by_id($user_id)) {
-                    $team2_sum += $team2->get_by_id($user_id)->get_rating() * $civ['multiplier'];
-                }
-            }
-            $diff = number_util::diff($team1_sum, $team2_sum);
+            $diff = $this->get_user_civ_combination_rating_diff($team1, $team2, $cc);
             if ($diff < $best_diff || $best_diff < 0) {
                 $best_civ_combination = $cc;
                 $best_diff = $diff;
             }
         }
         return $best_civ_combination;
+    }
+
+    private function get_user_civ_combination_rating_diff(match_players_list $team1, match_players_list $team2, array $user_civ_map): float
+    {
+        $team1_sum = 0;
+        $team2_sum = 0;
+        foreach ($team1->items() as $p) {
+            $team1_sum += $p->get_rating() * ($user_civ_map[$p->get_id()]['multiplier'] ?? 0);
+        }
+        foreach ($team2->items() as $p) {
+            $team2_sum += $p->get_rating() * ($user_civ_map[$p->get_id()]['multiplier'] ?? 0);
+        }
+        return number_util::diff($team1_sum, $team2_sum);
     }
 }
