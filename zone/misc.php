@@ -30,7 +30,7 @@ class misc
 
     public function get_information_ids(): array
     {
-        return array_map(function($a): int { return (int)$a; }, explode(',', config::get('nczone_info_posts')));
+        return array_map('\intval', explode(',', config::get('nczone_info_posts')));
     }
 
     public function get_posts(int ...$post_ids): array
@@ -42,8 +42,7 @@ class misc
         ]);
 
         $posts = [];
-        foreach($rows as $r)
-        {
+        foreach ($rows as $r) {
             $posts[(int)$r['post_id']] = generate_text_for_display($r['post_text'], $r['bbcode_uid'], $r['bbcode_bitfield'], ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true);
         }
 
@@ -57,23 +56,23 @@ class misc
         $uid = $bitfield = $options = '';
         generate_text_for_storage($message, $uid, $bitfield, $options, true, true, false);
 
-        $data = array(
-                'topic_title' => $title,
-                'post_time' => time(),
-                'poster_ip' => $this->user->ip,
-                'force_approved_state' => true,
-                'enable_bbcode' => true,
-                'enable_smilies' => false,
-                'enable_urls' => true,
-                'enable_sig' => false,
-                'message' => $message,
-                'message_md5' => md5($message),
-                'post_edit_locked' => true,
-                'forum_id' => $forum_id,
-                'icon_id' => 0,
-                'bbcode_bitfield' => $bitfield,
-                'bbcode_uid' => $uid,
-        );
+        $data = [
+            'topic_title' => $title,
+            'post_time' => time(),
+            'poster_ip' => $this->user->ip,
+            'force_approved_state' => true,
+            'enable_bbcode' => true,
+            'enable_smilies' => false,
+            'enable_urls' => true,
+            'enable_sig' => false,
+            'message' => $message,
+            'message_md5' => md5($message),
+            'post_edit_locked' => true,
+            'forum_id' => $forum_id,
+            'icon_id' => 0,
+            'bbcode_bitfield' => $bitfield,
+            'bbcode_uid' => $uid,
+        ];
         $poll = [];
         submit_post('post', $title, $this->user->data['username'], POST_NORMAL, $poll, $data);
 
