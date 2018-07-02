@@ -68,6 +68,15 @@ class match_players_list
         return array_pop($this->items);
     }
 
+    public function pick_indexes(int ...$indexes): match_players_list
+    {
+        $list = new self;
+        foreach ($indexes as $index) {
+            $list->add($this->items[$index]);
+        }
+        return $list;
+    }
+
     public function slice($offset, $size): match_players_list
     {
         $list = new self;

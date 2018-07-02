@@ -29,46 +29,55 @@ class draw_teams
         18 => [3 => 3],
     ];
 
-    // all combinations of players in two teams which makes sense for 3vs3
+    // all combinations of players in two teams which makes sense for specific number of players
     /** @var array */
-    private static $teams_3vs3 = [
-        [[0, 3, 4], [1, 2, 5]],
-        [[0, 2, 5], [1, 3, 4]],
-        [[0, 3, 5], [1, 2, 4]],
-        [[0, 1, 5], [2, 3, 4]],
-        [[0, 4, 5], [1, 2, 3]]
-    ];
-
-    // same thing for 4vs4
-    /** @var array */
-    private static $teams_4vs4 = [
-        [[0, 3, 4, 7], [1, 2, 5, 6]],
-        [[0, 3, 5, 6], [1, 2, 4, 7]],
-        [[0, 2, 5, 7], [1, 3, 4, 6]],
-        [[0, 1, 6, 7], [2, 3, 4, 5]],
-        [[0, 3, 4, 6], [1, 2, 5, 7]],
-        [[0, 2, 5, 6], [1, 3, 4, 7]],
-        [[0, 2, 6, 7], [1, 3, 4, 5]],
-        [[0, 1, 5, 7], [2, 3, 4, 6]],
-        [[0, 4, 5, 6], [1, 2, 3, 7]],
-        [[0, 3, 4, 5], [1, 2, 6, 7]],
-        [[0, 1, 5, 6], [2, 3, 4, 7]],
-        [[0, 3, 5, 7], [1, 2, 4, 6]],
-        [[0, 2, 4, 7], [1, 3, 5, 6]],
-        [[0, 3, 6, 7], [1, 2, 4, 5]],
-        [[0, 4, 5, 7], [1, 2, 3, 6]],
-        [[0, 1, 4, 7], [2, 3, 5, 6]],
-        [[0, 2, 3, 7], [1, 4, 5, 6]],
-        [[0, 5, 6, 7], [1, 2, 3, 4]],
-        [[0, 1, 2, 7], [3, 4, 5, 6]],
-        [[0, 1, 3, 7], [2, 4, 5, 6]],
-        [[0, 4, 6, 7], [1, 2, 3, 5]]
+    private static $teams_def = [
+        // 2 players
+        2 => [
+            [[0], [1]],
+        ],
+        // 4 players
+        4 => [
+            [[0, 3], [1, 2]],
+        ],
+        // 6 players
+        6 => [
+            [[0, 3, 4], [1, 2, 5]],
+            [[0, 2, 5], [1, 3, 4]],
+            [[0, 3, 5], [1, 2, 4]],
+            [[0, 1, 5], [2, 3, 4]],
+            [[0, 4, 5], [1, 2, 3]],
+        ],
+        // 8 players
+        8 => [
+            [[0, 3, 4, 7], [1, 2, 5, 6]],
+            [[0, 3, 5, 6], [1, 2, 4, 7]],
+            [[0, 2, 5, 7], [1, 3, 4, 6]],
+            [[0, 1, 6, 7], [2, 3, 4, 5]],
+            [[0, 3, 4, 6], [1, 2, 5, 7]],
+            [[0, 2, 5, 6], [1, 3, 4, 7]],
+            [[0, 2, 6, 7], [1, 3, 4, 5]],
+            [[0, 1, 5, 7], [2, 3, 4, 6]],
+            [[0, 4, 5, 6], [1, 2, 3, 7]],
+            [[0, 3, 4, 5], [1, 2, 6, 7]],
+            [[0, 1, 5, 6], [2, 3, 4, 7]],
+            [[0, 3, 5, 7], [1, 2, 4, 6]],
+            [[0, 2, 4, 7], [1, 3, 5, 6]],
+            [[0, 3, 6, 7], [1, 2, 4, 5]],
+            [[0, 4, 5, 7], [1, 2, 3, 6]],
+            [[0, 1, 4, 7], [2, 3, 5, 6]],
+            [[0, 2, 3, 7], [1, 4, 5, 6]],
+            [[0, 5, 6, 7], [1, 2, 3, 4]],
+            [[0, 1, 2, 7], [3, 4, 5, 6]],
+            [[0, 1, 3, 7], [2, 4, 5, 6]],
+            [[0, 4, 6, 7], [1, 2, 3, 5]],
+        ],
     ];
 
     /**
      * Calculates the best sizes of matches. We avoid 1vs1 and 2vs2 if possible and prefer 4vs4 over 3vs3.
      *
-     * @param int    $num_players    Number of players do be drawn
+     * @param int $num_players Number of players do be drawn
      *
      * @return array
      */
@@ -167,100 +176,6 @@ class draw_teams
     }
 
     /**
-     * Calculates the best teams for a single match.
-     *
-     * @param match_players_list $match_players_list List of the players (must have index 'rating') to be put in teams
-     *
-     * @return array
-     */
-    public function make_match(match_players_list $match_players_list): array
-    {
-        $player_list = $match_players_list->sorted_by_rating()->items();
-
-        $num_players = \count($player_list);
-        if ($num_players === 2) {
-            $team1 = new match_players_list;
-            $team1->add($player_list[0]);
-
-            $team2 = new match_players_list;
-            $team2->add($player_list[1]);
-
-            return [
-                'teams' => [$team1, $team2],
-                'value' => $team1->get_rating_difference($team2)
-            ];
-        }
-
-        if ($num_players === 4) {
-            $team1 = new match_players_list;
-            $team1->add($player_list[0]);
-            $team1->add($player_list[3]);
-
-            $team2 = new match_players_list;
-            $team2->add($player_list[1]);
-            $team2->add($player_list[2]);
-
-            return [
-                'teams' => [$team1, $team2],
-                'value' => $team1->get_rating_difference($team2),
-            ];
-        }
-
-        if ($num_players === 6) {
-            $best_value = -1.0;
-            $best_teams = [];
-
-            foreach (self::$teams_3vs3 as $teams) {
-                $team1 = new match_players_list;
-                $team1->add($player_list[$teams[0][0]]);
-                $team1->add($player_list[$teams[0][1]]);
-                $team1->add($player_list[$teams[0][2]]);
-
-                $team2 = new match_players_list;
-                $team2->add($player_list[$teams[1][0]]);
-                $team2->add($player_list[$teams[1][1]]);
-                $team2->add($player_list[$teams[1][2]]);
-
-                $value = $team1->get_rating_difference($team2);
-                if ($best_value < 0.0 || $value < $best_value) {
-                    $best_value = $value;
-                    $best_teams = [$team1, $team2];
-                }
-            }
-            return ['teams' => $best_teams, 'value' => $best_value];
-        }
-
-        if ($num_players === 8) {
-            $best_value = -1.0;
-            $best_teams = [];
-
-            foreach (self::$teams_4vs4 as $teams) {
-                $team1 = new match_players_list;
-                $team1->add($player_list[$teams[0][0]]);
-                $team1->add($player_list[$teams[0][1]]);
-                $team1->add($player_list[$teams[0][2]]);
-                $team1->add($player_list[$teams[0][3]]);
-
-                $team2 = new match_players_list;
-                $team2->add($player_list[$teams[1][0]]);
-                $team2->add($player_list[$teams[1][1]]);
-                $team2->add($player_list[$teams[1][2]]);
-                $team2->add($player_list[$teams[1][3]]);
-
-                $value = $team1->get_rating_difference($team2);
-                if ($best_value < 0.0 || $value < $best_value) {
-                    $best_value = $value;
-                    $best_teams = [$team1, $team2];
-                }
-            }
-            return ['teams' => $best_teams, 'value' => $best_value];
-        }
-
-        # todo: maybe throw exception for invalid num_players?
-        return ['teams' => [], 'value' => 0];
-    }
-
-    /**
      * Divides players in usable groups to make teams and than calculate the optimal teams.
      *
      * @param match_players_list $player_list List of the players (must have index 'rating') to be put in teams
@@ -298,5 +213,40 @@ class draw_teams
             }
         }
         return $best_teams;
+    }
+
+    /**
+     * Calculates the best teams for a single match.
+     * Note that the $players list is already sorted by rating through make_matches function
+     *
+     * @param match_players_list $players List of the players to be put in teams.
+     *
+     * @return array
+     */
+    private function make_match(match_players_list $players): array
+    {
+        return $this->make_match_with_team_def(self::$teams_def[$players->length()] ?? [], $players);
+    }
+
+    private function make_match_with_team_def(array $team_def, match_players_list $players): array
+    {
+        $best_value = -1.0;
+        $best_teams = [];
+
+        foreach ($team_def as $teams) {
+            $team1 = $players->pick_indexes(...$teams[0]);
+            $team2 = $players->pick_indexes(...$teams[1]);
+
+            $value = $team1->get_rating_difference($team2);
+            if ($best_value < 0.0 || $value < $best_value) {
+                $best_value = $value;
+                $best_teams = [$team1, $team2];
+            }
+        }
+
+        return [
+            'teams' => $best_teams,
+            'value' => $best_value,
+        ];
     }
 }
