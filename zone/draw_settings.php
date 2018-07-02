@@ -475,8 +475,7 @@ class draw_settings {
             $user_civpools[$team2_force_civ['user_id']][] = ['id' => $team2_force_civ['civ_id'], 'multiplier' => $team2_force_civ['multiplier']];
         }
 
-        $user_ids = array_merge($team1->get_ids(), $team2->get_ids());
-        $user_civs = $civs_module->get_map_players_multiple_civs($map_id, $user_ids, $force_civ_ids);
+        $user_civs = $civs_module->get_map_players_multiple_civs($map_id, array_merge($team1->get_ids(), $team2->get_ids()), $force_civ_ids);
 
         // civs we don't want to drop
         $keep_civ_ids = array_merge($force_civ_ids, $both_teams_civ_ids);
@@ -534,9 +533,22 @@ class draw_settings {
             }
         }
 
-        $combinations = $this->get_user_civ_combinations($user_civpools, $user_ids);
+        return $this->get_best_user_civ_combination($user_civpools, $team1, $team2);
+    }
 
-        return $this->get_best_user_civ_combination($combinations, $team1, $team2);
+    // calculate sum rating * multiplier and minimize the abs difference for the teams
+    private function get_best_user_civ_combination(array $user_civpools, match_players_list $team1, match_players_list $team2): array
+    {
+        $best_civ_combination = [];
+        $best_diff = -1;
+        foreach ($this->get_user_civ_combinations($user_civpools, array_merge($team1->get_ids(), $team2->get_ids())) as $cc) {
+            $diff = $this->get_user_civ_combination_rating_diff($team1, $team2, $cc);
+            if ($diff < $best_diff || $best_diff < 0) {
+                $best_civ_combination = $cc;
+                $best_diff = $diff;
+            }
+        }
+        return $best_civ_combination;
     }
 
     // calculate all possible combinations of civs for the players
@@ -560,21 +572,6 @@ class draw_settings {
             $civ_combinations = $new_civ_combinations;
         }
         return $civ_combinations;
-    }
-
-    // calculate sum rating * multiplier and minimize the abs difference for the teams
-    private function get_best_user_civ_combination(array $combinations, match_players_list $team1, match_players_list $team2): array
-    {
-        $best_civ_combination = [];
-        $best_diff = -1;
-        foreach ($combinations as $cc) {
-            $diff = $this->get_user_civ_combination_rating_diff($team1, $team2, $cc);
-            if ($diff < $best_diff || $best_diff < 0) {
-                $best_civ_combination = $cc;
-                $best_diff = $diff;
-            }
-        }
-        return $best_civ_combination;
     }
 
     private function get_user_civ_combination_rating_diff(match_players_list $team1, match_players_list $team2, array $user_civ_map): float
