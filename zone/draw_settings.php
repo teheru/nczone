@@ -57,7 +57,7 @@ class draw_settings {
         $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
         if($civ_kind === self::MATCH_CIVS)
         {
-            $match_civs = $this->draw_match_civs($map_id, $players, 0, config::get('nczone_draw_match_extra_civs_' . $vs_str));
+            $match_civs = $this->draw_match_civs($map_id, $players, config::get('nczone_draw_match_extra_civs_' . $vs_str));
             foreach($match_civs as $civ)
             {
                 $match_civ_ids[] = (int)$civ['id'];
@@ -206,9 +206,9 @@ class draw_settings {
         return [$force_civ ?: [], $best_civs];
     }
 
-    public function draw_match_civs(int $map_id, match_players_list $users, int $num_civs=0, int $extra_civs=4): array
+    public function draw_match_civs(int $map_id, match_players_list $users, int $extra_civs=4): array
     {
-        $players_civs = $this->draw_players_civs($map_id, $users, $num_civs ?: $users->length() / 2, $extra_civs);
+        $players_civs = $this->draw_players_civs($map_id, $users, $users->length() / 2, $extra_civs);
 
         $drawed_civs = $players_civs[0]
             ? array_merge([$players_civs[0]], $players_civs[1])
