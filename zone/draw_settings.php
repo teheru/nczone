@@ -65,7 +65,7 @@ class draw_settings {
         }
         elseif($civ_kind === self::TEAM_CIVS)
         {
-            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, 0, config::get('nczone_draw_team_extra_civs_' . $vs_str));
+            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, config::get('nczone_draw_team_extra_civs_' . $vs_str));
             foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = (int)$civ['id'];
@@ -217,12 +217,9 @@ class draw_settings {
         return civs::sort_by_multiplier($drawed_civs);
     }
 
-    public function draw_teams_civs(int $map_id, match_players_list $team1_users, match_players_list $team2_users, int $num_civs=0, int $extra_civs=2): array
+    public function draw_teams_civs(int $map_id, match_players_list $team1_users, match_players_list $team2_users, int $extra_civs=2): array
     {
-        if($num_civs === 0)
-        {
-            $num_civs = $team1_users->length();
-        }
+        $num_civs = $team1_users->length();
 
         $team1_sum_rating = $team1_users->get_total_rating();
         $team2_sum_rating = $team2_users->get_total_rating();
