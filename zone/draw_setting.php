@@ -24,42 +24,42 @@ class draw_setting
     /** @var array */
     private $player_civ_ids = [];
 
-    public function set_draw_user_id(int $draw_user_id)
+    public function set_draw_user_id(int $draw_user_id): void
     {
         $this->draw_user_id = $draw_user_id;
     }
 
-    public function set_team1(match_players_list $team1)
+    public function set_team1(match_players_list $team1): void
     {
         $this->team1 = $team1;
     }
 
-    public function set_team2(match_players_list $team2)
+    public function set_team2(match_players_list $team2): void
     {
         $this->team2 = $team2;
     }
 
-    public function set_map_id(int $set_map_id)
+    public function set_map_id(int $set_map_id): void
     {
         $this->map_id = $set_map_id;
     }
 
-    public function set_match_civ_ids(array $set_match_civ_ids)
+    public function set_match_civ_ids(array $set_match_civ_ids): void
     {
         $this->match_civ_ids = $set_match_civ_ids;
     }
 
-    public function set_team1_civ_ids(array $set_team1_civ_ids)
+    public function set_team1_civ_ids(array $set_team1_civ_ids): void
     {
         $this->team1_civ_ids = $set_team1_civ_ids;
     }
 
-    public function set_team2_civ_ids(array $set_team2_civ_ids)
+    public function set_team2_civ_ids(array $set_team2_civ_ids): void
     {
         $this->team2_civ_ids = $set_team2_civ_ids;
     }
 
-    public function set_player_civ_ids(array $set_player_civ_ids)
+    public function set_player_civ_ids(array $set_player_civ_ids): void
     {
         $this->player_civ_ids = $set_player_civ_ids;
     }
