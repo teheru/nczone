@@ -38,15 +38,16 @@ class maps
     /**
      * Returns all maps (id, name, weight)
      *
-     * @return array
+     * @return map[]
      */
     public function get_maps(): array
     {
-        return $this->db->get_rows([
+        $rows = $this->db->get_rows([
             'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight',
             'FROM' => [$this->db->maps_table => 'm'],
             'ORDER_BY' => 'LOWER(name) ASC',
         ]);
+        return array_map([map::class, 'create_by_row'], $rows);
     }
 
 
@@ -61,17 +62,18 @@ class maps
     /**
      * Returns name and weight of a certain map.
      *
-     * @param int    $map_id    Id of the map.
+     * @param int $map_id Id of the map.
      *
-     * @return array
+     * @return map
      */
-    public function get_map(int $map_id): array
+    public function get_map(int $map_id): map
     {
-        return $this->db->get_row([
-            'SELECT' => 'm.map_name AS name, m.weight AS weight',
+        $row = $this->db->get_row([
+            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight',
             'FROM' => [$this->db->maps_table => 'm'],
             'WHERE' => 'm.map_id = ' . $map_id
         ]);
+        return map::create_by_row($row);
     }
 
     /**
@@ -124,7 +126,6 @@ class maps
         });
     }
 
-
     private function insert_map(string $map_name, float $weight): int
     {
         return $this->db->insert($this->db->maps_table, [
@@ -133,7 +134,6 @@ class maps
             'weight' => $weight
         ]);
     }
-
 
     private function copy_map_civs(int $to_map_id, int $from_map_id): void
     {
@@ -146,7 +146,6 @@ class maps
             $this->db->sql_multi_insert($this->db->map_civs_table, $sql_array);
         }
     }
-
 
     private function create_map_civs(int $map_id): void
     {

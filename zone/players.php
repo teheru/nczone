@@ -72,7 +72,7 @@ class players
                 u.user_id = ' . $user_id.'
             ;
         ');
-        return player::create_player_by_row($row);
+        return player::create_by_row($row);
     }
 
     /**
@@ -378,7 +378,7 @@ class players
                 p.user_id
             ;
         ');
-        return array_map([player::class, 'create_player_by_row'], $rows);
+        return array_map([player::class, 'create_by_row'], $rows);
     }
 
     public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array

@@ -13,6 +13,16 @@ class match_player
         $this->rating = $rating;
     }
 
+    public static function create_by_player(player $p): match_player
+    {
+        return new self($p->get_id(), $p->get_rating());
+    }
+
+    public static function create_by_row(array $row): match_player
+    {
+        return new self((int)$row['id'], (int)$row['rating']);
+    }
+
     public function get_id(): int
     {
         return $this->id;

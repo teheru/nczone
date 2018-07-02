@@ -29,11 +29,11 @@ class player implements \JsonSerializable
     ;
     private $activity = 0;
 
-    public static function create_player_by_row(array $row): player
+    public static function create_by_row(array $row): player
     {
         $p = new self;
         $p->id = (int)$row['id'];
-        $p->username = $row['username'];
+        $p->username = (string)$row['username'];
         $p->rating = (int)$row['rating'];
         $p->logged_in = (int)$row['logged_in'];
         $p->last_activity = (int)$row['last_activity'];

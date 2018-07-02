@@ -88,7 +88,7 @@ class matches {
 
             $p = zone_util::players()->get_player($player2_id);
 
-            $match_players->unshift(new match_player($p->get_id(), $p->get_rating()));
+            $match_players->unshift(match_player::create_by_player($p));
 
             $this->clean_match($match_id);
 
@@ -119,11 +119,8 @@ class matches {
                 return 0;
             }
 
-            $p1 = zone_util::players()->get_player($player1_id);
-            $p2 = zone_util::players()->get_player($player2_id);
-
-            $match_players->unshift(new match_player($p1->get_id(), $p1->get_rating()));
-            $match_players->unshift(new match_player($p2->get_id(), $p2->get_rating()));
+            $match_players->unshift(match_player::create_by_player(zone_util::players()->get_player($player1_id)));
+            $match_players->unshift(match_player::create_by_player(zone_util::players()->get_player($player2_id)));
 
             $this->clean_match($match_id);
 
@@ -418,14 +415,14 @@ class matches {
         }
 
         $rows = $this->db->get_rows([
-            'SELECT' => 't.user_id, t.draw_rating as rating',
+            'SELECT' => 't.user_id AS id, t.draw_rating as rating',
             'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
         ]);
 
         $list = new match_players_list;
         foreach ($rows as $r) {
-            $list->add(new match_player((int)$r['user_id'], (int)$r['rating']));
+            $list->add(match_player::create_by_row($r));
         }
         return $list;
     }
@@ -891,14 +888,14 @@ class matches {
     private function get_draw_players(int $draw_id): match_players_list
     {
         $rows = $this->db->get_rows([
-            'SELECT' => 'p.user_id AS id, u.username, p.rating, d.logged_in',
-            'FROM' => [$this->db->draw_players_table => 'd', $this->db->players_table => 'p', $this->db->users_table => 'u'],
-            'WHERE' => 'd.draw_id = ' . $draw_id . ' AND d.user_id = p.user_id AND p.user_id = u.user_id',
+            'SELECT' => 'p.user_id AS id, p.rating',
+            'FROM' => [$this->db->draw_players_table => 'd', $this->db->players_table => 'p'],
+            'WHERE' => 'd.draw_id = ' . $draw_id . ' AND d.user_id = p.user_id',
             'ORDER_BY' => 'd.logged_in ASC'
         ]);
         $list = new match_players_list;
         foreach ($rows as $row) {
-            $list->add(new match_player((int)$row['id'], (int)$row['rating']));
+            $list->add(match_player::create_by_row($row));
         }
         return $list;
     }
@@ -920,23 +917,30 @@ class matches {
                 return [];
             }
 
-            $draw_id = $this->db->insert($this->db->draw_process_table, [
-                'draw_id' => 0,
-                'user_id' => $user_id,
-                'time' => time(),
-            ]);
-
-            $sql_array = [];
-            foreach ($logged_in as $u) {
-                $sql_array[] = [
-                    'draw_id' => $draw_id,
-                    'user_id' => $u->get_id(),
-                    'logged_in' => $u->get_logged_in(),
-                ];
-            }
-            $this->db->sql_multi_insert($this->db->draw_players_table, $sql_array);
+            $draw_id = $this->insert_draw_process($user_id);
+            $this->insert_draw_process_players($draw_id, $logged_in);
             return $logged_in;
         });
+    }
+
+    private function insert_draw_process(int $user_id): int
+    {
+        return $this->db->insert($this->db->draw_process_table, [
+            'draw_id' => 0,
+            'user_id' => $user_id,
+            'time' => time(),
+        ]);
+    }
+
+    private function insert_draw_process_players(int $draw_id, array $players): void
+    {
+        $this->db->sql_multi_insert($this->db->draw_players_table, array_map(function (player $player) use ($draw_id) {
+            return [
+                'draw_id' => $draw_id,
+                'user_id' => $player->get_id(),
+                'logged_in' => $player->get_logged_in(),
+            ];
+        }, $players));
     }
 
     /**
