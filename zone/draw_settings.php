@@ -224,19 +224,14 @@ class draw_settings {
             $num_civs = $team1_users->length();
         }
 
-
         $team1_sum_rating = $team1_users->get_total_rating();
         $team2_sum_rating = $team2_users->get_total_rating();
-
 
         // find out which civs have to be in both teams
         $both_teams_civs = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
 
-
         // we use some extra civs to be able to draw fair civs for the teams
-        $team1_players_civs = $this->draw_players_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
-        $team1_force_civ = $team1_players_civs[0];
-        $team1_civpool = $team1_players_civs[1];
+        [$team1_force_civ, $team1_civpool] = $this->draw_players_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
 
         // if the force civ must be in both teams, we don't want to draw another one for team 2
         $ignore_force = False;
