@@ -50,8 +50,7 @@ class matches {
             $user_ids = [];
             $matches = zone_util::draw_teams()->make_matches($match_players_list);
             foreach ($matches as $match) {
-                $setting = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-                $setting->set_draw_user_id($draw_user_id);
+                $setting = zone_util::draw_settings()->draw_settings($draw_user_id, $match[0], $match[1]);
                 $match_ids[] = $this->create_match($setting);
 
                 /** @var match_players_list $team1 */
@@ -94,8 +93,7 @@ class matches {
             $this->clean_match($match_id);
 
             [$match] = zone_util::draw_teams()->make_matches($match_players);
-            $setting = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            $setting->set_draw_user_id($replace_user_id);
+            $setting = zone_util::draw_settings()->draw_settings($replace_user_id, $match[0], $match[1]);
             $match_id = $this->create_match($setting);
             if ($match_id) {
                 zone_util::players()->logout_player($player1_id);
@@ -130,8 +128,7 @@ class matches {
             $this->clean_match($match_id);
 
             [$match] = zone_util::draw_teams()->make_matches($match_players);
-            $setting = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            $setting->set_draw_user_id($add_user_id);
+            $setting = zone_util::draw_settings()->draw_settings($add_user_id, $match[0], $match[1]);
             return $this->create_match($setting);
         });
     }
@@ -158,8 +155,7 @@ class matches {
             $this->clean_match($match_id);
 
             [$match] = zone_util::draw_teams()->make_matches($match_players);
-            $setting = zone_util::draw_settings()->draw_settings($match[0], $match[1]);
-            $setting->set_draw_user_id($remove_user_id);
+            $setting = zone_util::draw_settings()->draw_settings($remove_user_id, $match[0], $match[1]);
             $match_id = $this->create_match($setting);
             if ($match_id) {
                 zone_util::players()->logout_players($player1_id, $player2_id);

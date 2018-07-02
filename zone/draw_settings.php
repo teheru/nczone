@@ -30,12 +30,7 @@ class draw_settings {
         $this->db = $db;
     }
 
-    /**
-     * @param match_players_list $team1
-     * @param match_players_list $team2
-     * @return draw_setting
-     */
-    public function draw_settings(match_players_list $team1, match_players_list $team2): draw_setting
+    public function draw_settings(int $draw_user_id, match_players_list $team1, match_players_list $team2): draw_setting
     {
         $players = new match_players_list;
         foreach ($team1->items() as $item) {
@@ -85,6 +80,7 @@ class draw_settings {
         }
 
         $draw_setting = new draw_setting();
+        $draw_setting->set_draw_user_id($draw_user_id);
         $draw_setting->set_map_id($map_id);
         $draw_setting->set_match_civ_ids($match_civ_ids);
         $draw_setting->set_team1_civ_ids($team1_civ_ids);
