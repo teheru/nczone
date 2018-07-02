@@ -296,26 +296,7 @@ class draw_settings {
         }
         $unique_civpool_num = \count($team1_civpool);
 
-
-        // get all index combinations with length $num_civs for our civpools
-        $test_indices = [];
-        for($i = 0; $i < $extra_civs + 1; $i++)
-        {
-            $test_indices[] = [$i];
-        }
-        for($i = 1; $i < $num_civs; $i++)
-        {
-            $temp = [];
-            foreach($test_indices as $lo)
-            {
-                for($j = end($lo)+1; $j < $num_civs + $extra_civs; $j++)
-                {
-                    $temp[] = array_merge($lo, [$j]);
-                }
-            }
-            $test_indices = $temp;
-        }
-
+        $test_indices = $this->get_civpool_test_indices($num_civs, $extra_civs);
 
         $team1_best_indices = [];
         $team2_best_indices = [];
@@ -585,5 +566,24 @@ class draw_settings {
             $team2_sum += $p->get_rating() * ($user_civ_map[$p->get_id()]['multiplier'] ?? 0);
         }
         return number_util::diff($team1_sum, $team2_sum);
+    }
+
+    // get all index combinations with length $num_civs for our civpools
+    private function get_civpool_test_indices(int $num_civs, int $extra_civs): array
+    {
+        $test_indices = [];
+        for ($i = 0; $i < $extra_civs + 1; $i++) {
+            $test_indices[] = [$i];
+        }
+        for ($i = 1; $i < $num_civs; $i++) {
+            $temp = [];
+            foreach ($test_indices as $lo) {
+                for ($j = end($lo) + 1; $j < $num_civs + $extra_civs; $j++) {
+                    $temp[] = array_merge($lo, [$j]);
+                }
+            }
+            $test_indices = $temp;
+        }
+        return $test_indices;
     }
 }
