@@ -131,10 +131,12 @@ class db
         return $row ? reset($row) : null;
     }
 
-    public function insert(string $table, array $data): string
+    public function insert(string $table, array $data): int
     {
         $this->db->sql_query('INSERT INTO ' . $table . ' ' . $this->db->sql_build_array('INSERT', $data));
-        return (string)$this->db->sql_nextid();
+        // we cast the insert id to int, ignoring the fact that driver_interface returns strings
+        // the id should be a ctype int though, so cast should be alright
+        return (int)$this->db->sql_nextid();
     }
 
     public function update(string $table, array $sqlArray, $where): void

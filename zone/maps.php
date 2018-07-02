@@ -53,7 +53,7 @@ class maps
     public function get_map_ids(): array
     {
         return $this->db->get_col([
-            'SELECT' => 'm.map_id AS map_id',
+            'SELECT' => 'm.map_id',
             'FROM' => [$this->db->maps_table => 'm']
         ]);
     }
@@ -92,17 +92,11 @@ class maps
 
     public function get_map_both_teams_civ_ids(int $map_id): array
     {
-        $rows = $this->db->get_rows([
+        return array_map('\intval', $this->db->get_col([
             'SELECT' => 'c.civ_id AS id',
             'FROM' => [$this->db->map_civs_table => 'c'],
             'WHERE' => 'c.map_id = ' . $map_id . ' AND c.both_teams',
-        ]);
-        $ids = [];
-        foreach($rows as $row)
-        {
-            $ids[] = (int)$row['id'];
-        }
-        return $ids;
+        ]));
     }
 
     /**
@@ -134,7 +128,7 @@ class maps
     }
 
 
-    private function insert_map(string $map_name, float $weight): string
+    private function insert_map(string $map_name, float $weight): int
     {
         return $this->db->insert($this->db->maps_table, [
             'map_id' => 0,

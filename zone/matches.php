@@ -510,7 +510,7 @@ class matches {
      */
     public function create_match(draw_setting $setting): int
     {
-        $match_id = (int)$this->db->insert($this->db->matches_table, [
+        $match_id = $this->db->insert($this->db->matches_table, [
             'match_id' => 0,
             'map_id' => $setting->get_map_id(),
             'draw_user_id' => $setting->get_draw_user_id(),
@@ -609,7 +609,7 @@ class matches {
 
     private function insert_new_match_team(int $match_id, int $match_team): int
     {
-        return (int)$this->db->insert($this->db->match_teams_table, [
+        return $this->db->insert($this->db->match_teams_table, [
             'team_id' => 0,
             'match_id' => $match_id,
             'match_team' => $match_team,
@@ -924,7 +924,7 @@ class matches {
                 return [];
             }
 
-            $draw_id = (int)$this->db->insert($this->db->draw_process_table, [
+            $draw_id = $this->db->insert($this->db->draw_process_table, [
                 'draw_id' => 0,
                 'user_id' => $user_id,
                 'time' => time(),

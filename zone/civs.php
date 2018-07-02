@@ -108,11 +108,11 @@ class civs
     /**
      * Creates a new civ entry in the database without entries for related tables, returns the id of the new civ
      *
-     * @param string  $civ_name  Name of the civ
+     * @param string $civ_name Name of the civ
      *
-     * @return string
+     * @return int
      */
-    private function insert_civ(string $civ_name): string
+    private function insert_civ(string $civ_name): int
     {
         return $this->db->insert($this->db->civs_table, [
             'civ_id' => 0,
@@ -128,12 +128,12 @@ class civs
      *
      * @return void
      */
-    private function create_civ_maps(int $civ_id): void // todo: here was string $civ_id before.... string??
+    private function create_civ_maps(int $civ_id): void
     {
         // todo: replace this by a subquery like above?
         foreach (zone_util::maps()->get_map_ids() as $map_id) {
             $this->db->insert($this->db->map_civs_table, [
-                'map_id' => $map_id,
+                'map_id' => (int)$map_id,
                 'civ_id' => $civ_id,
                 'multiplier' => 0.0,
                 'force_draw' => false,
