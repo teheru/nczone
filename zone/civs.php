@@ -62,7 +62,7 @@ class civs
     public function get_civ(int $civ_id)
     {
         return $this->db->get_row([
-            'SELECT' => 'c.civ_name AS name',
+            'SELECT' => 'c.civ_id AS id, c.civ_name AS name',
             'FROM' => [$this->db->civs_table => 'c'],
             'WHERE' => 'c.civ_id = ' . $civ_id
         ]);
@@ -95,11 +95,8 @@ class civs
     {
         return $this->db->run_txn(function() use ($civ_name) {
             $civ_id = $this->insert_civ($civ_name);
-            $this->create_civ_maps($civ_id);
-            $this->db->sql_query(
-                'INSERT INTO `'. $this->db->player_civ_table .'` (`user_id`, `civ_id`, `time`) '.
-                'SELECT user_id, "'. $civ_id .'", "'. time() .'" FROM `'. $this->db->players_table .'`'
-            );
+            $this->insert_civ_x_map_entries($civ_id);
+            $this->insert_civ_x_player_entries($civ_id);
             return $civ_id;
         });
     }
@@ -128,7 +125,7 @@ class civs
      *
      * @return void
      */
-    private function create_civ_maps(int $civ_id): void
+    private function insert_civ_x_map_entries(int $civ_id): void
     {
         // todo: replace this by a subquery like above?
         foreach (zone_util::maps()->get_map_ids() as $map_id) {
@@ -141,6 +138,14 @@ class civs
                 'both_teams' => false,
             ]);
         }
+    }
+
+    private function insert_civ_x_player_entries(int $civ_id)
+    {
+        $this->db->sql_query(
+            'INSERT INTO `'. $this->db->player_civ_table .'` (`user_id`, `civ_id`, `time`) '.
+            'SELECT user_id, "'. $civ_id .'", "'. time() .'" FROM `'. $this->db->players_table .'`'
+        );
     }
 
     public function get_map_players_multiple_civs($map_id, $user_ids, array $civ_ids = []): array
