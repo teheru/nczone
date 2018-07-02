@@ -278,22 +278,7 @@ class draw_settings {
             }
         }
 
-        // remove extra civs from either team civpools
-        $diff_num = \count($team1_civpool) - \count($team2_civpool);
-        if($diff_num > 0)
-        {
-            for($i = 0; $i < $diff_num; $i++)
-            {
-                array_pop($team1_civpool);
-            }
-        }
-        else
-        {
-            for($i = 0; $i < -$diff_num; $i++)
-            {
-                array_pop($team2_civpool);
-            }
-        }
+        [$team1_civpool, $team2_civpool] = $this->remove_extra_civs_from_civpools($team1_civpool, $team2_civpool);
         $unique_civpool_num = \count($team1_civpool);
 
         $test_indices = $this->get_civpool_test_indices($num_civs, $extra_civs);
@@ -585,5 +570,22 @@ class draw_settings {
             $test_indices = $temp;
         }
         return $test_indices;
+    }
+
+
+    // remove extra civs from either team civpools
+    private function remove_extra_civs_from_civpools(array $team1_civpool, array $team2_civpool): array
+    {
+        $diff_num = \count($team1_civpool) - \count($team2_civpool);
+        if ($diff_num > 0) {
+            for ($i = 0; $i < $diff_num; $i++) {
+                array_pop($team1_civpool);
+            }
+        } else {
+            for ($i = 0; $i < -$diff_num; $i++) {
+                array_pop($team2_civpool);
+            }
+        }
+        return [$team1_civpool, $team2_civpool];
     }
 }
