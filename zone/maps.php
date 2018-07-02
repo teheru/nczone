@@ -119,10 +119,7 @@ class maps
                 $this->create_map_civs($map_id);
             }
 
-            $this->db->sql_query(
-                'INSERT INTO `'. $this->db->player_map_table .'` (`user_id`, `map_id`, `time`) '.
-                'SELECT user_id, "'. $map_id .'", "'. time() .'" FROM `'. $this->db->players_table .'`'
-            );
+            $this->insert_map_x_player_entries($map_id);
             return $map_id;
         });
     }
@@ -214,5 +211,13 @@ class maps
                 'civ_id' => (int)$civ_id,
             ]);
         }
+    }
+
+    private function insert_map_x_player_entries(int $map_id)
+    {
+        $this->db->sql_query(
+            'INSERT INTO `'. $this->db->player_map_table .'` (`user_id`, `map_id`, `time`) '.
+            'SELECT user_id, "'. $map_id .'", "'. time() .'" FROM `'. $this->db->players_table .'`'
+        );
     }
 }
