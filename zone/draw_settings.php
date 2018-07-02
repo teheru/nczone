@@ -193,8 +193,7 @@ class draw_settings {
                 $test_civs = \array_slice($draw_civs, $i, $num_civs - $force_civ_num);
                 $test_civs_calc = array_merge($test_civ_add, $test_civs);
                 $test_civs_calc = civs::sort_by_multiplier($test_civs_calc);
-                $value = $test_civs_calc[0]['multiplier'] - end($test_civs_calc)['multiplier'];
-                reset($test_civs_calc);
+                $value = reset($test_civs_calc)['multiplier'] - end($test_civs_calc)['multiplier'];
                 if($value < $best_value || $best_value < 0)
                 {
                     $best_civs = $test_civs;
@@ -249,7 +248,6 @@ class draw_settings {
             $team2_force_civ = $team1_force_civ;
         }
         $team2_civpool = $team2_players_civs[1];
-
 
         // create a common civpool for civs which has to be in both teams
         $both_civpool = [];
