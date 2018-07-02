@@ -21,6 +21,7 @@ class api
     private const CODE_FORBIDDEN = 403;
     private const CODE_OK = 200;
     private const CODE_BAD_REQUEST = 400;
+    private const CODE_INTERNAL_SERVER_ERROR = 500;
 
     public function __construct(user $user, auth $auth)
     {
@@ -28,7 +29,7 @@ class api
         $this->auth = $auth;
     }
 
-    private function optionsResponse()
+    private function optionsResponse(): JsonResponse
     {
         return new JsonResponse([], self::CODE_OK, [
             'Access-Control-Allow-Origin' => phpbb_util::request()->header('Origin') ?: '*',
@@ -38,12 +39,20 @@ class api
         ]);
     }
 
-    private function jsonResponse(array $data, int $code = self::CODE_OK)
+    private function jsonResponse(array $data, int $code = self::CODE_OK): JsonResponse
     {
         return new JsonResponse($data, $code, [
             'Access-Control-Allow-Origin' => phpbb_util::request()->header('Origin') ?: '*',
             'Access-Control-Allow-Credentials' => 'true',
         ]);
+    }
+
+    private function errorResponse(\Throwable $t): JsonResponse
+    {
+        return $this->jsonResponse([
+            'error' => get_class($t),
+            'message' => $t->getMessage(),
+        ], self::CODE_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -192,8 +201,12 @@ class api
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
-        $players = zone_util::matches()->start_draw_process($user_id);
-        return $this->jsonResponse($players);
+        try {
+            $players = zone_util::matches()->start_draw_process($user_id);
+            return $this->jsonResponse($players);
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
     }
 
     public function draw_cancel(): JsonResponse
@@ -216,8 +229,12 @@ class api
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
-        zone_util::matches()->deny_draw_process($user_id);
-        return $this->jsonResponse([]);
+        try {
+            zone_util::matches()->deny_draw_process($user_id);
+            return $this->jsonResponse([]);
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
     }
 
     public function draw_confirm(): JsonResponse
@@ -240,14 +257,11 @@ class api
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
-        $match_players_list = zone_util::matches()->confirm_draw_process($user_id);
-        if ($match_players_list->length() === 0) {
-            // todo: maybe add reason or something, but use normal status code
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_PLAYERS'], self::CODE_BAD_REQUEST);
+        try {
+            return $this->jsonResponse(zone_util::matches()->draw($user_id));
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
         }
-
-        $match_ids = zone_util::matches()->draw($user_id, $match_players_list);
-        return $this->jsonResponse($match_ids);
     }
 
     /**
@@ -409,8 +423,12 @@ class api
         }
         $winner = (int)$data['winner'];
 
-        zone_util::matches()->post((int)$match_id, $user_id, $winner);
-        return $this->jsonResponse([]);
+        try {
+            zone_util::matches()->post((int)$match_id, $user_id, $winner);
+            return $this->jsonResponse([]);
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
     }
 
     public function information(): JsonResponse

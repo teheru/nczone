@@ -134,8 +134,8 @@ class players
     /**
      * Edits the information of a player
      *
-     * @param int      $user_id        Id of the user
-     * @param array    $player_info    Information array for the user
+     * @param int $user_id Id of the user
+     * @param array $player_info Information array for the user
      *
      * @return void
      */
@@ -170,7 +170,7 @@ class players
     /**
      * Logins a player
      *
-     * @param int    $user_id    Id of the user
+     * @param int $user_id Id of the user
      *
      * @return void
      */
