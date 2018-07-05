@@ -131,7 +131,7 @@ class match_players_list
         return abs(self::get_max_rating_of_all($this, $team2) - self::get_min_rating_of_all($this, $team2));
     }
 
-    private function get_max_rating(): int
+    public function get_max_rating(): int
     {
         $max = PHP_INT_MIN;
         foreach ($this->items as $player) {
@@ -142,7 +142,7 @@ class match_players_list
         return $max === PHP_INT_MIN ? 0 : $max;
     }
 
-    private function get_min_rating(): int
+    public function get_min_rating(): int
     {
         $min = PHP_INT_MAX;
         foreach ($this->items as $player) {
