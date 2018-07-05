@@ -427,7 +427,7 @@ class matches {
     {
         return $this->is_fav_win($rating_diff, $winner)
             ? 0
-            : (int)floor($rating_diff / (float)config::get('nczone_extra_points'));
+            : (int)floor(abs($rating_diff) / (float)config::get('nczone_extra_points'));
     }
 
     private function is_fav_win(int $rating_diff, int $winner): bool
