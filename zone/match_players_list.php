@@ -118,7 +118,12 @@ class match_players_list
 
     public function get_rating_difference(match_players_list $team2): int
     {
-        return abs($this->get_total_rating() - $team2->get_total_rating());
+        return $this->get_total_rating() - $team2->get_total_rating();
+    }
+
+    public function get_abs_rating_difference(match_players_list $team2): int
+    {
+        return abs($this->get_rating_difference($team2));
     }
 
     public function get_min_max_diff(match_players_list $team2)

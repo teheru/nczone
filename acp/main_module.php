@@ -60,6 +60,7 @@ class main_module
 
         if($submit)
         {
+            config::set('nczone_draw_time', (int)$request->variable('nczone_draw_time', config::default('nczone_draw_time')));
             config::set('nczone_draw_player_civs', (int)$request->variable('nczone_draw_player_civs', config::default('nczone_draw_player_civs')));
             config::set('nczone_draw_team_civs', (int)$request->variable('nczone_draw_team_civs', config::default('nczone_draw_team_civs')));
             config::set('nczone_draw_match_extra_civs_1vs1', (int)$request->variable('nczone_draw_match_extra_civs_1vs1', config::default('nczone_draw_match_extra_civs_1vs1')));
@@ -87,6 +88,7 @@ class main_module
 
         phpbb_util::template()->assign_vars(array(
             'U_ACTION' => $this->u_action,
+            'nczone_draw_time' => config::get('nczone_draw_time'),
             'nczone_rules_post_id' => config::get('nczone_rules_post_id'),
             'nczone_draw_player_civs' => config::get('nczone_draw_player_civs'),
             'nczone_draw_team_civs' => config::get('nczone_draw_team_civs'),
@@ -121,8 +123,12 @@ class main_module
             config::set('nczone_activity_3', (int)$request->variable('nczone_activity_3', config::default('nczone_activity_3')));
             config::set('nczone_activity_4', (int)$request->variable('nczone_activity_4', config::default('nczone_activity_4')));
             config::set('nczone_activity_5', (int)$request->variable('nczone_activity_5', config::default('nczone_activity_5')));
-            config::set('nczone_draw_time', (int)$request->variable('nczone_draw_time', config::default('nczone_draw_time')));
             config::set('nczone_bet_time', (int)$request->variable('nczone_bet_time', config::default('nczone_bet_time')));
+            config::set('nczone_points_1vs1', (int)$request->variable('nczone_points_1vs1', config::default('nczone_points_1vs1')));
+            config::set('nczone_points_2vs2', (int)$request->variable('nczone_points_2vs2', config::default('nczone_points_2vs2')));
+            config::set('nczone_points_3vs3', (int)$request->variable('nczone_points_3vs3', config::default('nczone_points_3vs3')));
+            config::set('nczone_points_4vs4', (int)$request->variable('nczone_points_4vs4', config::default('nczone_points_4vs4')));
+            config::set('nczone_extra_points', (int)$request->variable('nczone_extra_points', config::default('nczone_extra_points')));
             config::set('nczone_info_posts', implode(',', array_map('\intval', preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
 
             trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
@@ -139,8 +145,12 @@ class main_module
             'nczone_activity_3' => config::get('nczone_activity_3'),
             'nczone_activity_4' => config::get('nczone_activity_4'),
             'nczone_activity_5' => config::get('nczone_activity_5'),
-            'nczone_draw_time' => config::get('nczone_draw_time'),
             'nczone_bet_time' => config::get('nczone_bet_time'),
+            'nczone_points_1vs1' => config::get('nczone_points_1vs1'),
+            'nczone_points_2vs2' => config::get('nczone_points_2vs2'),
+            'nczone_points_3vs3' => config::get('nczone_points_3vs3'),
+            'nczone_points_4vs4' => config::get('nczone_points_4vs4'),
+            'nczone_extra_points' => config::get('nczone_extra_points'),
             'nczone_info_posts' => str_replace(',', "\n", config::get('nczone_info_posts')),
         ));
     }

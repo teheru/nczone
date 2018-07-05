@@ -135,7 +135,7 @@ class draw_settings {
             return self::PLAYER_CIVS;
         }
 
-        if($team1->get_rating_difference($team2) >= config::get('nczone_draw_team_civs')) {
+        if($team1->get_abs_rating_difference($team2) >= config::get('nczone_draw_team_civs')) {
             return self::TEAM_CIVS;
         }
 

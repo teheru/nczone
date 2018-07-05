@@ -237,7 +237,7 @@ class draw_teams
             $team1 = $players->pick_indexes(...$teams[0]);
             $team2 = $players->pick_indexes(...$teams[1]);
 
-            $value = $team1->get_rating_difference($team2);
+            $value = $team1->get_abs_rating_difference($team2);
             if ($best_value < 0.0 || $value < $best_value) {
                 $best_value = $value;
                 $best_teams = [$team1, $team2];

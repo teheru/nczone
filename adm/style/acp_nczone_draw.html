@@ -6,6 +6,15 @@
 	<legend>{{ lang('NCZONE_DRAW_SETTINGS') }}</legend>
 	<dl>
 		<dt>
+			<label for="nczone_draw_time">{{ lang('NCZONE_DRAW_TIME') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_DRAW_TIME_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="nczone_draw_time" value="{{ nczone_draw_time }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
 			<label for="nczone_draw_player_civs">{{ lang('NCZONE_DRAW_PLAYER_CIVS') }}{{ lang('COLON') }}</label><br />
 			<span>{{ lang('NCZONE_DRAW_PLAYER_CIVS_DESCR') }}</span>
 		</dt>

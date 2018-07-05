@@ -188,7 +188,8 @@ class matches {
                 $team1_list = $this->get_teams_players($team1_id);
                 $team2_list = $this->get_teams_players($team2_id);
 
-                $match_points = $this->get_match_points_by_match_size($team1_list->length());
+                $match_points = $this->get_match_points_by_match_size($team1_list->length(), $team1_list->get_rating_difference($team2_list), $winner);
+
 
                 $match_civ_ids = $this->db->get_col([
                     'SELECT' => 't.civ_id',
@@ -325,7 +326,8 @@ class matches {
         $team1_list = $this->get_teams_players($team1_id);
         $team2_list = $this->get_teams_players($team2_id);
 
-        $match_points = $this->get_match_points_by_match_size($team1_list->length());
+        $match_points = $this->get_match_points_by_match_size($team1_list->length(), $team1_list->get_rating_difference($team2_list), $winner_team_id == $team1_id ? 1 : 2);
+
 
         foreach($team1_list->items() as $mp)
         {
@@ -393,21 +395,30 @@ class matches {
         return $list;
     }
 
-    public function get_match_points_by_match_size(int $match_size): int
+    public function get_match_points_by_match_size(int $match_size, int $rating_diff, int $winner): int
     {
-        /**
-         * todo: the draw algorithm should be able to compensate almost everything, but we also
-         * should cover other cases
-         * also: read this from config?
-         */
+        $base_points = -1;
         switch($match_size)
         {
-            case 1: return 0;
-            case 2: return 6;
-            case 3: return 12;
-            case 4: return 9;
-            default: return 0; // maybe change this in case fwb comes back and plays some 1v5
+            case 1: $base_points = (int)config::get('nczone_points_1vs1'); break;
+            case 2: $base_points = (int)config::get('nczone_points_2vs2'); break;
+            case 3: $base_points = (int)config::get('nczone_points_3vs3'); break;
+            case 4: $base_points = (int)config::get('nczone_points_4vs4'); break;
         }
+        if($base_points === -1) {
+            return 0;
+        }
+        
+        $extra_points = (int)floor($rating_diff / (float)config::get('nczone_extra_points'));
+
+        $match_points = 0;
+        if($base_points >= 0) {
+            $match_points = ($base_points +
+                                   (($rating_diff > 0 xor $winner === 1) ? 1 : -1) * $extra_points);
+            $match_points = $match_points < 0 ? 0 : $match_points;
+        }
+
+        return $match_points;
     }
 
     public function evaluate_bets(int $winner_team, int $loser_team, int $end_time): void
