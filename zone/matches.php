@@ -409,7 +409,7 @@ class matches {
             return 0;
         }
         
-        $extra_points = (int)floor($rating_diff / (float)config::get('nczone_extra_points'));
+        $extra_points = (int)floor(abs($rating_diff) / (float)config::get('nczone_extra_points'));
 
         $match_points = 0;
         if($base_points >= 0) {
