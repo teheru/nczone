@@ -492,7 +492,7 @@ class players
                 ' . $this->db->match_players_table . ' p
                 INNER JOIN ' . $this->db->match_teams_table . ' t ON p.team_id = t.team_id
                 INNER JOIN ' . $this->db->matches_table . ' m ON m.match_id = t.match_id
-                AND m.post_time > '.$min_time.'
+                AND m.post_time > '.$min_time.' AND (m.winner = 1 OR m.winner = 2)
             GROUP BY 
                 p.user_id
             ;
