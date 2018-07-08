@@ -23,26 +23,22 @@
   grid-column: 5;
 }
 
-.zone-players-table-ties {
+.zone-players-table-winrate {
   grid-column: 6;
 }
 
-.zone-players-table-winrate {
+.zone-players-table-streak {
   grid-column: 7;
 }
 
-.zone-players-table-streak {
+.zone-players-table-rating-change {
   grid-column: 8;
 }
 
-.zone-players-table-rating-change {
+.zone-players-table-rating {
   grid-column: 9;
 }
 
-.zone-players-table-rating {
-  grid-column: 10;
-}
-
 .zone-players-table-activity {
-  grid-column: 11;
+  grid-column: 10;
 }
