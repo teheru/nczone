@@ -109,5 +109,8 @@ export const actively = {
   getAllPlayers: () => doGet('/players'),
 
   // information
-  getInformation: () => doGet('/information')
+  getInformation: () => doGet('/information'),
+
+  // rules
+  getRules: () => doGet('/rules')
 }

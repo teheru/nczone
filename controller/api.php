@@ -453,7 +453,7 @@ class api
     public function rules(): Response
     {
         $rulesPosts = zone_util::misc()->get_posts((int)config::get('nczone_rules_post_id'));
-        return new Response(end($rulesPosts));
+        return $this->jsonResponse(['post' => end($rulesPosts)]);
     }
 
     private static function get_request_data(): array

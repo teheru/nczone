@@ -40,6 +40,7 @@ export default () => {
         items: [],
         index: 0
       },
+      rulesPost: null,
       // idea: to reduce number of ajax calls, we save timestamps
       //       when certain actions were executed last and only
       //       make the ajax call if there is no data or timestamp
@@ -83,6 +84,7 @@ export default () => {
       pastMatches: (s) => s.pastMatches.items,
       drawPreview: (s) => s.drawPreview,
       info: (s) => s.information.items[s.information.index] || '',
+      rules: (s) => s.rulesPost,
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
       match: (s) => s.match,
@@ -161,6 +163,9 @@ export default () => {
       setInformation (state, payload) {
         state.information.items = payload
         state.information.index = 0
+      },
+      setRules (state, payload) {
+        state.rulesPost = payload.post
       },
       showDrawPreview (state, payload) {
         state.drawPreview.visible = true
@@ -270,6 +275,11 @@ export default () => {
           commit('setInformation', await api.actively.getInformation())
           commit('setMeActive')
         }
+      },
+
+      async getRules ({commit}) {
+        commit('setRules', await api.actively.getRules())
+        commit('setMeActive')
       },
 
       async login ({commit, dispatch}) {

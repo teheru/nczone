@@ -49,13 +49,13 @@ export default {
     bet () {
       this.$store.dispatch('bet', {matchId: this.match.id, team: this.team})
     },
-    renderBetTime(timestamp) {
+    renderBetTime (timestamp) {
       const secondsSinceDraw = timestamp - this.match.timestampStart
       const seconds = secondsSinceDraw % 60
       const minutes = Math.floor(secondsSinceDraw / 60) % 60
       const hours = Math.floor(secondsSinceDraw / 3600)
       return (hours > 0 ? (hours + ':') : '') + pad(minutes) + ':' + pad(seconds)
-    },
+    }
   },
   computed: {
     classes () {
