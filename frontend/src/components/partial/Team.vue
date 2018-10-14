@@ -9,7 +9,7 @@
       <div class="zone-match-bets-overlay">
         <div class="zone-match-bets-title" v-t="bets.length > 0 ? 'NCZONE_MATCH_HAVE_BET' : 'NCZONE_MATCH_NO_BETS'"></div>
         <ul class="zone-match-betters">
-          <li v-for="(bet, idx) in bets" :key="idx"><span v-html="bet.user.username"></span> ({{ bet.timestamp }})</li>
+          <li v-for="(bet, idx) in bets" :key="idx"><span v-html="bet.user.username"></span> ({{ renderBetTime(bet.timestamp) }})</li>
         </ul>
       </div>
     </div>
@@ -30,6 +30,9 @@
 
 <script>
 import {mapGetters} from 'vuex'
+
+const pad = (n) => n > 9 ? n : `0${n}`
+
 export default {
   name: 'nczone-team',
   props: {
@@ -45,7 +48,14 @@ export default {
   methods: {
     bet () {
       this.$store.dispatch('bet', {matchId: this.match.id, team: this.team})
-    }
+    },
+    renderBetTime(timestamp) {
+      const secondsSinceDraw = timestamp - this.match.timestampStart
+      const seconds = secondsSinceDraw % 60
+      const minutes = Math.floor(secondsSinceDraw / 60) % 60
+      const hours = Math.floor(secondsSinceDraw / 3600)
+      return (hours > 0 ? (hours + ':') : '') + pad(minutes) + ':' + pad(seconds)
+    },
   },
   computed: {
     classes () {
