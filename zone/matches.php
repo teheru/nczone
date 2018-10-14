@@ -680,7 +680,7 @@ class matches {
                 INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
                 LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
                 LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
-                LEFT JOIN '.$this->db->users_table.' u2 ON t.draw_user_id = u2.user_id
+                LEFT JOIN '.$this->db->users_table.' u2 ON t.post_user_id = u2.user_id
             WHERE
                 t.post_time > 0
             ORDER BY
