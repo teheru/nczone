@@ -1,6 +1,6 @@
 <template>
   <div class="zone-players-table">
-    <div class="zone-title" v-t="'NCZONE_TABLE'"></div>
+    <div class="zone-title" v-t="'NCZONE_PLAYERS_TABLE'"></div>
     <div class="zone-content">
       <div class="loading" v-if="loading"><span v-t="'NCZONE_LOADING'"></span></div>
       <div class="error" v-else-if="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
