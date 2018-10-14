@@ -11,7 +11,7 @@
     <div v-t="'NCZONE_MATCH_DRAWER'"></div>
     <div v-html="match.drawer.username"></div>
 
-    <template v-if="match.result_poster">
+    <template v-if="match.timestampEnd">
       <div v-t="'NCZONE_MATCH_RESULT_POSTER'"></div>
       <div v-html="match.result_poster.username"></div>
     </template>
