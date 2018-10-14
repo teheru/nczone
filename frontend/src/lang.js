@@ -4,7 +4,7 @@ export default {
     'NCZONE_AZTECS': 'Azteken',
     'NCZONE_BERBERS': 'Berber',
     'NCZONE_BRITONS': 'Briten',
-    'NCZONE_BURMESE': 'Burmesen',
+    'NCZONE_BURMESE': 'Birmanen',
     'NCZONE_BYZANTINES': 'Byzantiner',
     'NCZONE_CELTS': 'Kelten',
     'NCZONE_CHINESE': 'Chinesen',
