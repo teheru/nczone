@@ -2,6 +2,7 @@
   <div class="zone-player-login-row" :class="activityClass">
     <div class="zone-player-table-idx">{{ idx + 1 }}.</div>
     <div class="zone-player-table-username" v-html="player.username"></div>
+    <div class="zone-player-table-kick" v-if="canModLogin" @click="modLogout(player.id)">[x]</div>
     <div class="zone-player-table-rating">{{ player.rating }}</div>
   </div>
 </template>
@@ -34,6 +35,9 @@ export default {
     },
     stop () {
       this.timer.off(this.cb)
+    },
+    modLogout (userId) {
+      this.$store.dispatch('logoutPlayer', {userId: userId})
     }
   },
   data () {
@@ -43,7 +47,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'timer'
+      'timer',
+      'canModLogin'
     ]),
     activityClass () {
       const diff = this.t - this.player.last_activity

@@ -181,6 +181,35 @@ class api
         return $this->jsonResponse([]);
     }
 
+    /**
+     * Log someone out of teh zone
+     *
+     * @route /nczone/api/players/logout
+     *
+     * @return JsonResponse
+     */
+    public function player_logout(string $user_id)
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        if (!$this->auth->acl_get('m_zone_login_players')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
+        }
+
+        if (!zone_util::players()->is_activated((int)$user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
+        }
+
+        zone_util::players()->logout_player((int)$user_id);
+        return $this->jsonResponse([]);
+    }
+
     public function draw_preview(): JsonResponse
     {
         if (self::is_options()) {

@@ -71,3 +71,9 @@ eru_nczone_controller__api__information:
 eru_nczone_controller__api__rules:
     path: /nczone/api/rules
     defaults: { _controller: eru.nczone.controller.api:rules }
+
+eru_nczone_controller__api__players_logout:
+    path: /nczone/api/players/logout/{user_id}
+    defaults: { _controller: eru.nczone.controller.api:player_logout }
+    requirements:
+        user_id: \d+
