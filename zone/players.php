@@ -519,4 +519,23 @@ class players
             $this->edit_player($user_id, ['activity' => $activity]);
         }
     }
+
+    public function get_running_match_id(int $user_id): int
+    {
+        $sql = '
+            SELECT
+                m.match_id
+            FROM
+                ' . $this->db->match_players_table . ' p
+                INNER JOIN ' . $this->db->match_teams_table . ' t
+                ON t.team_id = p.team_id
+                INNER JOIN '.$this->db->matches_table.' m
+                ON m.match_id = t.match_id
+                AND m.post_time = 0
+            WHERE
+                user_id = ' . $user_id . '
+            ;
+        ';
+        return $this->db->get_var($sql);
+    }
 }

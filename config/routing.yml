@@ -64,6 +64,22 @@ eru_nczone_controller__api__draw_confirm:
     path: /nczone/api/draw/confirm
     defaults: { _controller: eru.nczone.controller.api:draw_confirm }
 
+eru_nczone_controller__api__replace_preview:
+    path: /nczone/api/replace/preview/{replace_user_id}
+    defaults: { _controller: eru.nczone.controller.api:replace_preview }
+    requirements:
+        replace_user_id: \d+
+
+eru_nczone_controller__api__replace_cancel:
+    path: /nczone/api/replace/cancel
+    defaults: { _controller: eru.nczone.controller.api:replace_cancel }
+
+eru_nczone_controller__api__replace_confirm:
+    path: /nczone/api/replace/confirm/{replace_user_id}
+    defaults: { _controller: eru.nczone.controller.api:replace_confirm }
+    requirements:
+        replace_user_id: \d+
+
 eru_nczone_controller__api__information:
     path: /nczone/api/information
     defaults: { _controller: eru.nczone.controller.api:information }

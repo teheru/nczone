@@ -43,12 +43,30 @@ class matches {
      * @return int
      * @throws \Throwable
      */
-    public function replace_player(int $replace_user_id, int $match_id, int $player1_id, int $player2_id): int
+    public function replace_player(int $replace_user_id, int $match_id, int $player1_id): array
     {
-        return $this->db->run_txn(function () use ($replace_user_id, $match_id, $player1_id, $player2_id) {
+        return $this->db->run_txn(function () use ($replace_user_id, $match_id, $player1_id) {
+            $draw_id = $this->check_draw_process($replace_user_id);
+            if (!$draw_id) {
+                throw new InvalidDrawIdError();
+            }
+            $players_list = $this->get_draw_players($draw_id);
+            if ($players_list->length() === 0) {
+                throw new NoDrawPlayersError();
+            }
+
+            $this->clear_draw_tables();
+
+            if ($players_list->length() < 1) {
+                return [];
+            }
+
+            $player2_id = $players_list->get_ids()[0];
+
             $match_players = $this->get_match_players($match_id);
+
             if (!$match_players->contains_id($player1_id) || $match_players->contains_id($player2_id)) {
-                return 0;
+                return [];
             }
 
             $match_players->remove_by_id($player1_id);
@@ -64,9 +82,9 @@ class matches {
             $match_id = $this->create_match($setting);
             if ($match_id) {
                 zone_util::players()->logout_player($player1_id);
-                return $match_id;
+                return ['match_id' => $match_id];
             }
-            return 0;
+            return [];
         });
     }
 

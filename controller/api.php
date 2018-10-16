@@ -293,6 +293,100 @@ class api
         }
     }
 
+
+    public function replace_preview(int $replace_user_id): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        if (!$this->auth->acl_get('m_zone_change_match')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
+        }
+
+        try {
+            $players = zone_util::matches()->start_draw_process($user_id);
+            if (!$players) {
+                return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_ONE_LOGGED_IN'], self::CODE_FORBIDDEN);
+            }
+
+            return $this->jsonResponse([
+                'replace_player' => zone_util::players()->get_player($replace_user_id),
+                'replace_by_player' => $players[0]
+            ]);
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
+    }
+
+    public function replace_cancel(): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        if (!$this->auth->acl_get('m_zone_change_match')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
+        }
+
+        try {
+            zone_util::matches()->deny_draw_process($user_id);
+            return $this->jsonResponse([]);
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
+    }
+
+    public function replace_confirm(int $replace_user_id): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        if (!$this->auth->acl_get('m_zone_change_match')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
+        }
+
+        $match_id = zone_util::players()->get_running_match_id($user_id);
+        // todo: check here if replace_user_id is in the match
+
+        try {
+            return $this->jsonResponse(zone_util::matches()->replace_player($user_id, $match_id, $replace_user_id));
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
+    }
+
     /**
      * Returns the list of logged in users as json.
      *
