@@ -107,6 +107,11 @@ export default {
     'NCZONE_DRAW_LOGGED_IN_PLAYERS': 'Folgende Spieler sind eingeloggt:',
     'NCZONE_DRAW_PREVIEW_NO_PLAYERS': 'Es sind nicht genügend Spieler zum Losen da.',
 
+    'NCZONE_REPLACE_PREVIEW_NO_PLAYERS': 'Es ist kein Spieler zum Austauschen da.',
+    'NCZONE_REPLACE_PLAYER': 'Willst du ',
+    'NCZONE_REPLACE_BY_PLAYER': ' durch ',
+    'NCZONE_REPLACE_DO_YOU_WANT_TO_REPLACE': ' ersetzen?',
+
     'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Nicht erlaubt einzuloggen.',
     'NCZONE_REASON_NOT_ALLOWED_TO_DRAW': 'Nicht erlaubt zu losen.',
     'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT': 'Nicht erlaubt Ergebnis zu posten.',

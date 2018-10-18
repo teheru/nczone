@@ -81,7 +81,7 @@ class matches {
             $setting = zone_util::draw_settings()->draw_settings($replace_user_id, $match[0], $match[1]);
             $match_id = $this->create_match($setting);
             if ($match_id) {
-                zone_util::players()->logout_player($player1_id);
+                zone_util::players()->logout_player($player2_id);
                 return ['match_id' => $match_id];
             }
             return [];
@@ -908,7 +908,7 @@ class matches {
             }
 
             $logged_in = zone_util::players()->get_logged_in();
-            if (\count($logged_in) < 2) {
+            if (\count($logged_in) < 1) {
                 return [];
             }
 

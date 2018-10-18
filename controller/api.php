@@ -377,7 +377,7 @@ class api
             return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
         }
 
-        $match_id = zone_util::players()->get_running_match_id($user_id);
+        $match_id = zone_util::players()->get_running_match_id($replace_user_id);
         // todo: check here if replace_user_id is in the match
 
         try {

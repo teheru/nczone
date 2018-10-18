@@ -28,6 +28,11 @@ export default () => {
         visible: false,
         players: []
       },
+      replacePreview: {
+        visible: false,
+        replacePlayer: null,
+        replaceByPlayer: null
+      },
       match: null, // single match
       players: [],
       runningMatches: [],
@@ -76,6 +81,12 @@ export default () => {
         }
         return s.me.permissions.m_zone_draw_match
       },
+      canReplace: (s, g) => {
+        if (g.loggedInUserIds.length === 0) {
+          return false
+        }
+        return s.me.permissions.m_zone_change_match
+      },
       canModPost: (s) => s.me.permissions.m_zone_draw_match,
       canModLogin: (s) => s.me.permissions.m_zone_login_players,
       canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn && !g.isPlaying,
@@ -84,6 +95,7 @@ export default () => {
       runningMatches: (s) => s.runningMatches,
       pastMatches: (s) => s.pastMatches.items,
       drawPreview: (s) => s.drawPreview,
+      replacePreview: (s) => s.replacePreview,
       info: (s) => s.information.items[s.information.index] || '',
       rules: (s) => s.rulesPost,
       informationIndex: (s) => s.information.index,
@@ -175,6 +187,16 @@ export default () => {
       hideDrawPreview (state, payload) {
         state.drawPreview.visible = false
         state.drawPreview.players = []
+      },
+      showReplacePreview (state, payload) {
+        state.replacePreview.visible = true
+        state.replacePreview.replacePlayer = payload['replace_player']
+        state.replacePreview.replaceByPlayer = payload['replace_by_player']
+      },
+      hideReplacePreview (state, payload) {
+        state.replacePreview.visible = false
+        state.replacePreview.replacePlayer = null
+        state.replacePreview.replaceByPlayer = null
       },
       increaseInformationIndex (state) {
         state.information.index += 1
@@ -310,6 +332,20 @@ export default () => {
 
       async drawCancel ({commit}) {
         commit('hideDrawPreview', await api.actively.drawCancel())
+      },
+
+      async replacePreview ({commit}, {userId}) {
+        commit('showReplacePreview', await api.actively.replacePreview(userId))
+      },
+
+      async replaceConfirm ({commit, dispatch}, {userId}) {
+        commit('hideReplacePreview', await api.actively.replaceConfirm(userId))
+        dispatch('getRunningMatches', {passive: true})
+        dispatch('getLoggedInPlayers', {passive: true})
+      },
+
+      async replaceCancel ({commit}) {
+        commit('hideReplacePreview', await api.actively.replaceCancel())
       },
 
       async postMatchResult ({commit, dispatch}, {matchId, winner}) {

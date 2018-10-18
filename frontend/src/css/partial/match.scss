@@ -94,8 +94,12 @@
     font-weight: bold;
   }
 
-  .zone-match-player-name {
+  .zone-match-player-replace {
     grid-column: 2;
+  }
+
+  .zone-match-player-name {
+    grid-column: 3;
   }
 
   .zone-match-player-rating {
@@ -103,15 +107,23 @@
   }
 
   .zone-match-player-civ {
-    grid-column: 3;
+    grid-column: 4;
   }
 
   .zone-match-team-2 & {
     grid-template-columns: auto auto auto;
     justify-items: end;
 
-    .zone-match-player-rating {
+    .zone-match-player-replace {
       grid-column: 3;
+    }
+
+    .zone-match-player-name {
+      grid-column: 2;
+    }
+
+    .zone-match-player-rating {
+      grid-column: 4;
     }
 
     .zone-match-player-civ {

@@ -98,6 +98,11 @@ export const actively = {
   drawConfirm: () => post('/draw/confirm'),
   drawCancel: () => post('/draw/cancel'),
 
+  // replace
+  replacePreview: (playerId) => post(`/replace/preview/${playerId}`),
+  replaceConfirm: (playerId) => post(`/replace/confirm/${playerId}`),
+  replaceCancel: () => post('/replace/cancel'),
+
   // matches
   getRunningMatches: () => doGet('/matches/running'),
   getPastMatches: () => doGet('/matches/past'),

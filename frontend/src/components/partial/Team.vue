@@ -15,11 +15,13 @@
     </div>
 
     <div class="zone-match-team">
+      <div v-if="canReplace" class="zone-match-team-header zone-match-player-replace"></div>
       <div class="zone-match-team-header zone-match-player-name zone-highlight-color" v-t="title"></div>
       <div class="zone-match-team-header zone-match-player-rating">({{ totalRating }})</div>
       <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ" v-t="'NCZONE_MATCH_CIVS'"></div>
 
       <template v-for="(player, idx) in players">
+        <div v-if="canReplace" class="zone-match-player-replace" :key="`replace-${idx}`" @click="playerReplace(player.id)">[K]</div>
         <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
         <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ $t(player.civ.title) }}</span></div>
@@ -55,6 +57,9 @@ export default {
       const minutes = Math.floor(secondsSinceDraw / 60) % 60
       const hours = Math.floor(secondsSinceDraw / 3600)
       return (hours > 0 ? (hours + ':') : '') + pad(minutes) + ':' + pad(seconds)
+    },
+    playerReplace (userId) {
+      this.$store.dispatch('replacePreview', {userId: userId})
     }
   },
   computed: {
@@ -109,7 +114,8 @@ export default {
       return this.players.reduce((total, player) => total + player.rating, 0)
     },
     ...mapGetters([
-      'me'
+      'me',
+      'canReplace'
     ])
   }
 }
