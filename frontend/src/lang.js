@@ -226,6 +226,11 @@ export default {
     'NCZONE_DRAW_LOGGED_IN_PLAYERS': 'The following players are logged in:',
     'NCZONE_DRAW_PREVIEW_NO_PLAYERS': 'There are not enough players to draw.',
 
+    'NCZONE_REPLACE_PREVIEW_NO_PLAYERS': 'There is currently no to player to replace with.',
+    'NCZONE_REPLACE_PLAYER': 'Do you want to replace ',
+    'NCZONE_REPLACE_BY_PLAYER': ' by ',
+    'NCZONE_REPLACE_DO_YOU_WANT_TO_REPLACE': '?',
+
     'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Not allowed to login.',
     'NCZONE_REASON_NOT_ALLOWED_TO_DRAW': 'Not allowed to draw.',
     'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT': 'Not allowed to post match results.',
