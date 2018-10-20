@@ -15,13 +15,13 @@
     </div>
 
     <div class="zone-match-team">
-      <div v-if="canReplace" class="zone-match-team-header zone-match-player-replace"></div>
+      <div v-if="canReplacePlayer" class="zone-match-team-header zone-match-player-replace"></div>
       <div class="zone-match-team-header zone-match-player-name zone-highlight-color" v-t="title"></div>
       <div class="zone-match-team-header zone-match-player-rating">({{ totalRating }})</div>
       <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ" v-t="'NCZONE_MATCH_CIVS'"></div>
 
       <template v-for="(player, idx) in players">
-        <div v-if="canReplace" class="zone-match-player-replace" :key="`replace-${idx}`" @click="playerReplace(player.id)">[K]</div>
+        <div v-if="canReplacePlayer" class="zone-match-player-replace" :key="`replace-${idx}`" @click="playerReplace(player.id)">[K]</div>
         <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
         <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ $t(player.civ.title) }}</span></div>
@@ -91,6 +91,9 @@ export default {
       return !this.isFinished &&
         !this.match.bets.team1.map(p => p.user.id).includes(this.me.id) &&
         !this.match.bets.team2.map(p => p.user.id).includes(this.me.id)
+    },
+    canReplacePlayer () {
+      return this.canReplace && !this.match.winner
     },
     perc () {
       const betCount = this.match.bets.team1.length + this.match.bets.team2.length
