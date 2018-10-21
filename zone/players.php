@@ -538,4 +538,24 @@ class players
         ';
         return $this->db->get_var($sql);
     }
+
+    public function get_player_rating_data(int $user_id): array
+    {
+        $sql = 'select
+                  m.draw_time as time, draw_rating as rating
+                from phpbb_zone_matches m
+                  join phpbb_zone_match_teams t on m.match_id = t.match_id
+                  join phpbb_zone_match_players p on t.team_id = p.team_id
+                where user_id = '.$user_id.' and
+                      winner_team_id != 0 and
+                      post_time > 0';
+
+        $rows = $this->db->get_rows($sql);
+        $length = \count($rows);
+        for($i = 0; $i < $length; $i++) {
+            $rows[$i]['n'] = $i + 1;
+        }
+
+        return $rows;
+    }
 }

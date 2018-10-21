@@ -676,10 +676,18 @@ class api
         return $this->jsonResponse(array_values($misc->get_posts(...$post_ids)));
     }
 
-    public function rules(): Response
+    public function rules(): JsonResponse
     {
         $rulesPosts = zone_util::misc()->get_posts((int)config::get('nczone_rules_post_id'));
         return $this->jsonResponse(['post' => end($rulesPosts)]);
+    }
+
+    public function rating_data(int $user_id): JsonResponse
+    {
+        return $this->jsonResponse([
+            'key' => zone_util::players()->get_player($user_id)->get_username(),
+            'values' => zone_util::players()->get_player_rating_data($user_id)
+        ]);
     }
 
     private static function get_request_data(): array
