@@ -93,7 +93,7 @@ export default {
         !this.match.bets.team2.map(p => p.user.id).includes(this.me.id)
     },
     canReplacePlayer () {
-      return this.canReplace && !this.match.winner
+      return this.canReplace && !this.isFinished()
     },
     perc () {
       const betCount = this.match.bets.team1.length + this.match.bets.team2.length
