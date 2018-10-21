@@ -80,6 +80,22 @@ eru_nczone_controller__api__replace_confirm:
     requirements:
         replace_user_id: \d+
 
+eru_nczone_controller__api__add_pair_preview:
+    path: /nczone/api/add_pair/preview/{match_id}
+    defaults: { _controller: eru.nczone.controller.api:add_pair_preview }
+    requirements:
+        match_id: \d+
+
+eru_nczone_controller__api__add_pair_cancel:
+    path: /nczone/api/add_pair/cancel
+    defaults: { _controller: eru.nczone.controller.api:add_pair_cancel }
+
+eru_nczone_controller__api__add_pair_confirm:
+    path: /nczone/api/add_pair/confirm/{match_id}
+    defaults: { _controller: eru.nczone.controller.api:add_pair_confirm }
+    requirements:
+        match_id: \d+
+
 eru_nczone_controller__api__information:
     path: /nczone/api/information
     defaults: { _controller: eru.nczone.controller.api:information }

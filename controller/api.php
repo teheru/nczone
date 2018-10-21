@@ -387,6 +387,109 @@ class api
         }
     }
 
+
+    public function add_pair_preview($match_id): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        if (!$this->auth->acl_get('m_zone_change_match')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
+        }
+
+        try {
+            $players_loggedin = zone_util::matches()->start_draw_process($user_id);
+            if (\count($players_loggedin) < 2) {
+                return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_ONE_LOGGED_IN'], self::CODE_FORBIDDEN); // TODO
+            }
+            $player1_id = $players_loggedin[0]->get_id();
+            $player2_id = $players_loggedin[1]->get_id();
+
+            $players_match = zone_util::matches()->get_match_players($match_id);
+            if($players_match->length() == 8) {
+                return $this->jsonResponse(['reason' => 'NCZONE_REASON_MATCH_FULL'], self::CODE_FORBIDDEN);
+            }
+
+            return $this->jsonResponse([
+                'add_player1' => zone_util::players()->get_player($player1_id),
+                'add_player2' => zone_util::players()->get_player($player2_id)
+            ]);
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
+    }
+
+    public function add_pair_cancel(): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        if (!$this->auth->acl_get('m_zone_change_match')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
+        }
+
+        try {
+            zone_util::matches()->deny_draw_process($user_id);
+            return $this->jsonResponse([]);
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
+    }
+
+    public function add_pair_confirm($match_id): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
+
+        if (self::is_update_session_request()) {
+            $this->user->update_session_infos();
+        }
+
+        if (!$this->auth->acl_get('m_zone_change_match')) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
+        }
+
+        $user_id = (int)$this->user->data['user_id'];
+
+        if (!zone_util::players()->is_activated($user_id)) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
+        }
+
+        $players_match = zone_util::matches()->get_match_players($match_id);
+        if($players_match->length() == 8) {
+            return $this->jsonResponse(['reason' => 'NCZONE_REASON_MATCH_FULL'], self::CODE_FORBIDDEN);
+        }
+
+        try {
+            return $this->jsonResponse(zone_util::matches()->add_pair($user_id, $match_id));
+        } catch (\Throwable $t) {
+            return $this->errorResponse($t);
+        }
+    }
+
     /**
      * Returns the list of logged in users as json.
      *

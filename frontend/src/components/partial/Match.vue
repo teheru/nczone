@@ -60,6 +60,10 @@
 
   </div>
 
+  <div v-if="canAddPairPlayers" class="zone-match-add-pair">
+    <button class="zone-button" v-t="'NCZONE_MATCH_ADD_PAIR'" @click="addPair"></button>
+  </div>
+
   <div v-if="canManage && match.timestampEnd === 0" class="zone-match-post-result-form">
     <span v-t="'NCZONE_MATCH_RESULT'"></span>
     <select v-model="matchResult">
@@ -97,6 +101,9 @@ export default {
     },
     stop () {
       this.timer.off(this.cb)
+    },
+    addPair () {
+      this.$store.dispatch('addPairPreview', {matchId: this.match.id})
     }
   },
   computed: {
@@ -121,10 +128,17 @@ export default {
         this.match.players.team2.map(p => p.id).includes(this.me.id) ||
         this.canModPost
     },
+    isFinished () {
+      return this.match.timestampEnd > 0
+    },
+    canAddPairPlayers () {
+      return this.canAddPair && !this.isFinished && this.match.players.team1.length < 4
+    },
     ...mapGetters([
       'me',
       'timer',
-      'canModPost'
+      'canModPost',
+      'canAddPair'
     ])
   },
   data () {

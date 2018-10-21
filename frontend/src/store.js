@@ -33,6 +33,12 @@ export default () => {
         replacePlayer: null,
         replaceByPlayer: null
       },
+      addPairPreview: {
+        visible: false,
+        matchId: null,
+        player1: null,
+        player2: null
+      },
       match: null, // single match
       players: [],
       runningMatches: [],
@@ -87,6 +93,12 @@ export default () => {
         }
         return s.me.permissions.m_zone_change_match
       },
+      canAddPair: (s, g) => {
+        if (g.loggedInUserIds.length < 2) {
+          return false
+        }
+        return s.me.permissions.m_zone_change_match
+      },
       canModPost: (s) => s.me.permissions.m_zone_draw_match,
       canModLogin: (s) => s.me.permissions.m_zone_login_players,
       canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn && !g.isPlaying,
@@ -96,6 +108,7 @@ export default () => {
       pastMatches: (s) => s.pastMatches.items,
       drawPreview: (s) => s.drawPreview,
       replacePreview: (s) => s.replacePreview,
+      addPairPreview: (s) => s.addPairPreview,
       info: (s) => s.information.items[s.information.index] || '',
       rules: (s) => s.rulesPost,
       informationIndex: (s) => s.information.index,
@@ -195,8 +208,19 @@ export default () => {
       },
       hideReplacePreview (state, payload) {
         state.replacePreview.visible = false
+        state.replacePreview.matchId = null
         state.replacePreview.replacePlayer = null
         state.replacePreview.replaceByPlayer = null
+      },
+      showAddPairPreview (state, payload) {
+        state.addPairPreview.visible = true
+        state.addPairPreview.player1 = payload['add_player1']
+        state.addPairPreview.player2 = payload['add_player2']
+      },
+      hideAddPairPreview (state, payload) {
+        state.addPairPreview.visible = false
+        state.addPairPreview.player1 = null
+        state.addPairPreview.player2 = null
       },
       increaseInformationIndex (state) {
         state.information.index += 1
@@ -346,6 +370,21 @@ export default () => {
 
       async replaceCancel ({commit}) {
         commit('hideReplacePreview', await api.actively.replaceCancel())
+      },
+
+      async addPairPreview ({state, commit}, {matchId}) {
+        state.addPairPreview.matchId = matchId
+        commit('showAddPairPreview', await api.actively.addPairPreview(matchId))
+      },
+
+      async addPairConfirm ({state, commit, dispatch}) {
+        commit('hideAddPairPreview', await api.actively.addPairConfirm(state.addPairPreview.matchId))
+        dispatch('getRunningMatches', {passive: true})
+        dispatch('getLoggedInPlayers', {passive: true})
+      },
+
+      async addPairCancel ({commit}) {
+        commit('hideAddPairPreview', await api.actively.addPairCancel())
       },
 
       async postMatchResult ({commit, dispatch}, {matchId, winner}) {

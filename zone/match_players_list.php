@@ -68,6 +68,11 @@ class match_players_list
         return array_pop($this->items);
     }
 
+    public function shift(): ?match_player
+    {
+        return array_shift($this->items);
+    }
+
     public function pick_indexes(int ...$indexes): match_players_list
     {
         $list = new self;

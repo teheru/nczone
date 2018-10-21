@@ -54,6 +54,9 @@ class matches {
             if ($players_list->length() === 0) {
                 throw new NoDrawPlayersError();
             }
+            if($this->is_over($match_id)) {
+                return []; // todo: throw new
+            }
 
             $this->clear_draw_tables();
 
@@ -74,6 +77,8 @@ class matches {
             $p = zone_util::players()->get_player($player2_id);
 
             $match_players->unshift(match_player::create_by_player($p));
+
+            $this->clear_draw_tables();
 
             $this->clean_match($match_id);
 
@@ -96,22 +101,46 @@ class matches {
      * @return int
      * @throws \Throwable
      */
-    public function add_pair(int $add_user_id, int $match_id, int $player1_id, int $player2_id): int
+    public function add_pair(int $add_user_id, int $match_id): array
     {
-        return $this->db->run_txn(function () use ($add_user_id, $match_id, $player1_id, $player2_id) {
-            $match_players = $this->get_match_players($match_id);
-            if ($match_players->contains_id($player1_id) || $match_players->contains_id($player2_id) || $match_players->length() >= 8) {
-                return 0;
+        return $this->db->run_txn(function () use ($add_user_id, $match_id) {
+            $draw_id = $this->check_draw_process($add_user_id);
+            if (!$draw_id) {
+                throw new InvalidDrawIdError();
             }
 
-            $match_players->unshift(match_player::create_by_player(zone_util::players()->get_player($player1_id)));
-            $match_players->unshift(match_player::create_by_player(zone_util::players()->get_player($player2_id)));
+            $players_list = $this->get_draw_players($draw_id);
+            if ($players_list->length() < 2) {
+                throw new NoDrawPlayersError();
+            }
+            if($this->is_over($match_id)) {
+                return []; // todo: throw new
+            }
+
+            $player1 = $players_list->shift();
+            $player2 = $players_list->shift();
+
+            $match_players = $this->get_match_players($match_id);
+            if ($match_players->contains_id($player1->get_id()) || $match_players->contains_id($player2->get_id()) || $match_players->length() >= 8) {
+                return [];
+            }
+
+            $match_players->unshift($player1);
+            $match_players->unshift($player2);
+
+            $this->clear_draw_tables();
 
             $this->clean_match($match_id);
 
             [$match] = zone_util::draw_teams()->make_matches($match_players);
             $setting = zone_util::draw_settings()->draw_settings($add_user_id, $match[0], $match[1]);
-            return $this->create_match($setting);
+            $match_id = $this->create_match($setting);
+            if ($match_id) {
+                zone_util::players()->logout_player($player1->get_id());
+                zone_util::players()->logout_player($player2->get_id());
+                return ['match_id' => $match_id];
+            }
+            return [];
         });
     }
 
@@ -860,7 +889,7 @@ class matches {
         return $bets;
     }
 
-    private function check_draw_process(int $user_id = 0): int
+    public function check_draw_process(int $user_id = 0): int
     {
         $row = $this->db->get_row([
             'SELECT' => 't.draw_id, t.time',
@@ -880,7 +909,7 @@ class matches {
         return (int)$row['draw_id'];
     }
 
-    private function get_draw_players(int $draw_id): match_players_list
+    public function get_draw_players(int $draw_id): match_players_list
     {
         $rows = $this->db->get_rows([
             'SELECT' => 'p.user_id AS id, p.rating',

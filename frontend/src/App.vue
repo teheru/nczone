@@ -14,6 +14,8 @@
     <nczone-draw-preview></nczone-draw-preview>
 
     <nczone-replace-preview></nczone-replace-preview>
+
+    <nczone-add-pair-preview></nczone-add-pair-preview>
   </div>
 </template>
 
@@ -22,6 +24,7 @@ import NczoneNavigation from './components/partial/Navigation'
 import NczonePlayerArea from './components/partial/PlayerArea'
 import NczoneDrawPreview from './components/partial/DrawPreview'
 import NczoneReplacePreview from './components/partial/ReplacePreview'
+import NczoneAddPairPreview from './components/partial/AddPairPreview'
 import NczoneInformation from './components/Information'
 
 export default {
@@ -30,6 +33,7 @@ export default {
     NczoneInformation,
     NczoneDrawPreview,
     NczoneReplacePreview,
+    NczoneAddPairPreview,
     NczonePlayerArea,
     NczoneNavigation
   },

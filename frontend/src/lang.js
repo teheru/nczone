@@ -112,6 +112,9 @@ export default {
     'NCZONE_REPLACE_BY_PLAYER': ' durch ',
     'NCZONE_REPLACE_DO_YOU_WANT_TO_REPLACE': ' ersetzen?',
 
+    'NCZONE_MATCH_ADD_PAIR': '[+2]',
+    'NCZONE_ADD_PLAYERS': 'Möchtest du folgende Spieler zur Losung hinzufügen: ',
+
     'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Nicht erlaubt einzuloggen.',
     'NCZONE_REASON_NOT_ALLOWED_TO_DRAW': 'Nicht erlaubt zu losen.',
     'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT': 'Nicht erlaubt Ergebnis zu posten.',
@@ -230,6 +233,9 @@ export default {
     'NCZONE_REPLACE_PLAYER': 'Do you want to replace ',
     'NCZONE_REPLACE_BY_PLAYER': ' by ',
     'NCZONE_REPLACE_DO_YOU_WANT_TO_REPLACE': '?',
+
+    'NCZONE_MATCH_ADD_PAIR': '[+2]',
+    'NCZONE_ADD_PLAYERS': 'Du you want to add the following player to the match: ',
 
     'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN': 'Not allowed to login.',
     'NCZONE_REASON_NOT_ALLOWED_TO_DRAW': 'Not allowed to draw.',
