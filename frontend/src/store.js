@@ -339,6 +339,11 @@ export default () => {
         await dispatch('getLoggedInPlayers', {passive: true})
       },
 
+      async loginPlayer ({commit, dispatch}, {userId}) {
+        await api.actively.doLoginPlayer(userId)
+        await dispatch('getLoggedInPlayers', {passive: true})
+      },
+
       async logoutPlayer ({commit, dispatch}, {userId}) {
         await api.actively.doLogoutPlayer(userId)
         await dispatch('getLoggedInPlayers', {passive: true})

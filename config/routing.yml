@@ -110,6 +110,12 @@ eru_nczone_controller__api__players_logout:
     requirements:
         user_id: \d+
 
+eru_nczone_controller__api__players_login:
+    path: /nczone/api/players/login/{user_id}
+    defaults: { _controller: eru.nczone.controller.api:player_login }
+    requirements:
+        user_id: \d+
+
 eru_nczone_controller__rating_data:
     path: /nczone/api/players/rating/{user_id}
     defaults: { _controller: eru.nczone.controller.api:rating_data }

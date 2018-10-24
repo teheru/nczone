@@ -7,38 +7,42 @@
   grid-column: 1;
 }
 
-.zone-players-table-name {
+.zone-players-table-login {
   grid-column: 2;
 }
 
-.zone-players-table-games {
+.zone-players-table-name {
   grid-column: 3;
 }
 
-.zone-players-table-wins {
+.zone-players-table-games {
   grid-column: 4;
 }
 
-.zone-players-table-losses {
+.zone-players-table-wins {
   grid-column: 5;
 }
 
-.zone-players-table-winrate {
+.zone-players-table-losses {
   grid-column: 6;
 }
 
-.zone-players-table-streak {
+.zone-players-table-winrate {
   grid-column: 7;
 }
 
-.zone-players-table-rating-change {
+.zone-players-table-streak {
   grid-column: 8;
 }
 
-.zone-players-table-rating {
+.zone-players-table-rating-change {
   grid-column: 9;
 }
 
-.zone-players-table-activity {
+.zone-players-table-rating {
   grid-column: 10;
+}
+
+.zone-players-table-activity {
+  grid-column: 11;
 }

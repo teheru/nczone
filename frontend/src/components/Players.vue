@@ -8,6 +8,7 @@
         <div v-if="players.length === 0"><span v-t="'NCZONE_NO_ACTIVE_PLAYERS'"></span></div>
         <div v-else="" class="zone-players">
           <div class="zone-players-table-idx">#</div>
+          <div class="zone-players-table-login"></div>
           <div class="zone-players-table-name" @click="setSort('username')" v-t="'NCZONE_TABLE_HEADER_NAME'"></div>
           <div class="zone-players-table-games" @click="setSort('games')" v-t="'NCZONE_TABLE_HEADER_GAMES'"></div>
           <div class="zone-players-table-wins" @click="setSort('wins')" v-t="'NCZONE_TABLE_HEADER_WINS'"></div>
@@ -19,6 +20,9 @@
           <div class="zone-players-table-activity" @click="setSort('activity')" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
           <template v-for="(player, idx) in players">
             <div class="zone-players-table-idx" :key="`idx-${idx}`">{{ idx+1 }}</div>
+            <div class="zone-players-table-kick" v-if="canModLogin">
+              <button class="zone-mini-button" v-if="player.logged_in === 0" @click="modLogin(player.id)">L</button>
+            </div>
             <div class="zone-players-table-name" :key="`name-${idx}`" v-html="player.username"></div>
             <div class="zone-players-table-games" :key="`games-${idx}`">{{ player.games || 0 }}</div>
             <div class="zone-players-table-wins" :key="`wins-${idx}`">{{ player.wins || 0 }}</div>
@@ -30,6 +34,7 @@
             <div class="zone-players-table-activity" :key="`activity-${idx}`">{{ player.activity || 0 }}</div>
           </template>
           <div class="zone-players-table-idx">Ø</div>
+          <div class="zone-players-table-login"></div>
           <div class="zone-players-table-name" v-t="'NCZONE_TABLE_FOOTER_AVERAGE'"></div>
           <div class="zone-players-table-games">{{ avgGames }}</div>
           <div class="zone-players-table-wins">{{ avgWins }}</div>
@@ -84,7 +89,8 @@ export default {
       return this.avg(this.players, 'activity')
     },
     ...mapGetters({
-      allPlayers: 'players'
+      allPlayers: 'players',
+      canModLogin: 'canModLogin'
     })
   },
   created () {
@@ -115,6 +121,9 @@ export default {
           this.error = true
           this.loading = false
         })
+    },
+    modLogin (userId) {
+      this.$store.dispatch('loginPlayer', {userId: userId})
     }
   },
   data () {

@@ -20,14 +20,18 @@ class main
     /* @var \phpbb\controller\helper */
     protected $helper;
 
+    /* @var \dmzx\mchat\core\mchat */
+    protected $mchat;
+
     /**
      * Constructor
      *
      * @param \phpbb\controller\helper $helper
      */
-    public function __construct(\phpbb\controller\helper $helper)
+    public function __construct(\phpbb\controller\helper $helper, \dmzx\mchat\core\mchat $mchat = null)
     {
         $this->helper = $helper;
+        $this->mchat = $mchat;
     }
 
     public function zone()
@@ -39,6 +43,9 @@ class main
         if(false) // todo: any a_ rights
         {
             phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
+        }
+        if($this->mchat) {
+            $this->mchat->page_nczone();
         }
         return $this->helper->render('zone.html');
     }

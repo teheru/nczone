@@ -60,7 +60,7 @@
   }
 }
 
-.zone-button {
+.zone-button, .zone-mini-button {
   border: solid 1px lighten($input_bg, 25);
   background: $input_bg;
   color: $input_fg;
@@ -78,4 +78,12 @@
     background-image: none;
     cursor: not-allowed;
   }
+}
+
+.zone-mini-button {
+  padding: 0 2px;
+}
+
+.zone-players-table-idx {
+  padding: 1px 0;
 }

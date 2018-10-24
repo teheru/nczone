@@ -125,5 +125,6 @@ export const actively = {
   getRules: () => doGet('/rules'),
 
   // mod
+  doLoginPlayer: (playerId) => post(`/players/login/${playerId}`),
   doLogoutPlayer: (playerId) => post(`/players/logout/${playerId}`)
 }
