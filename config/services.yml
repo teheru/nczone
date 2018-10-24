@@ -12,6 +12,7 @@ services:
         class: eru\nczone\controller\main
         arguments:
             - '@controller.helper'
+            - '@?dmzx.mchat.core'
 
     eru.nczone.controller.api:
         class: eru\nczone\controller\api

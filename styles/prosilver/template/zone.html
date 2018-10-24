@@ -19,4 +19,8 @@ ready(function() {
 
 </script>
 
+{% if NCZONE_MCHAT %}
+{% INCLUDE '@dmzx_mchat/mchat_body.html' %}
+{% endif %}
+
 {{ include('overall_footer.html') }}
