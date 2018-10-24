@@ -36,11 +36,40 @@ class main
 
     public function zone()
     {
-        if(false) // todo: any relevant m_ rights
+
+        $check_mcp = [
+            'm_zone_manage_players',
+            'm_zone_manage_civs',
+            'm_zone_manage_maps',
+            'm_zone_create_maps',
+            'm_zone_change_match'
+        ];
+        $check_acp = [
+            'a_zone_manage_general',
+            'a_zone_manage_draw'
+        ];
+
+        $show_mcp_link = false;
+        foreach($check_mcp as $c){
+            if(phpbb_util::auth()->acl_get($c)) {
+                $show_mcp_link = true;
+                break;
+            }
+        }
+
+        $show_acp_link = false;
+        foreach($check_acp as $c){
+            if(phpbb_util::auth()->acl_get($c)) {
+                $show_acp_link = true;
+                break;
+            }
+        }
+
+        if($show_mcp_link)
         {
             phpbb_util::template()->assign_var('U_MCP', append_sid(phpbb_util::file_url('mcp'), 'i=-eru-nczone-mcp-main_module'));
         }
-        if(false) // todo: any a_ rights
+        if($show_acp_link)
         {
             phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
         }

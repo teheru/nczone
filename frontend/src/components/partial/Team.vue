@@ -21,7 +21,9 @@
       <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ" v-t="'NCZONE_MATCH_CIVS'"></div>
 
       <template v-for="(player, idx) in players">
-        <div v-if="canReplacePlayer" class="zone-match-player-replace" :key="`replace-${idx}`" @click="playerReplace(player.id)">[K]</div>
+        <div v-if="canReplacePlayer" class="zone-match-player-replace" :key="`replace-${idx}`">
+          <button class="zone-mini-button" @click="playerReplace(player.id)">K</button>
+        </div>
         <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
         <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ $t(player.civ.title) }}</span></div>

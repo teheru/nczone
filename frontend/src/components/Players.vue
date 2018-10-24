@@ -20,7 +20,7 @@
           <div class="zone-players-table-activity" @click="setSort('activity')" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
           <template v-for="(player, idx) in players">
             <div class="zone-players-table-idx" :key="`idx-${idx}`">{{ idx+1 }}</div>
-            <div class="zone-players-table-kick" v-if="canModLogin">
+            <div class="zone-players-table-kick" :key="`idx-${idx}`" v-if="canModLogin">
               <button class="zone-mini-button" v-if="player.logged_in === 0" @click="modLogin(player.id)">L</button>
             </div>
             <div class="zone-players-table-name" :key="`name-${idx}`" v-html="player.username"></div>
