@@ -8,7 +8,7 @@ export default {
     'NCZONE_BYZANTINES': 'Byzantiner',
     'NCZONE_CELTS': 'Kelten',
     'NCZONE_CHINESE': 'Chinesen',
-    'NCZONE_ETHOPIANS': 'Äthiopier',
+    'NCZONE_ETHIOPIANS': 'Äthiopier',
     'NCZONE_FRANKS': 'Franken',
     'NCZONE_GOTHS': 'Goten',
     'NCZONE_HUNS': 'Hunnen',
@@ -116,11 +116,13 @@ export default {
     'NCZONE_DRAW_LOGGED_IN_PLAYERS': 'Folgende Spieler sind eingeloggt:',
     'NCZONE_DRAW_PREVIEW_NO_PLAYERS': 'Es sind nicht genügend Spieler zum Losen da.',
 
+    'NCZONE_REPLACE_PREVIEW': 'Spieler ersetzen Vorschau',
     'NCZONE_REPLACE_PREVIEW_NO_PLAYERS': 'Es ist kein Spieler zum Austauschen da.',
     'NCZONE_REPLACE_PLAYER': 'Willst du ',
     'NCZONE_REPLACE_BY_PLAYER': ' durch ',
     'NCZONE_REPLACE_DO_YOU_WANT_TO_REPLACE': ' ersetzen?',
 
+    'NCZONE_ADD_PREVIEW': 'Paar hinzufügen Vorschau',
     'NCZONE_MATCH_ADD_PAIR': '[+2]',
     'NCZONE_ADD_PLAYERS': 'Möchtest du folgende Spieler zur Losung hinzufügen: ',
 
@@ -139,7 +141,7 @@ export default {
     'NCZONE_BYZANTINES': 'Byzantines',
     'NCZONE_CELTS': 'Celts',
     'NCZONE_CHINESE': 'Chinese',
-    'NCZONE_ETHOPIANS': 'Ethopians',
+    'NCZONE_ETHIOPIANS': 'Ethiopians',
     'NCZONE_FRANKS': 'Franks',
     'NCZONE_GOTHS': 'Goths',
     'NCZONE_HUNS': 'Huns',
@@ -247,11 +249,13 @@ export default {
     'NCZONE_DRAW_LOGGED_IN_PLAYERS': 'The following players are logged in:',
     'NCZONE_DRAW_PREVIEW_NO_PLAYERS': 'There are not enough players to draw.',
 
+    'NCZONE_REPLACE_PREVIEW': 'Replace preview',
     'NCZONE_REPLACE_PREVIEW_NO_PLAYERS': 'There is currently no to player to replace with.',
     'NCZONE_REPLACE_PLAYER': 'Do you want to replace ',
     'NCZONE_REPLACE_BY_PLAYER': ' by ',
     'NCZONE_REPLACE_DO_YOU_WANT_TO_REPLACE': '?',
 
+    'NCZONE_ADD_PREVIEW': 'Add pair preview',
     'NCZONE_MATCH_ADD_PAIR': '[+2]',
     'NCZONE_ADD_PLAYERS': 'Du you want to add the following player to the match: ',
 

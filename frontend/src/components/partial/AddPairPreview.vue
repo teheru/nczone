@@ -2,7 +2,10 @@
   <div class="zone-add-pair-preview zone-overlay" v-if="addPairPreview.visible">
     <div class="zone-overlay-panel">
       <div class="zone-block">
-        <div class="zone-title" v-t="'NCZONE_DRAW_PREVIEW'"></div>
+        <div class="zone-title-bar">
+          <div class="zone-title" v-t="'NCZONE_DRAW_PREVIEW'"></div>
+          <div class="zone-close-button" @click="cancel">x</div>
+        </div>
         <div class="zone-content">
           <div v-if="canAddPair">
             <span v-t="'NCZONE_ADD_PLAYERS'"></span>

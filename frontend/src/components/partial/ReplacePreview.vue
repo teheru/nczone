@@ -2,7 +2,10 @@
   <div class="zone-replace-preview zone-overlay" v-if="replacePreview.visible">
     <div class="zone-overlay-panel">
       <div class="zone-block">
-        <div class="zone-title" v-t="'NCZONE_DRAW_PREVIEW'"></div>
+        <div class="zone-title-bar">
+          <div class="zone-title" v-t="'NCZONE_DRAW_PREVIEW'"></div>
+          <div class="zone-close-button" @click="cancel">x</div>
+        </div>
         <div class="zone-content">
           <div v-if="canReplace">
             <span v-t="'NCZONE_REPLACE_PLAYER'"></span>
