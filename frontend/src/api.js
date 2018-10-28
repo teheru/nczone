@@ -117,6 +117,7 @@ export const actively = {
   // players
   getLoggedInPlayers: () => doGet('/players/logged_in'),
   getAllPlayers: () => doGet('/players'),
+  getRatingData: (userId) => doGet(`/players/ratings/${userId}`),
 
   // information
   getInformation: () => doGet('/information'),

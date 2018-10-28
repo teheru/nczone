@@ -102,6 +102,15 @@ export default {
     'NCZONE_TABLE_HEADER_ACTIVITY': 'Aktivität',
     'NCZONE_TABLE_FOOTER_AVERAGE': 'Durchschnitt',
 
+    'NCZONE_PLAYER_DETAILS_TITLE': 'Spielerdetails',
+    'NCZONE_PLAYER_DETAILS_NAME': 'Spielername',
+    'NCZONE_PLAYER_DETAILS_GAMES': 'Spiele gewonnen + verloren',
+    'NCZONE_PLAYER_DETAILS_WINRATE': 'Siegesquote',
+    'NCZONE_PLAYER_DETAILS_RATING': 'Rating',
+    'NCZONE_PLAYER_DETAILS_STREAK': 'Streak',
+    'NCZONE_PLAYER_DETAILS_BETS': 'Tipps richtig + falsch',
+    'NCZONE_PLAYER_DETAILS_ACTIVITY': 'Aktivität',
+
     'NCZONE_DRAW_PREVIEW': 'Losevorschau',
     'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW': 'Möchtest du losen?',
     'NCZONE_DRAW_LOGGED_IN_PLAYERS': 'Folgende Spieler sind eingeloggt:',
@@ -223,6 +232,15 @@ export default {
     'NCZONE_TABLE_HEADER_STREAK_RATING': 'SR',
     'NCZONE_TABLE_HEADER_ACTIVITY': 'Activity',
     'NCZONE_TABLE_FOOTER_AVERAGE': 'Average',
+
+    'NCZONE_PLAYER_DETAILS_TITLE': 'Player details',
+    'NCZONE_PLAYER_DETAILS_NAME': 'Player name',
+    'NCZONE_PLAYER_DETAILS_GAMES': 'Games won + loss',
+    'NCZONE_PLAYER_DETAILS_WINRATE': 'Winrate',
+    'NCZONE_PLAYER_DETAILS_RATING': 'Rating',
+    'NCZONE_PLAYER_DETAILS_STREAK': 'Streak',
+    'NCZONE_PLAYER_DETAILS_BETS': 'Bets right + wrong',
+    'NCZONE_PLAYER_DETAILS_ACTIVITY': 'Activity',
 
     'NCZONE_DRAW_PREVIEW': 'Draw preview',
     'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW': 'Do you want to draw?',

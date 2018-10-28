@@ -1,5 +1,6 @@
 @import "partial/block.scss";
 @import "partial/players-table.scss";
+@import "partial/player-details.scss";
 @import "partial/menu.scss";
 @import "partial/match.scss";
 @import "partial/player-area.scss";
@@ -51,6 +52,20 @@
   right: 0;
   background: $overlay_bg;
 
+  .zone-title-bar {
+    display: grid;
+
+    .zone-title {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .zone-close-button {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+
   .zone-overlay-panel {
     position: absolute;
     z-index: 2;
@@ -60,7 +75,7 @@
   }
 }
 
-.zone-button, .zone-mini-button {
+.zone-button, .zone-mini-button, .zone-close-button {
   border: solid 1px lighten($input_bg, 25);
   background: $input_bg;
   color: $input_fg;
@@ -84,6 +99,19 @@
   padding: 0 2px;
 }
 
+.zone-close-button {
+  margin-left: auto;
+  margin-right: 0;
+  margin-bottom: 5px;
+  padding: 0;
+
+  width: 1.2rem;
+  height: 1.2rem;
+
+  text-align: center;
+}
+
 .zone-players-table-idx {
   padding: 1px 0;
 }
+

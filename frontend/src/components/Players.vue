@@ -23,7 +23,7 @@
             <div class="zone-players-table-kick" :key="`idx-${idx}`" v-if="canModLogin">
               <button class="zone-mini-button" v-if="player.logged_in === 0" @click="modLogin(player.id)">L</button>
             </div>
-            <div class="zone-players-table-name" :key="`name-${idx}`" v-html="player.username"></div>
+            <div class="zone-players-table-name" :key="`name-${idx}`" v-html="player.username" @click="playerDetails(player.id)"></div>
             <div class="zone-players-table-games" :key="`games-${idx}`">{{ player.games || 0 }}</div>
             <div class="zone-players-table-wins" :key="`wins-${idx}`">{{ player.wins || 0 }}</div>
             <div class="zone-players-table-losses" :key="`losses-${idx}`">{{ player.losses || 0 }}</div>
@@ -124,6 +124,9 @@ export default {
     },
     modLogin (userId) {
       this.$store.dispatch('loginPlayer', {userId: userId})
+    },
+    playerDetails (userId) {
+      this.$store.dispatch('playerDetailsOpen', {userId: userId})
     }
   },
   data () {

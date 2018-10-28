@@ -51,6 +51,11 @@ export default () => {
         items: [],
         index: 0
       },
+      playerDetails: {
+        visible: false,
+        player: null,
+        ratingData: []
+      },
       rulesPost: null,
       // idea: to reduce number of ajax calls, we save timestamps
       //       when certain actions were executed last and only
@@ -113,6 +118,9 @@ export default () => {
       rules: (s) => s.rulesPost,
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
+      playerDetailsVisible: (s) => s.playerDetails.visible,
+      playerDetailsPlayer: (s) => s.playerDetails.player,
+      playerDetailsRatingData: (s) => s.playerDetails.ratingData,
       match: (s) => s.match,
       timer: (s) => s.timer
     },
@@ -189,6 +197,15 @@ export default () => {
       setInformation (state, payload) {
         state.information.items = payload
         state.information.index = 0
+      },
+      showPlayerDetails (state, payload) {
+        state.playerDetails.ratingData = payload
+        state.playerDetails.visible = true
+      },
+      hidePlayerDetails (state) {
+        state.playerDetails.player = null
+        state.playerDetails.ratingData = []
+        state.playerDetails.visible = false
       },
       setRules (state, payload) {
         state.rulesPost = payload.post
@@ -322,6 +339,17 @@ export default () => {
           commit('setInformation', await api.actively.getInformation())
           commit('setMeActive')
         }
+      },
+
+      async playerDetailsOpen ({commit, state}, {userId}) {
+        state.playerDetails.player = state.players.find(p => p.id === userId)
+        commit('showPlayerDetails', await api.actively.getRatingData(userId))
+        commit('setMeActive')
+      },
+
+      async playerDetailsClose ({commit}) {
+        commit('hidePlayerDetails')
+        commit('setMeActive')
       },
 
       async getRules ({commit}) {

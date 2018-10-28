@@ -550,12 +550,21 @@ class players
                       winner_team_id != 0 and
                       post_time > 0';
 
-        $rows = $this->db->get_rows($sql);
-        $length = \count($rows);
-        for($i = 0; $i < $length; $i++) {
-            $rows[$i]['n'] = $i + 1;
+        $match_numbers = [];
+        $match_ratings = [];
+        $match_times = [];
+
+        $i = 0;
+        foreach($this->db->get_rows($sql) as $row) {
+            $match_numbers[] = ++$i;
+            $match_ratings[] = (int)$row['rating'];
+            $match_times[] = (int)$row['time'];
         }
 
-        return $rows;
+        return [
+            'numbers' => $match_numbers,
+            'ratings' => $match_ratings,
+            'times' => $match_times
+        ];
     }
 }

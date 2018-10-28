@@ -9,9 +9,12 @@
     "build-css": "node-sass src/css/styles/flat-style/zone.scss dist/styles/flat-style/zone.css --output-style compressed && node-sass src/css/styles/prosilver/zone.scss dist/styles/prosilver/zone.css --output-style compressed"
   },
   "dependencies": {
-    "vue": "^2.5.16",
+    "chart.js": "^2.7.3",
+    "vue": "^2.5.17",
+    "vue-chartjs": "^3.4.0",
     "vue-i18n": "^7.8.0",
     "vue-router": "^3.0.1",
+    "vue-template-compiler": "^2.5.17",
     "vuex": "^3.0.1",
     "vuex-router-sync": "^5.0.0"
   },

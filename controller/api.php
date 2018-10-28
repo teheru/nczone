@@ -713,10 +713,7 @@ class api
 
     public function rating_data(int $user_id): JsonResponse
     {
-        return $this->jsonResponse([
-            'key' => zone_util::players()->get_player($user_id)->get_username(),
-            'values' => zone_util::players()->get_player_rating_data($user_id)
-        ]);
+        return $this->jsonResponse(zone_util::players()->get_player_rating_data($user_id));
     }
 
     private static function get_request_data(): array

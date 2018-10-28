@@ -1,0 +1,93 @@
+.zone-player-details {
+  .zone-player-details-table {
+    display: grid;
+    grid-template-columns: 216px 108px 30px 216px 108px;
+    align-items: start;
+    font-size: 9pt;
+  }
+
+  .zone-player-details-label {
+    font-weight: bold;
+  }
+
+  .zone-player-details-graph {
+    margin-top: 35px;
+    height: 365px;
+  }
+
+  .zone-player-details-name-label {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: left;
+  }
+  .zone-player-details-name {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .zone-player-details-games-label {
+    grid-column: 1;
+    grid-row: 2;
+    text-align: left;
+  }
+  .zone-player-details-games {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .zone-player-details-winrate-label {
+    grid-column: 1;
+    grid-row: 3;
+    text-align: left;
+  }
+  .zone-player-details-winrate {
+    grid-column: 2;
+    grid-row: 3;
+    text-align: right;
+  }
+
+  .zone-player-details-rating-label {
+    grid-column: 4;
+    grid-row: 2;
+    text-align: left;
+  }
+  .zone-player-details-rating {
+    grid-column: 5;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .zone-player-details-streak-label {
+    grid-column: 4;
+    grid-row: 4;
+    text-align: left;
+  }
+  .zone-player-details-streak {
+    grid-column: 5;
+    grid-row: 4;
+    text-align: right;
+  }
+
+  .zone-player-details-bets-label {
+    grid-column: 1;
+    grid-row: 4;
+    text-align: left;
+  }
+  .zone-player-details-bets {
+    grid-column: 2;
+    grid-row: 4;
+    text-align: right;
+  }
+
+  .zone-player-details-activity-label {
+    grid-column: 1;
+    grid-row: 5;
+    text-align: left;
+  }
+  .zone-player-details-activity {
+    grid-column: 2;
+    grid-row: 5;
+    text-align: right;
+  }
+}
