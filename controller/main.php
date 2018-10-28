@@ -74,7 +74,6 @@ class main
             phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
         }
         if($this->mchat) {
-            phpbb_util::template()->assign_var('NCZONE_MCHAT', true);
             $this->mchat->page_nczone();
         }
         return $this->helper->render('zone.html');
