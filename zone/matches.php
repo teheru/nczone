@@ -221,6 +221,9 @@ class matches {
             if ($already_posted && !$repost) {
                 return;
             }
+            if(!$post_user_id) {
+                $post_user_id = (int)$row['post_user_id'];
+            }
 
             $players = zone_util::players();
             $draw_time = (int)$row['draw_time'];
