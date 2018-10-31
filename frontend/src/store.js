@@ -54,7 +54,10 @@ export default () => {
       playerDetails: {
         visible: false,
         player: null,
-        ratingData: []
+        ratingData: [],
+        details: [],
+        dreamteams: [],
+        nightmareteams: []
       },
       rulesPost: null,
       // idea: to reduce number of ajax calls, we save timestamps
@@ -120,6 +123,9 @@ export default () => {
       playerById: (s) => (id) => s.players.find(p => p.id === id),
       playerDetailsVisible: (s) => s.playerDetails.visible,
       playerDetailsPlayer: (s) => s.playerDetails.player,
+      playerDetails: (s) => s.playerDetails.details,
+      playerDetailsDreamteams: (s) => s.playerDetails.dreamteams,
+      playerDetailsNightmareteams: (s) => s.playerDetails.nightmareteams,
       playerDetailsRatingData: (s) => s.playerDetails.ratingData,
       match: (s) => s.match,
       timer: (s) => s.timer
@@ -198,13 +204,27 @@ export default () => {
         state.information.items = payload
         state.information.index = 0
       },
-      showPlayerDetails (state, payload) {
+      setRatingData (state, payload) {
         state.playerDetails.ratingData = payload
+      },
+      setPlayerDetails (state, payload) {
+          state.playerDetails.details = payload
+      },
+      setDreamteams (state, payload) {
+          state.playerDetails.dreamteams = payload
+      },
+      setNightmareteams (state, payload) {
+          state.playerDetails.nightmareteams = payload
+      },
+      showPlayerDetails (state, payload) {
         state.playerDetails.visible = true
       },
       hidePlayerDetails (state) {
         state.playerDetails.player = null
         state.playerDetails.ratingData = []
+        state.playerDetails.playerDetails = []
+        state.playerDetails.dreamteams = []
+        state.playerDetails.nightmareteams = []
         state.playerDetails.visible = false
       },
       setRules (state, payload) {
@@ -343,7 +363,11 @@ export default () => {
 
       async playerDetailsOpen ({commit, state}, {userId}) {
         state.playerDetails.player = state.players.find(p => p.id === userId)
-        commit('showPlayerDetails', await api.actively.getRatingData(userId))
+        commit('setRatingData', await api.actively.getRatingData(userId))
+        commit('setDreamteams', await api.actively.getDreamteams(userId, 0, 5))
+        commit('setNightmareteams', await api.actively.getDreamteams(userId, 1, 5))
+        commit('setPlayerDetails', await api.actively.getPlayerDetails(userId))
+        commit('showPlayerDetails')
         commit('setMeActive')
       },
 

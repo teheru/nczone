@@ -711,6 +711,16 @@ class api
         return $this->jsonResponse(['post' => end($rulesPosts)]);
     }
 
+    public function player_details(int $user_id): JsonResponse
+    {
+        return $this->jsonResponse(zone_util::players()->get_player_details($user_id));
+    }
+
+    public function player_dreamteams(int $user_id, int $reverse, int $number): JsonResponse
+    {
+        return $this->jsonResponse(zone_util::players()->get_player_dreamteams($user_id, $reverse==1, $number));
+    }
+
     public function rating_data(int $user_id): JsonResponse
     {
         return $this->jsonResponse(zone_util::players()->get_player_rating_data($user_id));

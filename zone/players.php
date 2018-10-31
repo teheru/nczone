@@ -567,4 +567,78 @@ class players
             'times' => $match_times
         ];
     }
+
+    public function get_player_details(int $user_id): array
+    {
+        $where = '';
+        $group = 'group by user_id';
+        if($user_id) {
+            $where = 'where user_id = '.$user_id;
+            $group = '';
+        }
+
+        $sql = 'select
+                  user_id,
+                  max(draw_rating) as rating_max,
+                  min(draw_rating) as rating_min,
+                  max(streak) as streak_max,
+                  min(streak) as streak_min,
+                  max(rating_change) as rating_change_max,
+                  min(rating_change) as rating_change_min
+                from phpbb_zone_match_players
+                '.$where.'
+                '.$group;
+
+        # todo: filter not evaluated games (only relevant for player who only won/lost yet)
+
+        $rec_func = function(&$value, $key) { $value = (int)$value; };
+
+        $result = $this->db->get_rows($sql);
+        $len = \count($result);
+
+        if($len == 1) {
+            array_walk($result[0], $rec_func);
+            return $result[0];
+        }
+
+        for($i = 0; $i < $len; $i++) {
+            array_walk($result[$i], $rec_func);
+        }
+        return $result;
+    }
+
+    public function get_player_dreamteams(int $user_id, bool $reverse, int $number)
+    {
+        $number = \abs($number);
+
+        $where = '';
+        if($user_id) {
+            $where = 'where dt.user1_id = '.$user_id.' or dt.user2_id = '.$user_id;
+        }
+
+        $sql = 'select
+                    dt.user1_id, dt.user2_id,
+                    u1.username as user1_name, u2.username as user2_name,
+                    dt.matches_won, dt.matches_loss
+                from phpbb_zone_dreamteams dt
+                left join phpbb_users u1
+                    on dt.user1_id = u1.user_id
+                left join phpbb_users u2
+                    on dt.user2_id = u2.user_id
+                '.$where.'
+                order by
+                    (matches_won + 1)/(matches_loss + 1) '.($reverse ? 'asc' : 'desc').',
+                    matches_won + matches_loss desc
+                limit '.$number;
+
+        $result = $this->db->get_rows($sql);
+        array_walk($result, function(&$value, $key) {
+            $value['user1_id'] = (int)$value['user1_id'];
+            $value['user2_id'] = (int)$value['user2_id'];
+            $value['matches_won'] = (int)$value['matches_won'];
+            $value['matches_loss'] = (int)$value['matches_loss'];
+            # TODO: do something about deleted players
+        });
+        return $result;
+    }
 }

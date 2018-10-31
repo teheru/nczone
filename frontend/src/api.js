@@ -118,6 +118,8 @@ export const actively = {
   getLoggedInPlayers: () => doGet('/players/logged_in'),
   getAllPlayers: () => doGet('/players'),
   getRatingData: (userId) => doGet(`/players/ratings/${userId}`),
+  getPlayerDetails: (userId) => doGet(`/players/details/${userId}`),
+  getDreamteams: (userId, reverse, number) => doGet(`/players/dreamteams/${userId}/${reverse}/${number}/`),
 
   // information
   getInformation: () => doGet('/information'),

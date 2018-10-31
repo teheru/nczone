@@ -17,11 +17,13 @@
               <span>{{player.games || 0}}</span>
             </div>
             <div class="zone-player-details-label zone-player-details-winrate-label" v-t="'NCZONE_PLAYER_DETAILS_WINRATE'"></div>
-            <div class="zone-player-details-winrate">{{Math.round(player.winrate, 2) || 0}}%</div>
+            <div class="zone-player-details-winrate">{{Math.round(player.winrate * 100) / 100 || 0}}%</div>
             <div class="zone-player-details-label zone-player-details-rating-label" v-t="'NCZONE_PLAYER_DETAILS_RATING'"></div>
-            <div class="zone-player-details-rating">{{player.rating}}</div>
+            <div class="zone-player-details-rating">{{player.rating}} ({{details.rating_max}} / {{details.rating_min}})</div>
+            <div class="zone-player-details-label zone-player-details-puntos-label" v-t="'NCZONE_PLAYER_DETAILS_PUNTOS'"></div>
+            <div class="zone-player-details-puntos">{{player.ratingchange}} ({{details.rating_change_max}} / {{details.rating_change_min}})</div>
             <div class="zone-player-details-label zone-player-details-streak-label" v-t="'NCZONE_PLAYER_DETAILS_STREAK'"></div>
-            <div class="zone-player-details-streak">{{player.streak}}</div>
+            <div class="zone-player-details-streak">{{player.streak}} ({{details.streak_max}} / {{details.streak_min}})</div>
             <div class="zone-player-details-label zone-player-details-bets-label" v-t="'NCZONE_PLAYER_DETAILS_BETS'"></div>
             <div class="zone-player-details-bets">
               <span>{{player.bets_won || 0}}</span> +
@@ -32,6 +34,38 @@
             <div class="zone-player-details-activity">{{player.activity}}</div>
           </div>
           <nczone-player-graph class="zone-player-details-graph" :match-numbers="ratingData.numbers" :ratings="ratingData.ratings"/>
+          <div class="zone-player-details-dreamteams">
+            <div class="dreamteams_title" v-t="'NCZONE_DREAMTEAMS_TITLE'"></div>
+            <div class="nightmareteams_title" v-t="'NCZONE_NIGHTMARETEAMS_TITLE'"></div>
+            <table class="left">
+              <tr>
+                <th v-t="'NCZONE_DREAMTEAMS_PLAYER1'"></th>
+                <th v-t="'NCZONE_DREAMTEAMS_PLAYER2'"></th>
+                <th v-t="'NCZONE_DREAMTEAMS_WINSLOSS'"></th>
+              </tr>
+              <template v-for="(dreamteam, idx) in dreamteams">
+                <tr>
+                  <td class="username">{{dreamteam.user1_name}}</td>
+                  <td class="username">{{dreamteam.user2_name}}</td>
+                  <td class="matches">{{dreamteam.matches_won}} / {{dreamteam.matches_loss}}</td>
+                </tr>
+              </template>
+            </table>
+            <table class="right">
+              <tr>
+                <th v-t="'NCZONE_DREAMTEAMS_PLAYER1'"></th>
+                <th v-t="'NCZONE_DREAMTEAMS_PLAYER2'"></th>
+                <th v-t="'NCZONE_DREAMTEAMS_WINSLOSS'"></th>
+              </tr>
+              <template v-for="(nightmareteam, idx) in nightmareteams">
+                <tr>
+                  <td class="username">{{nightmareteam.user1_name}}</td>
+                  <td class="username">{{nightmareteam.user2_name}}</td>
+                  <td class="matches">{{nightmareteam.matches_won}} / {{nightmareteam.matches_loss}}</td>
+                </tr>
+              </template>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -53,6 +87,9 @@ export default {
     ...mapGetters({
       visible: 'playerDetailsVisible',
       player: 'playerDetailsPlayer',
+      details: 'playerDetails',
+      dreamteams: 'playerDetailsDreamteams',
+      nightmareteams: 'playerDetailsNightmareteams',
       ratingData: 'playerDetailsRatingData'
     })
   }

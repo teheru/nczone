@@ -121,3 +121,17 @@ eru_nczone_controller__rating_data:
     defaults: { _controller: eru.nczone.controller.api:rating_data }
     requirements:
         user_id: \d+
+
+eru_nczone_controller__player_details:
+    path: /nczone/api/players/details/{user_id}
+    defaults: { _controller: eru.nczone.controller.api:player_details }
+    requirements:
+        user_id: \d+
+
+eru_nczone_controller__player_dreamteams:
+    path: /nczone/api/players/dreamteams/{user_id}/{reverse}/{number}/
+    defaults: { _controller: eru.nczone.controller.api:player_dreamteams }
+    requirements:
+        user_id: \d+
+        reverse: \d+
+        number: \d+
