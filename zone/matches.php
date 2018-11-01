@@ -809,6 +809,7 @@ class matches {
                 'id' => (int)$row['id'],
                 'title' => $row['title'],
                 'number' => (int)$row['number'],
+                'multiplier' => (float)$row['multiplier'],
             ];
         }, $rows);
     }
@@ -830,6 +831,7 @@ class matches {
 
             $r['civ_id'] = (int)$r['civ_id'];
             $r['number'] = (int)$r['number'];
+            $r['multiplier'] = (int)$r['multiplier'];
 
             $teams[($team_id === $team1_id) ? 'team1' : 'team2'][] = $r;
         }

@@ -5,6 +5,34 @@
   font-size: 9pt;
 }
 
+.zone-match-civ-tooltip {
+  position: absolute;
+  z-index: 1;
+  visibility: hidden;
+
+  width: 40px;
+  margin-top: -20px;
+  margin-left: -40px;
+
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+}
+
+.zone-match-civ:hover .zone-match-civ-tooltip {
+  visibility: visible;
+}
+
+.zone-match-civ-tooltip::after {
+  content: " ";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-top-color: #333;
+}
+
 .zone-match-add-pair {
   text-align: center;
 }

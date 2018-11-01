@@ -26,7 +26,12 @@
         </div>
         <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
-        <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`"><span v-if="player.civ">{{ $t(player.civ.title) }}</span></div>
+        <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`">
+          <span class="zone-match-civ" v-if="player.civ">
+            {{ $t(player.civ.title) }}
+            <span class="zone-match-civ-tooltip">{{ player.civ.multiplier }}</span>
+          </span>
+        </div>
       </template>
     </div>
   </div>

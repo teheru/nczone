@@ -25,13 +25,13 @@
       <div v-t="'NCZONE_MATCH_CIVS'"></div>
       <div>
         <div v-if="match.civs.both.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_BOTH'"></span>: <nczone-csv :list="match.civs.both.map(c => $t(c.title))"></nczone-csv>
+          <span v-t="'NCZONE_MATCH_CIVS_BOTH'"></span>: <nczone-civ-list :list="match.civs.both"></nczone-civ-list>
         </div>
         <div v-if="match.civs.team1.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_TEAM1'"></span>: <nczone-csv :list="match.civs.team1.map(c => $t(c.title))"></nczone-csv>
+          <span v-t="'NCZONE_MATCH_CIVS_TEAM1'"></span>: <nczone-civ-list :list="match.civs.team1"></nczone-civ-list>
         </div>
         <div v-if="match.civs.team2.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-csv :list="match.civs.team2.map(c => $t(c.title))"></nczone-csv>
+          <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-civ-list :list="match.civs.team2"></nczone-civ-list>
         </div>
       </div>
     </template>
@@ -75,14 +75,14 @@
 </template>
 <script>
 import {mapGetters} from 'vuex'
-import NczoneCsv from './Csv'
+import NczoneCivList from './CivList'
 import NczoneTeam from './Team'
 
 const pad = (n) => n > 9 ? n : `0${n}`
 
 export default {
   name: 'nczone-match',
-  components: {NczoneTeam, NczoneCsv},
+  components: {NczoneTeam, NczoneCivList},
   props: {
     match: {
       type: Object,
