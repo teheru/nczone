@@ -415,15 +415,14 @@ class players
             unset($r['civ_id'], $r['civ_name']);
             if($civ_id)
             {
-                $r['civ'] = ['id' => $civ_id, 'title' => $civ_name];
+                $r['civ'] = ['id' => $civ_id, 'title' => $civ_name, 'multiplier' => (float)$r['multiplier']];
             }
 
             $team_id = (int)$r['team_id'];
-            unset($r['team_id']);
+            unset($r['team_id'], $r['multiplier']);
 
             $r['rating'] = (int)$r['rating'];
             $r['rating_change'] = (int)$r['rating_change'];
-            $r['multiplier'] = (float)$r['multiplier'];
 
             $teams[$team_id][] = $r;
         }
@@ -613,7 +612,7 @@ class players
 
         $where = '';
         if($user_id) {
-            $where = 'where dt.user1_id = '.$user_id.' or dt.user2_id = '.$user_id;
+            $where = 'and (dt.user1_id = '.$user_id.' or dt.user2_id = '.$user_id.')';
         }
 
         $sql = 'select
@@ -625,7 +624,9 @@ class players
                     on dt.user1_id = u1.user_id
                 left join phpbb_users u2
                     on dt.user2_id = u2.user_id
-                '.$where.'
+                where
+                    matches_won + matches_loss > 0
+                    '.$where.'
                 order by
                     (matches_won + 1)/(matches_loss + 1) '.($reverse ? 'asc' : 'desc').',
                     matches_won + matches_loss desc
