@@ -525,8 +525,8 @@ class players
             SELECT
                 m.match_id
             FROM
-                ' . $this->db->match_players_table . ' p
-                INNER JOIN ' . $this->db->match_teams_table . ' t
+                ' .$this->db->match_players_table.' p
+                INNER JOIN '.$this->db->match_teams_table.' t
                 ON t.team_id = p.team_id
                 INNER JOIN '.$this->db->matches_table.' m
                 ON m.match_id = t.match_id
@@ -542,9 +542,9 @@ class players
     {
         $sql = 'select
                   m.draw_time as time, draw_rating as rating
-                from phpbb_zone_matches m
-                  join phpbb_zone_match_teams t on m.match_id = t.match_id
-                  join phpbb_zone_match_players p on t.team_id = p.team_id
+                from '.$this->db->matches_table.' m
+                  join '.$this->db->match_teams_table.' t on m.match_id = t.match_id
+                  join '.$this->db->match_players_table.' p on t.team_id = p.team_id
                 where user_id = '.$user_id.' and
                       winner_team_id != 0 and
                       post_time > 0';
@@ -584,7 +584,7 @@ class players
                   min(streak) as streak_min,
                   max(rating_change) as rating_change_max,
                   min(rating_change) as rating_change_min
-                from phpbb_zone_match_players
+                from '.$this->db->match_players_table.'
                 '.$where.'
                 '.$group;
 
@@ -619,10 +619,10 @@ class players
                     dt.user1_id, dt.user2_id,
                     u1.username as user1_name, u2.username as user2_name,
                     dt.matches_won, dt.matches_loss
-                from phpbb_zone_dreamteams dt
-                left join phpbb_users u1
+                from '.$this->db->dreamteams_table.' dt
+                left join '.$this->db->users_table.' u1
                     on dt.user1_id = u1.user_id
-                left join phpbb_users u2
+                left join '.$this->db->users_table.' u2
                     on dt.user2_id = u2.user_id
                 where
                     matches_won + matches_loss > 0
