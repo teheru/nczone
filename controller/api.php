@@ -730,6 +730,15 @@ class api
         return $this->jsonResponse(zone_util::players()->get_bets());
     }
 
+    public function statistics($number): JsonResponse {
+        return $this->jsonResponse([
+            'best_streaks' => zone_util::players()->get_best_streaks($number),
+            'worst_streaks' => zone_util::players()->get_worst_streaks($number),
+            'best_rating_changes' => zone_util::players()->get_best_rating_changes($number),
+            'worst_rating_changes' => zone_util::players()->get_worst_rating_changes($number),
+        ]);
+    }
+
     private static function get_request_data(): array
     {
         return json_decode(file_get_contents('php://input'), true) ?: [];

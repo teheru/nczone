@@ -662,4 +662,72 @@ class players
         });
         return $result;
     }
+
+    public function get_best_streaks(int $number) {
+        $sql = 'select
+                    u.user_id, u.username, max(s.streak) as max_streak
+                from '.$this->db->match_players_table.' s
+                left join '.$this->db->users_table.' u on u.user_id = s.user_id
+                group by user_id
+                order by max_streak desc, user_id asc limit 0, '.$number;
+
+        $result = $this->db->get_rows($sql);
+
+        array_walk($result, function(&$value, $key) {
+            $value['user_id'] = (int)$value['user_id'];
+            $value['max_streak'] = (int)$value['max_streak'];
+        });
+        return $result;
+    }
+
+    public function get_worst_streaks(int $number) {
+        $sql = 'select
+                    u.user_id, u.username, min(s.streak) as min_streak
+                from '.$this->db->match_players_table.' s
+                left join '.$this->db->users_table.' u on u.user_id = s.user_id
+                group by user_id
+                order by min_streak asc, user_id asc limit 0, '.$number;
+
+        $result = $this->db->get_rows($sql);
+
+        array_walk($result, function(&$value, $key) {
+            $value['user_id'] = (int)$value['user_id'];
+            $value['min_streak'] = (int)$value['min_streak'];
+        });
+        return $result;
+    }
+
+    public function get_best_rating_changes(int $number) {
+        $sql = 'select
+                    u.user_id, u.username, max(r.rating_change) as max_rating_change
+                from '.$this->db->match_players_table.' r
+                left join '.$this->db->users_table.' u on u.user_id = r.user_id
+                group by user_id
+                order by max_rating_change desc, user_id asc limit 0, '.$number;
+
+        $result = $this->db->get_rows($sql);
+
+        array_walk($result, function(&$value, $key) {
+            $value['user_id'] = (int)$value['user_id'];
+            $value['max_rating_change'] = (int)$value['max_rating_change'];
+        });
+        return $result;
+    }
+
+    public function get_worst_rating_changes(int $number) {
+        $sql = 'select
+                    u.user_id, u.username, min(r.rating_change) as min_rating_change
+                from '.$this->db->match_players_table.' r
+                left join '.$this->db->users_table.' u on u.user_id = r.user_id
+                group by user_id
+                order by min_rating_change asc, user_id asc limit 0, '.$number;
+
+        $result = $this->db->get_rows($sql);
+
+        array_walk($result, function(&$value, $key) {
+            $value['user_id'] = (int)$value['user_id'];
+            $value['min_rating_change'] = (int)$value['min_rating_change'];
+        });
+        return $result;
+    }
 }
