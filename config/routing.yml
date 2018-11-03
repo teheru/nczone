@@ -135,3 +135,7 @@ eru_nczone_controller__player_dreamteams:
         user_id: \d+
         reverse: \d+
         number: \d+
+
+eru_nczone_controller__bets:
+    path: /nczone/api/players/bets
+    defaults: { _controller: eru.nczone.controller.api:bets }

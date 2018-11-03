@@ -726,6 +726,10 @@ class api
         return $this->jsonResponse(zone_util::players()->get_player_rating_data($user_id));
     }
 
+    public function bets(): JsonResponse {
+        return $this->jsonResponse(zone_util::players()->get_bets());
+    }
+
     private static function get_request_data(): array
     {
         return json_decode(file_get_contents('php://input'), true) ?: [];
