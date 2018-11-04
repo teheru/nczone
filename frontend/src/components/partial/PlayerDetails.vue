@@ -44,7 +44,7 @@
                 <th v-t="'NCZONE_DREAMTEAMS_WINSLOSS'"></th>
               </tr>
               <template v-for="(dreamteam, idx) in dreamteams">
-                <tr>
+                <tr :key="`idx-${idx}`">
                   <td class="username">{{dreamteam.user1_name}}</td>
                   <td class="username">{{dreamteam.user2_name}}</td>
                   <td class="matches">{{dreamteam.matches_won}} / {{dreamteam.matches_loss}}</td>
@@ -58,7 +58,7 @@
                 <th v-t="'NCZONE_DREAMTEAMS_WINSLOSS'"></th>
               </tr>
               <template v-for="(nightmareteam, idx) in nightmareteams">
-                <tr>
+                <tr :key="`idx-${idx}`">
                   <td class="username">{{nightmareteam.user1_name}}</td>
                   <td class="username">{{nightmareteam.user2_name}}</td>
                   <td class="matches">{{nightmareteam.matches_won}} / {{nightmareteam.matches_loss}}</td>

@@ -208,13 +208,13 @@ export default () => {
         state.playerDetails.ratingData = payload
       },
       setPlayerDetails (state, payload) {
-          state.playerDetails.details = payload
+        state.playerDetails.details = payload
       },
       setDreamteams (state, payload) {
-          state.playerDetails.dreamteams = payload
+        state.playerDetails.dreamteams = payload
       },
       setNightmareteams (state, payload) {
-          state.playerDetails.nightmareteams = payload
+        state.playerDetails.nightmareteams = payload
       },
       showPlayerDetails (state, payload) {
         state.playerDetails.visible = true

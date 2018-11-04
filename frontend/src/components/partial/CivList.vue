@@ -7,13 +7,13 @@
     </span>
 </template>
 <script>
-  export default {
-    name: 'nczone-civ-list',
-    props: {
-      list: {
-        type: Array,
-        required: true
-      }
+export default {
+  name: 'nczone-civ-list',
+  props: {
+    list: {
+      type: Array,
+      required: true
     }
   }
+}
 </script>
