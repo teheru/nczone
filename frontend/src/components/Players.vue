@@ -8,7 +8,7 @@
         <div v-if="players.length === 0"><span v-t="'NCZONE_NO_ACTIVE_PLAYERS'"></span></div>
         <div v-else="" class="zone-players">
           <div class="zone-players-table-idx">#</div>
-          <div class="zone-players-table-login"></div>
+          <div class="zone-players-table-login" v-if="canModLogin"></div>
           <div class="zone-players-table-name" @click="setSort('username')" v-t="'NCZONE_TABLE_HEADER_NAME'"></div>
           <div class="zone-players-table-games" @click="setSort('games')" v-t="'NCZONE_TABLE_HEADER_GAMES'"></div>
           <div class="zone-players-table-wins" @click="setSort('wins')" v-t="'NCZONE_TABLE_HEADER_WINS'"></div>
@@ -34,7 +34,7 @@
             <div class="zone-players-table-activity" :key="`activity-${idx}`">{{ player.activity || 0 }}</div>
           </template>
           <div class="zone-players-table-idx">Ø</div>
-          <div class="zone-players-table-login"></div>
+          <div class="zone-players-table-login" v-if="canModLogin"></div>
           <div class="zone-players-table-name" v-t="'NCZONE_TABLE_FOOTER_AVERAGE'"></div>
           <div class="zone-players-table-games">{{ avgGames }}</div>
           <div class="zone-players-table-wins">{{ avgWins }}</div>
