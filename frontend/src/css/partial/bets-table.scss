@@ -1,0 +1,28 @@
+.zone-bets {
+    display: grid;
+    grid-auto-flow: dense;
+}
+
+.zone-bets-table-idx {
+    grid-column: 1;
+}
+
+.zone-bets-table-name {
+    grid-column: 2;
+}
+
+.zone-bets-table-bets-total {
+    grid-column: 3;
+}
+
+.zone-bets-table-bets-won {
+    grid-column: 4;
+}
+
+.zone-bets-table-bets-loss {
+    grid-column: 5;
+}
+
+.zone-bets-table-bets-quota {
+    grid-column: 6;
+}
