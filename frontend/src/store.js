@@ -41,6 +41,8 @@ export default () => {
       },
       match: null, // single match
       players: [],
+      statistics: [],
+      bets: [],
       runningMatches: [],
       pastMatches: {
         items: [],
@@ -75,6 +77,7 @@ export default () => {
     },
     getters: {
       players: (s) => s.players,
+      bets: (s) => s.bets,
       me: (s) => s.me,
       loggedInPlayers: (s) => s.players.filter(p => p.logged_in > 0).sort((a, b) => {
         if (a.logged_in === b.logged_in) {
@@ -191,6 +194,12 @@ export default () => {
         })
         state.players = players
       },
+      setStatistics (state, payload) {
+        state.statistics = payload
+      },
+      setBets (state, payload) {
+        state.bets = payload
+      },
       setMatch (state, payload) {
         state.match = payload
       },
@@ -288,11 +297,11 @@ export default () => {
           // always fetch information
           dispatch('getInformation', {passive: true})
         })
-        state.timer.every(10, () => {
+        state.timer.every(5, () => {
           // always refresh logged in players
           dispatch('getLoggedInPlayers', {passive: true})
         })
-        state.timer.every(30, () => {
+        state.timer.every(15, () => {
           dispatch('loadCurrentRouteData')
         })
       },
@@ -332,6 +341,14 @@ export default () => {
           commit('setAllPlayers', await api.actively.getAllPlayers())
           commit('setMeActive')
         }
+      },
+
+      async getStatistics ({commit}) {
+        commit('setStatistics', await api.actively.getStatistcs())
+      },
+
+      async getBets ({commit}) {
+        commit('setBets', await api.actively.getBets())
       },
 
       async getRunningMatches ({commit, dispatch}, {passive}) {

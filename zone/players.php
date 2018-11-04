@@ -643,19 +643,21 @@ class players
         return $result;
     }
 
-    public function get_bets() {
+    public function get_bets() { // todo: make limit dynamic
         $sql = 'select
                     u.user_id, u.username, b.bets_won, b.bets_loss,
-                    b.bets_won / (b.bets_won + b.bets_loss) as bet_quota
+                    (b.bets_won + b.bets_loss) as bets_total,
+                    b.bets_won / (b.bets_won + b.bets_loss) * 100 as bet_quota
                 from '.$this->db->players_table.' b
                 left join '.$this->db->users_table.' u on u.user_id = b.user_id
-                where b.bets_won + b.bets_loss > 0 and u.username is not null
+                where b.bets_won + b.bets_loss >= 10 and u.username is not null
                 order by (b.bets_won * b.bets_won + 1) / (b.bets_loss * b.bets_loss + 1) desc';
 
         $result = $this->db->get_rows($sql);
 
         array_walk($result, function(&$value, $key) {
             $value['user_id'] = (int)$value['user_id'];
+            $value['bets_total'] = (int)$value['bets_total'];
             $value['bets_won'] = (int)$value['bets_won'];
             $value['bets_loss'] = (int)$value['bets_loss'];
             $value['bet_quota'] = (float)$value['bet_quota'];

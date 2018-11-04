@@ -9,6 +9,8 @@
             <li><router-link :to="{name: 'rmatches'}" v-t="'NCZONE_RMATCHES'"></router-link></li>
             <li><router-link :to="{name: 'pmatches'}" v-t="'NCZONE_PMATCHES'"></router-link></li>
             <li><router-link :to="{name: 'players'}" v-t="'NCZONE_PLAYERS_TABLE'"></router-link></li>
+            <li><router-link :to="{name: 'bets'}" v-t="'NCZONE_BETS'"></router-link></li>
+            <!-- <li><router-link :to="{name: 'statistics'}" v-t="'NCZONE_STATISTICS'"></router-link></li> -->
           </ul>
         </div>
         <div class="zone-menu-block">

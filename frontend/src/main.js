@@ -9,6 +9,8 @@ import Router from 'vue-router'
 import RunningMatches from './components/RunningMatches.vue'
 import PastMatches from './components/PastMatches.vue'
 import Players from './components/Players.vue'
+import Bets from './components/Bets.vue'
+import Statistics from './components/Statistics.vue'
 import Settings from './components/Settings.vue'
 import Rules from './components/Rules.vue'
 import * as api from './api'
@@ -61,6 +63,16 @@ export async function init (settings) {
           name: routes.ROUTE_PLAYERS,
           path: '/players',
           component: Players
+        },
+        {
+          name: routes.ROUTE_STATISTICS,
+          path: '/statistics',
+          component: Statistics
+        },
+        {
+          name: routes.ROUTE_BETS,
+          path: '/bets',
+          component: Bets
         },
         {
           name: routes.ROUTE_SETTINGS,

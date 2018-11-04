@@ -121,6 +121,12 @@ export const actively = {
   getPlayerDetails: (userId) => doGet(`/players/details/${userId}`),
   getDreamteams: (userId, reverse, number) => doGet(`/players/dreamteams/${userId}/${reverse}/${number}/`),
 
+  // statistics
+  getStatistcs: () => doGet('/players/statistics'),
+
+  // bets
+  getBets: () => doGet('/players/bets'),
+
   // information
   getInformation: () => doGet('/information'),
 

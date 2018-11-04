@@ -57,6 +57,7 @@ export default {
     'NCZONE_RMATCHES': 'Laufende Spiele',
     'NCZONE_PMATCHES': 'Vergangene Spiele',
     'NCZONE_PLAYERS_TABLE': 'Tabelle',
+    'NCZONE_BETS': 'Wetten',
     'NCZONE_MENU_INFORMATION': 'Informationen',
     'NCZONE_RULES': 'Regeln',
     'NCZONE_SETTINGS': 'Einstellungen',
@@ -116,6 +117,12 @@ export default {
     'NCZONE_DREAMTEAMS_PLAYER1': 'Spieler 1',
     'NCZONE_DREAMTEAMS_PLAYER2': 'Spieler 2',
     'NCZONE_DREAMTEAMS_WINSLOSS': 'Siege / Verluste',
+
+    'NCZONE_BETS_TABLE': 'Wetten',
+    'NCZONE_TABLE_HEADER_BETS_TOTAL': 'Gesamt',
+    'NCZONE_TABLE_HEADER_BETS_WON': 'Gewonnen',
+    'NCZONE_TABLE_HEADER_BETS_LOSS': 'Verloren',
+    'NCZONE_TABLE_HEADER_BETS_QUOTA': 'Quote',
 
     'NCZONE_DRAW_PREVIEW': 'Losevorschau',
     'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW': 'Möchtest du losen?',
@@ -196,6 +203,7 @@ export default {
     'NCZONE_RMATCHES': 'Running matches',
     'NCZONE_PMATCHES': 'Past matches',
     'NCZONE_PLAYERS_TABLE': 'Player list',
+    'NCZONE_BETS': 'Bets',
     'NCZONE_MENU_INFORMATION': 'Information',
     'NCZONE_RULES': 'Rules',
     'NCZONE_SETTINGS': 'Settings',
@@ -255,6 +263,12 @@ export default {
     'NCZONE_DREAMTEAMS_PLAYER1': 'Player 1',
     'NCZONE_DREAMTEAMS_PLAYER2': 'Player 2',
     'NCZONE_DREAMTEAMS_WINSLOSS': 'Wins / Losses',
+
+    'NCZONE_BETS_TABLE': 'Bets',
+    'NCZONE_TABLE_HEADER_BETS_TOTAL': 'total',
+    'NCZONE_TABLE_HEADER_BETS_WON': 'won',
+    'NCZONE_TABLE_HEADER_BETS_LOSS': 'lost',
+    'NCZONE_TABLE_HEADER_BETS_QUOTA': 'quota',
 
     'NCZONE_DRAW_PREVIEW': 'Draw preview',
     'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW': 'Do you want to draw?',
