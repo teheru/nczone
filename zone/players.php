@@ -248,7 +248,8 @@ class players
     {
         $col = $winner ? '`matches_won`' : '`matches_loss`';
 
-        $this->db->sql_query('UPDATE `' . $this->db->players_table . '` SET `rating` = `rating` + ' . (($winner ? 1 : -1) * $match_points) . ', ' . $col . ' = ' . $col . ' + 1 WHERE `user_id` = ' . $user_id);
+        $rating_change = (($winner ? 1 : -1) * $match_points);
+        $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET rating = IF(rating > (-1) * ' . $rating_change . ', rating + ' . $rating_change . ', 1), ' . $col . ' = ' . $col . ' + 1 WHERE user_id = ' . $user_id);
         $this->db->update($this->db->match_players_table, [
             'rating_change' => ($winner ? 1 : -1) * $match_points,
             'streak' => self::calculate_new_streak($winner, $this->last_streak($user_id)),
