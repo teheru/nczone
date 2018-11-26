@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Csv.vue Should match snapshot 1`] = `<span><span>some Data <span>, </span></span><span>in a list<!----></span></span>`;

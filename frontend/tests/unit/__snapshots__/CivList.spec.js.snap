@@ -1,0 +1,6 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CivList.vue Should match snapshot 1`] = `
+<span><span><span class="zone-match-civ">Azteken<span class="zone-match-civ-tooltip">2</span></span> <span>, </span></span><span><span class="zone-match-civ">Briten<span class="zone-match-civ-tooltip">1</span></span>
+<!----></span></span>
+`;
