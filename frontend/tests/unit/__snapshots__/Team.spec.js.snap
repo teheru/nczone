@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Team.vue Should match snapshot 1`] = `
+<div class="zone-match-team-1">
+  <div class="zone-match-bets">
+    <div class="zone-match-bets-percentage"><a class="zone-match-bets-bet-button"></a>
+      <div class="zone-match-bets-percentage-number">60%</div>
+      <div class="zone-match-bets-percentage-bar" style="height: 60%;"></div>
+    </div>
+    <div class="zone-match-bets-overlay">
+      <div class="zone-match-bets-title">Tipps</div>
+      <ul class="zone-match-betters">
+        <li><span>teutonic_tanks</span> (07:14)</li>
+        <li><span>Shazzrah</span> (05:53)</li>
+        <li><span>DerJumper</span> (00:56)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="zone-match-team">
+    <div class="zone-match-team-header zone-match-player-replace"></div>
+    <div class="zone-match-team-header zone-match-player-name zone-highlight-color">Team 1</div>
+    <div class="zone-match-team-header zone-match-player-rating">(6724)</div>
+    <div class="zone-match-team-header zone-match-player-civ">Civs</div>
+    <div class="zone-match-player-replace"><button class="zone-mini-button">K</button></div>
+    <div class="zone-match-player-name zone-highlight-color"><span>Usain_Bolt</span>
+      <!---->
+    </div>
+    <div class="zone-match-player-rating">(3396)</div>
+    <div class="zone-match-player-civ"><span class="zone-match-civ">
+          Wikinger
+          <span class="zone-match-civ-tooltip">44</span></span></div>
+    <div class="zone-match-player-replace"><button class="zone-mini-button">K</button></div>
+    <div class="zone-match-player-name zone-highlight-color"><span>Shazzrah</span>
+      <!---->
+    </div>
+    <div class="zone-match-player-rating">(1638)</div>
+    <div class="zone-match-player-civ"><span class="zone-match-civ">
+          Inder
+          <span class="zone-match-civ-tooltip">42</span></span></div>
+    <div class="zone-match-player-replace"><button class="zone-mini-button">K</button></div>
+    <div class="zone-match-player-name zone-highlight-color"><span>Yaguar</span>
+      <!---->
+    </div>
+    <div class="zone-match-player-rating">(969)</div>
+    <div class="zone-match-player-civ"><span class="zone-match-civ">
+          Japaner
+          <span class="zone-match-civ-tooltip">42</span></span></div>
+    <div class="zone-match-player-replace"><button class="zone-mini-button">K</button></div>
+    <div class="zone-match-player-name zone-highlight-color"><span>OMurchu</span>
+      <!---->
+    </div>
+    <div class="zone-match-player-rating">(721)</div>
+    <div class="zone-match-player-civ"><span class="zone-match-civ">
+          Freie Wahl
+          <span class="zone-match-civ-tooltip">46</span></span></div>
+  </div>
+</div>
+`;

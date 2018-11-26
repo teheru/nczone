@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Match.vue Should match snapshot 1`] = `
+<div class="zone-match">
+  <div class="zone-match-title">Spiel #1365</div>
+  <div class="zone-match-data">
+    <!---->
+    <div>Gelost von</div>
+    <div>H4voc</div>
+    <!---->
+    <div>Karte</div>
+    <div>Zone_Teamislands</div>
+    <!---->
+    <div>Spielstart</div>
+    <div>26.11.2018 20:29:24</div>
+    <div>Zeit seit dem Losen</div>
+    <div>00:00:00</div>
+  </div>
+  <div class="zone-match-title">Teams</div>
+  <div class="zone-match-team-table">
+    <nczone-team-stub match="[object Object]" team="1"></nczone-team-stub>
+    <div class="zone-match-vs">VS</div>
+    <nczone-team-stub match="[object Object]" team="2"></nczone-team-stub>
+  </div>
+  <!---->
+  <div class="zone-match-post-result-form"><span>Ergebnis</span> <select>
+      <option value="0">Wähle ein Ergebnis</option>
+      <option value="1">Team 1</option>
+      <option value="2">Team 2</option>
+      <option value="3">Ohne Wertung</option>
+    </select> <button disabled="disabled" class="zone-button">Ergebnis übermitteln</button></div>
+</div>
+`;
