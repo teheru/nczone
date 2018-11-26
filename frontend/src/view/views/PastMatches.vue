@@ -6,17 +6,16 @@
       <div class="error" v-else-if="error" v-t="'NCZONE_ERROR_LOADING'"></div>
       <template v-else="">
         <div v-if="matches.length === 0" v-t="'NCZONE_NO_PMATCHES'"></div>
-        <nczone-match v-else="" v-for="match in matches" :key="match.id" :match="match"></nczone-match>
+        <nczone-match v-else="" v-for="match in matches" :key="match.id" :match="match" />
       </template>
     </div>
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
-import NczoneMatch from './partial/Match'
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
   name: 'nczone-past-matches',
-  components: {NczoneMatch},
   computed: {
     ...mapGetters({
       matches: 'pastMatches'
@@ -29,17 +28,19 @@ export default {
     '$route': 'fetchData'
   },
   methods: {
-    fetchData () {
+    async fetchData () {
       this.loading = true
-      this.$store.dispatch('getPastMatches', {passive: false})
-        .then(_ => {
-          this.loading = false
-        })
-        .catch(_ => {
-          this.error = true
-          this.loading = false
-        })
-    }
+      try {
+        await this.getPastMatches({ passive: false })
+        this.loading = false
+      } catch (error) {
+        this.error = true
+        this.loading = false
+      }
+    },
+    ...mapActions([
+      'getPastMatches'
+    ])
   },
   data () {
     return {

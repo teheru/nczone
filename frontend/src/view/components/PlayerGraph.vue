@@ -24,8 +24,8 @@ export default {
     },
     {
       maintainAspectRatio: false,
-      legend: {display: false},
-      tooltips: {enabled: false},
+      legend: { display: false },
+      tooltips: { enabled: false },
       scales: {
         xAxes: [{
           display: false

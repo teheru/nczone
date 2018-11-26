@@ -7,25 +7,23 @@
           <span v-t="'NCZONE_NO_LOGIN'"></span>
         </div>
         <div v-else="" class="zone-user-table">
-          <nczone-player-login-row v-for="(player, idx) in players" :key="player.id" :idx="idx" :player="player"></nczone-player-login-row>
+          <nczone-player-login-row v-for="(player, idx) in players" :key="player.id" :idx="idx" :player="player" />
         </div>
       </div>
       <div class="zone-actions" v-if="havePossibleActions">
-        <button class="zone-button" v-if="canLogin" @click="login" v-t="'NCZONE_LOGIN'"></button>
-        <button class="zone-button" v-if="isLoggedIn" @click="logout" v-t="'NCZONE_LOGOUT'"></button>
+        <button class="zone-button" v-if="canLogin" @click="doLogin" v-t="'NCZONE_LOGIN'"></button>
+        <button class="zone-button" v-if="isLoggedIn" @click="doLogout" v-t="'NCZONE_LOGOUT'"></button>
 
-        <button class="zone-button" v-if="canDraw" @click="draw" v-t="'NCZONE_DRAW'"></button>
+        <button class="zone-button" v-if="canDraw" @click="doDraw" v-t="'NCZONE_DRAW'"></button>
       </div>
     </div>
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
-import NczonePlayerLoginRow from './PlayerLoginRow'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-player-area',
-  components: {NczonePlayerLoginRow},
   computed: {
     ...mapGetters([
       'canDraw',
@@ -40,15 +38,20 @@ export default {
     }
   },
   methods: {
-    login () {
-      this.$store.dispatch('login')
+    doLogin () {
+      this.login()
     },
-    logout () {
-      this.$store.dispatch('logout')
+    doLogout () {
+      this.logout()
     },
-    draw () {
-      this.$store.dispatch('drawPreview')
-    }
+    doDraw () {
+      this.drawPreview()
+    },
+    ...mapActions([
+      'login',
+      'logout',
+      'drawPreview'
+    ])
   }
 }
 </script>

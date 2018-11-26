@@ -50,7 +50,7 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-players-table',
@@ -111,23 +111,27 @@ export default {
       const avg = arr.reduce((acc, cur) => acc + cur[field], 0) / arr.length
       return isNaN(avg) ? 0 : Math.round(avg)
     },
-    fetchData () {
+    async fetchData () {
       this.loading = true
-      this.$store.dispatch('getAllPlayers', {passive: false})
-        .then(_ => {
-          this.loading = false
-        })
-        .catch(_ => {
-          this.error = true
-          this.loading = false
-        })
+      try {
+        this.getAllPlayers({ passive: false })
+        this.loading = false
+      } catch (error) {
+        this.error = true
+        this.loading = false
+      }
     },
     modLogin (userId) {
-      this.$store.dispatch('loginPlayer', {userId: userId})
+      this.loginPlayer({ userId: userId })
     },
     playerDetails (userId) {
-      this.$store.dispatch('playerDetailsOpen', {userId: userId})
-    }
+      this.playerDetailsOpen({ userId: userId })
+    },
+    ...mapActions([
+      'getAllPlayers',
+      'loginPlayer',
+      'playerDetailsOpen'
+    ])
   },
   data () {
     return {

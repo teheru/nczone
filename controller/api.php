@@ -416,7 +416,6 @@ class api
         }
     }
 
-
     public function add_pair_preview($match_id): JsonResponse
     {
         if (self::is_options()) {
@@ -707,30 +706,50 @@ class api
 
     public function rules(): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
         $rulesPosts = zone_util::misc()->get_posts((int)config::get('nczone_rules_post_id'));
         return $this->jsonResponse(['post' => end($rulesPosts)]);
     }
 
     public function player_details(int $user_id): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
         return $this->jsonResponse(zone_util::players()->get_player_details($user_id));
     }
 
     public function player_dreamteams(int $user_id, int $reverse, int $number): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
         return $this->jsonResponse(zone_util::players()->get_player_dreamteams($user_id, $reverse==1, $number));
     }
 
     public function rating_data(int $user_id): JsonResponse
     {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
         return $this->jsonResponse(zone_util::players()->get_player_rating_data($user_id));
     }
 
-    public function bets(): JsonResponse {
+    public function bets(): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
         return $this->jsonResponse(zone_util::players()->get_bets());
     }
 
-    public function statistics($number): JsonResponse {
+    public function statistics($number): JsonResponse
+    {
+        if (self::is_options()) {
+            return $this->optionsResponse();
+        }
         return $this->jsonResponse([
             'best_streaks' => zone_util::players()->get_best_streaks($number),
             'worst_streaks' => zone_util::players()->get_worst_streaks($number),

@@ -14,7 +14,7 @@ const _request = (url, opts = {}, onProgress) => {
       xhr.setRequestHeader(k, opts.headers[k])
     }
     xhr.onload = e => {
-      resolve({status: e.target.status, text: e.target.responseText})
+      resolve({ status: e.target.status, text: e.target.responseText })
     }
     xhr.onerror = reject
     if (xhr.upload && onProgress) {
@@ -62,7 +62,7 @@ const request = (method, path, options, onProgress) => {
 }
 
 const _actively = (method, path, options, onProgress) => {
-  return request(method, path, Object.assign(options || {}, {headers: {'X-Update-Session': '1'}}), onProgress)
+  return request(method, path, Object.assign(options || {}, { headers: { 'X-Update-Session': '1' } }), onProgress)
 }
 const _passively = (...params) => request(...params)
 
@@ -91,7 +91,7 @@ export const actively = {
   getMe: () => doGet('/me'),
   doLogin: () => post('/me/login'),
   doLogout: () => post('/me/logout'),
-  setLang: (lang) => post('/me/set_language', {body: JSON.stringify({lang})}),
+  setLang: (lang) => post('/me/set_language', { body: JSON.stringify({ lang }) }),
 
   // draw
   drawPreview: () => post('/draw/preview'),
@@ -111,8 +111,8 @@ export const actively = {
   // matches
   getRunningMatches: () => doGet('/matches/running'),
   getPastMatches: () => doGet('/matches/past'),
-  placeBet: (matchId, team) => post(`/matches/${matchId}/bet`, {body: JSON.stringify({team})}),
-  postMatchResult: (matchId, winner) => post(`/matches/${matchId}/post_result`, {body: JSON.stringify({winner})}),
+  placeBet: (matchId, team) => post(`/matches/${matchId}/bet`, { body: JSON.stringify({ team }) }),
+  postMatchResult: (matchId, winner) => post(`/matches/${matchId}/post_result`, { body: JSON.stringify({ winner }) }),
 
   // players
   getLoggedInPlayers: () => doGet('/players/logged_in'),

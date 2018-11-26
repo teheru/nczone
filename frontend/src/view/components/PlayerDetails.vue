@@ -72,16 +72,17 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
-import NczonePlayerGraph from './PlayerGraph'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-player-details',
-  components: {NczonePlayerGraph},
   methods: {
     close () {
-      this.$store.dispatch('playerDetailsClose')
-    }
+      this.playerDetailsClose()
+    },
+    ...mapActions([
+      'playerDetailsClose'
+    ])
   },
   computed: {
     ...mapGetters({

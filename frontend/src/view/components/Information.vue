@@ -5,7 +5,7 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-information',
@@ -17,14 +17,17 @@ export default {
   },
   methods: {
     cb () {
-      this.$store.dispatch('nextInformation')
+      this.nextInformation()
     },
     start () {
       this.timer.every(15, this.cb)
     },
     stop () {
       this.timer.off(this.cb)
-    }
+    },
+    ...mapActions([
+      'nextInformation'
+    ])
   },
   mounted () {
     this.start()

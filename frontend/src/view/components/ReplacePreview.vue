@@ -30,7 +30,7 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-replace-preview',
@@ -48,11 +48,15 @@ export default {
   },
   methods: {
     cancel () {
-      this.$store.dispatch('replaceCancel')
+      this.replaceCancel()
     },
     confirm () {
-      this.$store.dispatch('replaceConfirm', {userId: this.replacePlayer.id})
-    }
+      this.replaceConfirm({ userId: this.replacePlayer.id })
+    },
+    ...mapActions([
+      'replaceCancel',
+      'replaceConfirm'
+    ])
   }
 }
 </script>

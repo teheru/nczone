@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 const pad = (n) => n > 9 ? n : `0${n}`
 
@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     bet () {
-      this.$store.dispatch('bet', {matchId: this.match.id, team: this.team})
+      this.bet({ matchId: this.match.id, team: this.team })
     },
     renderBetTime (timestamp) {
       const secondsSinceDraw = timestamp - this.match.timestampStart
@@ -66,8 +66,12 @@ export default {
       return (hours > 0 ? (hours + ':') : '') + pad(minutes) + ':' + pad(seconds)
     },
     playerReplace (userId) {
-      this.$store.dispatch('replacePreview', {userId: userId})
-    }
+      this.replacePreview({ userId: userId })
+    },
+    ...mapActions([
+      'bet',
+      'replacePreview'
+    ])
   },
   computed: {
     classes () {

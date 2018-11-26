@@ -134,7 +134,7 @@ export default () => {
       timer: (s) => s.timer
     },
     mutations: {
-      init (state, {me, i18n}) {
+      init (state, { me, i18n }) {
         state.me.id = me.id || 0
         state.me.sid = me.sid || ''
         state.me.permissions.u_zone_view_login = me.permissions.u_zone_view_login || false
@@ -225,7 +225,7 @@ export default () => {
       setNightmareteams (state, payload) {
         state.playerDetails.nightmareteams = payload
       },
-      showPlayerDetails (state, payload) {
+      showPlayerDetails (state) {
         state.playerDetails.visible = true
       },
       hidePlayerDetails (state) {
@@ -243,7 +243,7 @@ export default () => {
         state.drawPreview.visible = true
         state.drawPreview.players = payload
       },
-      hideDrawPreview (state, payload) {
+      hideDrawPreview (state) {
         state.drawPreview.visible = false
         state.drawPreview.players = []
       },
@@ -252,7 +252,7 @@ export default () => {
         state.replacePreview.replacePlayer = payload['replace_player']
         state.replacePreview.replaceByPlayer = payload['replace_by_player']
       },
-      hideReplacePreview (state, payload) {
+      hideReplacePreview (state) {
         state.replacePreview.visible = false
         state.replacePreview.matchId = null
         state.replacePreview.replacePlayer = null
@@ -263,7 +263,7 @@ export default () => {
         state.addPairPreview.player1 = payload['add_player1']
         state.addPairPreview.player2 = payload['add_player2']
       },
-      hideAddPairPreview (state, payload) {
+      hideAddPairPreview (state) {
         state.addPairPreview.visible = false
         state.addPairPreview.player1 = null
         state.addPairPreview.player2 = null
@@ -276,47 +276,47 @@ export default () => {
       }
     },
     actions: {
-      async init ({rootState, state, commit, dispatch}, payload) {
+      async init ({ rootState, state, commit, dispatch }, payload) {
         if (payload.matchId) {
           commit('setMatch', await api.passively.getMatch(payload.matchId))
-          commit('init', {me: payload.me, i18n: payload.i18n})
+          commit('init', { me: payload.me, i18n: payload.i18n })
         } else {
-          commit('init', {me: payload.me, i18n: payload.i18n})
+          commit('init', { me: payload.me, i18n: payload.i18n })
 
-          dispatch('getInformation', {passive: true})
-          dispatch('getLoggedInPlayers', {passive: true})
-          dispatch('loadCurrentRouteData', {passive: true})
+          dispatch('getInformation', { passive: true })
+          dispatch('getLoggedInPlayers', { passive: true })
+          dispatch('loadCurrentRouteData', { passive: true })
 
           dispatch('poll')
         }
       },
 
-      async poll ({dispatch, state}) {
+      async poll ({ dispatch, state }) {
         state.timer.start()
         state.timer.every(60, () => {
           // always fetch information
-          dispatch('getInformation', {passive: true})
+          dispatch('getInformation', { passive: true })
         })
         state.timer.every(5, () => {
           // always refresh logged in players
-          dispatch('getLoggedInPlayers', {passive: true})
+          dispatch('getLoggedInPlayers', { passive: true })
         })
         state.timer.every(15, () => {
           dispatch('loadCurrentRouteData')
         })
       },
 
-      async loadCurrentRouteData ({rootState, dispatch}) {
+      async loadCurrentRouteData ({ rootState, dispatch }) {
         // only refresh the rest of the stuff when the route matches
         if (rootState.route.name === routes.ROUTE_RMATCHES) {
           // console.log('fetching rmatches')
-          dispatch('getRunningMatches', {passive: true})
+          dispatch('getRunningMatches', { passive: true })
         } else if (rootState.route.name === routes.ROUTE_PMATCHES) {
           // console.log('fetching pmatches')
-          dispatch('getPastMatches', {passive: true})
+          dispatch('getPastMatches', { passive: true })
         } else if (rootState.route.name === routes.ROUTE_PLAYERS) {
           // console.log('fetching players')
-          dispatch('getAllPlayers', {passive: true})
+          dispatch('getAllPlayers', { passive: true })
         } else if (rootState.route.name === routes.ROUTE_SETTINGS) {
           // console.log('fetching settings')
           // todo
@@ -326,7 +326,7 @@ export default () => {
         }
       },
 
-      async getLoggedInPlayers ({commit, dispatch}, {passive}) {
+      async getLoggedInPlayers ({ commit, dispatch }, { passive }) {
         if (passive) {
           commit('setLoggedInPlayers', await api.passively.getLoggedInPlayers())
         } else {
@@ -334,7 +334,7 @@ export default () => {
         }
       },
 
-      async getAllPlayers ({commit, dispatch}, {passive}) {
+      async getAllPlayers ({ commit, dispatch }, { passive }) {
         if (passive) {
           commit('setAllPlayers', await api.passively.getAllPlayers())
         } else {
@@ -343,15 +343,15 @@ export default () => {
         }
       },
 
-      async getStatistics ({commit}) {
+      async getStatistics ({ commit }) {
         commit('setStatistics', await api.actively.getStatistcs())
       },
 
-      async getBets ({commit}) {
+      async getBets ({ commit }) {
         commit('setBets', await api.actively.getBets())
       },
 
-      async getRunningMatches ({commit, dispatch}, {passive}) {
+      async getRunningMatches ({ commit, dispatch }, { passive }) {
         if (passive) {
           commit('setRunningMatches', await api.passively.getRunningMatches())
         } else {
@@ -360,7 +360,7 @@ export default () => {
         }
       },
 
-      async getPastMatches ({commit, dispatch}, {passive}) {
+      async getPastMatches ({ commit, dispatch }, { passive }) {
         if (passive) {
           commit('setPastMatches', await api.passively.getPastMatches())
         } else {
@@ -369,7 +369,7 @@ export default () => {
         }
       },
 
-      async getInformation ({commit, dispatch}, {passive}) {
+      async getInformation ({ commit, dispatch }, { passive }) {
         if (passive) {
           commit('setInformation', await api.passively.getInformation())
         } else {
@@ -378,7 +378,7 @@ export default () => {
         }
       },
 
-      async playerDetailsOpen ({commit, state}, {userId}) {
+      async playerDetailsOpen ({ commit, state }, { userId }) {
         state.playerDetails.player = state.players.find(p => p.id === userId)
         commit('setRatingData', await api.actively.getRatingData(userId))
         commit('setDreamteams', await api.actively.getDreamteams(userId, 0, 5))
@@ -388,94 +388,94 @@ export default () => {
         commit('setMeActive')
       },
 
-      async playerDetailsClose ({commit}) {
+      async playerDetailsClose ({ commit }) {
         commit('hidePlayerDetails')
         commit('setMeActive')
       },
 
-      async getRules ({commit}) {
+      async getRules ({ commit }) {
         commit('setRules', await api.actively.getRules())
         commit('setMeActive')
       },
 
-      async login ({commit, dispatch}) {
+      async login ({ commit, dispatch }) {
         await api.actively.doLogin()
-        await dispatch('getLoggedInPlayers', {passive: true})
+        await dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async logout ({commit, dispatch}) {
+      async logout ({ commit, dispatch }) {
         await api.actively.doLogout()
-        await dispatch('getLoggedInPlayers', {passive: true})
+        await dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async loginPlayer ({commit, dispatch}, {userId}) {
+      async loginPlayer ({ commit, dispatch }, { userId }) {
         await api.actively.doLoginPlayer(userId)
-        await dispatch('getLoggedInPlayers', {passive: true})
+        await dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async logoutPlayer ({commit, dispatch}, {userId}) {
+      async logoutPlayer ({ commit, dispatch }, { userId }) {
         await api.actively.doLogoutPlayer(userId)
-        await dispatch('getLoggedInPlayers', {passive: true})
+        await dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async drawPreview ({commit}) {
+      async drawPreview ({ commit }) {
         commit('showDrawPreview', await api.actively.drawPreview())
       },
 
-      async drawConfirm ({commit, dispatch}) {
+      async drawConfirm ({ commit, dispatch }) {
         commit('hideDrawPreview', await api.actively.drawConfirm())
-        dispatch('getRunningMatches', {passive: true})
-        dispatch('getLoggedInPlayers', {passive: true})
+        dispatch('getRunningMatches', { passive: true })
+        dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async drawCancel ({commit}) {
+      async drawCancel ({ commit }) {
         commit('hideDrawPreview', await api.actively.drawCancel())
       },
 
-      async replacePreview ({commit}, {userId}) {
+      async replacePreview ({ commit }, { userId }) {
         commit('showReplacePreview', await api.actively.replacePreview(userId))
       },
 
-      async replaceConfirm ({commit, dispatch}, {userId}) {
+      async replaceConfirm ({ commit, dispatch }, { userId }) {
         commit('hideReplacePreview', await api.actively.replaceConfirm(userId))
-        dispatch('getRunningMatches', {passive: true})
-        dispatch('getLoggedInPlayers', {passive: true})
+        dispatch('getRunningMatches', { passive: true })
+        dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async replaceCancel ({commit}) {
+      async replaceCancel ({ commit }) {
         commit('hideReplacePreview', await api.actively.replaceCancel())
       },
 
-      async addPairPreview ({state, commit}, {matchId}) {
+      async addPairPreview ({ state, commit }, { matchId }) {
         state.addPairPreview.matchId = matchId
         commit('showAddPairPreview', await api.actively.addPairPreview(matchId))
       },
 
-      async addPairConfirm ({state, commit, dispatch}) {
+      async addPairConfirm ({ state, commit, dispatch }) {
         commit('hideAddPairPreview', await api.actively.addPairConfirm(state.addPairPreview.matchId))
-        dispatch('getRunningMatches', {passive: true})
-        dispatch('getLoggedInPlayers', {passive: true})
+        dispatch('getRunningMatches', { passive: true })
+        dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async addPairCancel ({commit}) {
+      async addPairCancel ({ commit }) {
         commit('hideAddPairPreview', await api.actively.addPairCancel())
       },
 
-      async postMatchResult ({commit, dispatch}, {matchId, winner}) {
+      async postMatchResult ({ commit, dispatch }, { matchId, winner }) {
         await api.actively.postMatchResult(matchId, winner)
-        await dispatch('getRunningMatches', {passive: true})
+        await dispatch('getRunningMatches', { passive: true })
       },
 
-      async bet ({commit, dispatch}, {matchId, team}) {
+      async bet ({ commit, dispatch }, { matchId, team }) {
         await api.actively.placeBet(matchId, team)
-        await dispatch('getRunningMatches', {passive: true})
+        await dispatch('getRunningMatches', { passive: true })
       },
 
-      async nextInformation ({state, commit}) {
+      async nextInformation ({ state, commit }) {
         commit('increaseInformationIndex')
       },
 
-      toggleLanguage ({state, commit}) {
+      toggleLanguage ({ state, commit }) {
         const lang = state.i18n.locale === 'en' ? 'de' : 'en'
         api.actively.setLang(lang) // async language set
         commit('setLang', lang)

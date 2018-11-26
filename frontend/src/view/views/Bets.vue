@@ -33,14 +33,11 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-bets',
   computed: {
-    bets () {
-      const p = this.bets
-    },
     avgBetsTotal () {
       return this.avg(this.bets, 'bets_total')
     },
@@ -68,17 +65,19 @@ export default {
       const avg = arr.reduce((acc, cur) => acc + cur[field], 0) / arr.length
       return isNaN(avg) ? 0 : Math.round(avg)
     },
-    fetchData () {
+    async fetchData () {
       this.loading = true
-      this.$store.dispatch('getBets')
-        .then(_ => {
-          this.loading = false
-        })
-        .catch(_ => {
-          this.error = true
-          this.loading = false
-        })
-    }
+      try {
+        await this.getBets()
+        this.loading = false
+      } catch (error) {
+        this.error = true
+        this.loading = false
+      }
+    },
+    ...mapActions([
+      'getBets'
+    ])
   },
   data () {
     return {

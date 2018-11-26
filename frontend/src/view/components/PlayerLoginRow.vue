@@ -9,7 +9,7 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'nczone-player-login-row',
   props: {
@@ -29,7 +29,7 @@ export default {
     this.stop()
   },
   methods: {
-    cb (now, ticks) {
+    cb (now) {
       this.t = now / 1000
     },
     start () {
@@ -39,8 +39,11 @@ export default {
       this.timer.off(this.cb)
     },
     modLogout (userId) {
-      this.$store.dispatch('logoutPlayer', {userId: userId})
-    }
+      this.logoutPlayer({ userId: userId })
+    },
+    ...mapActions([
+      'logoutPlayer'
+    ])
   },
   data () {
     return {

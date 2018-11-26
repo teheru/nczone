@@ -30,7 +30,7 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-draw-preview',
@@ -47,11 +47,15 @@ export default {
   },
   methods: {
     cancel () {
-      this.$store.dispatch('drawCancel')
+      this.drawCancel()
     },
     confirm () {
-      this.$store.dispatch('drawConfirm')
-    }
+      this.drawConfirm()
+    },
+    ...mapActions([
+      'drawCancel',
+      'drawConfirm'
+    ])
   }
 }
 </script>

@@ -25,13 +25,13 @@
       <div v-t="'NCZONE_MATCH_CIVS'"></div>
       <div>
         <div v-if="match.civs.both.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_BOTH'"></span>: <nczone-civ-list :list="match.civs.both"></nczone-civ-list>
+          <span v-t="'NCZONE_MATCH_CIVS_BOTH'"></span>: <nczone-civ-list :list="match.civs.both" />
         </div>
         <div v-if="match.civs.team1.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_TEAM1'"></span>: <nczone-civ-list :list="match.civs.team1"></nczone-civ-list>
+          <span v-t="'NCZONE_MATCH_CIVS_TEAM1'"></span>: <nczone-civ-list :list="match.civs.team1" />
         </div>
         <div v-if="match.civs.team2.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-civ-list :list="match.civs.team2"></nczone-civ-list>
+          <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-civ-list :list="match.civs.team2" />
         </div>
       </div>
     </template>
@@ -52,11 +52,11 @@
   <div class="zone-match-title" v-t="'NCZONE_MATCH_TEAMS'"></div>
   <div class="zone-match-team-table">
 
-    <nczone-team :match="match" :team="1"></nczone-team>
+    <nczone-team :match="match" :team="1" />
 
     <div class="zone-match-vs" v-t="'NCZONE_MATCH_VS'"></div>
 
-    <nczone-team :match="match" :team="2"></nczone-team>
+    <nczone-team :match="match" :team="2" />
 
   </div>
 
@@ -74,15 +74,12 @@
 </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
-import NczoneCivList from './CivList'
-import NczoneTeam from './Team'
+import { mapGetters, mapActions } from 'vuex'
 
 const pad = (n) => n > 9 ? n : `0${n}`
 
 export default {
   name: 'nczone-match',
-  components: {NczoneTeam, NczoneCivList},
   props: {
     match: {
       type: Object,
@@ -91,9 +88,9 @@ export default {
   },
   methods: {
     sendResult () {
-      this.$store.dispatch('postMatchResult', {matchId: this.match.id, winner: this.matchResult})
+      this.postMatchResult({ matchId: this.match.id, winner: this.matchResult })
     },
-    cb (now, ticks) {
+    cb (now) {
       this.gameSeconds = now / 1000 - this.match.timestampStart
     },
     start () {
@@ -103,8 +100,12 @@ export default {
       this.timer.off(this.cb)
     },
     addPair () {
-      this.$store.dispatch('addPairPreview', {matchId: this.match.id})
-    }
+      this.addPairPreview({ matchId: this.match.id })
+    },
+    ...mapActions([
+      'postMatchResult',
+      'addPairPreview'
+    ])
   },
   computed: {
     matchStartTime () {

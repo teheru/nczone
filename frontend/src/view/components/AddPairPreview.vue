@@ -28,7 +28,7 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-add-pair-preview',
@@ -46,11 +46,15 @@ export default {
   },
   methods: {
     cancel () {
-      this.$store.dispatch('addPairCancel')
+      this.addPairCancel()
     },
     confirm () {
-      this.$store.dispatch('addPairConfirm')
-    }
+      this.addPairConfirm()
+    },
+    ...mapActions([
+      'addPairCancel',
+      'addPairConfirm'
+    ])
   }
 }
 </script>

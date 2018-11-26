@@ -5,7 +5,7 @@
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-rules',
@@ -14,8 +14,13 @@ export default {
       'rules'
     ])
   },
+  methods: {
+    ...mapActions([
+      'getRules'
+    ])
+  },
   created () {
-    this.$store.dispatch('getRules')
+    this.getRules()
   }
 }
 </script>

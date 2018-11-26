@@ -4,15 +4,9 @@ import App from './App.vue'
 import AppSingle from './AppSingle.vue'
 import lang from './lang'
 import createStore from './store'
-import {sync} from 'vuex-router-sync'
+import { sync } from 'vuex-router-sync'
 import Router from 'vue-router'
-import RunningMatches from './components/RunningMatches.vue'
-import PastMatches from './components/PastMatches.vue'
-import Players from './components/Players.vue'
-import Bets from './components/Bets.vue'
-import Statistics from './components/Statistics.vue'
-import Settings from './components/Settings.vue'
-import Rules from './components/Rules.vue'
+import View from './view'
 import * as api from './api'
 import * as routes from './routes'
 
@@ -33,6 +27,8 @@ export async function init (settings) {
 
   const store = createStore()
 
+  View.install(Vue)
+
   const initSingle = (matchId) => {
     // eslint-disable-next-line no-new
     new Vue({
@@ -42,7 +38,7 @@ export async function init (settings) {
       render: h => h(AppSingle)
     })
 
-    store.dispatch('init', {me, i18n, matchId})
+    store.dispatch('init', { me, i18n, matchId })
   }
 
   const initZone = () => {
@@ -52,37 +48,37 @@ export async function init (settings) {
         {
           name: routes.ROUTE_RMATCHES,
           path: '/',
-          component: RunningMatches
+          component: View.Views.RunningMatches
         },
         {
           name: routes.ROUTE_PMATCHES,
           path: '/pmatches',
-          component: PastMatches
+          component: View.Views.PastMatches
         },
         {
           name: routes.ROUTE_PLAYERS,
           path: '/players',
-          component: Players
+          component: View.Views.Players
         },
         {
           name: routes.ROUTE_STATISTICS,
           path: '/statistics',
-          component: Statistics
+          component: View.Views.Statistics
         },
         {
           name: routes.ROUTE_BETS,
           path: '/bets',
-          component: Bets
+          component: View.Views.Bets
         },
         {
           name: routes.ROUTE_SETTINGS,
           path: '/settings',
-          component: Settings
+          component: View.Views.Settings
         },
         {
           name: routes.ROUTE_RULES,
           path: '/rules',
-          component: Rules
+          component: View.Views.Rules
         }
       ]
     })
@@ -98,7 +94,7 @@ export async function init (settings) {
       render: h => h(App)
     })
 
-    store.dispatch('init', {me, i18n})
+    store.dispatch('init', { me, i18n })
   }
 
   if (typeof settings.matchId === 'undefined') {
