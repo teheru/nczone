@@ -51,6 +51,7 @@
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { avg } from '@/functions'
 
 export default {
   name: 'nczone-players-table',
@@ -65,28 +66,28 @@ export default {
       })
     },
     avgGames () {
-      return this.avg(this.players, 'games')
+      return avg(this.players, 'games')
     },
     avgWins () {
-      return this.avg(this.players, 'wins')
+      return avg(this.players, 'wins')
     },
     avgLosses () {
-      return this.avg(this.players, 'losses')
+      return avg(this.players, 'losses')
     },
     avgWinrate () {
-      return this.avg(this.players, 'winrate')
+      return avg(this.players, 'winrate')
     },
     avgStreak () {
-      return this.avg(this.players, 'streak')
+      return avg(this.players, 'streak')
     },
     avgRating () {
-      return this.avg(this.players, 'rating')
+      return avg(this.players, 'rating')
     },
     avgRatingChange () {
-      return this.avg(this.players, 'ratingchange')
+      return avg(this.players, 'ratingchange')
     },
     avgActivity () {
-      return this.avg(this.players, 'activity')
+      return avg(this.players, 'activity')
     },
     ...mapGetters({
       allPlayers: 'players',

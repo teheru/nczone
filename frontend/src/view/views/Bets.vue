@@ -34,21 +34,22 @@
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { avg } from '@/functions'
 
 export default {
   name: 'nczone-bets',
   computed: {
     avgBetsTotal () {
-      return this.avg(this.bets, 'bets_total')
+      return avg(this.bets, 'bets_total')
     },
     avgBetsWon () {
-      return this.avg(this.bets, 'bets_won')
+      return avg(this.bets, 'bets_won')
     },
     avgBetsLoss () {
-      return this.avg(this.bets, 'bets_loss')
+      return avg(this.bets, 'bets_loss')
     },
     avgBetsQuota () {
-      return this.avg(this.bets, 'bet_quota')
+      return avg(this.bets, 'bet_quota')
     },
     ...mapGetters([
       'bets'
@@ -61,10 +62,6 @@ export default {
     '$route': 'fetchData'
   },
   methods: {
-    avg (arr, field) {
-      const avg = arr.reduce((acc, cur) => acc + cur[field], 0) / arr.length
-      return isNaN(avg) ? 0 : Math.round(avg)
-    },
     async fetchData () {
       this.loading = true
       try {
