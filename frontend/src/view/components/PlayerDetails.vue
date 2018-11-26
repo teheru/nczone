@@ -9,7 +9,7 @@
         <div class="zone-content">
           <div class="zone-player-details-table">
             <div class="zone-player-details-label zone-player-details-name-label" v-t="'NCZONE_PLAYER_DETAILS_NAME'"></div>
-            <div class="zone-player-details-name">{{player.username}}</div>
+            <div class="zone-player-details-name" v-html="player.username"></div>
             <div class="zone-player-details-label zone-player-details-games-label" v-t="'NCZONE_PLAYER_DETAILS_GAMES'"></div>
             <div class="zone-player-details-games">
               <span>{{player.wins || 0}}</span> +
