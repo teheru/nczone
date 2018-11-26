@@ -10,10 +10,7 @@
       </div>
     </div>
 
-    <nczone-player-details />
-    <nczone-draw-preview />
-    <nczone-replace-preview />
-    <nczone-add-pair-preview />
+    <nczone-overlay-view />
   </div>
 </template>
 

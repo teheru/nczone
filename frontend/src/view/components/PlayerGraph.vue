@@ -6,11 +6,11 @@ export default {
   name: 'nczone-player-graph',
   props: {
     matchNumbers: {
-      type: Object,
+      type: Array,
       required: true
     },
     ratings: {
-      type: Object,
+      type: Array,
       required: true
     }
   },

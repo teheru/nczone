@@ -23,7 +23,7 @@
         <div class="zone-menu-block">
           <ul class="zone-menu">
             <li><router-link :to="{name: 'settings'}" v-t="'NCZONE_SETTINGS'" /></li>
-            <li><a @click="toggleLang" v-t="'NCZONE_SWITCH_LANG'"></a></li>
+            <li><a @click="toggleLanguage" v-t="'NCZONE_SWITCH_LANG'"></a></li>
           </ul>
         </div>
       </div>
@@ -35,9 +35,6 @@ import { mapActions } from 'vuex'
 export default {
   name: 'nczone-navigation',
   methods: {
-    async toggleLang () {
-      this.toggleLanguage()
-    },
     ...mapActions([
       'toggleLanguage'
     ])

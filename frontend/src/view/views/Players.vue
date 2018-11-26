@@ -20,7 +20,7 @@
           <div class="zone-players-table-activity" @click="setSort('activity')" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
           <template v-for="(player, idx) in players">
             <div class="zone-players-table-idx" :key="`idx-${idx}`">{{ idx+1 }}</div>
-            <div class="zone-players-table-kick" :key="`idx-${idx}`" v-if="canModLogin">
+            <div class="zone-players-table-kick" :key="`kick-${idx}`" v-if="canModLogin">
               <button class="zone-mini-button" v-if="player.logged_in === 0" @click="modLogin(player.id)">L</button>
             </div>
             <div class="zone-players-table-name" :key="`name-${idx}`" v-html="player.username" @click="playerDetails(player.id)"></div>
@@ -108,10 +108,6 @@ export default {
         this.sort.order *= -1
       }
     },
-    avg (arr, field) {
-      const avg = arr.reduce((acc, cur) => acc + cur[field], 0) / arr.length
-      return isNaN(avg) ? 0 : Math.round(avg)
-    },
     async fetchData () {
       this.loading = true
       try {
@@ -126,12 +122,12 @@ export default {
       this.loginPlayer({ userId: userId })
     },
     playerDetails (userId) {
-      this.playerDetailsOpen({ userId: userId })
+      this.openPlayerDetailsOverlay(userId)
     },
     ...mapActions([
       'getAllPlayers',
       'loginPlayer',
-      'playerDetailsOpen'
+      'openPlayerDetailsOverlay'
     ])
   },
   data () {

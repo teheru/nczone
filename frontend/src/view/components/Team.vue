@@ -2,7 +2,7 @@
   <div :class="classes">
     <div class="zone-match-bets">
       <div class="zone-match-bets-percentage">
-        <a v-if="canBet" @click="bet" class="zone-match-bets-bet-button"></a>
+        <a v-if="canBet" @click="doBet" class="zone-match-bets-bet-button"></a>
         <div class="zone-match-bets-percentage-number">{{ perc }}%</div>
         <div class="zone-match-bets-percentage-bar" :style="`height: ${perc}%`"></div>
       </div>
@@ -39,8 +39,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-
-const pad = (n) => n > 9 ? n : `0${n}`
+import { pad } from '@/functions'
 
 export default {
   name: 'nczone-team',
@@ -55,7 +54,7 @@ export default {
     }
   },
   methods: {
-    bet () {
+    doBet () {
       this.bet({ matchId: this.match.id, team: this.team })
     },
     renderBetTime (timestamp) {
@@ -66,11 +65,11 @@ export default {
       return (hours > 0 ? (hours + ':') : '') + pad(minutes) + ':' + pad(seconds)
     },
     playerReplace (userId) {
-      this.replacePreview({ userId: userId })
+      this.openPlayerReplacePreviewOverlay(userId)
     },
     ...mapActions([
       'bet',
-      'replacePreview'
+      'openPlayerReplacePreviewOverlay'
     ])
   },
   computed: {

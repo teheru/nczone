@@ -1,9 +1,49 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import View from '@/view'
 
 import * as api from './api'
 import * as timer from './timer'
 import * as routes from './routes'
+import { assign } from '@/functions'
+
+const overlayRouting = {
+  ADD_PAIR_PREVIEW: {
+    name: 'ADD_PAIR_PREVIEW',
+    component: View.Components.AddPairPreview,
+    props: {
+      matchId: null,
+      player1: null,
+      player2: null
+    }
+  },
+  DRAW_PREVIEW: {
+    name: 'DRAW_PREVIEW',
+    component: View.Components.DrawPreview,
+    props: {
+      players: []
+    }
+  },
+  PLAYER_DETAILS: {
+    name: 'PLAYER_DETAILS',
+    component: View.Components.PlayerDetails,
+    props: {
+      player: null,
+      ratingData: [],
+      details: [],
+      dreamteams: [],
+      nightmareteams: []
+    }
+  },
+  REPLACE_PREVIEW: {
+    name: 'REPLACE_PREVIEW',
+    component: View.Components.ReplacePreview,
+    props: {
+      replacePlayer: null,
+      replaceByPlayer: null
+    }
+  }
+}
 
 export default () => {
   Vue.use(Vuex)
@@ -24,20 +64,14 @@ export default () => {
           m_zone_change_match: false
         }
       },
-      drawPreview: {
-        visible: false,
-        players: []
-      },
-      replacePreview: {
-        visible: false,
-        replacePlayer: null,
-        replaceByPlayer: null
-      },
-      addPairPreview: {
-        visible: false,
-        matchId: null,
-        player1: null,
-        player2: null
+      overlay: {
+        name: false,
+        payload: {
+          [overlayRouting.ADD_PAIR_PREVIEW.name]: {},
+          [overlayRouting.DRAW_PREVIEW.name]: {},
+          [overlayRouting.PLAYER_DETAILS.name]: {},
+          [overlayRouting.REPLACE_PREVIEW.name]: {}
+        }
       },
       match: null, // single match
       players: [],
@@ -53,29 +87,13 @@ export default () => {
         items: [],
         index: 0
       },
-      playerDetails: {
-        visible: false,
-        player: null,
-        ratingData: [],
-        details: [],
-        dreamteams: [],
-        nightmareteams: []
-      },
       rulesPost: null,
-      // idea: to reduce number of ajax calls, we save timestamps
-      //       when certain actions were executed last and only
-      //       make the ajax call if there is no data or timestamp
-      //       far enough in the past
-      actionTimestamps: {
-        getPastMatches: 0,
-        getRunningMatches: 0,
-        getAllPlayers: 0,
-        getLoggedInPlayers: 0
-      },
       i18n: null,
       timer: timer
     },
     getters: {
+      overlayComponent: (s) => (overlayRouting[s.overlay.name] || {}).component || null,
+      overlayPayload: s => s.overlay.payload[s.overlay.name],
       players: (s) => s.players,
       bets: (s) => s.bets,
       me: (s) => s.me,
@@ -117,19 +135,10 @@ export default () => {
       isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
       pastMatches: (s) => s.pastMatches.items,
-      drawPreview: (s) => s.drawPreview,
-      replacePreview: (s) => s.replacePreview,
-      addPairPreview: (s) => s.addPairPreview,
       info: (s) => s.information.items[s.information.index] || '',
       rules: (s) => s.rulesPost,
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
-      playerDetailsVisible: (s) => s.playerDetails.visible,
-      playerDetailsPlayer: (s) => s.playerDetails.player,
-      playerDetails: (s) => s.playerDetails.details,
-      playerDetailsDreamteams: (s) => s.playerDetails.dreamteams,
-      playerDetailsNightmareteams: (s) => s.playerDetails.nightmareteams,
-      playerDetailsRatingData: (s) => s.playerDetails.ratingData,
       match: (s) => s.match,
       timer: (s) => s.timer
     },
@@ -225,53 +234,23 @@ export default () => {
       setNightmareteams (state, payload) {
         state.playerDetails.nightmareteams = payload
       },
-      showPlayerDetails (state) {
-        state.playerDetails.visible = true
-      },
-      hidePlayerDetails (state) {
-        state.playerDetails.player = null
-        state.playerDetails.ratingData = []
-        state.playerDetails.playerDetails = []
-        state.playerDetails.dreamteams = []
-        state.playerDetails.nightmareteams = []
-        state.playerDetails.visible = false
-      },
       setRules (state, payload) {
         state.rulesPost = payload.post
-      },
-      showDrawPreview (state, payload) {
-        state.drawPreview.visible = true
-        state.drawPreview.players = payload
-      },
-      hideDrawPreview (state) {
-        state.drawPreview.visible = false
-        state.drawPreview.players = []
-      },
-      showReplacePreview (state, payload) {
-        state.replacePreview.visible = true
-        state.replacePreview.replacePlayer = payload['replace_player']
-        state.replacePreview.replaceByPlayer = payload['replace_by_player']
-      },
-      hideReplacePreview (state) {
-        state.replacePreview.visible = false
-        state.replacePreview.matchId = null
-        state.replacePreview.replacePlayer = null
-        state.replacePreview.replaceByPlayer = null
-      },
-      showAddPairPreview (state, payload) {
-        state.addPairPreview.visible = true
-        state.addPairPreview.player1 = payload['add_player1']
-        state.addPairPreview.player2 = payload['add_player2']
-      },
-      hideAddPairPreview (state) {
-        state.addPairPreview.visible = false
-        state.addPairPreview.player1 = null
-        state.addPairPreview.player2 = null
       },
       increaseInformationIndex (state) {
         state.information.index += 1
         if (state.information.index > state.information.items.length - 1) {
           state.information.index = 0
+        }
+      },
+      setOverlay (state, { name, payload }) {
+        if (state.overlay.name && !name) {
+          // todo: reset instead of setting empty object
+          state.overlay.payload[state.overlay.name] = {}
+        }
+        state.overlay.name = name
+        if (name) {
+          state.overlay.payload[name] = payload
         }
       }
     },
@@ -378,18 +357,62 @@ export default () => {
         }
       },
 
-      async playerDetailsOpen ({ commit, state }, { userId }) {
-        state.playerDetails.player = state.players.find(p => p.id === userId)
-        commit('setRatingData', await api.actively.getRatingData(userId))
-        commit('setDreamteams', await api.actively.getDreamteams(userId, 0, 5))
-        commit('setNightmareteams', await api.actively.getDreamteams(userId, 1, 5))
-        commit('setPlayerDetails', await api.actively.getPlayerDetails(userId))
-        commit('showPlayerDetails')
+      closeOverlay ({ commit }) {
+        commit('setOverlay', { name: false })
         commit('setMeActive')
       },
 
-      async playerDetailsClose ({ commit }) {
-        commit('hidePlayerDetails')
+      async openAddPairPreviewOverlay ({ commit, dispatch }, matchId) {
+        const payload = await api.actively.addPairPreview(matchId)
+        const route = overlayRouting.ADD_PAIR_PREVIEW
+        commit('setOverlay', {
+          name: route.name,
+          payload: assign(route.props, {
+            matchId: matchId,
+            player1: payload.add_player1,
+            player2: payload.add_player2
+          })
+        })
+        commit('setMeActive')
+      },
+
+      async openPlayerReplacePreviewOverlay ({ commit, dispatch }, userId) {
+        const payload = await api.actively.replacePreview(userId)
+        const route = overlayRouting.REPLACE_PREVIEW
+        commit('setOverlay', {
+          name: route.name,
+          payload: assign(route.props, {
+            replacePlayer: payload.replace_player,
+            replaceByPlayer: payload.replace_by_player
+          })
+        })
+        commit('setMeActive')
+      },
+
+      async openPlayerDetailsOverlay ({ state, commit, dispatch }, userId) {
+        const route = overlayRouting.PLAYER_DETAILS
+        const playerDetails = await api.actively.getPlayerDetails(userId)
+        commit('setOverlay', {
+          name: route.name,
+          payload: assign(route.props, {
+            player: playerDetails.player,
+            ratingData: playerDetails.ratingData,
+            details: playerDetails.details,
+            dreamteams: playerDetails.dreamteams,
+            nightmareteams: playerDetails.nightmareteams
+          })
+        })
+        commit('setMeActive')
+      },
+
+      async openDrawPreviewOverlay ({ commit }) {
+        const route = overlayRouting.DRAW_PREVIEW
+        commit('setOverlay', {
+          name: route.name,
+          payload: assign(route.props, {
+            players: await api.actively.drawPreview()
+          })
+        })
         commit('setMeActive')
       },
 
@@ -418,47 +441,40 @@ export default () => {
         await dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async drawPreview ({ commit }) {
-        commit('showDrawPreview', await api.actively.drawPreview())
-      },
-
       async drawConfirm ({ commit, dispatch }) {
-        commit('hideDrawPreview', await api.actively.drawConfirm())
+        await api.actively.drawConfirm()
+        dispatch('closeOverlay')
         dispatch('getRunningMatches', { passive: true })
         dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async drawCancel ({ commit }) {
-        commit('hideDrawPreview', await api.actively.drawCancel())
-      },
-
-      async replacePreview ({ commit }, { userId }) {
-        commit('showReplacePreview', await api.actively.replacePreview(userId))
+      async drawCancel ({ dispatch }) {
+        await api.actively.drawCancel()
+        dispatch('closeOverlay')
       },
 
       async replaceConfirm ({ commit, dispatch }, { userId }) {
-        commit('hideReplacePreview', await api.actively.replaceConfirm(userId))
+        await api.actively.replaceConfirm(userId)
+        dispatch('closeOverlay')
         dispatch('getRunningMatches', { passive: true })
         dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async replaceCancel ({ commit }) {
-        commit('hideReplacePreview', await api.actively.replaceCancel())
-      },
-
-      async addPairPreview ({ state, commit }, { matchId }) {
-        state.addPairPreview.matchId = matchId
-        commit('showAddPairPreview', await api.actively.addPairPreview(matchId))
+      async replaceCancel ({ dispatch }) {
+        await api.actively.replaceCancel()
+        dispatch('closeOverlay')
       },
 
       async addPairConfirm ({ state, commit, dispatch }) {
-        commit('hideAddPairPreview', await api.actively.addPairConfirm(state.addPairPreview.matchId))
+        await api.actively.addPairConfirm(state.addPairPreview.matchId)
+        dispatch('closeOverlay')
         dispatch('getRunningMatches', { passive: true })
         dispatch('getLoggedInPlayers', { passive: true })
       },
 
-      async addPairCancel ({ commit }) {
-        commit('hideAddPairPreview', await api.actively.addPairCancel())
+      async addPairCancel ({ dispatch }) {
+        await api.actively.addPairCancel()
+        dispatch('closeOverlay')
       },
 
       async postMatchResult ({ commit, dispatch }, { matchId, winner }) {

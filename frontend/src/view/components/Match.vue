@@ -75,8 +75,7 @@
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
-
-const pad = (n) => n > 9 ? n : `0${n}`
+import { pad } from '@/functions'
 
 export default {
   name: 'nczone-match',
@@ -100,11 +99,11 @@ export default {
       this.timer.off(this.cb)
     },
     addPair () {
-      this.addPairPreview({ matchId: this.match.id })
+      this.openAddPairPreviewOverlay(this.match.id)
     },
     ...mapActions([
       'postMatchResult',
-      'addPairPreview'
+      'openAddPairPreviewOverlay'
     ])
   },
   computed: {

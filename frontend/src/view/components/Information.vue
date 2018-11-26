@@ -16,14 +16,11 @@ export default {
     ])
   },
   methods: {
-    cb () {
-      this.nextInformation()
-    },
     start () {
-      this.timer.every(15, this.cb)
+      this.timer.every(15, this.nextInformation)
     },
     stop () {
-      this.timer.off(this.cb)
+      this.timer.off(this.nextInformation)
     },
     ...mapActions([
       'nextInformation'

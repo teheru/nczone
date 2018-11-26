@@ -45,12 +45,12 @@ export default {
       this.logout()
     },
     doDraw () {
-      this.drawPreview()
+      this.openDrawPreviewOverlay()
     },
     ...mapActions([
       'login',
       'logout',
-      'drawPreview'
+      'openDrawPreviewOverlay'
     ])
   }
 }
