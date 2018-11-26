@@ -5,16 +5,18 @@ namespace eru\nczone\controller;
 use eru\nczone\config\config;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
+use eru\nczone\zone\error\BadRequestError;
+use eru\nczone\zone\error\ForbiddenError;
 use phpbb\auth\auth;
 use phpbb\request\request_interface;
 use phpbb\user;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class api
 {
     /** @var user */
     protected $user;
+
     /** @var auth */
     protected $auth;
 
@@ -29,30 +31,51 @@ class api
         $this->auth = $auth;
     }
 
-    private function optionsResponse(): JsonResponse
+    private function respond(callable $callable, array $acl = [], array $args = []): JsonResponse
     {
-        return new JsonResponse([], self::CODE_OK, [
-            'Access-Control-Allow-Origin' => phpbb_util::request()->header('Origin') ?: '*',
+        $request = phpbb_util::request();
+        $headers = [
+            'Access-Control-Allow-Origin' => $request->header('Origin') ?: '*',
             'Access-Control-Allow-Credentials' => 'true',
-            'Access-Control-Allow-Headers' => 'x-update-session',
-            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PUT',
-        ]);
-    }
+        ];
 
-    private function jsonResponse(array $data, int $code = self::CODE_OK): JsonResponse
-    {
-        return new JsonResponse($data, $code, [
-            'Access-Control-Allow-Origin' => phpbb_util::request()->header('Origin') ?: '*',
-            'Access-Control-Allow-Credentials' => 'true',
-        ]);
-    }
+        $server = $request->get_super_global(request_interface::SERVER);
+        if (isset($server['REQUEST_METHOD']) && $server['REQUEST_METHOD'] === 'OPTIONS') {
+            return new JsonResponse([], self::CODE_OK, \array_merge($headers, [
+                'Access-Control-Allow-Headers' => 'x-update-session',
+                'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PUT',
+            ]));
+        }
 
-    private function errorResponse(\Throwable $t): JsonResponse
-    {
-        return $this->jsonResponse([
-            'error' => get_class($t),
-            'message' => $t->getMessage(),
-        ], self::CODE_INTERNAL_SERVER_ERROR);
+        if ($request->header('x-update-session') === '1') {
+            $this->user->update_session_infos();
+        }
+
+        try {
+            foreach ($acl as $perm => $err) {
+                if ($perm === 'self_activated') {
+                    if (!self::is_activated($this->get_user_id())) {
+                        throw new ForbiddenError($err);
+                    }
+                } elseif (!$this->auth->acl_get($perm)) {
+                    throw new ForbiddenError($err);
+                }
+            }
+            return new JsonResponse($callable($args), self::CODE_OK, $headers);
+        } catch (ForbiddenError $t) {
+            return new JsonResponse([
+                'reason' => $t->getMessage(),
+            ], self::CODE_FORBIDDEN, $headers);
+        } catch (BadRequestError $t) {
+            return new JsonResponse([
+                'reason' => $t->getMessage(),
+            ], self::CODE_BAD_REQUEST, $headers);
+        } catch (\Throwable $t) {
+            return new JsonResponse([
+                'error' => \get_class($t),
+                'message' => $t->getMessage(),
+            ], self::CODE_INTERNAL_SERVER_ERROR, $headers);
+        }
     }
 
     /**
@@ -64,54 +87,38 @@ class api
      */
     public function me(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function () {
+            $is_activated = self::is_activated($this->get_user_id());
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        $is_activated = zone_util::players()->is_activated($user_id);
-
-        return $this->jsonResponse([
-            'id' => $user_id,
-            'sid' => $this->user->session_id,
-            'lang' => $this->user->data['user_lang'],
-            'permissions' => [
-                'u_zone_view_login' => (bool)$this->auth->acl_get('u_zone_view_login'),
-                'u_zone_view_info' => (bool)$this->auth->acl_get('u_zone_view_info'),
-                'u_zone_draw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
-                'u_zone_login' => $is_activated && $this->auth->acl_get('u_zone_login'),
-                'u_zone_change_match' => $is_activated && $this->auth->acl_get('u_zone_change_match'),
-                'm_zone_draw_match' => (bool)$this->auth->acl_get('m_zone_draw_match'),
-                'm_zone_login_players' => (bool)$this->auth->acl_get('m_zone_login_players'),
-                'm_zone_change_match' => (bool)$this->auth->acl_get('m_zone_change_match'),
-            ],
-        ]);
+            return [
+                'id' => $this->get_user_id(),
+                'sid' => $this->user->session_id,
+                'lang' => $this->user->data['user_lang'],
+                'permissions' => [
+                    'u_zone_view_login' => (bool)$this->auth->acl_get('u_zone_view_login'),
+                    'u_zone_view_info' => (bool)$this->auth->acl_get('u_zone_view_info'),
+                    'u_zone_draw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
+                    'u_zone_login' => $is_activated && $this->auth->acl_get('u_zone_login'),
+                    'u_zone_change_match' => $is_activated && $this->auth->acl_get('u_zone_change_match'),
+                    'm_zone_draw_match' => (bool)$this->auth->acl_get('m_zone_draw_match'),
+                    'm_zone_login_players' => (bool)$this->auth->acl_get('m_zone_login_players'),
+                    'm_zone_change_match' => (bool)$this->auth->acl_get('m_zone_change_match'),
+                ],
+            ];
+        });
     }
 
     public function me_set_language(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function () {
+            $data = self::get_request_data();
+            $lang = $data['lang'] ?? 'de';
+            $lang = \in_array($lang, ['de', 'en'], true) ? $lang : 'de';
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
+            zone_util::players()->set_player_language($this->get_user_id(), $lang);
 
-        $data = self::get_request_data();
-        $lang = $data['lang'] ?? 'de';
-        $lang = \in_array($lang, ['de', 'en'], true) ? $lang : 'de';
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        zone_util::players()->set_player_language($user_id, $lang);
-
-        return $this->jsonResponse([]);
+            return [];
+        });
     }
 
     /**
@@ -123,27 +130,13 @@ class api
      */
     public function me_logout(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        # check is on login. used for logout as well.
-        if (!$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        zone_util::players()->logout_player($user_id);
-        return $this->jsonResponse([]);
+        return $this->respond(function () {
+            zone_util::players()->logout_player($this->get_user_id());
+            return [];
+        }, [
+            'u_zone_login' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ]);
     }
 
     /**
@@ -155,30 +148,17 @@ class api
      */
     public function me_login(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function () {
+            if (zone_util::players()->in_match($this->get_user_id())) {
+                throw new BadRequestError('NCZONE_ALREADY_IN_A_MATCH');
+            }
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('u_zone_login')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        if (zone_util::players()->in_match($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_ALREADY_IN_A_MATCH'], self::CODE_BAD_REQUEST);
-        }
-
-        zone_util::players()->login_player($user_id);
-        return $this->jsonResponse([]);
+            zone_util::players()->login_player($this->get_user_id());
+            return [];
+        }, [
+            'u_zone_login' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ]);
     }
 
     /**
@@ -186,28 +166,22 @@ class api
      *
      * @route /nczone/api/players/login
      *
+     * @param string $player_id
      * @return JsonResponse
      */
-    public function player_login(string $user_id)
+    public function player_login(string $player_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('m_zone_login_players')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
-        }
-
-        if (!zone_util::players()->is_activated((int)$user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        zone_util::players()->login_player((int)$user_id);
-        return $this->jsonResponse([]);
+        return $this->respond(function ($args) {
+            if (!self::is_activated($args['player_id'])) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
+            }
+            zone_util::players()->login_player($args['player_id']);
+            return [];
+        }, [
+            'm_zone_login_players' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+        ], [
+            'player_id' => (int) $player_id
+        ]);
     }
 
     /**
@@ -215,307 +189,167 @@ class api
      *
      * @route /nczone/api/players/logout
      *
+     * @param string $player_id
      * @return JsonResponse
      */
-    public function player_logout(string $user_id)
+    public function player_logout(string $player_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function ($args) {
+            if (!self::is_activated($args['player_id'])) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
+            }
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('m_zone_login_players')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN'], self::CODE_FORBIDDEN);
-        }
-
-        if (!zone_util::players()->is_activated((int)$user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        zone_util::players()->logout_player((int)$user_id);
-        return $this->jsonResponse([]);
+            zone_util::players()->logout_player($args['player_id']);
+            return [];
+        }, [
+            'm_zone_login_players' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+        ], [
+            'player_id' => (int) $player_id
+        ]);
     }
 
     public function draw_preview(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('u_zone_draw')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            $players = zone_util::matches()->start_draw_process($user_id);
-            return $this->jsonResponse($players);
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+        return $this->respond(function () {
+            return zone_util::matches()->start_draw_process($this->get_user_id());
+        }, [
+            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ]);
     }
 
     public function draw_cancel(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('u_zone_draw')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            zone_util::matches()->deny_draw_process($user_id);
-            return $this->jsonResponse([]);
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+        return $this->respond(function () {
+            zone_util::matches()->deny_draw_process($this->get_user_id());
+            return [];
+        }, [
+            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ]);
     }
 
     public function draw_confirm(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('u_zone_draw')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            return $this->jsonResponse(zone_util::matches()->draw($user_id));
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+        return $this->respond(function () {
+            return zone_util::matches()->draw($this->get_user_id());
+        }, [
+            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ]);
     }
-
 
     public function replace_preview(int $replace_user_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('m_zone_change_match')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            $players = zone_util::matches()->start_draw_process($user_id);
-            if (!$players) {
-                return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_ONE_LOGGED_IN'], self::CODE_FORBIDDEN);
+        return $this->respond(function ($args) {
+            if (!self::is_activated($args['replace_user_id'])) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
 
-            return $this->jsonResponse([
-                'replace_player' => zone_util::players()->get_player($replace_user_id),
+            $players = zone_util::matches()->start_draw_process($this->get_user_id());
+            if (!$players) {
+                throw new ForbiddenError('NCZONE_REASON_NO_ONE_LOGGED_IN');
+            }
+
+            return [
+                'replace_player' => zone_util::players()->get_player($args['replace_user_id']),
                 'replace_by_player' => $players[0]
-            ]);
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+            ];
+        }, [
+            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ], [
+            'replace_user_id' => $replace_user_id,
+        ]);
     }
 
     public function replace_cancel(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('m_zone_change_match')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            zone_util::matches()->deny_draw_process($user_id);
-            return $this->jsonResponse([]);
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+        return $this->respond(function () {
+            zone_util::matches()->deny_draw_process($this->get_user_id());
+            return [];
+        }, [
+            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ]);
     }
 
     public function replace_confirm(int $replace_user_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function ($args) {
+            if (!self::is_activated($args['replace_user_id'])) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
+            }
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
+            $match_id = zone_util::players()->get_running_match_id($args['replace_user_id']);
+            // todo: check here if replace_user_id is in the match
 
-        if (!$this->auth->acl_get('m_zone_change_match')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        $match_id = zone_util::players()->get_running_match_id($replace_user_id);
-        // todo: check here if replace_user_id is in the match
-
-        try {
-            return $this->jsonResponse(zone_util::matches()->replace_player($user_id, $match_id, $replace_user_id));
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+            return zone_util::matches()->replace_player(
+                $this->get_user_id(),
+                $match_id,
+                $args['replace_user_id']
+            );
+        }, [
+            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ], [
+            'replace_user_id', $replace_user_id,
+        ]);
     }
 
     public function add_pair_preview($match_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('m_zone_change_match')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            $players_loggedin = zone_util::matches()->start_draw_process($user_id);
+        return $this->respond(function ($args) {
+            $players_loggedin = zone_util::matches()->start_draw_process($this->get_user_id());
             if (\count($players_loggedin) < 2) {
-                return $this->jsonResponse(['reason' => 'NCZONE_REASON_NO_ONE_LOGGED_IN'], self::CODE_FORBIDDEN); // TODO
+                throw new ForbiddenError('NCZONE_REASON_NO_ONE_LOGGED_IN');
             }
             $player1_id = $players_loggedin[0]->get_id();
             $player2_id = $players_loggedin[1]->get_id();
 
-            $players_match = zone_util::matches()->get_match_players($match_id);
-            if($players_match->length() == 8) {
-                return $this->jsonResponse(['reason' => 'NCZONE_REASON_MATCH_FULL'], self::CODE_FORBIDDEN);
+            $players_match = zone_util::matches()->get_match_players($args['match_id']);
+            if($players_match->length() === 8) {
+                throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
             }
 
-            return $this->jsonResponse([
+            return [
                 'add_player1' => zone_util::players()->get_player($player1_id),
                 'add_player2' => zone_util::players()->get_player($player2_id)
-            ]);
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+            ];
+        }, [
+            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ], [
+            'match_id' => $match_id,
+        ]);
     }
 
     public function add_pair_cancel(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('m_zone_change_match')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            zone_util::matches()->deny_draw_process($user_id);
-            return $this->jsonResponse([]);
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+        return $this->respond(function () {
+            zone_util::matches()->deny_draw_process($this->get_user_id());
+            return [];
+        }, [
+            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ]);
     }
 
     public function add_pair_confirm($match_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function ($args) {
+            $players_match = zone_util::matches()->get_match_players($args['match_id']);
+            if($players_match->length() === 8) {
+                throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
+            }
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('m_zone_change_match')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW'], self::CODE_FORBIDDEN);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!zone_util::players()->is_activated($user_id)) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER'], self::CODE_FORBIDDEN);
-        }
-
-        $players_match = zone_util::matches()->get_match_players($match_id);
-        if($players_match->length() == 8) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_MATCH_FULL'], self::CODE_FORBIDDEN);
-        }
-
-        try {
-            return $this->jsonResponse(zone_util::matches()->add_pair($user_id, $match_id));
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+            return zone_util::matches()->add_pair($this->get_user_id(), $args['match_id']);
+        }, [
+            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
+        ], [
+            'match_id' => $match_id,
+        ]);
     }
 
     /**
@@ -527,16 +361,9 @@ class api
      */
     public function logged_in_players(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        $logged_in_players = zone_util::players()->get_logged_in();
-        return $this->jsonResponse($logged_in_players);
+        return $this->respond(function () {
+            return zone_util::players()->get_logged_in();
+        });
     }
 
     /**
@@ -548,16 +375,10 @@ class api
      */
     public function all_players(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        $all_players = zone_util::players()->get_all(1); // todo: replace min matches by something with activity
-        return $this->jsonResponse($all_players);
+        return $this->respond(function () {
+            // todo: replace min matches by something with activity
+            return zone_util::players()->get_all(1);
+        });
     }
 
     /**
@@ -569,16 +390,9 @@ class api
      */
     public function rmatches(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        $rmatches = zone_util::matches()->get_all_rmatches();
-        return $this->jsonResponse($rmatches);
+        return $this->respond(function () {
+            return zone_util::matches()->get_all_rmatches();
+        });
     }
 
     /**
@@ -590,187 +404,168 @@ class api
      */
     public function pmatches(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        $rmatches = zone_util::matches()->get_pmatches();
-        return $this->jsonResponse($rmatches);
+        return $this->respond(function () {
+            return zone_util::matches()->get_pmatches();
+        });
     }
 
     public function match(string $match_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        $match = zone_util::matches()->get_match((int)$match_id);
-        return $this->jsonResponse($match);
+        return $this->respond(function ($args) {
+            return zone_util::matches()->get_match($args['match_id']);
+        }, [], [
+            'match_id' => (int) $match_id,
+        ]);
     }
 
     public function match_bet(string $match_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function ($args) {
+            $data = self::get_request_data();
+            if (!isset($data['team'])) {
+                throw new BadRequestError('team is not set');
+            }
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
+            if (zone_util::players()->has_bet($this->get_user_id(), $args['match_id'])) {
+                throw new BadRequestError('already bet');
+            }
 
-        if (!$this->auth->acl_get('u_zone_bet')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_BET'], self::CODE_FORBIDDEN);
-        }
+            if (zone_util::matches()->is_over($args['match_id'])) {
+                throw new BadRequestError('match is over');
+            }
 
-        $data = self::get_request_data();
-        if (!isset($data['team'])) {
-            return $this->jsonResponse(['reason' => 'team is not set'], self::CODE_BAD_REQUEST);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (zone_util::players()->has_bet($user_id, (int)$match_id)) {
-            return $this->jsonResponse(['reason' => 'already bet'], self::CODE_BAD_REQUEST);
-        }
-
-        if (zone_util::matches()->is_over((int)$match_id)) {
-            return $this->jsonResponse(['reason' => 'match is over'], self::CODE_BAD_REQUEST);
-        }
-
-        zone_util::players()->place_bet($user_id, (int)$match_id, (int)$data['team']);
-        return $this->jsonResponse([]);
+            zone_util::players()->place_bet(
+                $this->get_user_id(),
+                $args['match_id'],
+                (int) $data['team']
+            );
+            return [];
+        }, [
+            'u_zone_bet' => 'NCZONE_REASON_NOT_ALLOWED_TO_BET',
+        ], [
+            'match_id' => (int) $match_id,
+        ]);
     }
 
     public function match_post_result(string $match_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function ($args) {
+            $data = self::get_request_data();
+            if (!isset($data['winner'])) {
+                throw new BadRequestError('winner is not set');
+            }
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
+            if (!$this->auth->acl_get('m_zone_draw_match') &&
+                !zone_util::matches()->is_player_in_match($this->get_user_id(), $args['match_id'])
+            ) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT');
+            }
+            $winner = (int)$data['winner'];
 
-        if (!$this->auth->acl_get('u_zone_draw')) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT'], self::CODE_FORBIDDEN);
-        }
-
-        $data = self::get_request_data();
-        if (!isset($data['winner'])) {
-            return $this->jsonResponse(['reason' => 'winner is not set'], self::CODE_BAD_REQUEST);
-        }
-
-        $user_id = (int)$this->user->data['user_id'];
-
-        if (!$this->auth->acl_get('m_zone_draw_match') &&
-            !zone_util::matches()->is_player_in_match($user_id, (int)$match_id)
-        ) {
-            return $this->jsonResponse(['reason' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT'], self::CODE_FORBIDDEN);
-        }
-        $winner = (int)$data['winner'];
-
-        try {
-            zone_util::matches()->post((int)$match_id, $user_id, $winner);
-            return $this->jsonResponse([]);
-        } catch (\Throwable $t) {
-            return $this->errorResponse($t);
-        }
+            zone_util::matches()->post($args['match_id'], $this->get_user_id(), $winner);
+            return [];
+        }, [
+            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT',
+        ], [
+            'match_id' => (int) $match_id,
+        ]);
     }
 
     public function information(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
+        return $this->respond(function () {
+            if (!$this->auth->acl_get('u_zone_view_info')) { // todo: this does not work
+                return [];
+            }
 
-        if (self::is_update_session_request()) {
-            $this->user->update_session_infos();
-        }
-
-        if (!$this->auth->acl_get('u_zone_view_info')) { // todo: this does not work
-            return $this->jsonResponse([]);
-        }
-
-        $misc = zone_util::misc();
-        $post_ids = $misc->get_information_ids();
-        return $this->jsonResponse(array_values($misc->get_posts(...$post_ids)));
+            $misc = zone_util::misc();
+            $post_ids = $misc->get_information_ids();
+            return \array_values($misc->get_posts(...$post_ids));
+        });
     }
 
     public function rules(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-        $rulesPosts = zone_util::misc()->get_posts((int)config::get('nczone_rules_post_id'));
-        return $this->jsonResponse(['post' => end($rulesPosts)]);
+        return $this->respond(function () {
+            $rulesPosts = zone_util::misc()->get_posts((int)config::get('nczone_rules_post_id'));
+            return ['post' => end($rulesPosts)];
+        });
     }
 
     public function player_details(int $user_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-        return $this->jsonResponse(zone_util::players()->get_player_details($user_id));
+        return $this->respond(function ($args) {
+            $players = zone_util::players();
+            return [
+                'player' => $players->get_player($args['user_id']),
+                'details' => $players->get_player_details($args['user_id']),
+                'ratingData' => $players->get_player_rating_data($args['user_id']),
+                'dreamteams' => $players->get_player_dreamteams($args['user_id'], false, 5),
+                'nightmareteams' => $players->get_player_dreamteams($args['user_id'], true, 5),
+            ];
+        }, [], [
+            'user_id' => $user_id,
+        ]);
     }
 
     public function player_dreamteams(int $user_id, int $reverse, int $number): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-        return $this->jsonResponse(zone_util::players()->get_player_dreamteams($user_id, $reverse==1, $number));
+        return $this->respond(function ($args) {
+            return zone_util::players()->get_player_dreamteams(
+                $args['user_id'],
+                $args['reverse'] === 1,
+                $args['number']
+            );
+        }, [], [
+            'user_id' => $user_id,
+            'reverse' => $reverse,
+            'number' => $number,
+        ]);
     }
 
     public function rating_data(int $user_id): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-        return $this->jsonResponse(zone_util::players()->get_player_rating_data($user_id));
+        return $this->respond(function ($args) {
+            return zone_util::players()->get_player_rating_data($args['user_id']);
+        }, [], [
+            'user_id' => $user_id,
+        ]);
     }
 
     public function bets(): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-        return $this->jsonResponse(zone_util::players()->get_bets());
+        return $this->respond(function () {
+            return zone_util::players()->get_bets();
+        });
     }
 
-    public function statistics($number): JsonResponse
+    public function statistics($limit): JsonResponse
     {
-        if (self::is_options()) {
-            return $this->optionsResponse();
-        }
-        return $this->jsonResponse([
-            'best_streaks' => zone_util::players()->get_best_streaks($number),
-            'worst_streaks' => zone_util::players()->get_worst_streaks($number),
-            'best_rating_changes' => zone_util::players()->get_best_rating_changes($number),
-            'worst_rating_changes' => zone_util::players()->get_worst_rating_changes($number),
+        return $this->respond(function ($args) {
+            $players = zone_util::players();
+            return [
+                'best_streaks' => $players->get_best_streaks($args['limit']),
+                'worst_streaks' => $players->get_worst_streaks($args['limit']),
+                'best_rating_changes' => $players->get_best_rating_changes($args['limit']),
+                'worst_rating_changes' => $players->get_worst_rating_changes($args['limit']),
+            ];
+        }, [], [
+            'limit' => $limit,
         ]);
     }
 
     private static function get_request_data(): array
     {
-        return json_decode(file_get_contents('php://input'), true) ?: [];
+        return \json_decode(\file_get_contents('php://input'), true) ?: [];
     }
 
-    private static function is_options(): bool
+    private function get_user_id(): int
     {
-        $server = phpbb_util::request()->get_super_global(request_interface::SERVER);
-        return isset($server['REQUEST_METHOD']) && $server['REQUEST_METHOD'] === 'OPTIONS';
+        return (int) $this->user->data['user_id'];
     }
 
-    private static function is_update_session_request(): bool
+    private static function is_activated($user_id): bool
     {
-        return phpbb_util::request()->header('x-update-session') === '1';
+        return zone_util::players()->is_activated($user_id);
     }
 }
