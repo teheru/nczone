@@ -114,10 +114,10 @@ export default {
     async fetchData () {
       this.loading = true
       try {
-        this.getAllPlayers({ passive: false })
-        this.loading = false
+        await this.getAllPlayers({ passive: false })
       } catch (error) {
         this.error = true
+      } finally {
         this.loading = false
       }
     },

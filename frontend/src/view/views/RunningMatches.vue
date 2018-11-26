@@ -32,9 +32,9 @@ export default {
       this.loading = true
       try {
         await this.getRunningMatches({ passive: false })
-        this.loading = false
       } catch (error) {
         this.error = true
+      } finally {
         this.loading = false
       }
     },

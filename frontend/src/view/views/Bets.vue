@@ -69,9 +69,9 @@ export default {
       this.loading = true
       try {
         await this.getBets()
-        this.loading = false
       } catch (error) {
         this.error = true
+      } finally {
         this.loading = false
       }
     },
