@@ -132,12 +132,12 @@ final class acl
         auth $auth,
         bool $activated
     ): array {
-        return \array_filter(
+        return \array_values(\array_filter(
             self::all_permissions(),
             function ($permission) use ($auth, $activated) {
                 return self::has_permission($auth, $activated, $permission);
             }
-        );
+        ));
     }
 
     public static function module_data_acp(): array
