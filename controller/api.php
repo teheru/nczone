@@ -406,7 +406,7 @@ class api
                 throw new BadRequestError('team is not set');
             }
 
-            if (zone_util::players()->has_bet($this->get_user_id(), $args['match_id'])) {
+            if (zone_util::bets()->has_bet($this->get_user_id(), $args['match_id'])) {
                 throw new BadRequestError('already bet');
             }
 
@@ -414,7 +414,7 @@ class api
                 throw new BadRequestError('match is over');
             }
 
-            zone_util::players()->place_bet(
+            zone_util::bets()->place_bet(
                 $this->get_user_id(),
                 $args['match_id'],
                 (int) $data['team']

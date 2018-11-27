@@ -74,6 +74,11 @@ services:
       arguments:
         - '@eru.nczone.db'
 
+    eru.nczone.zone.bets:
+      class: eru\nczone\zone\bets
+      arguments:
+        - '@eru.nczone.db'
+
     eru.nczone.zone.maps:
       class: eru\nczone\zone\maps
       arguments:

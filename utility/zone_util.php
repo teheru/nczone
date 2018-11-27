@@ -3,6 +3,7 @@
 namespace eru\nczone\utility;
 
 use eru\nczone\zone\civs;
+use eru\nczone\zone\bets;
 use eru\nczone\zone\maps;
 use eru\nczone\zone\players;
 use eru\nczone\zone\matches;
@@ -20,6 +21,16 @@ class zone_util
             $players = phpbb_util::container()->get('eru.nczone.zone.players');
         }
         return $players;
+    }
+
+    public static function bets(): bets
+    {
+        static $bets;
+        if ($bets === null) {
+            /** @var bets $bets */
+            $bets = phpbb_util::container()->get('eru.nczone.zone.bets');
+        }
+        return $bets;
     }
 
     public static function matches(): matches

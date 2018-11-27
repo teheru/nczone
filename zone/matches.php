@@ -328,7 +328,7 @@ class matches {
                 $user_ids = array_merge($user1_ids, $user2_ids);
                 $this->db->update($this->db->player_map_table, ['time' => $draw_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $draw_time);
 
-                $this->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
+                zone_util::bets()->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {
                 foreach($this->get_teams_players($team1_id, $team2_id)->items() as $mp) {
                     $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
@@ -429,7 +429,7 @@ class matches {
         $col2 = $winner_team_id == $team2_id ? 'matches_won' : 'matches_loss';
         $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
-        $this->evaluate_bets_undo(
+        zone_util::bets()->evaluate_bets_undo(
             $winner_team_id == $team1_id ? $team1_id : $team2_id,
             $winner_team_id == $team1_id ? $team2_id : $team1_id,
             $end_time
@@ -506,57 +506,6 @@ class matches {
         }
 
         return $match_points;
-    }
-
-    public function evaluate_bets(int $winner_team, int $loser_team, int $end_time): void
-    {
-        $bet_time = (int) config::get(config::bet_time);
-        $users_right = $this->db->get_col([
-            'SELECT' => 't.user_id',
-            'FROM' => [$this->db->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - $bet_time),
-        ]);
-        $users_wrong = $this->db->get_col([
-            'SELECT' => 't.user_id',
-            'FROM' => [$this->db->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - $bet_time),
-        ]);
-
-        $this->db->sql_query('UPDATE ' . $this->db->bets_table . ' SET `counted` = 1 WHERE (team_id = '. $winner_team .' OR team_id = '. $loser_team .') AND `time` <= ' . ($end_time - $bet_time));
-
-        if($users_right)
-        {
-            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_won` = `bets_won` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
-        }
-        if($users_wrong)
-        {
-            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_loss` = `bets_loss` + 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
-        }
-    }
-
-    public function evaluate_bets_undo(int $winner_team, int $loser_team, int $end_time): void
-    {
-        $users_right = $this->db->get_col([
-            'SELECT' => 't.user_id',
-            'FROM' => [$this->db->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $winner_team .' AND t.counted',
-        ]);
-        $users_wrong = $this->db->get_col([
-            'SELECT' => 't.user_id',
-            'FROM' => [$this->db->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $loser_team .' AND t.counted',
-        ]);
-
-        $this->db->sql_query('UPDATE ' . $this->db->bets_table . ' SET counted = 0 WHERE team_id = '. $winner_team .' OR team_id = '. $loser_team);
-
-        if($users_right)
-        {
-            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_won` = `bets_won` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_right));
-        }
-        if($users_wrong)
-        {
-            $this->db->sql_query('UPDATE ' . $this->db->players_table . ' SET `bets_loss` = `bets_loss` - 1 WHERE ' . $this->db->sql_in_set('user_id', $users_wrong));
-        }
     }
 
     /**
@@ -706,7 +655,7 @@ class matches {
             return null;
         }
 
-        return $this->create_match_by_row($m, true);
+        return $this->create_match_by_row_counted_bets_only($m);
     }
 
     public function get_all_rmatches(): array
@@ -822,7 +771,7 @@ class matches {
                 'title' => $m['map_name'],
             ],
             'civs' => array_merge(['both' => $this->get_match_civs($match_id, $map_id)], $this->get_team_civs($team1_id, $team2_id, $map_id)),
-            'bets' => $this->get_bets($team1_id, $team2_id, $counted_bets_only),
+            'bets' => zone_util::bets()->get_bets($team1_id, $team2_id, $counted_bets_only),
             'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id),
         ];
     }
@@ -897,33 +846,6 @@ class matches {
                 WHERE
                     m.match_id = ' . $match_id;
         return (int)$this->db->get_var($sql);
-    }
-
-    public function get_bets(int $team1_id, int $team2_id, bool $counted_only=false): array
-    {
-        $rows = $this->db->get_rows([
-            'SELECT' => 'b.user_id, b.team_id, b.time, u.username',
-            'FROM' => [$this->db->bets_table => 'b', $this->db->users_table => 'u'],
-            'WHERE' => 'b.user_id = u.user_id AND (b.team_id = ' . $team1_id . ' OR b.team_id = ' . $team2_id . ')' . ($counted_only ? ' AND b.counted' : '')
-        ]);
-
-        $bets = [
-            'team1' => [],
-            'team2' => [],
-        ];
-        foreach($rows as $r)
-        {
-            $teamIndex = (int)$r['team_id'] === $team1_id ? 'team1' : 'team2';
-            $bets[$teamIndex][] = [
-                'timestamp' => (int)$r['time'],
-                'user' => [
-                    'id' => (int)$r['user_id'],
-                    'username' => $r['username'],
-                ],
-            ];
-        }
-
-        return $bets;
     }
 
     public function check_draw_process(int $user_id = 0): int

@@ -215,35 +215,6 @@ class players
         $this->db->update($this->db->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
     }
 
-    public function place_bet(int $user_id, int $match_id, int $team): void
-    {
-        $team_ids = zone_util::matches()->get_match_team_ids($match_id);
-        $this->db->insert($this->db->bets_table, [
-            'user_id' => $user_id,
-            'time' => time(),
-            'team_id' => $team_ids[$team - 1],
-            'counted' => 0,
-        ]);
-    }
-
-    public function has_bet(int $user_id, int $match_id): bool
-    {
-        $sql = '
-            SELECT
-                COUNT(*)
-            FROM
-                ' . $this->db->bets_table . ' b
-                INNER JOIN ' . $this->db->match_teams_table . ' t 
-                ON b.team_id = t.team_id
-                INNER JOIN ' . $this->db->matches_table . ' m 
-                ON m.match_id = t.match_id AND m.match_id = ' . $match_id . ' 
-            WHERE
-                b.user_id = ' . $user_id . '
-            ;
-        ';
-        return $this->db->get_var($sql) ? true : false;
-    }
-
     public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
     {
         $col = $winner ? '`matches_won`' : '`matches_loss`';
