@@ -73,6 +73,7 @@ class api
             return new JsonResponse([
                 'error' => \get_class($t),
                 'message' => $t->getMessage(),
+                'trace' => $t->getTrace(),
             ], self::CODE_INTERNAL_SERVER_ERROR, $headers);
         }
     }

@@ -52,6 +52,7 @@ const request = (method, path, options, onProgress) => {
     })
     .then(response => {
       if (response.error) {
+        console.log(response) //nice error handling for Des :)
         throw new Error(response.error)
       }
       return response
