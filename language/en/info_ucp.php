@@ -18,4 +18,4 @@ if (empty($lang) || !is_array($lang))
 	$lang = array();
 }
 
-$lang = array_merge($lang, \eru\nczone\config\language\en::info_ucp);
+$lang = array_merge($lang, \eru\nczone\config\lang::en('info_ucp'));
