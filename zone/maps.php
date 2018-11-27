@@ -154,7 +154,7 @@ class maps
         foreach ($this->zone_civs->get_civs() as $civ) {
             $sql_array[] = [
                 'map_id' => $map_id,
-                'civ_id' => (int)$civ['id'],
+                'civ_id' => $civ->get_id(),
                 'multiplier' => 0.0,
                 'force_draw' => false,
                 'prevent_draw' => false,

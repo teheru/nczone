@@ -32,7 +32,7 @@ class civs
 
     public static function sort_by_multiplier(array $civs): array
     {
-        usort($civs, function ($c1, $c2) {
+        \usort($civs, function ($c1, $c2) {
             return number_util::cmp($c1['multiplier'], $c2['multiplier']);
         });
         return $civs;
@@ -41,14 +41,15 @@ class civs
     /**
      * Returns the id and name of all civs
      *
-     * @return array
+     * @return entity\civ[]
      */
     public function get_civs(): array
     {
-        return $this->db->get_rows([
+        $rows = $this->db->get_rows([
             'SELECT' => 'c.civ_id AS id, c.civ_name AS name',
             'FROM' => [$this->db->civs_table => 'c']
         ]);
+        return \array_map([entity\civ::class, 'create_by_row'], $rows);
     }
 
 
@@ -57,15 +58,16 @@ class civs
      *
      * @param int $civ_id Id of the civ
      *
-     * @return mixed
+     * @return entity\civ
      */
-    public function get_civ(int $civ_id)
+    public function get_civ(int $civ_id): entity\civ
     {
-        return $this->db->get_row([
+        $row = $this->db->get_row([
             'SELECT' => 'c.civ_id AS id, c.civ_name AS name',
             'FROM' => [$this->db->civs_table => 'c'],
             'WHERE' => 'c.civ_id = ' . $civ_id
         ]);
+        return entity\civ::create_by_row($row);
     }
 
 
@@ -194,7 +196,7 @@ class civs
             'FROM' => array($this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'),
             'WHERE' => 'c.map_id = ' . (int)$map_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
             'GROUP_BY' => 'p.user_id, c.civ_id',
-            'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
+            'ORDER_BY' => 'SUM(' . \time() . ' - p.time) DESC',
         ];
 
         if (\count($civ_ids) > 0) {

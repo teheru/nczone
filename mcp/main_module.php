@@ -134,8 +134,8 @@ class main_module
             $template->assign_var('S_SELECT_CIV', true);
             foreach (zone_util::civs()->get_civs() as $civ) {
                 $template->assign_block_vars('civs', [
-                    'ID' => (int)$civ['id'],
-                    'NAME' => $civ['name']
+                    'ID' => $civ->get_id(),
+                    'NAME' => $civ->get_name()
                 ]);
             }
         } elseif ($civ_id == 0) // new civ
@@ -146,8 +146,8 @@ class main_module
             $template->assign_var('S_EDIT_CIV', true);
 
             $civ = zone_util::civs()->get_civ((int)$civ_id);
-            $template->assign_var('S_CIV_ID', $civ_id);
-            $template->assign_var('S_CIV_NAME', $civ['name']);
+            $template->assign_var('S_CIV_ID', $civ->get_id());
+            $template->assign_var('S_CIV_NAME', $civ->get_name());
         }
     }
 
@@ -171,11 +171,12 @@ class main_module
 
             $civ_info = [];
             foreach (zone_util::civs()->get_civs() as $civ) {
-                $civ_info[$civ['id']] = [
-                    'multiplier' => $request->variable('multiplier_' . $civ['id'], ''),
-                    'force_draw' => $request->variable('force_draw_' . $civ['id'], '') === 'on',
-                    'prevent_draw' => $request->variable('prevent_draw_' . $civ['id'], '') === 'on',
-                    'both_teams' => $request->variable('both_teams_' . $civ['id'], '') === 'on'
+                $civId = $civ->get_id();
+                $civ_info[$civId] = [
+                    'multiplier' => $request->variable('multiplier_' . $civId, ''),
+                    'force_draw' => $request->variable('force_draw_' . $civId, '') === 'on',
+                    'prevent_draw' => $request->variable('prevent_draw_' . $civId, '') === 'on',
+                    'both_teams' => $request->variable('both_teams_' . $civId, '') === 'on'
                 ];
             }
             zone_util::maps()->edit_map_civs((int)$map_id, $civ_info);
@@ -219,7 +220,7 @@ class main_module
 
                 $template->assign_block_vars('map_civs', [
                     'CIV_ID' => $map_civ['civ_id'],
-                    'CIV_NAME' => $civ['name'],
+                    'CIV_NAME' => $civ->get_name(),
                     'MULTIPLIER' => $map_civ['multiplier'],
                     'FORCE_DRAW' => $map_civ['force_draw'] ? 'checked' : '',
                     'PREVENT_DRAW' => $map_civ['prevent_draw'] ? 'checked' : '',
