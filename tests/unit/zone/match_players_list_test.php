@@ -2,8 +2,8 @@
 
 namespace eru\nczone\tests\zone;
 
-use eru\nczone\zone\match_player;
-use eru\nczone\zone\match_players_list;
+use eru\nczone\zone\entity\match_player;
+use eru\nczone\zone\entity\match_players_list;
 use PHPUnit\Framework\TestCase;
 
 class match_players_list_test extends TestCase

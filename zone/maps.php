@@ -38,7 +38,7 @@ class maps
     /**
      * Returns all maps (id, name, weight)
      *
-     * @return map[]
+     * @return entity\map[]
      */
     public function get_maps(): array
     {
@@ -47,7 +47,7 @@ class maps
             'FROM' => [$this->db->maps_table => 'm'],
             'ORDER_BY' => 'LOWER(name) ASC',
         ]);
-        return array_map([map::class, 'create_by_row'], $rows);
+        return array_map([entity\map::class, 'create_by_row'], $rows);
     }
 
 
@@ -64,16 +64,16 @@ class maps
      *
      * @param int $map_id Id of the map.
      *
-     * @return map
+     * @return entity\map
      */
-    public function get_map(int $map_id): map
+    public function get_map(int $map_id): entity\map
     {
         $row = $this->db->get_row([
             'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight',
             'FROM' => [$this->db->maps_table => 'm'],
             'WHERE' => 'm.map_id = ' . $map_id
         ]);
-        return map::create_by_row($row);
+        return entity\map::create_by_row($row);
     }
 
     /**
@@ -212,7 +212,7 @@ class maps
         }
     }
 
-    private function insert_map_x_player_entries(int $map_id)
+    private function insert_map_x_player_entries(int $map_id): void
     {
         $this->db->sql_query(
             'INSERT INTO `'. $this->db->player_map_table .'` (`user_id`, `map_id`, `time`) '.

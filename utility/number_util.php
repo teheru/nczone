@@ -19,6 +19,6 @@ class number_util
      */
     public static function diff($num1, $num2)
     {
-        return abs($num1 - $num2);
+        return \abs($num1 - $num2);
     }
 }

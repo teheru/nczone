@@ -1,11 +1,11 @@
 <?php
 
-namespace eru\nczone\zone;
+namespace eru\nczone\zone\entity;
 
 class match_player
 {
-    private $id = 0;
-    private $rating = 0;
+    private $id;
+    private $rating;
 
     public function __construct(int $id, int $rating)
     {

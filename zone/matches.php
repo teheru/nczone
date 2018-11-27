@@ -35,12 +35,27 @@ class matches {
         $this->db = $db;
     }
 
+    private static function determine_winner(
+        int $winner_team_id,
+        int $team1_id,
+        int $team2_id
+    ): int {
+        if ($winner_team_id === $team1_id) {
+            return 1;
+        }
+
+        if ($winner_team_id === $team2_id) {
+            return 2;
+        }
+
+        return 0;
+    }
+
     /**
      * @param int $replace_user_id
      * @param int $match_id
      * @param int $player1_id
-     * @param int $player2_id
-     * @return int
+     * @return array
      * @throws \Throwable
      */
     public function replace_player(int $replace_user_id, int $match_id, int $player1_id): array
@@ -76,13 +91,13 @@ class matches {
 
             $p = zone_util::players()->get_player($player2_id);
 
-            $match_players->unshift(match_player::create_by_player($p));
+            $match_players->unshift(entity\match_player::create_by_player($p));
 
             $this->clear_draw_tables();
 
             $this->clean_match($match_id);
 
-            [$match] = zone_util::draw_teams()->make_matches($match_players);
+            $match = zone_util::draw_teams()->make_match($match_players);
             $setting = zone_util::draw_settings()->draw_settings($replace_user_id, $match[0], $match[1]);
             $match_id = $this->create_match($setting);
             if ($match_id) {
@@ -96,9 +111,7 @@ class matches {
     /**
      * @param int $add_user_id
      * @param int $match_id
-     * @param int $player1_id
-     * @param int $player2_id
-     * @return int
+     * @return array
      * @throws \Throwable
      */
     public function add_pair(int $add_user_id, int $match_id): array
@@ -117,11 +130,17 @@ class matches {
                 return []; // todo: throw new
             }
 
+            /** @var entity\match_player $player1 */
             $player1 = $players_list->shift();
+            /** @var entity\match_player $player2 */
             $player2 = $players_list->shift();
 
             $match_players = $this->get_match_players($match_id);
-            if ($match_players->contains_id($player1->get_id()) || $match_players->contains_id($player2->get_id()) || $match_players->length() >= 8) {
+            if (
+                $match_players->length() >= 8
+                || $match_players->contains_id($player1->get_id())
+                || $match_players->contains_id($player2->get_id())
+            ) {
                 return [];
             }
 
@@ -132,7 +151,7 @@ class matches {
 
             $this->clean_match($match_id);
 
-            [$match] = zone_util::draw_teams()->make_matches($match_players);
+            $match = zone_util::draw_teams()->make_match($match_players);
             $setting = zone_util::draw_settings()->draw_settings($add_user_id, $match[0], $match[1]);
             $match_id = $this->create_match($setting);
             if ($match_id) {
@@ -165,7 +184,7 @@ class matches {
 
             $this->clean_match($match_id);
 
-            [$match] = zone_util::draw_teams()->make_matches($match_players);
+            $match = zone_util::draw_teams()->make_match($match_players);
             $setting = zone_util::draw_settings()->draw_settings($remove_user_id, $match[0], $match[1]);
             $match_id = $this->create_match($setting);
             if ($match_id) {
@@ -278,7 +297,7 @@ class matches {
                 ];
                 /**
                  * @var int $idx
-                 * @var match_players_list $team_list
+                 * @var entity\match_players_list $team_list
                  */
                 foreach ($teams as $idx => $team_list) {
                     $is_team1 = $idx === 0;
@@ -376,16 +395,30 @@ class matches {
         $team1_list = $this->get_teams_players($team1_id);
         $team2_list = $this->get_teams_players($team2_id);
 
-        $match_points = $this->get_match_points_by_match_size($team1_list->length(), $team1_list->get_rating_difference($team2_list), $winner_team_id == $team1_id ? 1 : 2);
+        $match_points = $this->get_match_points_by_match_size(
+            $team1_list->length(),
+            $team1_list->get_rating_difference($team2_list),
+            $winner_team_id == $team1_id ? 1 : 2
+        );
 
 
         foreach($team1_list->items() as $mp)
         {
-            zone_util::players()->match_changes_undo($mp->get_id(), $team1_id, $match_points, $team1_id === $winner_team_id);
+            zone_util::players()->match_changes_undo(
+                $mp->get_id(),
+                $team1_id,
+                $match_points,
+                $team1_id === $winner_team_id
+            );
         }
         foreach($team2_list->items() as $mp)
         {
-            zone_util::players()->match_changes_undo($mp->get_id(), $team2_id, $match_points, $team2_id === $winner_team_id);
+            zone_util::players()->match_changes_undo(
+                $mp->get_id(),
+                $team2_id,
+                $match_points,
+                $team2_id === $winner_team_id
+            );
         }
 
         $user1_ids = $team1_list->get_ids();
@@ -396,7 +429,11 @@ class matches {
         $col2 = $winner_team_id == $team2_id ? 'matches_won' : 'matches_loss';
         $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
-        $this->evaluate_bets_undo($winner_team_id == $team1_id ? $team1_id : $team2_id, $winner_team_id == $team1_id ? $team2_id : $team1_id, $end_time);
+        $this->evaluate_bets_undo(
+            $winner_team_id == $team1_id ? $team1_id : $team2_id,
+            $winner_team_id == $team1_id ? $team2_id : $team1_id,
+            $end_time
+        );
 
         $this->db->update($this->db->matches_table, [
             'winner_team_id' => 0,
@@ -405,7 +442,7 @@ class matches {
         ]);
     }
 
-    public function get_match_players(int $match_id): match_players_list
+    public function get_match_players(int $match_id): entity\match_players_list
     {
         return $this->get_teams_players(...$this->get_match_team_ids($match_id));
     }
@@ -426,10 +463,10 @@ class matches {
         return array_map('\intval', $col);
     }
 
-    public function get_teams_players(int ...$team_ids): match_players_list
+    public function get_teams_players(int ...$team_ids): entity\match_players_list
     {
         if(\count($team_ids) === 0) {
-            return new match_players_list;
+            return new entity\match_players_list;
         }
 
         $rows = $this->db->get_rows([
@@ -438,9 +475,9 @@ class matches {
             'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
         ]);
 
-        $list = new match_players_list;
+        $list = new entity\match_players_list;
         foreach ($rows as $r) {
-            $list->add(match_player::create_by_row($r));
+            $list->add(entity\match_player::create_by_row($r));
         }
         return $list;
     }
@@ -525,11 +562,11 @@ class matches {
     /**
      * Creates a match and returns the match id
      *
-     * @param draw_setting $setting   ID of the map to be played
+     * @param entity\draw_setting $setting   ID of the map to be played
      *
      * @return int
      */
-    public function create_match(draw_setting $setting): int
+    public function create_match(entity\draw_setting $setting): int
     {
         $match_id = $this->db->insert($this->db->matches_table, [
             'match_id' => 0,
@@ -687,7 +724,7 @@ class matches {
                 t1.team_id AS team1_id,
                 t2.team_id AS team2_id
             FROM
-                '.$this->db->matches_table.' t
+                ' . $this->db->matches_table . ' t
                 INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
                 INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
                 LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
@@ -698,13 +735,10 @@ class matches {
                 t.draw_time DESC
             ;
         ';
-        $match_rows = $this->db->get_rows($sql);
-        $matches = [];
-        foreach($match_rows as $m)
-        {
-            $matches[] = $this->create_match_by_row($m);
-        }
-        return $matches;
+        return \array_map(
+            [$this, 'create_match_by_row'],
+            $this->db->get_rows($sql)
+        );
     }
 
     public function get_pmatches(int $page=0): array
@@ -726,12 +760,12 @@ class matches {
                 t1.team_id AS team1_id,
                 t2.team_id AS team2_id
             FROM
-                '.$this->db->matches_table.' t
-                INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
-                INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
-                LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
-                LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
-                LEFT JOIN '.$this->db->users_table.' u2 ON t.post_user_id = u2.user_id
+                ' . $this->db->matches_table . ' t
+                INNER JOIN ' . $this->db->match_teams_table . ' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
+                INNER JOIN ' . $this->db->match_teams_table . ' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
+                LEFT JOIN ' . $this->db->maps_table . ' m ON t.map_id = m.map_id
+                LEFT JOIN ' . $this->db->users_table . ' u ON t.draw_user_id = u.user_id
+                LEFT JOIN ' . $this->db->users_table . ' u2 ON t.post_user_id = u2.user_id
             WHERE
                 t.post_time > 0
             ORDER BY
@@ -741,13 +775,10 @@ class matches {
                 '.$page_size.'
             ;
         ';
-        $match_rows = $this->db->get_rows($sql);
-        $matches = [];
-        foreach($match_rows as $m)
-        {
-            $matches[] = $this->create_match_by_row($m, true);
-        }
-        return $matches;
+        return \array_map(
+            [$this, 'create_match_by_row_counted_bets_only'],
+            $this->db->get_rows($sql)
+        );
     }
 
     public function get_pmatches_pages(): int
@@ -757,26 +788,26 @@ class matches {
         return (int)ceil($num_matches / $page_size);
     }
 
+    private function create_match_by_row_counted_bets_only(array $m): array
+    {
+        return $this->create_match_by_row($m, true);
+    }
+
     private function create_match_by_row(array $m, bool $counted_bets_only=false): array
     {
         $match_id = (int)$m['match_id'];
         $map_id = (int)$m['map_id'];
         $team1_id = (int)$m['team1_id'];
         $team2_id = (int)$m['team2_id'];
-        $winner_team_id = (int)($m['winner_team_id'] ?? 0);
-        if ($winner_team_id === $team1_id) {
-            $winner = 1;
-        } elseif ($winner_team_id === $team2_id) {
-            $winner = 2;
-        } else {
-            $winner = 0;
-        }
-
         return [
             'id' => $match_id,
             'timestampStart' => (int)$m['draw_time'],
             'timestampEnd' => (int)($m['post_time'] ?? 0),
-            'winner' => $winner,
+            'winner' => self::determine_winner(
+                (int)($m['winner_team_id'] ?? 0),
+                $team1_id,
+                $team2_id
+            ),
             'whiner' => 'Snyper',
             'result_poster' => empty($m['post_user_id']) ? null : [
                 'id' => (int)$m['post_user_id'],
@@ -805,7 +836,7 @@ class matches {
             'ORDER_BY' => 'mc.multiplier DESC'
         ]);
 
-        return array_map(function($row) {
+        return \array_map(function($row) {
             return [
                 'id' => (int)$row['id'],
                 'title' => $row['title'],
@@ -915,7 +946,7 @@ class matches {
         return (int)$row['draw_id'];
     }
 
-    public function get_draw_players(int $draw_id): match_players_list
+    public function get_draw_players(int $draw_id): entity\match_players_list
     {
         $rows = $this->db->get_rows([
             'SELECT' => 'p.user_id AS id, p.rating',
@@ -923,9 +954,9 @@ class matches {
             'WHERE' => 'd.draw_id = ' . $draw_id . ' AND d.user_id = p.user_id',
             'ORDER_BY' => 'd.logged_in ASC'
         ]);
-        $list = new match_players_list;
+        $list = new entity\match_players_list;
         foreach ($rows as $row) {
-            $list->add(match_player::create_by_row($row));
+            $list->add(entity\match_player::create_by_row($row));
         }
         return $list;
     }
@@ -964,7 +995,7 @@ class matches {
 
     private function insert_draw_process_players(int $draw_id, array $players): void
     {
-        $this->db->sql_multi_insert($this->db->draw_players_table, array_map(function (player $player) use ($draw_id) {
+        $this->db->sql_multi_insert($this->db->draw_players_table, array_map(function (entity\player $player) use ($draw_id) {
             return [
                 'draw_id' => $draw_id,
                 'user_id' => $player->get_id(),
@@ -1022,8 +1053,8 @@ class matches {
                 $setting = zone_util::draw_settings()->draw_settings($user_id, $match[0], $match[1]);
                 $match_ids[] = $this->create_match($setting);
 
-                /** @var match_players_list $team1 */
-                /** @var match_players_list $team2 */
+                /** @var entity\match_players_list $team1 */
+                /** @var entity\match_players_list $team2 */
                 [$team1, $team2] = [$match[0], $match[1]];
                 foreach ($team1->items() as $player) {
                     $user_ids[] = $player->get_id();

@@ -39,9 +39,9 @@ class players
      *
      * @param int $user_id The id of the user
      *
-     * @return player
+     * @return entity\player
      */
-    public function get_player(int $user_id): player
+    public function get_player(int $user_id): entity\player
     {
         $row = $this->db->get_row('
             SELECT
@@ -72,7 +72,7 @@ class players
                 u.user_id = ' . $user_id.'
             ;
         ');
-        return player::create_by_row($row);
+        return entity\player::create_by_row($row);
     }
 
     /**
@@ -318,7 +318,7 @@ class players
     /**
      * Gets the user id, name and rating of all logged in players
      *
-     * @return player[]
+     * @return entity\player[]
      */
     public function get_logged_in(): array
     {
@@ -329,7 +329,7 @@ class players
      * Gets the user id, name and rating of all players
      *
      * @param int $min_matches Minimum count of matches that the returned players must have.
-     * @return player[]
+     * @return entity\player[]
      */
     public function get_all(int $min_matches = 0): array
     {
@@ -379,7 +379,7 @@ class players
                 p.user_id
             ;
         ');
-        return array_map([player::class, 'create_by_row'], $rows);
+        return array_map([entity\player::class, 'create_by_row'], $rows);
     }
 
     public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array
@@ -463,18 +463,24 @@ class players
 
         foreach($rows as $r)
         {
-            $team_username[(int)$r['team_id']][] = $r['username'];
+            $team_usernames[(int)$r['team_id']][] = $r['username'];
         }
-        return $team_username;
+        return $team_usernames;
     }
 
     public function set_player_language(int $user_id, string $lang): void
     {
-        $this->db->update($this->db->users_table, ['user_lang' => $lang], ['user_id' => $user_id]);
+        $this->db->update(
+            $this->db->users_table,
+            ['user_lang' => $lang],
+            ['user_id' => $user_id]
+        );
     }
 
-    public static function calculate_new_streak(bool $winner, int $last_streak)
-    {
+    public static function calculate_new_streak(
+        bool $winner,
+        int $last_streak
+    ): int {
         /** @noinspection NestedTernaryOperatorInspection */
         return $winner
             ? ($last_streak > 0 ? $last_streak + 1 : 1)
@@ -487,7 +493,7 @@ class players
         $sql = '
             SELECT
                 user_id,
-                COUNT(*) AS activity_matches
+                COUNT(*) AS match_count
             FROM
                 ' . $this->db->match_players_table . ' p
                 INNER JOIN ' . $this->db->match_teams_table . ' t ON p.team_id = t.team_id
@@ -497,27 +503,35 @@ class players
                 p.user_id
             ;
         ';
-        $rows = $this->db->get_rows($sql);
-
-        foreach($rows as $row) {
-            $user_id = (int)$row['user_id'];
-            $activity_matches = (int)$row['activity_matches'];
-            if($activity_matches >= (int)config::get(config::activity_5)) {
-                $activity = 5;
-            } elseif($activity_matches >= (int)config::get(config::activity_4)) {
-                $activity = 4;
-            } elseif($activity_matches >= (int)config::get(config::activity_3)) {
-                $activity = 3;
-            } elseif($activity_matches >= (int)config::get(config::activity_2)) {
-                $activity = 2;
-            } elseif($activity_matches >= (int)config::get(config::activity_1)) {
-                $activity = 1;
-            } else {
-                $activity = 0;
-            }
-
-            $this->edit_player($user_id, ['activity' => $activity]);
+        foreach($this->db->get_rows($sql) as $row) {
+            $activity = self::activity_by_match_count((int)$row['match_count']);
+            $this->edit_player((int)$row['user_id'], ['activity' => $activity]);
         }
+    }
+
+    private static function activity_by_match_count($match_count): int
+    {
+        if ($match_count >= (int)config::get(config::activity_5)) {
+            return 5;
+        }
+
+        if ($match_count >= (int)config::get(config::activity_4)) {
+            return 4;
+        }
+
+        if ($match_count >= (int)config::get(config::activity_3)) {
+            return 3;
+        }
+
+        if ($match_count >= (int)config::get(config::activity_2)) {
+            return 2;
+        }
+
+        if($match_count >= (int)config::get(config::activity_1)) {
+            return 1;
+        }
+
+        return 0;
     }
 
     public function get_running_match_id(int $user_id): int
@@ -570,13 +584,6 @@ class players
 
     public function get_player_details(int $user_id): array
     {
-        $where = '';
-        $group = 'group by user_id';
-        if($user_id) {
-            $where = 'where user_id = '.$user_id;
-            $group = '';
-        }
-
         $sql = 'select
                   user_id,
                   max(draw_rating) as rating_max,
@@ -585,31 +592,36 @@ class players
                   min(streak) as streak_min,
                   max(rating_change) as rating_change_max,
                   min(rating_change) as rating_change_min
-                from '.$this->db->match_players_table.'
-                '.$where.'
-                '.$group;
+                from ' . $this->db->match_players_table . '
+                where user_id = ' . $user_id;
 
         # todo: filter not evaluated games (only relevant for player who only won/lost yet)
 
-        $rec_func = function(&$value, $key) { $value = (int)$value; };
-
-        $result = $this->db->get_rows($sql);
-        $len = \count($result);
-
-        if($len == 1) {
-            array_walk($result[0], $rec_func);
-            return $result[0];
-        }
-
-        for($i = 0; $i < $len; $i++) {
-            array_walk($result[$i], $rec_func);
-        }
-        return $result;
+        $row = $this->db->get_row($sql);
+        return [
+            'user_id' => $row ? (int) $row['user_id'] : $user_id,
+            'rating_max' => $row ? (int) $row['rating_max'] : -1,
+            'rating_min' => $row ? (int) $row['rating_min'] : -1,
+            'streak_max' => $row ? (int) $row['streak_max'] : -1,
+            'streak_min' => $row ? (int) $row['streak_min'] : -1,
+            'rating_change_max' => $row ? (int) $row['rating_change_max'] : -1,
+            'rating_change_min' => $row ? (int) $row['rating_change_min'] : -1,
+        ];
     }
 
-    public function get_player_dreamteams(int $user_id, bool $reverse, int $number)
+    public function get_player_nightmareteams(int $user_id, int $limit): array
     {
-        $number = \abs($number);
+        return $this->get_player_teams_stats($user_id, 'asc', $limit);
+    }
+
+    public function get_player_dreamteams(int $user_id, int $limit): array
+    {
+        return $this->get_player_teams_stats($user_id, 'desc', $limit);
+    }
+
+    private function get_player_teams_stats(int $user_id, string $order, int $limit): array
+    {
+        $limit = (int) \abs($limit);
 
         $where = '';
         if($user_id) {
@@ -617,9 +629,12 @@ class players
         }
 
         $sql = 'select
-                    dt.user1_id, dt.user2_id,
-                    u1.username as user1_name, u2.username as user2_name,
-                    dt.matches_won, dt.matches_loss
+                    dt.user1_id,
+                    dt.user2_id,
+                    u1.username as user1_name, 
+                    u2.username as user2_name,
+                    dt.matches_won, 
+                    dt.matches_loss
                 from '.$this->db->dreamteams_table.' dt
                 left join '.$this->db->users_table.' u1
                     on dt.user1_id = u1.user_id
@@ -629,24 +644,31 @@ class players
                     matches_won + matches_loss > 0
                     '.$where.'
                 order by
-                    (matches_won + 1)/(matches_loss + 1) '.($reverse ? 'asc' : 'desc').',
+                    (matches_won + 1)/(matches_loss + 1) '.$order.',
                     matches_won + matches_loss desc
-                limit '.$number;
+                limit '.$limit;
 
-        $result = $this->db->get_rows($sql);
-        array_walk($result, function(&$value, $key) {
-            $value['user1_id'] = (int)$value['user1_id'];
-            $value['user2_id'] = (int)$value['user2_id'];
-            $value['matches_won'] = (int)$value['matches_won'];
-            $value['matches_loss'] = (int)$value['matches_loss'];
+        return \array_map(function ($row) {
             # TODO: do something about deleted players
-        });
-        return $result;
+            return [
+                'user1_id' => (int) $row['user1_id'],
+                'user2_id' => (int) $row['user2_id'],
+                'user1_name' => $row['user1_name'],
+                'user2_name' => $row['user2_name'],
+                'matches_won' => (int) $row['matches_won'],
+                'matches_loss' => (int) $row['matches_loss'],
+            ];
+        }, $this->db->get_rows($sql));
     }
 
-    public function get_bets() { // todo: make limit dynamic
+    public function get_bets(): array
+    {
+        // todo: make limit dynamic
         $sql = 'select
-                    u.user_id, u.username, b.bets_won, b.bets_loss,
+                    u.user_id, 
+                    u.username, 
+                    b.bets_won, 
+                    b.bets_loss,
                     (b.bets_won + b.bets_loss) as bets_total,
                     b.bets_won / (b.bets_won + b.bets_loss) * 100 as bet_quota
                 from '.$this->db->players_table.' b
@@ -654,83 +676,66 @@ class players
                 where b.bets_won + b.bets_loss >= 10 and u.username is not null
                 order by (b.bets_won * b.bets_won + 1) / (b.bets_loss * b.bets_loss + 1) desc';
 
-        $result = $this->db->get_rows($sql);
-
-        array_walk($result, function(&$value, $key) {
-            $value['user_id'] = (int)$value['user_id'];
-            $value['bets_total'] = (int)$value['bets_total'];
-            $value['bets_won'] = (int)$value['bets_won'];
-            $value['bets_loss'] = (int)$value['bets_loss'];
-            $value['bet_quota'] = (float)$value['bet_quota'];
-        });
-        return $result;
+        return \array_map(function ($row) {
+            return [
+                'user_id' => (int) $row['user_id'],
+                'username' => $row['username'],
+                'bets_won' => (int) $row['bets_won'],
+                'bets_loss' => (int) $row['bets_loss'],
+                'bets_total' => (int) $row['bets_total'],
+                'bet_quota' => (float) $row['bet_quota'],
+            ];
+        }, $this->db->get_rows($sql));
     }
 
-    public function get_best_streaks(int $number) {
-        $sql = 'select
-                    u.user_id, u.username, max(s.streak) as max_streak
-                from '.$this->db->match_players_table.' s
-                left join '.$this->db->users_table.' u on u.user_id = s.user_id
-                group by user_id
-                order by max_streak desc, user_id asc limit 0, '.$number;
-
-        $result = $this->db->get_rows($sql);
-
-        array_walk($result, function(&$value, $key) {
-            $value['user_id'] = (int)$value['user_id'];
-            $value['max_streak'] = (int)$value['max_streak'];
-        });
-        return $result;
+    public function get_best_streaks(int $limit): array
+    {
+        return $this->get_player_statistics('streak', 'max', $limit);
     }
 
-    public function get_worst_streaks(int $number) {
-        $sql = 'select
-                    u.user_id, u.username, min(s.streak) as min_streak
-                from '.$this->db->match_players_table.' s
-                left join '.$this->db->users_table.' u on u.user_id = s.user_id
-                group by user_id
-                order by min_streak asc, user_id asc limit 0, '.$number;
-
-        $result = $this->db->get_rows($sql);
-
-        array_walk($result, function(&$value, $key) {
-            $value['user_id'] = (int)$value['user_id'];
-            $value['min_streak'] = (int)$value['min_streak'];
-        });
-        return $result;
+    public function get_worst_streaks(int $limit): array
+    {
+        return $this->get_player_statistics('streak', 'min', $limit);
     }
 
-    public function get_best_rating_changes(int $number) {
-        $sql = 'select
-                    u.user_id, u.username, max(r.rating_change) as max_rating_change
-                from '.$this->db->match_players_table.' r
-                left join '.$this->db->users_table.' u on u.user_id = r.user_id
-                group by user_id
-                order by max_rating_change desc, user_id asc limit 0, '.$number;
-
-        $result = $this->db->get_rows($sql);
-
-        array_walk($result, function(&$value, $key) {
-            $value['user_id'] = (int)$value['user_id'];
-            $value['max_rating_change'] = (int)$value['max_rating_change'];
-        });
-        return $result;
+    public function get_best_rating_changes(int $limit): array
+    {
+        return $this->get_player_statistics('rating_change', 'max', $limit);
     }
 
-    public function get_worst_rating_changes(int $number) {
-        $sql = 'select
-                    u.user_id, u.username, min(r.rating_change) as min_rating_change
-                from '.$this->db->match_players_table.' r
-                left join '.$this->db->users_table.' u on u.user_id = r.user_id
-                group by user_id
-                order by min_rating_change asc, user_id asc limit 0, '.$number;
+    public function get_worst_rating_changes(int $limit): array
+    {
+        return $this->get_player_statistics('rating_change', 'min', $limit);
+    }
 
-        $result = $this->db->get_rows($sql);
+    private function get_player_statistics (
+        string $field,
+        string $agg,
+        int $limit
+    ): array {
+        $order = $agg === 'max' ? 'desc' : 'asc';
+        $sql = <<<SQL
+select
+  u.user_id, 
+  u.username, 
+  {$agg}(s.{$field}) as `value`
+from {$this->db->match_players_table} s
+left join {$this->db->users_table} u on u.user_id = s.user_id
+group by user_id
+order by 
+  `value` {$order}, 
+  user_id asc 
+limit
+  0, {$limit}
+;
+SQL;
 
-        array_walk($result, function(&$value, $key) {
-            $value['user_id'] = (int)$value['user_id'];
-            $value['min_rating_change'] = (int)$value['min_rating_change'];
-        });
-        return $result;
+        return \array_map(function ($row) {
+            return [
+                'user_id' => (int) $row['user_id'],
+                'username' => $row['username'],
+                'value' => (int) $row['value'],
+            ];
+        }, $this->db->get_rows($sql));
     }
 }

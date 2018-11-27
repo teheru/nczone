@@ -1,6 +1,6 @@
 <?php
 
-namespace eru\nczone\zone;
+namespace eru\nczone\zone\entity;
 
 class player implements \JsonSerializable
 {

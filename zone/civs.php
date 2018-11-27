@@ -79,7 +79,11 @@ class civs
      */
     public function edit_civ(int $civ_id, array $civ_info): void
     {
-        $this->db->update($this->db->civs_table, ['civ_name' => $civ_info['name']], ['civ_id' => $civ_id]);
+        $this->db->update(
+            $this->db->civs_table,
+            ['civ_name' => $civ_info['name']],
+            ['civ_id' => $civ_id]
+        );
     }
 
 
@@ -88,10 +92,10 @@ class civs
      *
      * @param string $civ_name Name of the civ
      *
-     * @return string
+     * @return int
      * @throws \Throwable
      */
-    public function create_civ($civ_name): string
+    public function create_civ(string $civ_name): int
     {
         return $this->db->run_txn(function() use ($civ_name) {
             $civ_id = $this->insert_civ($civ_name);
@@ -140,7 +144,7 @@ class civs
         }
     }
 
-    private function insert_civ_x_player_entries(int $civ_id)
+    private function insert_civ_x_player_entries(int $civ_id): void
     {
         $this->db->sql_query(
             'INSERT INTO `'. $this->db->player_civ_table .'` (`user_id`, `civ_id`, `time`) '.
@@ -148,20 +152,43 @@ class civs
         );
     }
 
-    public function get_map_players_multiple_civs($map_id, $user_ids, array $civ_ids = []): array
-    {
-        $sql_array = $this->get_map_players_civs_build_sql_array($map_id, $user_ids, $civ_ids, true, false);
-        return $this->db->get_rows($sql_array);
+    public function get_map_players_multiple_civs(
+        int $map_id,
+        array $user_ids,
+        array $civ_ids = []
+    ): array {
+        return $this->db->get_rows($this->get_map_players_civs_build_sql_array(
+            $map_id,
+            $user_ids,
+            $civ_ids,
+            true,
+            false
+        ));
     }
 
-    public function get_map_players_single_civ($map_id, $user_ids, array $civ_ids = [], $neg_civ_ids = False, $force = False)
-    {
-        $sql_array = $this->get_map_players_civs_build_sql_array($map_id, $user_ids, $civ_ids, $neg_civ_ids, $force);
-        return $this->db->get_row($sql_array);
+    public function get_map_players_single_civ(
+        int $map_id,
+        array $user_ids,
+        array $civ_ids = [],
+        bool $neg_civ_ids = false,
+        bool $force = false
+    ) {
+        return $this->db->get_row($this->get_map_players_civs_build_sql_array(
+            $map_id,
+            $user_ids,
+            $civ_ids,
+            $neg_civ_ids,
+            $force
+        ));
     }
 
-    private function get_map_players_civs_build_sql_array($map_id, $user_ids, array $civ_ids = [], $neg_civ_ids = False, $force = False): array
-    {
+    private function get_map_players_civs_build_sql_array(
+        int $map_id,
+        array $user_ids,
+        array $civ_ids = [],
+        bool $neg_civ_ids = false,
+        bool $force = false
+    ): array {
         $sql_array = [
             'SELECT' => 'p.user_id AS user_id, c.civ_id AS civ_id, c.multiplier AS multiplier, c.both_teams AS both_teams',
             'FROM' => array($this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'),

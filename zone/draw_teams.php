@@ -81,7 +81,7 @@ class draw_teams
      *
      * @return array
      */
-    public static function get_match_sizes(int $num_players): array
+    private static function get_match_sizes(int $num_players): array
     {
         $even_num_players = $num_players - ($num_players % 2);
 
@@ -111,7 +111,7 @@ class draw_teams
      *
      * @return array
      */
-    public static function permute_match_sizes(array $match_sizes): array
+    private static function permute_match_sizes(array $match_sizes): array
     {
         if (\count($match_sizes) === 1) {
             $match_size = key($match_sizes);
@@ -175,14 +175,20 @@ class draw_teams
         return $permutes;
     }
 
+    public function make_match(entity\match_players_list $player_list): array
+    {
+        [$match] = $this->make_matches($player_list);
+        return $match;
+    }
+
     /**
      * Divides players in usable groups to make teams and than calculate the optimal teams.
      *
-     * @param match_players_list $player_list List of the players (must have index 'rating') to be put in teams
+     * @param entity\match_players_list $player_list List of the players (must have index 'rating') to be put in teams
      *
      * @return array
      */
-    public function make_matches(match_players_list $player_list): array
+    public function make_matches(entity\match_players_list $player_list): array
     {
         if ($player_list->length() % 2 === 1) {
             $player_list->pop();
@@ -201,7 +207,7 @@ class draw_teams
 
             $offset = 0;
             foreach ($permute as $match_size) {
-                $result = $this->make_match($sorted_player_list->slice($offset, $match_size * 2));
+                $result = $this->_make_match($sorted_player_list->slice($offset, $match_size * 2));
                 $offset += $match_size * 2;
                 $curr_value += $result['value'];
                 $curr_teams[] = $result['teams'];
@@ -219,16 +225,16 @@ class draw_teams
      * Calculates the best teams for a single match.
      * Note that the $players list is already sorted by rating through make_matches function
      *
-     * @param match_players_list $players List of the players to be put in teams.
+     * @param entity\match_players_list $players List of the players to be put in teams.
      *
      * @return array
      */
-    private function make_match(match_players_list $players): array
+    private function _make_match(entity\match_players_list $players): array
     {
         return $this->make_match_with_team_def(self::$teams_def[$players->length()] ?? [], $players);
     }
 
-    private function make_match_with_team_def(array $team_def, match_players_list $players): array
+    private function make_match_with_team_def(array $team_def, entity\match_players_list $players): array
     {
         $best_value = -1.0;
         $best_teams = [];

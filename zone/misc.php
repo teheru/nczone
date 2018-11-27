@@ -28,12 +28,12 @@ class misc
         $this->user = $user;
     }
 
-    public function get_rules_post()
+    public function get_rules_post(): string
     {
         return $this->get_post((int) config::get(config::rules_post_id));
     }
 
-    public function get_information_posts()
+    public function get_information_posts(): array
     {
         $post_ids = $this->get_information_post_ids();
         return \array_values($this->get_posts(...$post_ids));
@@ -44,11 +44,12 @@ class misc
         return array_map('\intval', explode(',', config::get(config::info_posts)));
     }
 
-    public function get_post(int $post_id): array
+    public function get_post(int $post_id): string
     {
         $posts = $this->get_posts([$post_id]);
-        return \end($posts);
+        return $posts ? \end($posts) : '';
     }
+
     public function get_posts(int ...$post_ids): array
     {
         $rows = $this->db->get_rows([
@@ -59,7 +60,13 @@ class misc
 
         $posts = [];
         foreach ($rows as $r) {
-            $posts[(int)$r['post_id']] = generate_text_for_display($r['post_text'], $r['bbcode_uid'], $r['bbcode_bitfield'], ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES, true);
+            $posts[(int)$r['post_id']] = (string) generate_text_for_display(
+                $r['post_text'],
+                $r['bbcode_uid'],
+                $r['bbcode_bitfield'],
+                ($r['bbcode_bitfield'] ? OPTION_FLAG_BBCODE : 0) | OPTION_FLAG_SMILIES,
+                true
+            );
         }
 
         return $posts;

@@ -479,8 +479,8 @@ class api
                 'player' => $players->get_player($args['user_id']),
                 'details' => $players->get_player_details($args['user_id']),
                 'ratingData' => $players->get_player_rating_data($args['user_id']),
-                'dreamteams' => $players->get_player_dreamteams($args['user_id'], false, 5),
-                'nightmareteams' => $players->get_player_dreamteams($args['user_id'], true, 5),
+                'dreamteams' => $players->get_player_dreamteams($args['user_id'], 5),
+                'nightmareteams' => $players->get_player_nightmareteams($args['user_id'], 5),
             ];
         }, [], [
             'user_id' => $user_id,
@@ -489,18 +489,30 @@ class api
 
     public function player_dreamteams(
         int $user_id,
-        int $reverse,
         int $number
     ): JsonResponse {
         return $this->respond(function ($args) {
             return zone_util::players()->get_player_dreamteams(
                 $args['user_id'],
-                $args['reverse'] === 1,
                 $args['number']
             );
         }, [], [
             'user_id' => $user_id,
-            'reverse' => $reverse,
+            'number' => $number,
+        ]);
+    }
+
+    public function player_nightmareteams(
+        int $user_id,
+        int $number
+    ): JsonResponse {
+        return $this->respond(function ($args) {
+            return zone_util::players()->get_player_nightmareteams(
+                $args['user_id'],
+                $args['number']
+            );
+        }, [], [
+            'user_id' => $user_id,
             'number' => $number,
         ]);
     }
