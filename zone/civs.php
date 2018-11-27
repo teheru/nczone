@@ -74,20 +74,18 @@ class civs
     /**
      * Edits the info of a civ
      *
-     * @param int    $civ_id    Id of the civ
-     * @param array  $civ_info  Information of the civ (i.e. name)
+     * @param entity\civ $civ Information of the civ (i.e. name)
      *
      * @return void
      */
-    public function edit_civ(int $civ_id, array $civ_info): void
+    public function edit_civ(entity\civ $civ): void
     {
         $this->db->update(
             $this->db->civs_table,
-            ['civ_name' => $civ_info['name']],
-            ['civ_id' => $civ_id]
+            ['civ_name' => $civ->get_name()],
+            ['civ_id' => $civ->get_id()]
         );
     }
-
 
     /**
      * Creates a new civ and civ map entries in the database, returns the id of the new civ

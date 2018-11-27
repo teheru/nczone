@@ -14,6 +14,9 @@ use eru\nczone\config\acl;
 use eru\nczone\utility\db;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
+use eru\nczone\zone\entity\civ;
+use eru\nczone\zone\entity\map;
+use eru\nczone\zone\entity\map_civ;
 
 /**
  * nC Zone MCP module.
@@ -120,9 +123,10 @@ class main_module
         if ($request->variable('create_civ', '')) {
             zone_util::civs()->create_civ($request->variable('civ_name', ''));
         } elseif ($request->variable('edit_civ', '')) {
-            zone_util::civs()->edit_civ((int)$civ_id, [
+            zone_util::civs()->edit_civ(civ::create_by_row([
+                'id' => (int)$civ_id,
                 'name' => $request->variable('civ_name', ''),
-            ]);
+            ]));
             $civ_id = ''; // back to selection page
         }
 
@@ -164,22 +168,25 @@ class main_module
                 (int)$request->variable('copy_map_id', 0)
             );
         } elseif ($request->variable('edit_map', '')) {
-            zone_util::maps()->edit_map((int)$map_id, [
+            zone_util::maps()->edit_map(map::create_by_row([
+                'id' => (int)$map_id,
                 'name' => $request->variable('map_name', ''),
                 'weight' => (float)$request->variable('map_weight', 1.0),
-            ]);
+            ]));
 
-            $civ_info = [];
+            $map_civs = [];
             foreach (zone_util::civs()->get_civs() as $civ) {
                 $civId = $civ->get_id();
-                $civ_info[$civId] = [
-                    'multiplier' => $request->variable('multiplier_' . $civId, ''),
+                $map_civs[] = map_civ::create_by_row([
+                    'map_id' => (int)$map_id,
+                    'civ_id' => $civId,
+                    'multiplier' => $request->variable('multiplier_' . $civId, 0.0),
                     'force_draw' => $request->variable('force_draw_' . $civId, '') === 'on',
                     'prevent_draw' => $request->variable('prevent_draw_' . $civId, '') === 'on',
                     'both_teams' => $request->variable('both_teams_' . $civId, '') === 'on'
-                ];
+                ]);
             }
-            zone_util::maps()->edit_map_civs((int)$map_id, $civ_info);
+            zone_util::maps()->edit_map_civs($map_civs);
 
             $map_id = '';
         }
@@ -216,15 +223,15 @@ class main_module
 
             foreach (zone_util::maps()->get_map_civs($map->get_id()) as $map_civ) {
                 # todo: dont fetch civs one by one in a loop.
-                $civ = zone_util::civs()->get_civ((int)$map_civ['civ_id']);
+                $civ = zone_util::civs()->get_civ($map_civ->get_civ_id());
 
                 $template->assign_block_vars('map_civs', [
-                    'CIV_ID' => $map_civ['civ_id'],
+                    'CIV_ID' => $map_civ->get_civ_id(),
                     'CIV_NAME' => $civ->get_name(),
-                    'MULTIPLIER' => $map_civ['multiplier'],
-                    'FORCE_DRAW' => $map_civ['force_draw'] ? 'checked' : '',
-                    'PREVENT_DRAW' => $map_civ['prevent_draw'] ? 'checked' : '',
-                    'BOTH_TEAMS' => $map_civ['both_teams'] ? 'checked' : ''
+                    'MULTIPLIER' => $map_civ->get_multiplier(),
+                    'FORCE_DRAW' => $map_civ->get_force_draw() ? 'checked' : '',
+                    'PREVENT_DRAW' => $map_civ->get_prevent_draw() ? 'checked' : '',
+                    'BOTH_TEAMS' => $map_civ->get_both_teams() ? 'checked' : ''
                 ]);
             }
         }

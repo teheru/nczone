@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db;
+use eru\nczone\zone\entity\map_civ;
 
 /**
  * nC Zone maps management class.
@@ -81,15 +82,16 @@ class maps
      *
      * @param int    $map_id    Id of the map.
      *
-     * @return array
+     * @return entity\map_civ[]
      */
     public function get_map_civs(int $map_id): array
     {
-        return $this->db->get_rows([
-            'SELECT' => 'c.civ_id AS civ_id, c.multiplier AS multiplier, c.force_draw AS force_draw, c.prevent_draw AS prevent_draw, c.both_teams AS both_teams',
+        $rows = $this->db->get_rows([
+            'SELECT' => 'c.map_id, c.civ_id, c.multiplier, c.force_draw, c.prevent_draw, c.both_teams',
             'FROM' => [$this->db->map_civs_table => 'c'],
             'WHERE' => 'c.map_id = ' . $map_id
         ]);
+        return \array_map([entity\map_civ::class, 'create_by_row'], $rows);
     }
 
     public function get_map_both_teams_civ_ids(int $map_id): array
@@ -139,8 +141,8 @@ class maps
     {
         $sql_array = [];
         foreach ($this->get_map_civs($from_map_id) as $map_civ) {
-            $map_civ['map_id'] = $to_map_id;
-            $sql_array[] = $map_civ;
+            $map_civ->set_map_id($to_map_id);
+            $sql_array[] = $map_civ->as_sql_array();
         }
         if (!empty($sql_array)) {
             $this->db->sql_multi_insert($this->db->map_civs_table, $sql_array);
@@ -152,14 +154,10 @@ class maps
         // todo: replace this by a subquery like above?
         $sql_array = [];
         foreach ($this->zone_civs->get_civs() as $civ) {
-            $sql_array[] = [
+            $sql_array[] = map_civ::create_by_row([
                 'map_id' => $map_id,
                 'civ_id' => $civ->get_id(),
-                'multiplier' => 0.0,
-                'force_draw' => false,
-                'prevent_draw' => false,
-                'both_teams' => false
-            ];
+            ])->as_sql_array();
         }
         if (!empty($sql_array)) {
             $this->db->sql_multi_insert($this->db->map_civs_table, $sql_array);
@@ -169,45 +167,38 @@ class maps
     /**
      * Edits the information (name, weight) of a map
      *
-     * @param int      $map_id      Id of the map
-     * @param array    $map_info    Information of the map
+     * @param entity\map $map Information of the map
      *
      * @return void
      */
-    public function edit_map(int $map_id, array $map_info): void
+    public function edit_map(entity\map $map): void
     {
-        $sql_array = [];
-        if (array_key_exists('name', $map_info)) {
-            $sql_array['map_name'] = $map_info['name'];
-        }
-        if (array_key_exists('weight', $map_info)) {
-            $sql_array['weight'] = (float)$map_info['weight'];
-        }
-
-        $this->db->update($this->db->maps_table, $sql_array, [
-            'map_id' => $map_id,
+        $this->db->update($this->db->maps_table, [
+            'map_name' => $map->get_name(),
+            'weight' => $map->get_weight(),
+        ], [
+            'map_id' => $map->get_id(),
         ]);
     }
 
     /**
      * Edits the civs information for a map
      *
-     * @param int      $map_id      Id of the map
-     * @param array    $map_civs    Information of the civs
+     * @param entity\map_civ[] $map_civs Information of the civs
      *
      * @return void
      */
-    public function edit_map_civs(int $map_id, array $map_civs): void
+    public function edit_map_civs(array $map_civs): void
     {
-        foreach ($map_civs as $civ_id => $map_civ) {
+        foreach ($map_civs as $map_civ) {
             $this->db->update($this->db->map_civs_table, [
-                'multiplier' => (float)$map_civ['multiplier'],
-                'force_draw' => (bool)$map_civ['force_draw'],
-                'prevent_draw' => (bool)$map_civ['prevent_draw'],
-                'both_teams' => (bool)$map_civ['both_teams']
+                'multiplier' => $map_civ->get_multiplier(),
+                'force_draw' => $map_civ->get_force_draw(),
+                'prevent_draw' => $map_civ->get_prevent_draw(),
+                'both_teams' => $map_civ->get_both_teams()
             ], [
-                'map_id' => $map_id,
-                'civ_id' => (int)$civ_id,
+                'map_id' => $map_civ->get_map_id(),
+                'civ_id' => $map_civ->get_civ_id(),
             ]);
         }
     }

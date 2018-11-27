@@ -241,7 +241,7 @@ class players
                 b.user_id = ' . $user_id . '
             ;
         ';
-        return (int)$this->db->get_var($sql);
+        return $this->db->get_var($sql) ? true : false;
     }
 
     public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
@@ -275,23 +275,13 @@ class players
 
     public function fix_streaks(int $user_id, int $match_id): void
     {
-        $team_id = min(zone_util::matches()->get_match_team_ids($match_id));
+        $team_id = (int) min(zone_util::matches()->get_match_team_ids($match_id));
 
-        $last_streak = (int)$this->db->get_var([
-            'SELECT' => 't.streak',
-            'FROM' => [$this->db->match_players_table => 't'],
-            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id < ' . $team_id,
-            'ORDER_BY' => 't.team_id DESC'
-        ]);
+        $last_streak = $this->last_streak_before_in_team($user_id, $team_id);
 
-        $rows = $this->db->get_rows([
-            'SELECT' => 't.team_id, t.rating_change',
-            'FROM' => [$this->db->match_players_table => 't'],
-            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id >= ' . $team_id,
-            'ORDER_BY' => 't.team_id ASC'
-        ]);
+        $changes = $this->rating_changes_since_in_team($user_id, $team_id);
 
-        foreach ($rows as $r) {
+        foreach ($changes as $r) {
             $won = (int)$r['rating_change'] > 0;
 
             $new_streak = self::calculate_new_streak($won, $last_streak);
@@ -312,6 +302,26 @@ class players
             'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id,
             'ORDER_BY' => 't.team_id DESC',
+        ]);
+    }
+
+    private function last_streak_before_in_team(int $user_id, int $team_id): int
+    {
+        return (int)$this->db->get_var([
+            'SELECT' => 't.streak',
+            'FROM' => [$this->db->match_players_table => 't'],
+            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id < ' . $team_id,
+            'ORDER_BY' => 't.team_id DESC'
+        ]);
+    }
+
+    private function rating_changes_since_in_team(int $user_id, int $team_id): array
+    {
+        return $this->db->get_rows([
+            'SELECT' => 't.team_id, t.rating_change',
+            'FROM' => [$this->db->match_players_table => 't'],
+            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id >= ' . $team_id,
+            'ORDER_BY' => 't.team_id ASC'
         ]);
     }
 
