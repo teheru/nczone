@@ -56,11 +56,7 @@ class install_mcp_module extends \phpbb\db\migration\migration
                     ],
                 ],
             ],
-            acl::module_data(acl::mod_permissions, [
-                'nC Zone Mod',
-                'm_',
-                'A moderator role for the nC Zone.',
-            ])
+            acl::module_data_mcp()
         );
     }
 }

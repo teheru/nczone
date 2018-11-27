@@ -56,11 +56,7 @@ class api
 
         try {
             foreach ($acl as $perm => $err) {
-                if ($perm === 'self_activated') {
-                    if (!self::is_activated($this->get_user_id())) {
-                        throw new ForbiddenError($err);
-                    }
-                } elseif (!$this->auth->acl_get($perm)) {
+                if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), $perm)) {
                     throw new ForbiddenError($err);
                 }
             }
@@ -91,22 +87,14 @@ class api
     public function me(): JsonResponse
     {
         return $this->respond(function () {
-            $is_activated = self::is_activated($this->get_user_id());
-
             return [
                 'id' => $this->get_user_id(),
                 'sid' => $this->user->session_id,
                 'lang' => $this->user->data['user_lang'],
-                'acl' => [
-                    acl::u_zone_view_login => (bool) $this->auth->acl_get(acl::u_zone_view_login),
-                    acl::u_zone_view_info => (bool) $this->auth->acl_get(acl::u_zone_view_info),
-                    acl::u_zone_draw => $is_activated && $this->auth->acl_get(acl::u_zone_draw),
-                    acl::u_zone_login => $is_activated && $this->auth->acl_get(acl::u_zone_login),
-                    acl::u_zone_change_match => $is_activated && $this->auth->acl_get(acl::u_zone_change_match),
-                    acl::m_zone_draw_match => (bool) $this->auth->acl_get(acl::m_zone_draw_match),
-                    acl::m_zone_login_players => (bool) $this->auth->acl_get(acl::m_zone_login_players),
-                    acl::m_zone_change_match => (bool) $this->auth->acl_get(acl::m_zone_change_match),
-                ],
+                'permissions' => acl::all_user_permissions(
+                    $this->auth,
+                    self::is_activated($this->get_user_id())
+                ),
             ];
         });
     }
@@ -138,7 +126,6 @@ class api
             return [];
         }, [
             acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
 
@@ -160,7 +147,6 @@ class api
             return [];
         }, [
             acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
 
@@ -217,7 +203,6 @@ class api
             return zone_util::matches()->start_draw_process($this->get_user_id());
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
 
@@ -228,7 +213,6 @@ class api
             return [];
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
 
@@ -238,7 +222,6 @@ class api
             return zone_util::matches()->draw($this->get_user_id());
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
 
@@ -260,7 +243,6 @@ class api
             ];
         }, [
             acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'replace_user_id' => $replace_user_id,
         ]);
@@ -273,7 +255,6 @@ class api
             return [];
         }, [
             acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
 
@@ -294,7 +275,6 @@ class api
             );
         }, [
             acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'replace_user_id', $replace_user_id,
         ]);
@@ -321,7 +301,6 @@ class api
             ];
         }, [
             acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'match_id' => $match_id,
         ]);
@@ -334,7 +313,6 @@ class api
             return [];
         }, [
             acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
 
@@ -349,7 +327,6 @@ class api
             return zone_util::matches()->add_pair($this->get_user_id(), $args['match_id']);
         }, [
             acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-            'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'match_id' => $match_id,
         ]);
@@ -571,6 +548,13 @@ class api
 
     private static function is_activated($user_id): bool
     {
-        return zone_util::players()->is_activated($user_id);
+        static $is_activated;
+        if ($is_activated === null) {
+            $is_activated = [];
+        }
+        if (!isset($is_activated[$user_id])) {
+            $is_activated[$user_id] = zone_util::players()->is_activated($user_id);
+        }
+        return $is_activated[$user_id];
     }
 }

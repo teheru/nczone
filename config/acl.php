@@ -2,6 +2,8 @@
 
 namespace eru\nczone\config;
 
+use phpbb\auth\auth;
+
 final class acl
 {
     public const u_zone_view_info = 'u_zone_view_info';
@@ -24,7 +26,7 @@ final class acl
     public const m_zone_login_players = 'm_zone_login_players';
     public const m_zone_change_match = 'm_zone_change_match';
 
-    public const user_permissions = [
+    private const user_permissions = [
         self::u_zone_view_info,
         self::u_zone_login,
         self::u_zone_view_login,
@@ -35,12 +37,12 @@ final class acl
         self::u_zone_bet,
     ];
 
-    public const admin_permissions = [
+    private const admin_permissions = [
         self::a_zone_manage_general,
         self::a_zone_manage_draw,
     ];
 
-    public const mod_permissions = [
+    private const mod_permissions = [
         self::m_zone_manage_players,
         self::m_zone_manage_civs,
         self::m_zone_manage_maps,
@@ -50,7 +52,26 @@ final class acl
         self::m_zone_change_match,
     ];
 
-    public static function add_permission_language($acl)
+    private const activation_required = [
+        self::u_zone_draw,
+        self::u_zone_login,
+        self::u_zone_change_match,
+    ];
+
+    private static function all_permissions(): array
+    {
+        static $permissions;
+        if ($permissions === null) {
+            $permissions = \array_merge(
+                self::user_permissions,
+                self::mod_permissions,
+                self::admin_permissions
+            );
+        }
+        return $permissions;
+    }
+
+    public static function add_permission_language($acl): array
     {
         return \array_merge($acl, [
             self::u_zone_view_info => ['lang' => 'ACL_U_ZONE_VIEW_INFO', 'cat' => 'zone'],
@@ -75,7 +96,7 @@ final class acl
     }
 
     private static function has_any_permission(
-        \phpbb\auth\auth $auth,
+        auth $auth,
         array $permissions
     ): bool {
         foreach ($permissions as $permission) {
@@ -86,27 +107,73 @@ final class acl
         return false;
     }
 
-    public static function has_any_admin_permissions(
-        \phpbb\auth\auth $auth
-    ): bool {
+    public static function has_any_admin_permissions(auth $auth): bool
+    {
         return self::has_any_permission($auth, self::admin_permissions);
     }
 
-    public static function has_any_mod_permissions(
-        \phpbb\auth\auth $auth
-    ): bool {
+    public static function has_any_mod_permissions(auth $auth): bool
+    {
         return self::has_any_permission($auth, self::mod_permissions);
     }
 
-    public static function module_data(array $permissions, array $role): array
+    public static function has_permission(
+        auth $auth,
+        bool $activated,
+        string $perm
+    ): bool {
+        if (\in_array($perm, self::activation_required, true) && !$activated) {
+            return false;
+        }
+        return (bool) $auth->acl_get($perm);
+    }
+
+    public static function all_user_permissions(
+        auth $auth,
+        bool $activated
+    ): array {
+        return \array_filter(
+            self::all_permissions(),
+            function ($permission) use ($auth, $activated) {
+                return self::has_permission($auth, $activated, $permission);
+            }
+        );
+    }
+
+    public static function module_data_acp(): array
+    {
+        return self::module_data(self::admin_permissions, [
+            'nC Zone Admin',
+            'a_',
+            'A full administrative role for the nC Zone.',
+        ]);
+    }
+
+    public static function module_data_mcp(): array
+    {
+        return self::module_data(self::mod_permissions, [
+            'nC Zone Mod',
+            'm_',
+            'A moderator role for the nC Zone.',
+        ]);
+    }
+
+    public static function module_data_zone(): array
+    {
+        return self::module_data(self::user_permissions, [
+            'ROLE_USER_STANDARD',
+        ]);
+    }
+
+    private static function module_data(array $permissions, array $role): array
     {
         return \array_merge(
-            \array_map(function ($perm) {
-                return ['permission.add' => [$perm, true]];
+            \array_map(function ($permission) {
+                return ['permission.add' => [$permission, true]];
             }, $permissions),
             $role[0] === 'ROLE_USER_STANDARD' ? [] : [['permission.role_add', $role]],
-            \array_map(function ($perm) use ($role) {
-                return ['permission.permission_set', [$role[0], $perm]];
+            \array_map(function ($permission) use ($role) {
+                return ['permission.permission_set', [$role[0], $permission]];
             }, $permissions)
         );
     }

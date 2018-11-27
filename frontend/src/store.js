@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import View from '@/view'
 
+import acl from '@/acl'
 import * as api from './api'
 import * as timer from './timer'
 import * as routes from './routes'
@@ -53,16 +54,7 @@ export default () => {
       me: {
         id: 0,
         sid: '',
-        permissions: {
-          u_zone_view_login: false,
-          u_zone_view_info: false,
-          u_zone_draw: false,
-          u_zone_login: false,
-          u_zone_change_match: false,
-          m_zone_draw_match: false,
-          m_zone_login_players: false,
-          m_zone_change_match: false
-        }
+        permissions: []
       },
       overlay: {
         name: false,
@@ -92,6 +84,7 @@ export default () => {
       timer: timer
     },
     getters: {
+      can: (s) => (permission) => acl.can(s.me, permission),
       overlayComponent: (s) => (overlayRouting[s.overlay.name] || {}).component || null,
       overlayPayload: s => s.overlay.payload[s.overlay.name],
       players: (s) => s.players,
@@ -105,32 +98,32 @@ export default () => {
       }),
       loggedInUserIds: (s) => s.players.filter(p => p.logged_in > 0).map(u => u.id),
       canDraw: (s, g) => {
-        if (!s.me.permissions.u_zone_view_login) {
+        if (!g.can(acl.permissions.u_zone_view_login)) {
           return false
         }
         if (g.loggedInUserIds.length <= 1) {
           return false
         }
-        if (g.loggedInUserIds.includes(s.me.id) && s.me.permissions.u_zone_draw) {
+        if (g.loggedInUserIds.includes(s.me.id) && g.can(acl.permissions.u_zone_draw)) {
           return true
         }
-        return s.me.permissions.m_zone_draw_match
+        return g.can(acl.permissions.m_zone_draw_match)
       },
       canReplace: (s, g) => {
         if (g.loggedInUserIds.length === 0) {
           return false
         }
-        return s.me.permissions.m_zone_change_match
+        return g.can(acl.permissions.m_zone_change_match)
       },
       canAddPair: (s, g) => {
         if (g.loggedInUserIds.length < 2) {
           return false
         }
-        return s.me.permissions.m_zone_change_match
+        return g.can(acl.permissions.m_zone_change_match)
       },
-      canModPost: (s) => s.me.permissions.m_zone_draw_match,
-      canModLogin: (s) => s.me.permissions.m_zone_login_players,
-      canLogin: (s, g) => s.me.permissions.u_zone_view_login && s.me.permissions.u_zone_login && !g.isLoggedIn && !g.isPlaying,
+      canModPost: (s, g) => g.can(acl.permissions.m_zone_draw_match),
+      canModLogin: (s, g) => g.can(acl.permissions.m_zone_login_players),
+      canLogin: (s, g) => g.can(acl.permissions.u_zone_view_login) && g.can(acl.permissions.u_zone_login) && !g.isLoggedIn && !g.isPlaying,
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
       isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
@@ -146,14 +139,7 @@ export default () => {
       init (state, { me, i18n }) {
         state.me.id = me.id || 0
         state.me.sid = me.sid || ''
-        state.me.permissions.u_zone_view_login = me.permissions.u_zone_view_login || false
-        state.me.permissions.u_zone_view_info = me.permissions.u_zone_view_info || false
-        state.me.permissions.u_zone_draw = me.permissions.u_zone_draw || false
-        state.me.permissions.u_zone_login = me.permissions.u_zone_login || false
-        state.me.permissions.u_zone_change_match = me.permissions.u_zone_change_match || false
-        state.me.permissions.m_zone_draw_match = me.permissions.m_zone_draw_match || false
-        state.me.permissions.m_zone_login_players = me.permissions.m_zone_login_players || false
-        state.me.permissions.m_zone_change_match = me.permissions.m_zone_change_match || false
+        state.me.permissions = me.permissions
 
         state.i18n = i18n
         state.i18n.locale = me.lang

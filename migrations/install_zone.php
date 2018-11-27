@@ -26,6 +26,6 @@ class install_zone extends \phpbb\db\migration\migration
 
     public function update_data()
     {
-        return acl::module_data(acl::user_permissions, ['ROLE_USER_STANDARD']);
+        return acl::module_data_zone();
     }
 }

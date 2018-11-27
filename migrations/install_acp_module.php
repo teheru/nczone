@@ -49,11 +49,7 @@ class install_acp_module extends \phpbb\db\migration\migration
                 ],
 
             ],
-            acl::module_data(acl::admin_permissions, [
-                'nC Zone Admin',
-                'a_',
-                'A full administrative role for the nC Zone.',
-            ])
+            acl::module_data_acp()
         );
     }
 }
