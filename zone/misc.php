@@ -46,7 +46,7 @@ class misc
 
     public function get_post(int $post_id): string
     {
-        $posts = $this->get_posts([$post_id]);
+        $posts = $this->get_posts($post_id);
         return $posts ? \end($posts) : '';
     }
 
