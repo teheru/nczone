@@ -58,7 +58,7 @@ export default {
       this.bet({ matchId: this.match.id, team: this.team })
     },
     renderBetTime (timestamp) {
-      const secondsSinceDraw = timestamp - this.match.timestampStart
+      const secondsSinceDraw = timestamp - this.match.draw_time
       const seconds = secondsSinceDraw % 60
       const minutes = Math.floor(secondsSinceDraw / 60) % 60
       const hours = Math.floor(secondsSinceDraw / 3600)
@@ -89,7 +89,7 @@ export default {
       return [`zone-match-team-${this.team}`, 'zone-match-team-no-result']
     },
     isFinished () {
-      return this.match.timestampEnd > 0
+      return this.match.post_time > 0
     },
     isWinnerTeam () {
       return this.match.winner && this.team === this.match.winner

@@ -79,10 +79,16 @@ class db
      * @param string $query
      * @return array
      */
-    public function get_rows($sql, $query = 'SELECT'): array
-    {
+    public function get_rows(
+        $sql,
+        int $limit = 0,
+        int $offset = 0,
+        $query = 'SELECT'
+    ): array {
         $queryString = \is_string($sql) ? rtrim(rtrim($sql), ';') : $this->db->sql_build_query($query, $sql);
-        $result = $this->db->sql_query($queryString);
+        $result = $limit > 0
+            ? $this->db->sql_query_limit($queryString, $limit, $offset)
+            : $this->db->sql_query($queryString);
         $rows = $this->db->sql_fetchrowset($result);
         $this->db->sql_freeresult($result);
         return $rows ?: [];
@@ -97,10 +103,14 @@ class db
     }
 
     // todo: build this without getting the whole rowset
-    public function get_col(array $sqlArray, $query = 'SELECT'): array
-    {
+    public function get_col(
+        array $sqlArray,
+        int $limit = 0,
+        int $offset = 0,
+        $query = 'SELECT'
+    ): array {
         $col = [];
-        foreach ($this->get_rows($sqlArray, $query) as $row) {
+        foreach ($this->get_rows($sqlArray, $limit, $offset, $query) as $row) {
             $col[] = reset($row);
         }
         return $col;

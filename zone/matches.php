@@ -14,6 +14,7 @@ namespace eru\nczone\zone;
 use eru\nczone\config\config;
 use eru\nczone\utility\db;
 use eru\nczone\utility\zone_util;
+use eru\nczone\zone\entity\match;
 use eru\nczone\zone\error\InvalidDrawIdError;
 use eru\nczone\zone\error\NoDrawPlayersError;
 
@@ -33,22 +34,6 @@ class matches {
     public function __construct(db $db)
     {
         $this->db = $db;
-    }
-
-    private static function determine_winner(
-        int $winner_team_id,
-        int $team1_id,
-        int $team2_id
-    ): int {
-        if ($winner_team_id === $team1_id) {
-            return 1;
-        }
-
-        if ($winner_team_id === $team2_id) {
-            return 2;
-        }
-
-        return 0;
     }
 
     /**
@@ -623,157 +608,74 @@ class matches {
         ]);
     }
 
-    public function get_match(int $match_id): array
+    private function load_match_rows(
+        array $where = [],
+        array $order = [],
+        int $offset = 0,
+        int $limit = 0
+    ): array {
+        $whereSql = empty($where) ? '' : ' WHERE ' . \implode(' AND ', $where);
+        $orderBySql = empty($order) ? '' : ' ORDER BY ' . \implode(',', $order);
+        $sql = <<<SQL
+SELECT 
+    t.match_id, 
+    t.map_id, 
+    m.map_name, 
+    t.draw_user_id, 
+    t.post_user_id, 
+    t.winner_team_id,
+    u.username AS draw_username, 
+    u2.username AS post_username, 
+    t.draw_time,
+    t.post_time,
+    t1.team_id AS team1_id,
+    t2.team_id AS team2_id
+FROM
+  {$this->db->matches_table} AS t
+  INNER JOIN {$this->db->match_teams_table} AS t1
+  ON t1.match_id = t.match_id AND t1.match_team = 1
+  INNER JOIN {$this->db->match_teams_table} AS t2
+  ON t2.match_id = t.match_id AND t2.match_team = 2
+  LEFT JOIN {$this->db->maps_table} AS m
+  ON t.map_id = m.map_id
+  LEFT JOIN {$this->db->users_table} AS u
+  ON t.draw_user_id = u.user_id
+  LEFT JOIN {$this->db->users_table} AS u2
+  ON t.post_user_id = u2.user_id
+{$whereSql}
+{$orderBySql}
+SQL;
+        return $this->db->get_rows($sql, $limit, $offset);
+    }
+
+    public function get_match(int $match_id): entity\match
     {
-        $sql = '
-            SELECT 
-                t.match_id, 
-                t.map_id, 
-                m.map_name, 
-                t.draw_user_id, 
-                t.post_user_id, 
-                t.winner_team_id,
-                u.username AS draw_username, 
-                u2.username AS post_username, 
-                t.draw_time,
-                t.post_time,
-                t1.team_id AS team1_id,
-                t2.team_id AS team2_id
-            FROM
-                '.$this->db->matches_table.' t
-                INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
-                INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
-                LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
-                LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
-                LEFT JOIN '.$this->db->users_table.' u2 ON t.post_user_id = u2.user_id
-            WHERE
-                t.match_id = '.$match_id.'
-            ;
-        ';
-        $m = $this->db->get_row($sql);
-        if (!$m) {
+        $rows = $this->load_match_rows(["t.match_id = {$match_id}"]);
+        if (empty($rows)) {
             return null;
         }
-
-        return $this->create_match_by_row_counted_bets_only($m);
+        return entity\match::create_by_row_finished($rows[0]);
     }
 
     public function get_all_rmatches(): array
     {
-        $sql = '
-            SELECT 
-                t.match_id, 
-                t.map_id, 
-                m.map_name, 
-                t.draw_user_id, 
-                t.post_user_id, 
-                u.username AS draw_username,  
-                t.draw_time,
-                t.post_time,
-                t1.team_id AS team1_id,
-                t2.team_id AS team2_id
-            FROM
-                ' . $this->db->matches_table . ' t
-                INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
-                INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
-                LEFT JOIN '.$this->db->maps_table.' m ON t.map_id = m.map_id
-                LEFT JOIN '.$this->db->users_table.' u ON t.draw_user_id = u.user_id
-            WHERE
-                t.post_time = 0
-            ORDER BY
-                t.draw_time DESC
-            ;
-        ';
-        return \array_map(
-            [$this, 'create_match_by_row'],
-            $this->db->get_rows($sql)
-        );
+        $rows = $this->load_match_rows(['t.post_time = 0'], ['t.draw_time DESC']);
+        return \array_map([match::class, 'create_by_row_unfinished'], $rows);
     }
 
-    public function get_pmatches(int $page=0): array
+    public function get_pmatches(int $page = 0): array
     {
-        $page_size = (int)config::get(config::pmatches_page_size);
-
-        $sql = '
-            SELECT 
-                t.match_id, 
-                t.map_id, 
-                m.map_name, 
-                t.draw_user_id, 
-                t.post_user_id, 
-                t.winner_team_id,
-                u.username AS draw_username, 
-                u2.username AS post_username, 
-                t.draw_time,
-                t.post_time,
-                t1.team_id AS team1_id,
-                t2.team_id AS team2_id
-            FROM
-                ' . $this->db->matches_table . ' t
-                INNER JOIN ' . $this->db->match_teams_table . ' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
-                INNER JOIN ' . $this->db->match_teams_table . ' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
-                LEFT JOIN ' . $this->db->maps_table . ' m ON t.map_id = m.map_id
-                LEFT JOIN ' . $this->db->users_table . ' u ON t.draw_user_id = u.user_id
-                LEFT JOIN ' . $this->db->users_table . ' u2 ON t.post_user_id = u2.user_id
-            WHERE
-                t.post_time > 0
-            ORDER BY
-                t.post_time DESC
-            LIMIT
-                '.($page * $page_size).',
-                '.$page_size.'
-            ;
-        ';
-        return \array_map(
-            [$this, 'create_match_by_row_counted_bets_only'],
-            $this->db->get_rows($sql)
-        );
+        $limit = (int)config::get(config::pmatches_page_size);
+        $offset = $page * $limit;
+        $rows = $this->load_match_rows(['t.post_time > 0'], ['t.post_time DESC'], $offset, $limit);
+        return \array_map([entity\match::class, 'create_by_row_finished'], $rows);
     }
 
     public function get_pmatches_pages(): int
     {
-        $page_size = (int)config::get(config::pmatches_page_size);
+        $limit = (int)config::get(config::pmatches_page_size);
         $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE t.post_time > 0');
-        return (int)ceil($num_matches / $page_size);
-    }
-
-    private function create_match_by_row_counted_bets_only(array $m): array
-    {
-        return $this->create_match_by_row($m, true);
-    }
-
-    private function create_match_by_row(array $m, bool $counted_bets_only=false): array
-    {
-        $match_id = (int)$m['match_id'];
-        $map_id = (int)$m['map_id'];
-        $team1_id = (int)$m['team1_id'];
-        $team2_id = (int)$m['team2_id'];
-        return [
-            'id' => $match_id,
-            'timestampStart' => (int)$m['draw_time'],
-            'timestampEnd' => (int)($m['post_time'] ?? 0),
-            'winner' => self::determine_winner(
-                (int)($m['winner_team_id'] ?? 0),
-                $team1_id,
-                $team2_id
-            ),
-            'whiner' => 'Snyper',
-            'result_poster' => empty($m['post_user_id']) ? null : [
-                'id' => (int)$m['post_user_id'],
-                'username' => $m['post_username'],
-            ],
-            'drawer' => empty($m['draw_user_id']) ? null : [
-                'id' => (int)$m['draw_user_id'],
-                'username' => $m['draw_username'],
-            ],
-            'map' => empty($map_id) ? null : [
-                'id' => $map_id,
-                'title' => $m['map_name'],
-            ],
-            'civs' => array_merge(['both' => $this->get_match_civs($match_id, $map_id)], $this->get_team_civs($team1_id, $team2_id, $map_id)),
-            'bets' => zone_util::bets()->get_bets($team1_id, $team2_id, $counted_bets_only),
-            'players' => zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id),
-        ];
+        return (int)ceil($num_matches / $limit);
     }
 
     public function get_match_civs(int $match_id, int $map_id): array

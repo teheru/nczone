@@ -1,8 +1,8 @@
 <template>
-<div class="zone-match" :class="{'zone-match-finished': match.timestampEnd > 0}">
+<div class="zone-match" :class="{'zone-match-finished': match.post_time > 0}">
   <div class="zone-match-title">{{ $t('NCZONE_MATCH_MATCH') }} #{{ match.id }}</div>
   <div class="zone-match-data">
-    <template v-if="match.timestampEnd">
+    <template v-if="match.post_time">
       <div v-t="'NCZONE_MATCH_WINNER'"></div>
       <div v-if="match.winner"><span v-t="'NCZONE_MATCH_TEAM'"></span> {{ match.winner }}</div>
       <div v-else="" v-t="'NCZONE_MATCH_WINNER_NO_RESULT'"></div>
@@ -11,7 +11,7 @@
     <div v-t="'NCZONE_MATCH_DRAWER'"></div>
     <div v-html="match.drawer.username"></div>
 
-    <template v-if="match.timestampEnd">
+    <template v-if="match.post_time">
       <div v-t="'NCZONE_MATCH_RESULT_POSTER'"></div>
       <div v-html="match.result_poster.username"></div>
     </template>
@@ -39,7 +39,7 @@
     <div v-t="'NCZONE_MATCH_START_TIME'"></div>
     <div>{{ matchStartTime }}</div>
 
-    <template v-if="match.timestampEnd">
+    <template v-if="match.post_time">
       <div v-t="'NCZONE_MATCH_LENGTH'"></div>
       <div>{{ matchLength }}</div>
     </template>
@@ -64,7 +64,7 @@
     <button class="zone-button" v-t="'NCZONE_MATCH_ADD_PAIR'" @click="addPair"></button>
   </div>
 
-  <div v-if="canManage && match.timestampEnd === 0" class="zone-match-post-result-form">
+  <div v-if="canManage && match.post_time === 0" class="zone-match-post-result-form">
     <span v-t="'NCZONE_MATCH_RESULT'"></span>
     <select v-model="matchResult">
       <option v-for="(opt, idx) in matchResultOptions" :key="idx" :value="opt.value" v-t="opt.title"></option>
@@ -90,7 +90,7 @@ export default {
       this.postMatchResult({ matchId: this.match.id, winner: this.matchResult })
     },
     cb (now) {
-      this.gameSeconds = now / 1000 - this.match.timestampStart
+      this.gameSeconds = now / 1000 - this.match.draw_time
     },
     start () {
       this.timer.every(1, this.cb)
@@ -108,7 +108,7 @@ export default {
   },
   computed: {
     matchStartTime () {
-      const d = new Date(this.match.timestampStart * 1000)
+      const d = new Date(this.match.draw_time * 1000)
       return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' +
         pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds())
     },
@@ -129,7 +129,7 @@ export default {
         this.canModPost
     },
     isFinished () {
-      return this.match.timestampEnd > 0
+      return this.match.post_time > 0
     },
     canAddPairPlayers () {
       return this.canAddPair && !this.isFinished && this.match.players.team1.length < 4
@@ -166,10 +166,10 @@ export default {
     }
   },
   mounted () {
-    if (!this.match.timestampEnd) {
+    if (!this.match.post_time) {
       this.start()
     } else {
-      this.gameSeconds = this.match.timestampEnd - this.match.timestampStart
+      this.gameSeconds = this.match.post_time - this.match.draw_time
     }
   },
   beforeDestroy () {

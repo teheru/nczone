@@ -1,9 +1,8 @@
 export default {
   'id': 1365,
-  'timestampStart': 1543260564,
-  'timestampEnd': 0,
+  'draw_time': 1543260564,
+  'post_time': 0,
   'winner': 0,
-  'whiner': 'Snyper',
   'result_poster': null,
   'drawer': { 'id': 520, 'username': 'H4voc' },
   'map': { 'id': 18, 'title': 'Zone_Teamislands' },
