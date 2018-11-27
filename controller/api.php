@@ -155,10 +155,10 @@ class api
      *
      * @route /nczone/api/players/login
      *
-     * @param string $player_id
+     * @param int $user_id
      * @return JsonResponse
      */
-    public function player_login(string $player_id): JsonResponse
+    public function player_login(int $user_id): JsonResponse
     {
         return $this->respond(function ($args) {
             if (!self::is_activated($args['player_id'])) {
@@ -169,7 +169,7 @@ class api
         }, [
             acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
         ], [
-            'player_id' => (int) $player_id
+            'player_id' => $user_id
         ]);
     }
 
@@ -178,10 +178,10 @@ class api
      *
      * @route /nczone/api/players/logout
      *
-     * @param string $player_id
+     * @param int $user_id
      * @return JsonResponse
      */
-    public function player_logout(string $player_id): JsonResponse
+    public function player_logout(int $user_id): JsonResponse
     {
         return $this->respond(function ($args) {
             if (!self::is_activated($args['player_id'])) {
@@ -193,7 +193,7 @@ class api
         }, [
             acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
         ], [
-            'player_id' => (int) $player_id
+            'player_id' => $user_id
         ]);
     }
 
@@ -280,7 +280,7 @@ class api
         ]);
     }
 
-    public function add_pair_preview($match_id): JsonResponse
+    public function add_pair_preview(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
             $players_loggedin = zone_util::matches()->start_draw_process($this->get_user_id());
@@ -316,7 +316,7 @@ class api
         ]);
     }
 
-    public function add_pair_confirm($match_id): JsonResponse
+    public function add_pair_confirm(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
             $players_match = zone_util::matches()->get_match_players($args['match_id']);
@@ -389,16 +389,16 @@ class api
         });
     }
 
-    public function match(string $match_id): JsonResponse
+    public function match(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
             return zone_util::matches()->get_match($args['match_id']);
         }, [], [
-            'match_id' => (int) $match_id,
+            'match_id' => $match_id,
         ]);
     }
 
-    public function match_bet(string $match_id): JsonResponse
+    public function match_bet(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
             $data = self::get_request_data();
@@ -423,11 +423,11 @@ class api
         }, [
             acl::u_zone_bet => 'NCZONE_REASON_NOT_ALLOWED_TO_BET',
         ], [
-            'match_id' => (int) $match_id,
+            'match_id' => $match_id,
         ]);
     }
 
-    public function match_post_result(string $match_id): JsonResponse
+    public function match_post_result(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
             $data = self::get_request_data();
@@ -449,7 +449,7 @@ class api
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT',
         ], [
-            'match_id' => (int) $match_id,
+            'match_id' => $match_id,
         ]);
     }
 
@@ -533,7 +533,7 @@ class api
         });
     }
 
-    public function statistics($limit): JsonResponse
+    public function statistics(int $limit): JsonResponse
     {
         return $this->respond(function ($args) {
             $players = zone_util::players();
@@ -558,7 +558,7 @@ class api
         return (int) $this->user->data['user_id'];
     }
 
-    private static function is_activated($user_id): bool
+    private static function is_activated(int $user_id): bool
     {
         static $is_activated;
         if ($is_activated === null) {
