@@ -79,7 +79,7 @@ class match implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'match_id' => $this->match_id,
+            'id' => $this->match_id,
             'draw_time' => $this->draw_time,
             'post_time' => $this->post_time,
             'winner' => $this->winner,
