@@ -10,6 +10,8 @@
 
 namespace eru\nczone\mcp;
 
+use eru\nczone\config\acl;
+
 /**
  * nC Zone MCP module info.
  */
@@ -23,22 +25,22 @@ class main_info
 			'modes'		=> array(
 				'players'	=> array(
 					'title'	=> 'MCP_PLAYERS_TITLE',
-					'auth'	=> 'ext_eru/nczone && acl_m_zone_manage_players',
+					'auth'	=> 'ext_eru/nczone && acl_' . acl::m_zone_manage_players,
 					'cat'	=> array('MCP_ZONE_TITLE')
 				),
 				'civs'	=> array(
 					'title'	=> 'MCP_CIVS_TITLE',
-					'auth'	=> 'ext_eru/nczone && acl_m_zone_manage_civs',
+					'auth'	=> 'ext_eru/nczone && acl_' . acl::m_zone_manage_civs,
 					'cat'	=> array('MCP_ZONE_TITLE')
 				),
 				'maps'	=> array(
 					'title'	=> 'MCP_MAPS_TITLE',
-					'auth'	=> 'ext_eru/nczone && acl_m_zone_manage_maps',
+					'auth'	=> 'ext_eru/nczone && acl_' . acl::m_zone_manage_maps,
 					'cat'	=> array('MCP_ZONE_TITLE')
 				),
 				'matches'	=> array(
 					'title'	=> 'MCP_MATCHES_TITLE',
-					'auth'	=> 'ext_eru/nczone && acl_m_zone_change_match',
+					'auth'	=> 'ext_eru/nczone && acl_' . acl::m_zone_change_match,
 					'cat'	=> array('MCP_ZONE_TITLE')
 				),
 			),

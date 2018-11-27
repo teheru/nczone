@@ -2,7 +2,7 @@
 
 namespace eru\nczone\controller;
 
-use eru\nczone\config\config;
+use eru\nczone\config\acl;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
 use eru\nczone\zone\error\BadRequestError;
@@ -31,8 +31,11 @@ class api
         $this->auth = $auth;
     }
 
-    private function respond(callable $callable, array $acl = [], array $args = []): JsonResponse
-    {
+    private function respond(
+        callable $callable,
+        array $acl = [],
+        array $args = []
+    ): JsonResponse {
         $request = phpbb_util::request();
         $headers = [
             'Access-Control-Allow-Origin' => $request->header('Origin') ?: '*',
@@ -40,7 +43,7 @@ class api
         ];
 
         $server = $request->get_super_global(request_interface::SERVER);
-        if (isset($server['REQUEST_METHOD']) && $server['REQUEST_METHOD'] === 'OPTIONS') {
+        if (($server['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
             return new JsonResponse([], self::CODE_OK, \array_merge($headers, [
                 'Access-Control-Allow-Headers' => 'x-update-session',
                 'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PUT',
@@ -94,15 +97,15 @@ class api
                 'id' => $this->get_user_id(),
                 'sid' => $this->user->session_id,
                 'lang' => $this->user->data['user_lang'],
-                'permissions' => [
-                    'u_zone_view_login' => (bool)$this->auth->acl_get('u_zone_view_login'),
-                    'u_zone_view_info' => (bool)$this->auth->acl_get('u_zone_view_info'),
-                    'u_zone_draw' => $is_activated && $this->auth->acl_get('u_zone_draw'),
-                    'u_zone_login' => $is_activated && $this->auth->acl_get('u_zone_login'),
-                    'u_zone_change_match' => $is_activated && $this->auth->acl_get('u_zone_change_match'),
-                    'm_zone_draw_match' => (bool)$this->auth->acl_get('m_zone_draw_match'),
-                    'm_zone_login_players' => (bool)$this->auth->acl_get('m_zone_login_players'),
-                    'm_zone_change_match' => (bool)$this->auth->acl_get('m_zone_change_match'),
+                'acl' => [
+                    acl::u_zone_view_login => (bool) $this->auth->acl_get(acl::u_zone_view_login),
+                    acl::u_zone_view_info => (bool) $this->auth->acl_get(acl::u_zone_view_info),
+                    acl::u_zone_draw => $is_activated && $this->auth->acl_get(acl::u_zone_draw),
+                    acl::u_zone_login => $is_activated && $this->auth->acl_get(acl::u_zone_login),
+                    acl::u_zone_change_match => $is_activated && $this->auth->acl_get(acl::u_zone_change_match),
+                    acl::m_zone_draw_match => (bool) $this->auth->acl_get(acl::m_zone_draw_match),
+                    acl::m_zone_login_players => (bool) $this->auth->acl_get(acl::m_zone_login_players),
+                    acl::m_zone_change_match => (bool) $this->auth->acl_get(acl::m_zone_change_match),
                 ],
             ];
         });
@@ -134,7 +137,7 @@ class api
             zone_util::players()->logout_player($this->get_user_id());
             return [];
         }, [
-            'u_zone_login' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+            acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
@@ -156,7 +159,7 @@ class api
             zone_util::players()->login_player($this->get_user_id());
             return [];
         }, [
-            'u_zone_login' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+            acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
@@ -178,7 +181,7 @@ class api
             zone_util::players()->login_player($args['player_id']);
             return [];
         }, [
-            'm_zone_login_players' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+            acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
         ], [
             'player_id' => (int) $player_id
         ]);
@@ -202,7 +205,7 @@ class api
             zone_util::players()->logout_player($args['player_id']);
             return [];
         }, [
-            'm_zone_login_players' => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
+            acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
         ], [
             'player_id' => (int) $player_id
         ]);
@@ -213,7 +216,7 @@ class api
         return $this->respond(function () {
             return zone_util::matches()->start_draw_process($this->get_user_id());
         }, [
-            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
@@ -224,7 +227,7 @@ class api
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
         }, [
-            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
@@ -234,7 +237,7 @@ class api
         return $this->respond(function () {
             return zone_util::matches()->draw($this->get_user_id());
         }, [
-            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
@@ -256,7 +259,7 @@ class api
                 'replace_by_player' => $players[0]
             ];
         }, [
-            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'replace_user_id' => $replace_user_id,
@@ -269,7 +272,7 @@ class api
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
         }, [
-            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
@@ -290,7 +293,7 @@ class api
                 $args['replace_user_id']
             );
         }, [
-            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'replace_user_id', $replace_user_id,
@@ -317,7 +320,7 @@ class api
                 'add_player2' => zone_util::players()->get_player($player2_id)
             ];
         }, [
-            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'match_id' => $match_id,
@@ -330,7 +333,7 @@ class api
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
         }, [
-            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ]);
     }
@@ -345,7 +348,7 @@ class api
 
             return zone_util::matches()->add_pair($this->get_user_id(), $args['match_id']);
         }, [
-            'm_zone_change_match' => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
             'self_activated' => 'NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER',
         ], [
             'match_id' => $match_id,
@@ -441,7 +444,7 @@ class api
             );
             return [];
         }, [
-            'u_zone_bet' => 'NCZONE_REASON_NOT_ALLOWED_TO_BET',
+            acl::u_zone_bet => 'NCZONE_REASON_NOT_ALLOWED_TO_BET',
         ], [
             'match_id' => (int) $match_id,
         ]);
@@ -455,17 +458,19 @@ class api
                 throw new BadRequestError('winner is not set');
             }
 
-            if (!$this->auth->acl_get('m_zone_draw_match') &&
+            if (!$this->auth->acl_get(acl::m_zone_draw_match) &&
                 !zone_util::matches()->is_player_in_match($this->get_user_id(), $args['match_id'])
             ) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT');
             }
-            $winner = (int)$data['winner'];
-
-            zone_util::matches()->post($args['match_id'], $this->get_user_id(), $winner);
+            zone_util::matches()->post(
+                $args['match_id'],
+                $this->get_user_id(),
+                (int) $data['winner']
+            );
             return [];
         }, [
-            'u_zone_draw' => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT',
+            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT',
         ], [
             'match_id' => (int) $match_id,
         ]);
@@ -474,21 +479,18 @@ class api
     public function information(): JsonResponse
     {
         return $this->respond(function () {
-            if (!$this->auth->acl_get('u_zone_view_info')) { // todo: this does not work
+            if (!$this->auth->acl_get(acl::u_zone_view_info)) { // todo: this does not work
                 return [];
             }
 
-            $misc = zone_util::misc();
-            $post_ids = $misc->get_information_ids();
-            return \array_values($misc->get_posts(...$post_ids));
+            return zone_util::misc()->get_information_posts();
         });
     }
 
     public function rules(): JsonResponse
     {
         return $this->respond(function () {
-            $rulesPosts = zone_util::misc()->get_posts((int)config::get('nczone_rules_post_id'));
-            return ['post' => end($rulesPosts)];
+            return ['post' => zone_util::misc()->get_rules_post()];
         });
     }
 
@@ -508,8 +510,11 @@ class api
         ]);
     }
 
-    public function player_dreamteams(int $user_id, int $reverse, int $number): JsonResponse
-    {
+    public function player_dreamteams(
+        int $user_id,
+        int $reverse,
+        int $number
+    ): JsonResponse {
         return $this->respond(function ($args) {
             return zone_util::players()->get_player_dreamteams(
                 $args['user_id'],

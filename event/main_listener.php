@@ -13,6 +13,8 @@ namespace eru\nczone\event;
 /**
  * @ignore
  */
+
+use eru\nczone\config\acl;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -61,33 +63,11 @@ class main_listener implements EventSubscriberInterface
 
   public function load_permission_language(\phpbb\event\data $event)
   {
-	$permissions = $event['permissions'];
-
-    $permissions['u_zone_view_info']	= array('lang' => 'ACL_U_ZONE_VIEW_INFO', 'cat' => 'zone');
-    $permissions['u_zone_login']	= array('lang' => 'ACL_U_ZONE_LOGIN', 'cat' => 'zone');
-    $permissions['u_zone_view_login']	= array('lang' => 'ACL_U_ZONE_VIEW_LOGIN', 'cat' => 'zone');
-    $permissions['u_zone_draw']	= array('lang' => 'ACL_U_ZONE_DRAW', 'cat' => 'zone');
-    $permissions['u_zone_view_matches']	= array('lang' => 'ACL_U_ZONE_VIEW_MATCHES', 'cat' => 'zone');
-    $permissions['u_zone_view_bets']	= array('lang' => 'ACL_U_ZONE_VIEW_BETS', 'cat' => 'zone');
-    $permissions['u_zone_bet']	= array('lang' => 'ACL_U_ZONE_BET', 'cat' => 'zone');
-
-    $permissions['m_zone_manage_players']	= array('lang' => 'ACL_M_ZONE_MANAGE_PLAYERS', 'cat' => 'zone');
-    $permissions['m_zone_manage_civs']	= array('lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone');
-    $permissions['m_zone_manage_maps']	= array('lang' => 'ACL_M_ZONE_MANAGE_MAPS', 'cat' => 'zone');
-	$permissions['m_zone_create_maps']	= array('lang' => 'ACL_M_ZONE_CREATE_MAPS', 'cat' => 'zone');
-    $permissions['m_zone_login_players']	= array('lang' => 'ACL_M_ZONE_LOGIN_PLAYERS', 'cat' => 'zone');
-	$permissions['m_zone_draw_match']	= array('lang' => 'ACL_M_ZONE_DRAW_MATCH', 'cat' => 'zone');
-	$permissions['m_zone_change_match']	= array('lang' => 'ACL_M_ZONE_CHANGE_MATCH', 'cat' => 'zone');
-
-	$permissions['a_zone_manage_general']	= array('lang' => 'ACL_A_ZONE_MANAGE_GENERAL', 'cat' => 'zone');
-	$permissions['a_zone_manage_draw']	= array('lang' => 'ACL_A_ZONE_MANAGE_DRAW', 'cat' => 'zone');
-
-
 	$event['categories'] = array_merge($event['categories'], array(
 		'zone' => 'ACP_CAT_ZONE',
 	));
 
-	$event['permissions'] = $permissions;
+	$event['acl'] = acl::add_permission_language($event['acl']);
   }
 
 	/**

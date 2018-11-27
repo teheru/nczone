@@ -16,7 +16,7 @@ class install_cron extends \phpbb\db\migration\migration
 {
     public function effectively_installed()
     {
-        return isset($this->config['nczone_activity_cron']);
+        return isset($this->config[config::activity_cron]);
     }
 
     static public function depends_on()
@@ -26,8 +26,6 @@ class install_cron extends \phpbb\db\migration\migration
 
     public function update_data()
     {
-        return [
-            ['config.add', ['nczone_activity_cron', config::default('nczone_activity_cron')]],
-        ];
+        return config::module_data(config::cron_settings);
     }
 }

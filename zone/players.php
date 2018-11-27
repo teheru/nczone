@@ -483,7 +483,7 @@ class players
 
     public function calculate_all_activities(): void
     {
-        $min_time = time() - (int)config::get('nczone_activity_time') * 60 * 60 * 24;
+        $min_time = time() - (int)config::get(config::activity_time) * 60 * 60 * 24;
         $sql = '
             SELECT
                 user_id,
@@ -502,15 +502,15 @@ class players
         foreach($rows as $row) {
             $user_id = (int)$row['user_id'];
             $activity_matches = (int)$row['activity_matches'];
-            if($activity_matches >= (int)config::get('nczone_activity_5')) {
+            if($activity_matches >= (int)config::get(config::activity_5)) {
                 $activity = 5;
-            } elseif($activity_matches >= (int)config::get('nczone_activity_4')) {
+            } elseif($activity_matches >= (int)config::get(config::activity_4)) {
                 $activity = 4;
-            } elseif($activity_matches >= (int)config::get('nczone_activity_3')) {
+            } elseif($activity_matches >= (int)config::get(config::activity_3)) {
                 $activity = 3;
-            } elseif($activity_matches >= (int)config::get('nczone_activity_2')) {
+            } elseif($activity_matches >= (int)config::get(config::activity_2)) {
                 $activity = 2;
-            } elseif($activity_matches >= (int)config::get('nczone_activity_1')) {
+            } elseif($activity_matches >= (int)config::get(config::activity_1)) {
                 $activity = 1;
             } else {
                 $activity = 0;

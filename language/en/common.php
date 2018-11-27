@@ -18,16 +18,4 @@ if (empty($lang) || !is_array($lang))
 	$lang = array();
 }
 
-$lang = array_merge($lang, array(
-	'NCZONE' => 'nC Zone',
-	
-	'ACP_NCZONE_TITLE' => 'nC Zone',
-	'ACP_NCZONE_GENERAL_TITLE' => 'General settings',
-	'ACP_NCZONE_DRAW_TITLE' => 'Draw settings',
-
-	'MCP_ZONE_TITLE'		=> 'nC Zone',
-	'MCP_PLAYERS_TITLE'		=> 'Player',
-	'MCP_CIVS_TITLE'		=> 'Civilizations',
-	'MCP_MAPS_TITLE'		=> 'Maps',
-    'MCP_MATCHES_TITLE' => 'Matches',
-));
+$lang = array_merge($lang, \eru\nczone\config\language\en::common);

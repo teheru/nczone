@@ -1,0 +1,165 @@
+<?php
+
+namespace eru\nczone\config\language;
+
+final class de
+{
+    public const common = [
+        'NCZONE' => 'nC Zone',
+
+        'ACP_NCZONE_TITLE' => 'nC Zone',
+        'ACP_NCZONE_GENERAL_TITLE' => 'Allgemeine Einstellungen',
+        'ACP_NCZONE_DRAW_TITLE' => 'Loseinstellungen',
+
+        'MCP_ZONE_TITLE' => 'nC Zone',
+        'MCP_PLAYERS_TITLE' => 'Spieler',
+        'MCP_CIVS_TITLE' => 'Kulturen',
+        'MCP_MAPS_TITLE' => 'Karten',
+        'MCP_MATCHES_TITLE' => 'Spiele',
+    ];
+
+    public const info_acp = [
+        'ACP_NCZONE_SAVED' => 'Gespeichert!',
+
+        'NCZONE_RULES_POST_ID' => 'Regeln Post ID',
+        'NCZONE_RULES_POST_ID_DESCR' => 'Die ID des Posts welcher auf der Regeln Seite angezeigt werden soll.',
+        'NCZONE_MATCH_FORUM_ID' => 'Post Forum ID',
+        'NCZONE_MATCH_FORUM_ID_DESCR' => 'Die ID des Forums in welches die Spielergebnisse gepostet werden sollen.',
+        'NCZONE_PMATCHES_PAGE_SIZE' => 'Vergangene Spiele Seitenlänge',
+        'NCZONE_PMATCHES_PAGE_SIZE_DESCR' => 'Anzahl der Spiele die auf bei \'Vergangene Spiele\' pro Seite angezeigt werden sollen.',
+        'NCZONE_ACTIVITY_TIME' => 'Aktivitätszeitraum',
+        'NCZONE_ACTIVITY_TIME_DESCR' => 'Der Zeitraum (in Tagen) in welchem Aktivitätsspiele gezählt werden sollen.',
+        'NCZONE_ACTIVITY' => 'Aktivität',
+        'NCZONE_ACTIVITY_DESCR' => 'Anzahl an Spielen die im Aktivitätszeitraum gespielt werden müssen um Aktivität 1/2/3/4/5 zu erreichen.',
+        'NCZONE_DRAW_TIME' => 'Loszeit',
+        'NCZONE_DRAW_TIME_DESCR' => 'Die Zeit die ein Spieler hat um eine Losung zu bestätigen.',
+        'NCZONE_POINTS' => 'Spielpunkte',
+        'NCZONE_POINTS_DESCR' => 'Die Basis Ratingpunkte, die für ein gewonnenes Spiel vergeben bzw. für ein verlorenes Spiel abgezogen werden.',
+        'NCZONE_EXTRA_POINTS' => 'Extrapunkte für Spiele',
+        'NCZONE_EXTRA_POINTS_DESCR' => 'Für jedes Vielfache einer Ratingdifferenz <i>x</i> erhält das Gewinnerteam einen weiteren Ratingpunkt (wenn im Nachteil) oder verliert einen (wenn im Vorteil). Für das Verliererteam gilt dasselbe genau umgekehrt.',
+        'NCZONE_BET_TIME' => 'Wettzeit',
+        'NCZONE_BET_TIME_DESCR' => 'Die Zeit (in Sekunden) die eine Wette vor Ende eines Spiels abgegeben werden muss damit sie gezählt werden.',
+        'NCZONE_INFO_POSTS' => 'Informations Post IDs',
+        'NCZONE_INFO_POSTS_DESCR' => 'IDs der Posts welche in \'Max wichtige Informationen\' angezeigt werden sollen.',
+
+        'NCZONE_DRAW_SETTINGS' => 'Loseinstellungen',
+        'NCZONE_DRAW_PLAYER_CIVS' => 'Differenz für Spielercivs',
+        'NCZONE_DRAW_PLAYER_CIVS_DESCR' => 'Minimale Differenz zwischen den Ratings des niedrigsten und höchsten Spieler einer Losung, damit Spielercivs gelost werden.',
+        'NCZONE_DRAW_TEAM_CIVS' => 'DIfferenz für Teamcivs',
+        'NCZONE_DRAW_TEAM_CIVS_DESCR' => 'Minimale Differenz der Ratings zweier Teams damit Teamcivs gelost werden.',
+        'NCZONE_DRAW_MATCH_EXTRA_CIVS' => 'Extra Kulturen für Spielcivs',
+        'NCZONE_DRAW_MATCH_EXTRA_CIVS_DESCR' => 'Anzahl an extra civs bei Spielcivs. Ein höherer Wert liefert Kulturen mit ähnlicheren Multiplikatoren, erhöht allerdings auch die Rechenzeit. 1vs1 / 2vs2 / 3vs3 / 4vs4',
+        'NCZONE_DRAW_TEAM_EXTRA_CIVS' => 'Extra Kulturen für Teamcivs',
+        'NCZONE_DRAW_TEAM_EXTRA_CIVS_DESCR' => 'Anzahl an Extra Kulturen für Teamcivs. Ein höherer Wert liefert fairere Kulturen um Ratingdifferenzen auszugleichen, erhöht allerdings auch die Rechenzeit. 1vs1 / 2vs2 / 3vs3 / 4vs4',
+        'NCZONE_DRAW_PLAYER_NUM_CIVS' => 'Anzahl an Kulturen für Spielercivs',
+        'NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR' => 'Anzahl an Kulturen für Spielercivs. Ein höherer Wert sorgt für fairere Kulturen im Bezug auf Ratingunterschiede im Spiel, erhöht allerdings auch die Rechenzeit <i>sehr stark</i>. 1vs1 / 2vs2 / 3vs3 / 4vs4',
+    ];
+
+    public const info_mcp = [
+        'NCZONE_AZTECS' => 'Azteken',
+        'NCZONE_BERBERS' => 'Berber',
+        'NCZONE_BRITONS' => 'Briten',
+        'NCZONE_BURMESE' => 'Burmesen',
+        'NCZONE_BYZANTINES' => 'Byzantiner',
+        'NCZONE_CELTS' => 'Kelten',
+        'NCZONE_CHINESE' => 'Chinesen',
+        'NCZONE_ETHIOPIANS' => 'Äthiopier',
+        'NCZONE_FRANKS' => 'Franken',
+        'NCZONE_GOTHS' => 'Goten',
+        'NCZONE_HUNS' => 'Hunnen',
+        'NCZONE_INCAS' => 'Inka',
+        'NCZONE_INDIANS' => 'Inder',
+        'NCZONE_ITALIANS' => 'Italiener',
+        'NCZONE_JAPANESE' => 'Japaner',
+        'NCZONE_KHMER' => 'Khmer',
+        'NCZONE_KOREANS' => 'Koreaner',
+        'NCZONE_MAGYARS' => 'Ungarn',
+        'NCZONE_MALAY' => 'Malaien',
+        'NCZONE_MALIANS' => 'Malier',
+        'NCZONE_MAYANS' => 'Maya',
+        'NCZONE_MONGOLS' => 'Mongolen',
+        'NCZONE_PERSIANS' => 'Perser',
+        'NCZONE_PORTUGUESE' => 'Portugiesen',
+        'NCZONE_SARACENS' => 'Sarazenen',
+        'NCZONE_SLAVS' => 'Slaven',
+        'NCZONE_SPANISH' => 'Spanier',
+        'NCZONE_TEUTONS' => 'Teutonen',
+        'NCZONE_TURKS' => 'Türken',
+        'NCZONE_VIETNAMESE' => 'Vietnamesen',
+        'NCZONE_VIKINGS' => 'Wikinger',
+
+        'MCP_SELECT_USER' => 'Benutzer auswählen',
+        'MCP_SELECT_USER_HINT' => 'Einen Benutzer auswählen um ihn zu aktivieren oder seine Zone Daten zu ändern.',
+        'MCP_PLAYER_RATING' => 'Rating',
+        'MCP_PLAYER_RATING_HINT' => 'Rating des Spielers.',
+        'MCP_ACTIVATE_PLAYER' => 'Aktivieren',
+        'MCP_ACTIVATE_PLAYER_HINT' => 'Erstellt einen Zoneaccount für diesen Spieler.',
+        'MCP_USER_NOT_FOUND' => 'Der Benutzername konnte nicht gefunden werden.',
+
+        'MCP_SELECT_CIV' => 'Kultur auswählen',
+        'MCP_CIV_HINT' => 'Beachte, dass Kulturen nicht mehr gelöscht werden können!',
+        'MCP_CREATE_CIV' => 'Neue Kultur erstellen',
+        'MCP_CIV_NAME' => 'Name der Kultur',
+        'MCP_CIV_NAME_HINT' => 'Du kannst auch eine Sprachvariable verwenden.',
+
+        'MCP_SELECT_MAP' => 'Karte auswählen',
+        'MCP_MAP_HINT' => 'Du kannst auch eine bestehende Karte kopieren.',
+        'MCP_CREATE_MAP' => 'Neue Karte erstellen',
+        'MCP_MAP_NAME' => 'Kartenname',
+        'MCP_MAP_NAME_HINT' => 'Sprachvariablen sind nicht möglich!',
+        'MCP_MAP_WEIGHT' => 'Gewichtung der Karte',
+        'MCP_MAP_WEIGHT_HINT' => 'Eine Karte mit höherer Gewichtung wird häufiger gelost.',
+        'MCP_COPY_MAP' => 'Karte kopieren',
+        'MCP_COPY_MAP_HINT' => 'Verwende dies um alle Einstellungen für Kulturen von einer anderen Karte zu übernehmen.',
+        'MCP_DONT_COPY' => 'Nicht kopieren',
+        'MCP_MAP_CIVS' => 'Einstellungen für Kulturen für diese Karte',
+        'MCP_MAP_CIVS_HINT' => 'Der Multiplikator wird beim Losen auf das Spielerrating multipliziert.',
+        'MCP_MULTIPLIER' => 'Multiplikator',
+        'MCP_FORCE_DRAW' => 'Losen erzwingen',
+        'MCP_PREVENT_DRAW' => 'Losen verhindern',
+        'MCP_BOTH_TEAMS' => 'Für beide Teams losen',
+
+        'MCP_SELECT_MATCH' => 'Spiel ID auswählen',
+        'MCP_SELECT_MATCH_HINT' => 'Gebe hier die Spiel ID von dem Spiel ein, welches du editieren möchtest.',
+        'MCP_MATCH_WINNER' => 'Sieger auswählen',
+        'MCP_MATCH_WINNER_HINT' => 'Wähle hier aus der das Spiel gewonnen hat.',
+        'MCP_TEAM1' => 'Team 1',
+        'MCP_TEAM2' => 'Team 2',
+        'MCP_NO_RESULT' => 'Ohne Wertung',
+        'MCP_WRONG_WINNER' => 'Du hast keinen Sieger ausgewählt',
+        'MCP_MATCH_REPOSTED' => 'Das Spiel wurde umgepostet',
+    ];
+
+    public const info_ucp = [
+        'UCP_DEMO' => 'Settings',
+        'UCP_DEMO_TITLE' => 'Demo Module',
+        'UCP_DEMO_USER' => 'Acme user',
+        'UCP_DEMO_USER_EXPLAIN' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        'UCP_DEMO_SAVED' => 'Settings have been saved successfully!',
+
+        'NOTIFICATION_TYPE_DEMO' => 'Use Acme demo notifications',
+    ];
+
+    public const permissions = [
+        'ACP_CAT_ZONE' => 'nC Zone',
+        'ACL_M_ZONE_MANAGE_PLAYERS' => 'Spieler verwalten',
+        'ACL_M_ZONE_MANAGE_MAPS' => 'Karten verwalten',
+        'ACL_M_ZONE_CREATE_MAPS' => 'Karten erstellen und löschen',
+        'ACL_M_ZONE_MANAGE_CIVS' => 'Kulturen verwalten',
+        'ACL_M_ZONE_LOGIN_PLAYERS' => 'Andere Spieler einloggen',
+        'ACL_M_ZONE_DRAW_MATCH' => 'Losen (auch wenn nicht eingeloggt)',
+        'ACL_M_ZONE_CHANGE_MATCH' => 'Andere Spiele ändern',
+
+        'ACL_U_ZONE_VIEW_INFO' => 'Informationen sehen',
+        'ACL_U_ZONE_DRAW' => 'Losen',
+        'ACL_U_ZONE_CHANGE_MATCH' => 'Spiel ändern',
+        'ACL_U_ZONE_LOGIN' => 'Ein-/Ausloggen',
+        'ACL_U_ZONE_VIEW_LOGIN' => 'Kann eingeloggte Spieler sehen',
+        'ACL_U_ZONE_VIEW_MATCHES' => 'Kann Spiele sehen',
+        'ACL_U_ZONE_VIEW_BETS' => 'Kann Wetten sehen',
+        'ACL_U_ZONE_BET' => 'Kann Wetten',
+
+        'ACL_A_ZONE_MANAGE_GENERAL' => 'Kann allgemeine Einstellungen verändern',
+        'ACL_A_ZONE_MANAGE_DRAW' => 'Kann Loseinstellungen verändern',
+    ];
+}

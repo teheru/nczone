@@ -10,6 +10,7 @@
 
 namespace eru\nczone\controller;
 
+use eru\nczone\config\acl;
 use eru\nczone\utility\phpbb_util;
 
 /**
@@ -36,24 +37,12 @@ class main
 
     public function zone()
     {
-        $show_mcp_link = self::has_any_permission([
-            'm_zone_manage_players',
-            'm_zone_manage_civs',
-            'm_zone_manage_maps',
-            'm_zone_create_maps',
-            'm_zone_change_match'
-        ]);
-
-        $show_acp_link = self::has_any_permission([
-            'a_zone_manage_general',
-            'a_zone_manage_draw'
-        ]);
-
-        if ($show_mcp_link) {
+        $auth = phpbb_util::auth();
+        if (acl::has_any_mod_permissions($auth)) {
             phpbb_util::template()->assign_var('U_MCP', append_sid(phpbb_util::file_url('mcp'), 'i=-eru-nczone-mcp-main_module'));
         }
 
-        if ($show_acp_link) {
+        if (acl::has_any_admin_permissions($auth)) {
             phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
         }
 
@@ -61,15 +50,5 @@ class main
             $this->mchat->page_nczone();
         }
         return $this->helper->render('zone.html');
-    }
-
-    private static function has_any_permission(array $permissions): bool
-    {
-        foreach ($permissions as $permission) {
-            if (phpbb_util::auth()->acl_get($permission)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -18,25 +18,4 @@ if (empty($lang) || !is_array($lang))
 	$lang = array();
 }
 
-$lang = array_merge($lang, array(
-    'ACP_CAT_ZONE' => 'nC Zone',
-	'ACL_M_ZONE_MANAGE_PLAYERS' => 'manage players',
-	'ACL_M_ZONE_MANAGE_MAPS' => 'manage maps',
-	'ACL_M_ZONE_CREATE_MAPS' => 'create and delete maps',
-	'ACL_M_ZONE_MANAGE_CIVS' => 'manage civilizations',
-	'ACL_M_ZONE_LOGIN_PLAYERS' => 'login other players',
-	'ACL_M_ZONE_DRAW_MATCH' => 'draw matches (even when not logged in)',
-	'ACL_M_ZONE_CHANGE_MATCH' => 'change other matches',
-
-	'ACL_U_ZONE_VIEW_INFO' => 'can view information',
-	'ACL_U_ZONE_DRAW' => 'draw matches',
-	'ACL_U_ZONE_CHANGE_MATCH' => 'change match',
-	'ACL_U_ZONE_LOGIN' => 'login / logout',
-	'ACL_U_ZONE_VIEW_LOGIN' => 'can see logged in players',
-	'ACL_U_ZONE_VIEW_MATCHES' => 'can see matches',
-	'ACL_U_ZONE_VIEW_BETS' => 'can see players bets',
-	'ACL_U_ZONE_BET' => 'can bet on matches',
-
-	'ACL_A_ZONE_MANAGE_GENERAL' => 'can manage general settings',
-	'ACL_A_ZONE_MANAGE_DRAW' => 'can manage draw settings',
-));
+$lang = array_merge($lang, \eru\nczone\config\language\en::permissions);

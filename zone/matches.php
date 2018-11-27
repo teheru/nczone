@@ -325,7 +325,7 @@ class matches {
             ];
 
             // we don't want to create duplicate topics for a match
-            if (!$repost && config::get('nczone_match_forum_id')) {
+            if (!$repost && config::get(config::match_forum_id)) {
                 $update_sql['forum_topic_id'] = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
             }
 
@@ -352,7 +352,7 @@ class matches {
 
         $title = '[#' . $match_id . '] ' . implode(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . implode(', ', $team_names[$team2_id]) . $team2_str;
         $message = '[match]' . $match_id . '[/match]';
-        return zone_util::misc()->create_post($title, $message, config::get('nczone_match_forum_id'));
+        return zone_util::misc()->create_post($title, $message, config::get(config::match_forum_id));
     }
 
     public function post_undo(int $match_id): void // todo: test this xD // todo: dreamteams
@@ -450,16 +450,16 @@ class matches {
         $base_points = -1;
         switch($match_size)
         {
-            case 1: $base_points = (int)config::get('nczone_points_1vs1'); break;
-            case 2: $base_points = (int)config::get('nczone_points_2vs2'); break;
-            case 3: $base_points = (int)config::get('nczone_points_3vs3'); break;
-            case 4: $base_points = (int)config::get('nczone_points_4vs4'); break;
+            case 1: $base_points = (int)config::get(config::points_1vs1); break;
+            case 2: $base_points = (int)config::get(config::points_2vs2); break;
+            case 3: $base_points = (int)config::get(config::points_3vs3); break;
+            case 4: $base_points = (int)config::get(config::points_4vs4); break;
         }
         if($base_points === -1) {
             return 0;
         }
         
-        $extra_points = (int)floor(abs($rating_diff) / (float)config::get('nczone_extra_points'));
+        $extra_points = (int)floor(abs($rating_diff) / (float)config::get(config::extra_points));
 
         $match_points = 0;
         if($base_points >= 0) {
@@ -473,18 +473,19 @@ class matches {
 
     public function evaluate_bets(int $winner_team, int $loser_team, int $end_time): void
     {
+        $bet_time = (int) config::get(config::bet_time);
         $users_right = $this->db->get_col([
             'SELECT' => 't.user_id',
             'FROM' => [$this->db->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - (int)config::get('nczone_bet_time')),
+            'WHERE' => 't.team_id = '. $winner_team .' AND t.time <= ' . ($end_time - $bet_time),
         ]);
         $users_wrong = $this->db->get_col([
             'SELECT' => 't.user_id',
             'FROM' => [$this->db->bets_table => 't'],
-            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - (int)config::get('nczone_bet_time')),
+            'WHERE' => 't.team_id = '. $loser_team .' AND t.time <= ' . ($end_time - $bet_time),
         ]);
 
-        $this->db->sql_query('UPDATE ' . $this->db->bets_table . ' SET `counted` = 1 WHERE (team_id = '. $winner_team .' OR team_id = '. $loser_team .') AND `time` <= ' . ($end_time - (int)config::get('nczone_bet_time')));
+        $this->db->sql_query('UPDATE ' . $this->db->bets_table . ' SET `counted` = 1 WHERE (team_id = '. $winner_team .' OR team_id = '. $loser_team .') AND `time` <= ' . ($end_time - $bet_time));
 
         if($users_right)
         {
@@ -708,7 +709,7 @@ class matches {
 
     public function get_pmatches(int $page=0): array
     {
-        $page_size = (int)config::get('nczone_pmatches_page_size');
+        $page_size = (int)config::get(config::pmatches_page_size);
 
         $sql = '
             SELECT 
@@ -751,7 +752,7 @@ class matches {
 
     public function get_pmatches_pages(): int
     {
-        $page_size = (int)config::get('nczone_pmatches_page_size');
+        $page_size = (int)config::get(config::pmatches_page_size);
         $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE t.post_time > 0');
         return (int)ceil($num_matches / $page_size);
     }
@@ -906,7 +907,7 @@ class matches {
         }
 
         $draw_process_time = (int)$row['time'];
-        if ($draw_process_time && ((time() - $draw_process_time) > config::get('nczone_draw_time'))) {
+        if ($draw_process_time && ((time() - $draw_process_time) > config::get(config::draw_time))) {
             $this->clear_draw_tables();
             return 0;
         }

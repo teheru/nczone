@@ -10,6 +10,7 @@
 
 namespace eru\nczone\mcp;
 
+use eru\nczone\config\acl;
 use eru\nczone\utility\db;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
@@ -156,7 +157,7 @@ class main_module
 
         $map_id = $request->variable('map_id', '');
 
-        if ($request->variable('create_map', '') && phpbb_util::auth()->acl_get('m_zone_create_maps')) {
+        if ($request->variable('create_map', '') && phpbb_util::auth()->acl_get(acl::m_zone_create_maps)) {
             zone_util::maps()->create_map(
                 $request->variable('map_name', ''),
                 (float)$request->variable('map_weight', 1.0),
@@ -184,7 +185,7 @@ class main_module
 
         $template = phpbb_util::template();
         $template->assign_var('S_MANAGE_MAPS', true);
-        $template->assign_var('S_CAN_CREATE_MAP', phpbb_util::auth()->acl_get('m_zone_create_maps'));
+        $template->assign_var('S_CAN_CREATE_MAP', phpbb_util::auth()->acl_get(acl::m_zone_create_maps));
 
         if ($map_id == '') {
             $template->assign_var('S_SELECT_MAP', true);

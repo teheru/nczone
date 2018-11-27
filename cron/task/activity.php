@@ -32,7 +32,7 @@ class activity extends \phpbb\cron\task\base
 	public function run()
 	{
 		zone_util::players()->calculate_all_activities();
-		config::set('nczone_activity_cron', time(), false);
+		config::set(config::activity_cron, time(), false);
 	}
 
 	/**
@@ -53,6 +53,6 @@ class activity extends \phpbb\cron\task\base
 	 */
 	public function should_run()
 	{
-		return (int)config::get('nczone_activity_cron') < time() - $this->cron_frequency;
+		return (int) config::get(config::activity_cron) < time() - $this->cron_frequency;
 	}
 }

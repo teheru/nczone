@@ -47,12 +47,12 @@ class draw_settings {
         $map_id = $this->get_players_map_id($players);
 
         $match_size = $team1->length();
-        $vs_str = $match_size . 'vs' . $match_size;
 
         $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
         if($civ_kind === self::MATCH_CIVS)
         {
-            $match_civs = $this->draw_match_civs($map_id, $players, config::get('nczone_draw_match_extra_civs_' . $vs_str));
+            $extra_civs = config::draw_match_extra_civs($match_size);
+            $match_civs = $this->draw_match_civs($map_id, $players, $extra_civs);
             foreach($match_civs as $civ)
             {
                 $match_civ_ids[] = (int)$civ['id'];
@@ -60,7 +60,8 @@ class draw_settings {
         }
         elseif($civ_kind === self::TEAM_CIVS)
         {
-            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, config::get('nczone_draw_team_extra_civs_' . $vs_str));
+            $extra_civs = config::draw_team_extra_civs($match_size);
+            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, $extra_civs);
             foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = (int)$civ['id'];
@@ -72,7 +73,8 @@ class draw_settings {
         }
         else
         {
-            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, config::get('nczone_draw_player_num_civs_' . $vs_str));
+            $num_civs = config::draw_player_num_civs($match_size);
+            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, $num_civs);
             foreach($player_civs as $user_id => $pc)
             {
                 $player_civ_ids[$user_id] = $pc['id'];
@@ -131,11 +133,11 @@ class draw_settings {
 
     public function decide_draw_civs_kind(match_players_list $team1, match_players_list $team2): string
     {
-        if ($team1->get_min_max_diff($team2) >= config::get('nczone_draw_player_civs')) {
+        if ($team1->get_min_max_diff($team2) >= config::get(config::draw_player_civs)) {
             return self::PLAYER_CIVS;
         }
 
-        if($team1->get_abs_rating_difference($team2) >= config::get('nczone_draw_team_civs')) {
+        if($team1->get_abs_rating_difference($team2) >= config::get(config::draw_team_civs)) {
             return self::TEAM_CIVS;
         }
 

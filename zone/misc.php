@@ -28,11 +28,27 @@ class misc
         $this->user = $user;
     }
 
-    public function get_information_ids(): array
+    public function get_rules_post()
     {
-        return array_map('\intval', explode(',', config::get('nczone_info_posts')));
+        return $this->get_post((int) config::get(config::rules_post_id));
     }
 
+    public function get_information_posts()
+    {
+        $post_ids = $this->get_information_post_ids();
+        return \array_values($this->get_posts(...$post_ids));
+    }
+
+    public function get_information_post_ids(): array
+    {
+        return array_map('\intval', explode(',', config::get(config::info_posts)));
+    }
+
+    public function get_post(int $post_id): array
+    {
+        $posts = $this->get_posts([$post_id]);
+        return \end($posts);
+    }
     public function get_posts(int ...$post_ids): array
     {
         $rows = $this->db->get_rows([
