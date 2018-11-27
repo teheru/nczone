@@ -73,7 +73,7 @@ final class acl
 
     public static function add_permission_language($acl): array
     {
-        return \array_merge($acl, [
+        return \array_merge($acl ?: [], [
             self::u_zone_view_info => ['lang' => 'ACL_U_ZONE_VIEW_INFO', 'cat' => 'zone'],
             self::u_zone_login => ['lang' => 'ACL_U_ZONE_LOGIN', 'cat' => 'zone'],
             self::u_zone_view_login => ['lang' => 'ACL_U_ZONE_VIEW_LOGIN', 'cat' => 'zone'],
