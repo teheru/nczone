@@ -242,6 +242,10 @@ class draw_teams
         foreach ($team_def as $teams) {
             $team1 = $players->pick_indexes(...$teams[0]);
             $team2 = $players->pick_indexes(...$teams[1]);
+//TODO! add a factor here
+            //echo sprintf('Abs Rating Variance: %c', match_players_list::get_abs_rating_variance($team1, $team2));
+            throw new \Exception(match_players_list::get_abs_rating_variance($team1, $team2));
+            //
 
             $value = $team1->get_abs_rating_difference($team2);
             if ($best_value < 0.0 || $value < $best_value) {
@@ -249,6 +253,7 @@ class draw_teams
                 $best_teams = [$team1, $team2];
             }
         }
+
 
         return [
             'teams' => $best_teams,

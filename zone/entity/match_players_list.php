@@ -178,4 +178,28 @@ class match_players_list
             return $list->get_min_rating();
         }, $players_lists));
     }
+
+    private static function get_mean_rating(match_players_list ...$players_lists): int
+    {
+       $value = 0;
+       $number = 0;
+       foreach ($players_lists as $list) {
+        $value += $list->get_total_rating();
+        $number += $list->length();
+       }
+       return $value/$number;
+    }
+
+    public static function get_abs_rating_variance(match_players_list ...$players_lists): int
+    {
+       $mean = $players_lists->get_mean_rating();
+       $number = 0;
+       foreach ($players_lists as $list) {
+            $playerArray = $list->items();
+            foreach ($playerArray as $player) {
+                $value += \abs($mean - $player->get_rating());
+            }
+       }
+       return $value;
+    }
 }
