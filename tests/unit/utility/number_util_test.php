@@ -1,6 +1,6 @@
 <?php
 
-namespace eru\nczone\tests\zone;
+namespace eru\nczone\tests\utility;
 
 use eru\nczone\utility\number_util;
 use PHPUnit\Framework\TestCase;

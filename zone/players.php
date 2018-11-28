@@ -424,14 +424,12 @@ class players
 
     public function get_team_usernames(int ...$team_ids): array
     {
-        if(!$team_ids)
-        {
+        if (!$team_ids) {
             return [];
         }
 
         $team_usernames = [];
-        foreach($team_ids as $team_id)
-        {
+        foreach ($team_ids as $team_id) {
             $team_usernames[$team_id] = [];
         }
 
@@ -442,8 +440,7 @@ class players
             'ORDER_BY' => 'mp.draw_rating DESC',
         ]);
 
-        foreach($rows as $r)
-        {
+        foreach ($rows as $r) {
             $team_usernames[(int)$r['team_id']][] = $r['username'];
         }
         return $team_usernames;
@@ -484,35 +481,10 @@ class players
                 p.user_id
             ;
         ';
-        foreach($this->db->get_rows($sql) as $row) {
-            $activity = self::activity_by_match_count((int)$row['match_count']);
+        foreach ($this->db->get_rows($sql) as $row) {
+            $activity = config::activity_by_match_count((int)$row['match_count']);
             $this->edit_player((int)$row['user_id'], ['activity' => $activity]);
         }
-    }
-
-    private static function activity_by_match_count($match_count): int
-    {
-        if ($match_count >= (int)config::get(config::activity_5)) {
-            return 5;
-        }
-
-        if ($match_count >= (int)config::get(config::activity_4)) {
-            return 4;
-        }
-
-        if ($match_count >= (int)config::get(config::activity_3)) {
-            return 3;
-        }
-
-        if ($match_count >= (int)config::get(config::activity_2)) {
-            return 2;
-        }
-
-        if($match_count >= (int)config::get(config::activity_1)) {
-            return 1;
-        }
-
-        return 0;
     }
 
     public function get_running_match_id(int $user_id): int

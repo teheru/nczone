@@ -181,18 +181,22 @@ class matches {
         });
     }
 
-    public function clean_match(int $match_id): void
+    /**
+     * Note: this is always run in a transaction, no need to wrap its calls
+     * @param int $match_id
+     */
+    private function clean_match(int $match_id): void
     {
         $team_ids = $this->get_match_team_ids($match_id);
+        $where_match_id = "`match_id` = {$match_id}";
+        $where_team_id = $this->db->sql_in_set('team_id', $team_ids);
 
-        $where_match_id = ' WHERE `match_id` = ' . $match_id;
-        $where_team_id = ' WHERE ' . $this->db->sql_in_set('team_id', $team_ids);
-        $this->db->sql_query('DELETE FROM ' . $this->db->match_players_table . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->db->match_civs_table . $where_match_id);
-        $this->db->sql_query('DELETE FROM ' . $this->db->match_team_civs_table . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->db->match_player_civs_table . $where_match_id);
-        $this->db->sql_query('DELETE FROM ' . $this->db->match_teams_table . $where_team_id);
-        $this->db->sql_query('DELETE FROM ' . $this->db->matches_table . $where_match_id);
+        $this->db->sql_query("DELETE FROM {$this->db->match_players_table} WHERE {$where_team_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_civs_table} WHERE {$where_match_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_team_civs_table} WHERE {$where_team_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_player_civs_table} WHERE {$where_match_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_teams_table} WHERE {$where_team_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->matches_table} WHERE {$where_match_id};");
     }
 
     /**
@@ -242,7 +246,11 @@ class matches {
                 $team1_list = $this->get_teams_players($team1_id);
                 $team2_list = $this->get_teams_players($team2_id);
 
-                $match_points = $this->get_match_points_by_match_size($team1_list->length(), $team1_list->get_rating_difference($team2_list), $winner);
+                $match_points = $this->get_match_points_by_match_size(
+                    $team1_list->length(),
+                    $team1_list->get_rating_difference($team2_list),
+                    $winner
+                );
 
 
                 $match_civ_ids = $this->db->get_col([
@@ -329,8 +337,9 @@ class matches {
             ];
 
             // we don't want to create duplicate topics for a match
-            if (!$repost && config::get(config::match_forum_id)) {
-                $update_sql['forum_topic_id'] = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner);
+            $forum_id = config::get(config::match_forum_id);
+            if (!$repost && $forum_id) {
+                $update_sql['forum_topic_id'] = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner, $forum_id);
             }
 
             $this->db->update($this->db->matches_table, $update_sql, [
@@ -339,24 +348,26 @@ class matches {
         });
     }
 
-    protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner): int
+    protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner, int $forum_id): int
     {
         $team_names = zone_util::players()->get_team_usernames($team1_id, $team2_id);
-        $team1_str = $team2_str = '';
-        if($winner === 1)
-        {
+        if ($winner === 1) {
             $team1_str = ' (W)';
             $team2_str = ' (L)';
-        }
-        elseif($winner === 2)
-        {
+        } elseif ($winner === 2) {
             $team1_str = ' (L)';
             $team2_str = ' (W)';
+        } else {
+            $team1_str = '';
+            $team2_str = '';
         }
 
-        $title = '[#' . $match_id . '] ' . implode(', ', $team_names[$team1_id]) . $team1_str . ' vs. ' . implode(', ', $team_names[$team2_id]) . $team2_str;
+        $title = '[#' . $match_id . '] '
+            . implode(', ', $team_names[$team1_id]) . $team1_str
+            . ' vs. '
+            . implode(', ', $team_names[$team2_id]) . $team2_str;
         $message = '[match]' . $match_id . '[/match]';
-        return zone_util::misc()->create_post($title, $message, config::get(config::match_forum_id));
+        return zone_util::misc()->create_post($title, $message, $forum_id);
     }
 
     public function post_undo(int $match_id): void // todo: test this xD // todo: dreamteams
@@ -366,12 +377,10 @@ class matches {
             'FROM' => [$this->db->matches_table => 't'],
             'WHERE' => 't.match_id = ' . $match_id,
         ]);
-        if(!$row)
-        {
+        if (!$row) {
             return;
         }
-        if(!$row['winner_team_id'])
-        {
+        if (!$row['winner_team_id']) {
             return;
         }
 
@@ -386,9 +395,7 @@ class matches {
             $winner_team_id == $team1_id ? 1 : 2
         );
 
-
-        foreach($team1_list->items() as $mp)
-        {
+        foreach ($team1_list->items() as $mp) {
             zone_util::players()->match_changes_undo(
                 $mp->get_id(),
                 $team1_id,
@@ -396,8 +403,7 @@ class matches {
                 $team1_id === $winner_team_id
             );
         }
-        foreach($team2_list->items() as $mp)
-        {
+        foreach ($team2_list->items() as $mp) {
             zone_util::players()->match_changes_undo(
                 $mp->get_id(),
                 $team2_id,
@@ -467,30 +473,20 @@ class matches {
         return $list;
     }
 
-    public function get_match_points_by_match_size(int $match_size, int $rating_diff, int $winner): int
-    {
-        $base_points = -1;
-        switch($match_size)
-        {
-            case 1: $base_points = (int)config::get(config::points_1vs1); break;
-            case 2: $base_points = (int)config::get(config::points_2vs2); break;
-            case 3: $base_points = (int)config::get(config::points_3vs3); break;
-            case 4: $base_points = (int)config::get(config::points_4vs4); break;
-        }
-        if($base_points === -1) {
+    private function get_match_points_by_match_size(
+        int $match_size,
+        int $rating_diff,
+        int $winner
+    ): int {
+        $base_points = config::base_points_by_match_size($match_size);
+        if ($base_points < 0) {
             return 0;
         }
-        
+
+        $is_outsider_win = ($rating_diff > 0 xor $winner === 1) ? true : false;
+        $factor = $is_outsider_win ? 1 : -1;
         $extra_points = (int)floor(abs($rating_diff) / (float)config::get(config::extra_points));
-
-        $match_points = 0;
-        if($base_points >= 0) {
-            $match_points = ($base_points +
-                                   (($rating_diff > 0 xor $winner === 1) ? 1 : -1) * $extra_points);
-            $match_points = $match_points < 0 ? 0 : $match_points;
-        }
-
-        return $match_points;
+        return \max(0, $base_points + $factor * $extra_points);
     }
 
     /**

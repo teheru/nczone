@@ -135,34 +135,38 @@ class match_players_list
 
     public function get_abs_rating_difference(match_players_list $team2): int
     {
-        return \abs($this->get_rating_difference($team2));
+        return number_util::diff(
+            $this->get_total_rating(),
+            $team2->get_total_rating()
+        );
     }
 
     public function get_min_max_diff(match_players_list $team2)
     {
-        return \abs(self::get_max_rating_of_all($this, $team2) - self::get_min_rating_of_all($this, $team2));
+        return number_util::diff(
+            self::get_max_rating_of_all($this, $team2),
+            self::get_min_rating_of_all($this, $team2)
+        );
     }
 
     public function get_max_rating(): int
     {
-        $max = PHP_INT_MIN;
-        foreach ($this->items as $player) {
-            if ($player->get_rating() > $max) {
-                $max = $player->get_rating();
-            }
-        }
-        return $max === PHP_INT_MIN ? 0 : $max;
+        return $this->get_extreme_rating('\max');
     }
 
     public function get_min_rating(): int
     {
-        $min = PHP_INT_MAX;
-        foreach ($this->items as $player) {
-            if ($player->get_rating() < $min) {
-                $min = $player->get_rating();
-            }
+        return $this->get_extreme_rating('\min');
+    }
+
+    private function get_extreme_rating(callable $extreme_finder): int
+    {
+        if (empty($this->items)) {
+            return 0;
         }
-        return $min === PHP_INT_MAX ? 0 : $min;
+        return $extreme_finder(\array_map(function (match_player $p) {
+            return $p->get_rating();
+        }, $this->items));
     }
 
     private static function get_max_rating_of_all(match_players_list ...$players_lists): int

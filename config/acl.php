@@ -26,7 +26,28 @@ final class acl
     public const m_zone_login_players = 'm_zone_login_players';
     public const m_zone_change_match = 'm_zone_change_match';
 
-    private const user_permissions = [
+    private const activation_required = [
+        self::u_zone_draw,
+        self::u_zone_login,
+        self::u_zone_change_match,
+    ];
+
+    public const PERMISSIONS_ADMIN = [
+        self::a_zone_manage_general,
+        self::a_zone_manage_draw,
+    ];
+
+    public const PERMISSIONS_MOD = [
+        self::m_zone_manage_players,
+        self::m_zone_manage_civs,
+        self::m_zone_manage_maps,
+        self::m_zone_create_maps,
+        self::m_zone_draw_match,
+        self::m_zone_login_players,
+        self::m_zone_change_match,
+    ];
+
+    public const PERMISSIONS_USER_STANDARD = [
         self::u_zone_view_info,
         self::u_zone_login,
         self::u_zone_view_login,
@@ -37,25 +58,20 @@ final class acl
         self::u_zone_bet,
     ];
 
-    private const admin_permissions = [
-        self::a_zone_manage_general,
-        self::a_zone_manage_draw,
+    public const ROLE_ADMIN = [
+        'nC Zone Admin',
+        'a_',
+        'A full administrative role for the nC Zone.',
     ];
 
-    private const mod_permissions = [
-        self::m_zone_manage_players,
-        self::m_zone_manage_civs,
-        self::m_zone_manage_maps,
-        self::m_zone_create_maps,
-        self::m_zone_draw_match,
-        self::m_zone_login_players,
-        self::m_zone_change_match,
+    public const ROLE_MOD = [
+        'nC Zone Mod',
+        'm_',
+        'A moderator role for the nC Zone.',
     ];
 
-    private const activation_required = [
-        self::u_zone_draw,
-        self::u_zone_login,
-        self::u_zone_change_match,
+    public const ROLE_USER_STANDARD = [
+        'ROLE_USER_STANDARD',
     ];
 
     private static function all_permissions(): array
@@ -63,12 +79,19 @@ final class acl
         static $permissions;
         if ($permissions === null) {
             $permissions = \array_merge(
-                self::user_permissions,
-                self::mod_permissions,
-                self::admin_permissions
+                self::PERMISSIONS_USER_STANDARD,
+                self::PERMISSIONS_MOD,
+                self::PERMISSIONS_ADMIN
             );
         }
         return $permissions;
+    }
+
+    public static function add_categories_language($categories): array
+    {
+        return \array_merge($categories ?: [], [
+            'zone' => 'ACP_CAT_ZONE',
+        ]);
     }
 
     public static function add_permission_language($acl): array
@@ -95,7 +118,7 @@ final class acl
         ]);
     }
 
-    private static function has_any_permission(
+    public static function has_any_permission(
         auth $auth,
         array $permissions
     ): bool {
@@ -107,22 +130,12 @@ final class acl
         return false;
     }
 
-    public static function has_any_admin_permissions(auth $auth): bool
-    {
-        return self::has_any_permission($auth, self::admin_permissions);
-    }
-
-    public static function has_any_mod_permissions(auth $auth): bool
-    {
-        return self::has_any_permission($auth, self::mod_permissions);
-    }
-
     public static function has_permission(
         auth $auth,
         bool $activated,
         string $perm
     ): bool {
-        if (\in_array($perm, self::activation_required, true) && !$activated) {
+        if (!$activated && \in_array($perm, self::activation_required, true)) {
             return false;
         }
         return (bool) $auth->acl_get($perm);
@@ -140,38 +153,13 @@ final class acl
         ));
     }
 
-    public static function module_data_acp(): array
-    {
-        return self::module_data(self::admin_permissions, [
-            'nC Zone Admin',
-            'a_',
-            'A full administrative role for the nC Zone.',
-        ]);
-    }
-
-    public static function module_data_mcp(): array
-    {
-        return self::module_data(self::mod_permissions, [
-            'nC Zone Mod',
-            'm_',
-            'A moderator role for the nC Zone.',
-        ]);
-    }
-
-    public static function module_data_zone(): array
-    {
-        return self::module_data(self::user_permissions, [
-            'ROLE_USER_STANDARD',
-        ]);
-    }
-
-    private static function module_data(array $permissions, array $role): array
+    public static function module_data(array $permissions, array $role): array
     {
         return \array_merge(
             \array_map(function ($permission) {
-                return ['permission.add' => [$permission, true]];
+                return ['permission.add', [$permission, true]];
             }, $permissions),
-            $role[0] === 'ROLE_USER_STANDARD' ? [] : [['permission.role_add', $role]],
+            $role === self::ROLE_USER_STANDARD ? [] : [['permission.role_add', $role]],
             \array_map(function ($permission) use ($role) {
                 return ['permission.permission_set', [$role[0], $permission]];
             }, $permissions)
