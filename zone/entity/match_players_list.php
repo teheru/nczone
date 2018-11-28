@@ -196,8 +196,8 @@ class match_players_list
 
     public static function get_abs_rating_variance(match_players_list ...$players_lists): int
     {
-       $mean = $players_lists->get_mean_rating();
-       $number = 0;
+       $mean = self::get_mean_rating(...$players_lists);
+       $value = 0;
        foreach ($players_lists as $list) {
             $playerArray = $list->items();
             foreach ($playerArray as $player) {
