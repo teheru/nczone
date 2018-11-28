@@ -476,25 +476,18 @@ class matches {
         $base_points = -1;
         switch($match_size)
         {
-            case 1: $base_points = (int)config::get(config::points_1vs1); break;
-            case 2: $base_points = (int)config::get(config::points_2vs2); break;
-            case 3: $base_points = (int)config::get(config::points_3vs3); break;
-            case 4: $base_points = (int)config::get(config::points_4vs4); break;
+            case 1: $base_points = (int) config::get(config::points_1vs1); break;
+            case 2: $base_points = (int) config::get(config::points_2vs2); break;
+            case 3: $base_points = (int) config::get(config::points_3vs3); break;
+            case 4: $base_points = (int) config::get(config::points_4vs4); break;
         }
-        if($base_points === -1) {
+        if ($base_points < 0) {
             return 0;
         }
-        
+
         $extra_points = (int)floor(abs($rating_diff) / (float)config::get(config::extra_points));
-
-        $match_points = 0;
-        if($base_points >= 0) {
-            $match_points = ($base_points +
-                                   (($rating_diff > 0 xor $winner === 1) ? 1 : -1) * $extra_points);
-            $match_points = $match_points < 0 ? 0 : $match_points;
-        }
-
-        return $match_points;
+        $match_points = ($base_points + (($rating_diff > 0 xor $winner === 1) ? 1 : -1) * $extra_points);
+        return $match_points < 0 ? 0 : $match_points;
     }
 
     /**

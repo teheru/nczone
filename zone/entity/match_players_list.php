@@ -135,12 +135,18 @@ class match_players_list
 
     public function get_abs_rating_difference(match_players_list $team2): int
     {
-        return \abs($this->get_rating_difference($team2));
+        return number_util::diff(
+            $this->get_total_rating(),
+            $team2->get_total_rating()
+        );
     }
 
     public function get_min_max_diff(match_players_list $team2)
     {
-        return \abs(self::get_max_rating_of_all($this, $team2) - self::get_min_rating_of_all($this, $team2));
+        return number_util::diff(
+            self::get_max_rating_of_all($this, $team2),
+            self::get_min_rating_of_all($this, $team2)
+        );
     }
 
     public function get_max_rating(): int
