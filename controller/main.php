@@ -38,11 +38,11 @@ class main
     public function zone()
     {
         $auth = phpbb_util::auth();
-        if (acl::has_any_mod_permissions($auth)) {
+        if (acl::has_any_permission($auth, acl::PERMISSIONS_MOD)) {
             phpbb_util::template()->assign_var('U_MCP', append_sid(phpbb_util::file_url('mcp'), 'i=-eru-nczone-mcp-main_module'));
         }
 
-        if (acl::has_any_admin_permissions($auth)) {
+        if (acl::has_any_permission($auth, acl::PERMISSIONS_ADMIN)) {
             phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
         }
 

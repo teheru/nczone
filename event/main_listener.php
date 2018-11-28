@@ -60,37 +60,11 @@ class main_listener implements EventSubscriberInterface
 		$this->php_ext  = $php_ext;
 	}
 
-
-  public function load_permission_language(\phpbb\event\data $event)
-  {
-	$permissions = $event['permissions'];
-
-    $permissions[acl::u_zone_view_info]	= array('lang' => 'ACL_U_ZONE_VIEW_INFO', 'cat' => 'zone');
-    $permissions[acl::u_zone_login]	= array('lang' => 'ACL_U_ZONE_LOGIN', 'cat' => 'zone');
-    $permissions[acl::u_zone_view_login]	= array('lang' => 'ACL_U_ZONE_VIEW_LOGIN', 'cat' => 'zone');
-    $permissions[acl::u_zone_draw]	= array('lang' => 'ACL_U_ZONE_DRAW', 'cat' => 'zone');
-    $permissions[acl::u_zone_view_matches]	= array('lang' => 'ACL_U_ZONE_VIEW_MATCHES', 'cat' => 'zone');
-    $permissions[acl::u_zone_view_bets]	= array('lang' => 'ACL_U_ZONE_VIEW_BETS', 'cat' => 'zone');
-    $permissions[acl::u_zone_bet]	= array('lang' => 'ACL_U_ZONE_BET', 'cat' => 'zone');
-
-    $permissions[acl::m_zone_manage_players]	= array('lang' => 'ACL_M_ZONE_MANAGE_PLAYERS', 'cat' => 'zone');
-    $permissions[acl::m_zone_manage_civs]	= array('lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone');
-    $permissions[acl::m_zone_manage_maps]	= array('lang' => 'ACL_M_ZONE_MANAGE_MAPS', 'cat' => 'zone');
-	$permissions[acl::m_zone_create_maps]	= array('lang' => 'ACL_M_ZONE_CREATE_MAPS', 'cat' => 'zone');
-    $permissions[acl::m_zone_login_players]	= array('lang' => 'ACL_M_ZONE_LOGIN_PLAYERS', 'cat' => 'zone');
-	$permissions[acl::m_zone_draw_match]	= array('lang' => 'ACL_M_ZONE_DRAW_MATCH', 'cat' => 'zone');
-	$permissions[acl::m_zone_change_match]	= array('lang' => 'ACL_M_ZONE_CHANGE_MATCH', 'cat' => 'zone');
-
-	$permissions[acl::a_zone_manage_general]	= array('lang' => 'ACL_A_ZONE_MANAGE_GENERAL', 'cat' => 'zone');
-	$permissions[acl::a_zone_manage_draw]	= array('lang' => 'ACL_A_ZONE_MANAGE_DRAW', 'cat' => 'zone');
-
-
-	$event['categories'] = array_merge($event['categories'], array(
-		'zone' => 'ACP_CAT_ZONE',
-	));
-
-	$event['permissions'] = $permissions;
-  }
+    public function load_permission_language(\phpbb\event\data $event)
+    {
+        $event['categories'] = acl::add_categories_language($event['categories']);
+        $event['permissions'] = acl::add_permission_language($event['permissions']);
+    }
 
 	/**
 	 * Load common language files during user setup

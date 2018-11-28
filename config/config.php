@@ -6,7 +6,7 @@ final class config
 {
     public const activity_cron = 'nczone_activity_cron';
 
-    public const cron_settings = [
+    public const CRON_CONFIG_KEYS = [
         self::activity_cron,
     ];
 
@@ -42,7 +42,7 @@ final class config
     public const draw_player_num_civs_3vs3 = 'nczone_draw_player_num_civs_3vs3';
     public const draw_player_num_civs_4vs4 = 'nczone_draw_player_num_civs_4vs4';
 
-    public const admin_settings = [
+    public const ACL_CONFIG_KEYS = [
         self::rules_post_id,
         self::match_forum_id,
         self::pmatches_page_size,

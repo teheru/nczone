@@ -26,8 +26,6 @@ class install_cron extends \phpbb\db\migration\migration
 
     public function update_data()
     {
-        return [
-            ['config.add', ['nczone_activity_cron', config::default('nczone_activity_cron')]],
-        ];
+        return config::module_data(config::CRON_CONFIG_KEYS);
     }
 }
