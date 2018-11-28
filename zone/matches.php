@@ -182,23 +182,21 @@ class matches {
     }
 
     /**
+     * Note: this is always run in a transaction, no need to wrap its calls
      * @param int $match_id
-     * @throws \Throwable
      */
-    public function clean_match(int $match_id): void
+    private function clean_match(int $match_id): void
     {
-        $this->db->run_txn(function () use ($match_id) {
-            $team_ids = $this->get_match_team_ids($match_id);
-            $where_match_id = "`match_id` = {$match_id}";
-            $where_team_id = $this->db->sql_in_set('team_id', $team_ids);
+        $team_ids = $this->get_match_team_ids($match_id);
+        $where_match_id = "`match_id` = {$match_id}";
+        $where_team_id = $this->db->sql_in_set('team_id', $team_ids);
 
-            $this->db->sql_query("DELETE FROM {$this->db->match_players_table} WHERE {$where_team_id};");
-            $this->db->sql_query("DELETE FROM {$this->db->match_civs_table} WHERE {$where_match_id};");
-            $this->db->sql_query("DELETE FROM {$this->db->match_team_civs_table} WHERE {$where_team_id};");
-            $this->db->sql_query("DELETE FROM {$this->db->match_player_civs_table} WHERE {$where_match_id};");
-            $this->db->sql_query("DELETE FROM {$this->db->match_teams_table} WHERE {$where_team_id};");
-            $this->db->sql_query("DELETE FROM {$this->db->matches_table} WHERE {$where_match_id};");
-        });
+        $this->db->sql_query("DELETE FROM {$this->db->match_players_table} WHERE {$where_team_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_civs_table} WHERE {$where_match_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_team_civs_table} WHERE {$where_team_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_player_civs_table} WHERE {$where_match_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->match_teams_table} WHERE {$where_team_id};");
+        $this->db->sql_query("DELETE FROM {$this->db->matches_table} WHERE {$where_match_id};");
     }
 
     /**
