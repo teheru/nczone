@@ -451,8 +451,8 @@ export default () => {
         dispatch('closeOverlay')
       },
 
-      async addPairConfirm ({ state, commit, dispatch }) {
-        await api.actively.addPairConfirm(state.addPairPreview.matchId)
+      async addPairConfirm ({ state, commit, dispatch }, matchId) {
+        await api.actively.addPairConfirm(matchId)
         dispatch('closeOverlay')
         dispatch('getRunningMatches', { passive: true })
         dispatch('getLoggedInPlayers', { passive: true })

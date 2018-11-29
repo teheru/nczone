@@ -276,7 +276,7 @@ class api
         }, [
             acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ], [
-            'replace_user_id', $replace_user_id,
+            'replace_user_id' => $replace_user_id,
         ]);
     }
 

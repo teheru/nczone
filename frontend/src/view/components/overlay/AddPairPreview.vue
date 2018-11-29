@@ -23,6 +23,9 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'nczone-add-pair-preview',
   computed: {
+    matchId () {
+      return this.overlayPayload.matchId
+    },
     player1 () {
       return this.overlayPayload.player1
     },
@@ -39,7 +42,7 @@ export default {
       this.addPairCancel()
     },
     confirm () {
-      this.addPairConfirm()
+      this.addPairConfirm(this.matchId)
     },
     ...mapActions([
       'addPairCancel',
