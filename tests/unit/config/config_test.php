@@ -55,6 +55,7 @@ class config_test extends TestCase
                 ['config.add', [config::draw_player_num_civs_2vs2, config::default(config::draw_player_num_civs_2vs2)]],
                 ['config.add', [config::draw_player_num_civs_3vs3, config::default(config::draw_player_num_civs_3vs3)]],
                 ['config.add', [config::draw_player_num_civs_4vs4, config::default(config::draw_player_num_civs_4vs4)]],
+                ['config.add', [config::draw_factor, config::default(config::draw_factor)]],
             ]],
             [config::CRON_CONFIG_KEYS, [
                 ['config.add', ['nczone_activity_cron', config::default('nczone_activity_cron')]],
