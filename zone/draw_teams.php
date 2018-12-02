@@ -218,7 +218,6 @@ class draw_teams
 
             }
 
-            //TODO! read this factor from the ACP (1=minimize only variance, 0 = minimize only rating difference)
             $factor = config::get(config::draw_factor);
             if ($factor < 0 || $factor >1) {
                 $factor = 0; //Wenn faktor komisch, nimm alten Algo
