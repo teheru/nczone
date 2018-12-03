@@ -169,14 +169,16 @@
       "NCZONE_DRAW_SETTINGS": "Loseinstellungen",
       "NCZONE_DRAW_PLAYER_CIVS": "Differenz für Spielercivs",
       "NCZONE_DRAW_PLAYER_CIVS_DESCR": "Minimale Differenz zwischen den Ratings des niedrigsten und höchsten Spieler einer Losung, damit Spielercivs gelost werden.",
-      "NCZONE_DRAW_TEAM_CIVS": "DIfferenz für Teamcivs",
+      "NCZONE_DRAW_TEAM_CIVS": "Differenz für Teamcivs",
       "NCZONE_DRAW_TEAM_CIVS_DESCR": "Minimale Differenz der Ratings zweier Teams damit Teamcivs gelost werden.",
       "NCZONE_DRAW_MATCH_EXTRA_CIVS": "Extra Kulturen für Spielcivs",
       "NCZONE_DRAW_MATCH_EXTRA_CIVS_DESCR": "Anzahl an extra civs bei Spielcivs. Ein höherer Wert liefert Kulturen mit ähnlicheren Multiplikatoren, erhöht allerdings auch die Rechenzeit. 1vs1 / 2vs2 / 3vs3 / 4vs4",
       "NCZONE_DRAW_TEAM_EXTRA_CIVS": "Extra Kulturen für Teamcivs",
       "NCZONE_DRAW_TEAM_EXTRA_CIVS_DESCR": "Anzahl an Extra Kulturen für Teamcivs. Ein höherer Wert liefert fairere Kulturen um Ratingdifferenzen auszugleichen, erhöht allerdings auch die Rechenzeit. 1vs1 / 2vs2 / 3vs3 / 4vs4",
       "NCZONE_DRAW_PLAYER_NUM_CIVS": "Anzahl an Kulturen für Spielercivs",
-      "NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR": "Anzahl an Kulturen für Spielercivs. Ein höherer Wert sorgt für fairere Kulturen im Bezug auf Ratingunterschiede im Spiel, erhöht allerdings auch die Rechenzeit <i>sehr stark</i>. 1vs1 / 2vs2 / 3vs3 / 4vs4"
+      "NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR": "Anzahl an Kulturen für Spielercivs. Ein höherer Wert sorgt für fairere Kulturen im Bezug auf Ratingunterschiede im Spiel, erhöht allerdings auch die Rechenzeit <i>sehr stark</i>. 1vs1 / 2vs2 / 3vs3 / 4vs4",
+      "NCZONE_DRAW_FACTOR": "Faktor für den Algorithmus",
+      "NCZONE_DRAW_TEAM_FACTOR_DESCR": "Wert muss zwischen 0 und 1 liegen. Je höher der Wert, desto eher wählt der Algorithmus eine Permutation der Spielerzahlen, die die Varianz von Ratings in den Losungen minimiert. (Anstatt der gesamten Ratingdifferenzen.)"
     },
     "info_mcp": {
       "NCZONE_AZTECS": "Azteken",
@@ -455,7 +457,10 @@
       "NCZONE_DRAW_TEAM_EXTRA_CIVS": "Extra civs for team civs",
       "NCZONE_DRAW_TEAM_EXTRA_CIVS_DESCR": "Number of extra civs to draw for team civs. A higher value results in fairer civs in relation to the rating difference of the teams, but also increases calculation time. 1vs1 / 2vs2 / 3vs3 / 4vs4",
       "NCZONE_DRAW_PLAYER_NUM_CIVS": "Number civs for player civs",
-      "NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR": "Number of civs to draw for player civs. A higher value results in fairer civs in relation to the rating difference of the teams, but also increases calculation time <i>a lot</i>. The value should be at least 1 and at least 2 to enable the mechanism to draw fair(er) civs. 1vs1 / 2vs2 / 3vs3 / 4vs4"
+      "NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR": "Number of civs to draw for player civs. A higher value results in fairer civs in relation to the rating difference of the teams, but also increases calculation time <i>a lot</i>. The value should be at least 1 and at least 2 to enable the mechanism to draw fair(er) civs. 1vs1 / 2vs2 / 3vs3 / 4vs4",
+      "NCZONE_DRAW_FACTOR": "Factor for Algorithm",
+      "NCZONE_DRAW_FACTOR_DESCR": "Value should be between 0 and 1. The higher the number, the more the algo chooses a drawing permutation that minimizes the variance of ratings within one team, instead of minimizing the rating difference."
+
     },
     "info_mcp": {
       "NCZONE_AZTECS": "Aztecs",
