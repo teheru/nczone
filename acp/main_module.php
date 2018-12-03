@@ -71,6 +71,7 @@ class main_module
             config::set(config::draw_team_extra_civs_2vs2, (int)$request->variable('nczone_draw_team_extra_civs_2vs2', config::default(config::draw_team_extra_civs_2vs2)));
             config::set(config::draw_team_extra_civs_3vs3, (int)$request->variable('nczone_draw_team_extra_civs_3vs3', config::default(config::draw_team_extra_civs_3vs3)));
             config::set(config::draw_team_extra_civs_4vs4, (int)$request->variable('nczone_draw_team_extra_civs_4vs4', config::default(config::draw_team_extra_civs_4vs4)));
+            config::set(config::draw_factor, $request->variable('nczone_draw_factor', config::default(config::draw_factor)));
             $player_num_civs_1vs1 = (int)$request->variable('nczone_draw_player_num_civs_1vs1', config::default(config::draw_player_num_civs_1vs1));
             $player_num_civs_2vs2 = (int)$request->variable('nczone_draw_player_num_civs_2vs2', config::default(config::draw_player_num_civs_2vs2));
             $player_num_civs_3vs3 = (int)$request->variable('nczone_draw_player_num_civs_3vs3', config::default(config::draw_player_num_civs_3vs3));
@@ -104,6 +105,7 @@ class main_module
             'nczone_draw_player_num_civs_2vs2' => config::get(config::draw_player_num_civs_2vs2),
             'nczone_draw_player_num_civs_3vs3' => config::get(config::draw_player_num_civs_3vs3),
             'nczone_draw_player_num_civs_4vs4' => config::get(config::draw_player_num_civs_4vs4),
+            'nczone_draw_factor' => config::get(config::draw_factor),
         ));
     }
 

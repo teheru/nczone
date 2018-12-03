@@ -10,6 +10,7 @@
  */
 
 namespace eru\nczone\zone;
+use eru\nczone\config\config;
 
 /**
  * Class to make teams (not maps or civs!)
@@ -202,17 +203,24 @@ class draw_teams
         $best_teams = [];
 
         foreach ($permutes as $permute) {
-            $curr_value = 0;
+            $curr_rating_diff = 0;
+            $curr_variance = 0;
             $curr_teams = [];
 
             $offset = 0;
             foreach ($permute as $match_size) {
                 $result = $this->_make_match($sorted_player_list->slice($offset, $match_size * 2));
-                $offset += $match_size * 2;
-                $curr_value += $result['value'];
+                $curr_rating_diff += $result['rating_diff'];
                 $curr_teams[] = $result['teams'];
+                $curr_variance += entity\match_players_list::get_abs_rating_variance($sorted_player_list->slice($offset, $match_size * 2));
+                $offset += $match_size * 2;
             }
 
+            $factor = config::get(config::draw_factor);
+            if ($factor < 0 || $factor >1) {
+                $factor = 0; //Wenn faktor komisch, nimm alten Algo
+            }
+            $curr_value = $factor * $curr_variance + (1-$factor) * $curr_rating_diff;
             if ($best_value < 0.0 || $curr_value < $best_value) {
                 $best_value = $curr_value;
                 $best_teams = $curr_teams;
@@ -242,7 +250,6 @@ class draw_teams
         foreach ($team_def as $teams) {
             $team1 = $players->pick_indexes(...$teams[0]);
             $team2 = $players->pick_indexes(...$teams[1]);
-
             $value = $team1->get_abs_rating_difference($team2);
             if ($best_value < 0.0 || $value < $best_value) {
                 $best_value = $value;
@@ -252,7 +259,7 @@ class draw_teams
 
         return [
             'teams' => $best_teams,
-            'value' => $best_value,
+            'rating_diff' => $best_value,
         ];
     }
 }
