@@ -199,8 +199,8 @@ class match_players_list
        $mean = self::get_mean_rating(...$players_lists);
        $value = 0;
        foreach ($players_lists as $list) {
-            $playerArray = $list->items();
-            foreach ($playerArray as $player) {
+            $player_array = $list->items();
+            foreach ($player_array as $player) {
                 $value += \abs($mean - $player->get_rating());
             }
        }
