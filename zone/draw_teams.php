@@ -12,7 +12,6 @@
 namespace eru\nczone\zone;
 use eru\nczone\config\config;
 
-
 /**
  * Class to make teams (not maps or civs!)
  */
@@ -215,7 +214,6 @@ class draw_teams
                 $curr_teams[] = $result['teams'];
                 $curr_variance += entity\match_players_list::get_abs_rating_variance($sorted_player_list->slice($offset, $match_size * 2));
                 $offset += $match_size * 2;
-
             }
 
             $factor = config::get(config::draw_factor);
@@ -252,14 +250,12 @@ class draw_teams
         foreach ($team_def as $teams) {
             $team1 = $players->pick_indexes(...$teams[0]);
             $team2 = $players->pick_indexes(...$teams[1]);
-            
             $value = $team1->get_abs_rating_difference($team2);
             if ($best_value < 0.0 || $value < $best_value) {
                 $best_value = $value;
                 $best_teams = [$team1, $team2];
             }
         }
-
 
         return [
             'teams' => $best_teams,

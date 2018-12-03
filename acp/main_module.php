@@ -106,7 +106,6 @@ class main_module
             'nczone_draw_player_num_civs_3vs3' => config::get(config::draw_player_num_civs_3vs3),
             'nczone_draw_player_num_civs_4vs4' => config::get(config::draw_player_num_civs_4vs4),
             'nczone_draw_factor' => config::get(config::draw_factor),
-
         ));
     }
 
