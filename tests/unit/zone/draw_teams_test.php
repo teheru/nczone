@@ -47,8 +47,8 @@ class draw_teams_test extends TestCase
                     [
                         match_players_list::from_match_players([$nili]),
                         match_players_list::from_match_players([$kalaran]),
-                    ]
-                ]
+                    ],
+                ],
             ],
             '2_players_reverse' => [
                 $list = match_players_list::from_match_players([
@@ -73,8 +73,8 @@ class draw_teams_test extends TestCase
                     [
                         match_players_list::from_match_players([$lion_copy]),
                         match_players_list::from_match_players([$lion]),
-                    ]
-                ]
+                    ],
+                ],
             ],
             '2_players_same_reverse' => [
                 $list = match_players_list::from_match_players([
