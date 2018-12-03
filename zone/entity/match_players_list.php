@@ -9,6 +9,16 @@ class match_players_list
     /** @var match_player[] */
     private $items = [];
 
+    public static function from_match_players(
+        array $players
+    ): match_players_list {
+        $list = new self();
+        foreach ($players as $p) {
+            $list->add($p);
+        }
+        return $list;
+    }
+
     public function add(match_player $p): void
     {
         $this->items[] = $p;

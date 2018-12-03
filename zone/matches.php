@@ -868,7 +868,8 @@ SQL;
 
             $match_ids = [];
             $user_ids = [];
-            $matches = zone_util::draw_teams()->make_matches($players_list);
+            $factor = config::get(config::draw_factor);
+            $matches = zone_util::draw_teams()->make_matches($players_list, $factor);
             foreach ($matches as $match) {
                 $setting = zone_util::draw_settings()->draw_settings($user_id, $match[0], $match[1]);
                 $match_ids[] = $this->create_match($setting);
