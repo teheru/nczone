@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class draw_teams_test extends TestCase
 {
     /**
-     * @dataProvider make_matches_provider
+     * @dataProvider make_matches_data_provider
      */
     public function test_make_matches($list, $factor, $expected_teams)
     {
@@ -18,7 +18,7 @@ class draw_teams_test extends TestCase
         self::assertEquals($expected_teams, $dt->make_matches($list, $factor));
     }
 
-    public function make_matches_provider()
+    public function make_matches_data_provider()
     {
         $nili = new match_player(3, 3417);
         $chaos_2_win = new match_player(4, 3084);
