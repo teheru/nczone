@@ -191,7 +191,7 @@ class match_players_list
         $value += $list->get_total_rating();
         $number += $list->length();
        }
-       return $value/$number;
+       return $value / $number;
     }
 
     public static function get_abs_rating_variance(match_players_list ...$players_lists): int

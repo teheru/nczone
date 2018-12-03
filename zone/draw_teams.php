@@ -217,10 +217,10 @@ class draw_teams
             }
 
             $factor = config::get(config::draw_factor);
-            if ($factor < 0 || $factor >1) {
-                $factor = 0; //Wenn faktor komisch, nimm alten Algo
+            if ($factor < 0.0 || $factor > 1.0) {
+                $factor = 0.0;
             }
-            $curr_value = $factor * $curr_variance + (1-$factor) * $curr_rating_diff;
+            $curr_value = $factor * $curr_variance + (1.0 - $factor) * $curr_rating_diff;
             if ($best_value < 0.0 || $curr_value < $best_value) {
                 $best_value = $curr_value;
                 $best_teams = $curr_teams;
