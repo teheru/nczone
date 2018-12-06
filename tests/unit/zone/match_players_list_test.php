@@ -8,6 +8,33 @@ use PHPUnit\Framework\TestCase;
 
 class match_players_list_test extends TestCase
 {
+    /**
+     * @dataProvider from_match_players_data_provider
+     */
+    public function test_from_match_players(array $players)
+    {
+        $list = match_players_list::from_match_players($players);
+        $count = \count($players);
+        self::assertSame($count, $list->length());
+        for ($i = 0; $i < $count; $i++) {
+            self::assertSame($players[$i], $list->shift());
+        }
+        self::assertSame(0, $list->length());
+    }
+
+    public function from_match_players_data_provider()
+    {
+        return [
+            [
+                $players = [
+                    new match_player(1, 1337),
+                    new match_player(2, 501),
+                    new match_player(3, 102),
+                    new match_player(4, 4000),
+                ],
+            ]
+        ];
+    }
 
     /**
      * @dataProvider get_max_rating_data_provider

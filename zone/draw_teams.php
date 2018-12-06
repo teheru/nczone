@@ -178,7 +178,8 @@ class draw_teams
 
     public function make_match(entity\match_players_list $player_list): array
     {
-        [$match] = $this->make_matches($player_list);
+        $factor = config::get(config::draw_factor);
+        [$match] = $this->make_matches($player_list, $factor);
         return $match;
     }
 
@@ -186,11 +187,14 @@ class draw_teams
      * Divides players in usable groups to make teams and than calculate the optimal teams.
      *
      * @param entity\match_players_list $player_list List of the players (must have index 'rating') to be put in teams
+     * @param $factor
      *
      * @return array
      */
-    public function make_matches(entity\match_players_list $player_list): array
-    {
+    public function make_matches(
+        entity\match_players_list $player_list,
+        float $factor
+    ): array {
         if ($player_list->length() % 2 === 1) {
             $player_list->pop();
         }
@@ -216,7 +220,6 @@ class draw_teams
                 $offset += $match_size * 2;
             }
 
-            $factor = config::get(config::draw_factor);
             if ($factor < 0.0 || $factor > 1.0) {
                 $factor = 0.0;
             }
