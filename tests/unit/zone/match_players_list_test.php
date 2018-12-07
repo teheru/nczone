@@ -62,6 +62,19 @@ class match_players_list_test extends TestCase
         $this->assertSame($expected, $list->get_min_rating());
     }
 
+    /**
+     * @dataProvider get_abs_rating_variance_data_provider
+     */
+    public function test_get_abs_rating_variance(array $player_lists, int $expected): void
+    {
+        $list = new match_players_list;
+        foreach ($player_lists as $player) {
+            $list->add($player);
+        }
+
+        $this->assertSame($expected, match_players_list::get_abs_rating_variance($list));
+    }
+
     public function get_max_rating_data_provider(): array
     {
         return [
@@ -105,6 +118,38 @@ class match_players_list_test extends TestCase
                     new match_player(5, 2300),
                 ],
                 $expected = 501,
+            ],
+            [
+                $player_lists = [
+                ],
+                $expected = 0,
+            ],
+        ];
+    }
+
+    public function get_abs_rating_variance_data_provider(): array
+    {
+        $const = 2000;
+        return [
+            [
+                $player_lists = [
+                    new match_player(6, 59),
+                    new match_player(7, 45),
+                    new match_player(8, 8000),
+                    new match_player(9, 501),
+                    new match_player(10, 2300),
+                ],
+                $expected = 11876,
+            ],
+            [
+                $player_lists = [
+                    new match_player(6, 59-$const),
+                    new match_player(7, 45-$const),
+                    new match_player(8, 8000-$const),
+                    new match_player(9, 501-$const),
+                    new match_player(10, 2300-$const),
+                ],
+                $expected = 11876,
             ],
             [
                 $player_lists = [
