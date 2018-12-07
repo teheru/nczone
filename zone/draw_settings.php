@@ -102,33 +102,16 @@ class draw_settings {
      */
     public function get_players_map_id(entity\match_players_list $users): int
     {
-        $rows = $this->db->get_rows([
+        $map_id = $this->db->get_var([
             'SELECT' => 't.map_id, SUM(' . time() . ' - t.time) * m.weight AS val',
             'FROM' => [$this->db->player_map_table => 't', $this->db->maps_table => 'm'],
             'WHERE' => 't.map_id = m.map_id AND ' . $this->db->sql_in_set('t.user_id', $users->get_ids()),
-            'GROUP_BY' => 't.map_id, t.user_id',
-            'ORDER_BY' => 'val DESC'
-        ]);
+            'GROUP_BY' => 't.map_id',
+            'ORDER_BY' => 'val DESC',
+            'LIMIT' => 1
+        ]) ?: 0;
 
-        $counter = [];
-        foreach($rows as $r)
-        {
-            if(!array_key_exists($r['map_id'], $counter))
-            {
-                $counter[$r['map_id']] = 1;
-            }
-            else
-            {
-                $counter[$r['map_id']]++;
-            }
-
-            if($counter[$r['map_id']] === $users->length())
-            {
-                return (int)$r['map_id'];
-            }
-        }
-
-        return 0;
+        return (int)$map_id;
     }
 
     public function decide_draw_civs_kind(entity\match_players_list $team1, entity\match_players_list $team2): string
