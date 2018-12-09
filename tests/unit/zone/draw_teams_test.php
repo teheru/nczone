@@ -20,220 +20,395 @@ class draw_teams_test extends TestCase
 
     public function make_matches_data_provider()
     {
-        $nili = new match_player(3, 3417);
-        $chaos_2_win = new match_player(4, 3084);
-        $nc_tonic = new match_player(5, 2431);
-        $havoc = new match_player(6, 2102);
-        $teutonic_tanks = new match_player(7, 3078);
-        $nc_philipphjs = new match_player(8, 2917);
-        $fwb2 = new match_player(9, 2764);
-        $ann0r = new match_player(10, 2407);
-        $hooked_on_a_feeling = new match_player(11, 679);
-        $omurchu = new match_player(12, 650);
-        $samedo_sama = new match_player(13, 205);
-        $kalaran = new match_player(14, 608);
-        $trennig = new match_player(15, 498);
-        $lion = new match_player(16, 463);
-        $lion_copy = new match_player(17, 463);
+        $additive_const = 1000; //a constant that is added from each rating for each test set
+        $iterations = 2;
+        $test_players = array();
+        $j = 0;
+        for ($i=0; $i < $iterations; $i++) {
+            $test_players['nili'.$i] = new match_player(3 + $j, 3417 + $i * $additive_const);
+            $test_players['chaos_2_win'.$i] = new match_player(4 + $j, 3084 + $i * $additive_const);
+            $test_players['nc_tonic'.$i] = new match_player(5 + $j, 2431 + $i * $additive_const);
+            $test_players['havoc'.$i] = new match_player(6 + $j, 2102 + $i * $additive_const);
+            $test_players['teutonic_tanks'.$i] = new match_player(7 + $j, 3078 + $i * $additive_const);
+            $test_players['nc_philipphjs'.$i] = new match_player(8 + $j, 2917 + $i * $additive_const);
+            $test_players['fwb2'.$i] = new match_player(9 + $j, 2764 + $i * $additive_const);
+            $test_players['ann0r'.$i] = new match_player(10 + $j, 2407 + $i * $additive_const);
+            $test_players['hooked_on_a_feeling'.$i] = new match_player(11 + $j, 679 + $i * $additive_const);
+            $test_players['omurchu'.$i] = new match_player(12 + $j, 650 + $i * $additive_const);
+            $test_players['samedo_sama'.$i] = new match_player(13 + $j, 205 + $i * $additive_const);
+            $test_players['kalaran'.$i] = new match_player(14 + $j, 608 + $i * $additive_const);
+            $test_players['trennig'.$i] = new match_player(15 + $j, 498 + $i * $additive_const);
+            $test_players['lion'.$i] = new match_player(16 + $j, 463 + $i * $additive_const);
+            $test_players['lion_copy'.$i] = new match_player(17 + $j, 463 + $i * $additive_const);
+            $test_players['p3375'.$i] = new match_player(18 + $j, 3375 + $i * $additive_const);
+            $test_players['p2375'.$i] = new match_player(19 + $j, 2375 + $i * $additive_const);
+            $test_players['p2625'.$i] = new match_player(20 + $j, 2625 + $i * $additive_const);
+            $test_players['p2425'.$i] = new match_player(21 + $j, 2425 + $i * $additive_const);
+            $test_players['p1900'.$i] = new match_player(22 + $j, 1900 + $i * $additive_const);
+            $test_players['p1800'.$i] = new match_player(23 + $j, 1800 + $i * $additive_const);
+            $test_players['p2025'.$i] = new match_player(24 + $j, 2025 + $i * $additive_const);
+            $test_players['p1875'.$i] = new match_player(25 + $j, 1875 + $i * $additive_const);
+            $test_players['p1700'.$i] = new match_player(26 + $j, 1700 + $i * $additive_const);
+            $test_players['p1801'.$i] = new match_player(27 + $j, 1801 + $i * $additive_const);
+        }
 
-        return [
-            '2_players' => [
+        $data_set = [];
+        for ($i=0; $i < $iterations; $i++) { 
+            $data_set['2_players'.$i] = [
                 $list = match_players_list::from_match_players([
-                    $nili,
-                    $kalaran,
+                    $test_players['nili'.$i],
+                    $test_players['kalaran'.$i],
                 ]),
                 $factor = 0.4,
                 $expected_teams = [
                     [
-                        match_players_list::from_match_players([$nili]),
-                        match_players_list::from_match_players([$kalaran]),
+                        match_players_list::from_match_players([$test_players['nili'.$i]]),
+                        match_players_list::from_match_players([$test_players['kalaran'.$i]]),
                     ],
                 ],
-            ],
-            '2_players_reverse' => [
+            ];
+            $data_set['2_players_reverse'.$i] = [
                 $list = match_players_list::from_match_players([
-                    $kalaran,
-                    $nili,
+                    $test_players['kalaran'.$i],
+                    $test_players['nili'.$i],
                 ]),
                 $factor = 0.4,
                 $expected_teams = [
                     [
-                        match_players_list::from_match_players([$nili]),
-                        match_players_list::from_match_players([$kalaran]),
+                        match_players_list::from_match_players([$test_players['nili'.$i]]),
+                        match_players_list::from_match_players([$test_players['kalaran'.$i]]),
                     ],
                 ],
-            ],
-            '2_players_same' => [
+            ];
+            $data_set['2_players_same'.$i] = [
                 $list = match_players_list::from_match_players([
-                    $lion_copy,
-                    $lion,
+                    $test_players['lion_copy'.$i],
+                    $test_players['lion'.$i],
                 ]),
                 $factor = 0.4,
                 $expected_teams = [
                     [
-                        match_players_list::from_match_players([$lion_copy]),
-                        match_players_list::from_match_players([$lion]),
+                        match_players_list::from_match_players([$test_players['lion_copy'.$i]]),
+                        match_players_list::from_match_players([$test_players['lion'.$i]]),
                     ],
                 ],
-            ],
-            '2_players_same_reverse' => [
+            ];
+            $data_set['2_players_same_reverse'.$i] = [
                 $list = match_players_list::from_match_players([
-                    $lion,
-                    $lion_copy,
+                    $test_players['lion'.$i],
+                    $test_players['lion_copy'.$i],
                 ]),
                 $factor = 0.4,
                 $expected_teams = [
                     [
-                        match_players_list::from_match_players([$lion]),
-                        match_players_list::from_match_players([$lion_copy]),
+                        match_players_list::from_match_players([$test_players['lion'.$i]]),
+                        match_players_list::from_match_players([$test_players['lion_copy'.$i]]),
                     ],
                 ],
-            ],
-            '8_players' => [
+            ];
+            $data_set['8_players'.$i] = [
                 $list = match_players_list::from_match_players([
-                    $nc_philipphjs,
-                    $nc_tonic,
-                    $ann0r,
-                    $havoc,
-                    $nili,
-                    $teutonic_tanks,
-                    $chaos_2_win,
-                    $fwb2,
-                ]),
-                $factor = 0.4,
-                $expected_teams = [
-                    [
-                        match_players_list::from_match_players([
-                            $nili,
-                            $chaos_2_win,
-                            $nc_tonic,
-                            $havoc,
-                        ]),
-                        match_players_list::from_match_players([
-                            $teutonic_tanks,
-                            $nc_philipphjs,
-                            $fwb2,
-                            $ann0r,
-                        ]),
-                    ],
-                ],
-            ],
-            '6_players' => [
-                $list = match_players_list::from_match_players([
-                    $lion,
-                    $trennig,
-                    $samedo_sama,
-                    $hooked_on_a_feeling,
-                    $kalaran,
-                    $omurchu,
+                    $test_players['nc_philipphjs'.$i],
+                    $test_players['nc_tonic'.$i],
+                    $test_players['ann0r'.$i],
+                    $test_players['havoc'.$i],
+                    $test_players['chaos_2_win'.$i],
+                    $test_players['teutonic_tanks'.$i],
+                    $test_players['nili'.$i],
+                    $test_players['fwb2'.$i],
                 ]),
                 $factor = 0.4,
                 $expected_teams = [
                     [
                         match_players_list::from_match_players([
-                            $hooked_on_a_feeling,
-                            $omurchu,
-                            $samedo_sama,
+                            $test_players['nili'.$i],
+                            $test_players['chaos_2_win'.$i],
+                            $test_players['nc_tonic'.$i],
+                            $test_players['havoc'.$i],
                         ]),
                         match_players_list::from_match_players([
-                            $kalaran,
-                            $trennig,
-                            $lion,
+                            $test_players['teutonic_tanks'.$i],
+                            $test_players['nc_philipphjs'.$i],
+                            $test_players['fwb2'.$i],
+                            $test_players['ann0r'.$i],
                         ]),
                     ],
                 ],
-            ],
-            '14_players' => [
+            ];
+            $data_set['6_players'.$i] = [
                 $list = match_players_list::from_match_players([
-                    $ann0r,
-                    $chaos_2_win,
-                    $fwb2,
-                    $havoc,
-                    $hooked_on_a_feeling,
-                    $kalaran,
-                    $lion,
-                    $nili,
-                    $nc_philipphjs,
-                    $nc_tonic,
-                    $omurchu,
-                    $samedo_sama,
-                    $teutonic_tanks,
-                    $trennig,
+                    $test_players['lion'.$i],
+                    $test_players['trennig'.$i],
+                    $test_players['samedo_sama'.$i],
+                    $test_players['hooked_on_a_feeling'.$i],
+                    $test_players['kalaran'.$i],
+                    $test_players['omurchu'.$i],
                 ]),
                 $factor = 0.4,
                 $expected_teams = [
                     [
                         match_players_list::from_match_players([
-                            $nili,
-                            $chaos_2_win,
-                            $nc_tonic,
-                            $havoc,
+                            $test_players['hooked_on_a_feeling'.$i],
+                            $test_players['omurchu'.$i],
+                            $test_players['samedo_sama'.$i],
                         ]),
                         match_players_list::from_match_players([
-                            $teutonic_tanks,
-                            $nc_philipphjs,
-                            $fwb2,
-                            $ann0r,
-                        ]),
-                    ],
-                    [
-                        match_players_list::from_match_players([
-                            $hooked_on_a_feeling,
-                            $omurchu,
-                            $samedo_sama,
-                        ]),
-                        match_players_list::from_match_players([
-                            $kalaran,
-                            $trennig,
-                            $lion,
+                            $test_players['kalaran'.$i],
+                            $test_players['trennig'.$i],
+                            $test_players['lion'.$i],
                         ]),
                     ],
                 ],
-            ],
-            '13_players' => [
+            ];
+            $data_set['14_players'.$i] = [
                 $list = match_players_list::from_match_players([
-                    $ann0r,
-                    $chaos_2_win,
-                    $fwb2,
-                    $havoc,
-                    $kalaran,
-                    $lion,
-                    $nili,
-                    $nc_philipphjs,
-                    $nc_tonic,
-                    $omurchu,
-                    $samedo_sama,
-                    $teutonic_tanks,
-                    $trennig, // :( last player in list will be cut off
+                    $test_players['ann0r'.$i],
+                    $test_players['chaos_2_win'.$i],
+                    $test_players['fwb2'.$i],
+                    $test_players['havoc'.$i],
+                    $test_players['hooked_on_a_feeling'.$i],
+                    $test_players['kalaran'.$i],
+                    $test_players['lion'.$i],
+                    $test_players['nili'.$i],
+                    $test_players['nc_philipphjs'.$i],
+                    $test_players['nc_tonic'.$i],
+                    $test_players['omurchu'.$i],
+                    $test_players['samedo_sama'.$i],
+                    $test_players['teutonic_tanks'.$i],
+                    $test_players['trennig'.$i],
                 ]),
                 $factor = 0.4,
                 $expected_teams = [
                     [
                         match_players_list::from_match_players([
-                            $nili,
-                            $teutonic_tanks,
-                            $nc_tonic,
+                            $test_players['nili'.$i],
+                            $test_players['chaos_2_win'.$i],
+                            $test_players['nc_tonic'.$i],
+                            $test_players['havoc'.$i],
                         ]),
                         match_players_list::from_match_players([
-                            $chaos_2_win,
-                            $nc_philipphjs,
-                            $fwb2,
+                            $test_players['teutonic_tanks'.$i],
+                            $test_players['nc_philipphjs'.$i],
+                            $test_players['fwb2'.$i],
+                            $test_players['ann0r'.$i],
                         ]),
                     ],
                     [
                         match_players_list::from_match_players([
-                            $ann0r,
-                            $kalaran,
-                            $samedo_sama,
+                            $test_players['hooked_on_a_feeling'.$i],
+                            $test_players['omurchu'.$i],
+                            $test_players['samedo_sama'.$i],
                         ]),
                         match_players_list::from_match_players([
-                            $havoc,
-                            $omurchu,
-                            $lion,
+                            $test_players['kalaran'.$i],
+                            $test_players['trennig'.$i],
+                            $test_players['lion'.$i],
                         ]),
                     ],
                 ],
-            ],
-        ];
+            ];
+            $data_set['13_players'.$i] = [
+                $list = match_players_list::from_match_players([
+                    $test_players['ann0r'.$i],
+                    $test_players['chaos_2_win'.$i],
+                    $test_players['fwb2'.$i],
+                    $test_players['havoc'.$i],
+                    $test_players['kalaran'.$i],
+                    $test_players['lion'.$i],
+                    $test_players['nili'.$i],
+                    $test_players['nc_philipphjs'.$i],
+                    $test_players['nc_tonic'.$i],
+                    $test_players['omurchu'.$i],
+                    $test_players['samedo_sama'.$i],
+                    $test_players['teutonic_tanks'.$i],
+                    $test_players['trennig'.$i], // :( last player in list will be cut off
+                ]),
+                $factor = 0.4,
+                $expected_teams = [
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['nili'.$i],
+                            $test_players['teutonic_tanks'.$i],
+                            $test_players['nc_tonic'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['chaos_2_win'.$i],
+                            $test_players['nc_philipphjs'.$i],
+                            $test_players['fwb2'.$i],
+                        ]),
+                    ],
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['ann0r'.$i],
+                            $test_players['kalaran'.$i],
+                            $test_players['samedo_sama'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['havoc'.$i],
+                            $test_players['omurchu'.$i],
+                            $test_players['lion'.$i],
+                        ]),
+                    ],
+                ],
+            ];
+            $data_set['10_low_factor'.$i] = [
+                $list = match_players_list::from_match_players([
+                    $test_players['p1700'.$i],
+                    $test_players['p2025'.$i],
+                    $test_players['p1875'.$i],
+                    $test_players['p2425'.$i],
+                    $test_players['p1800'.$i],
+                    $test_players['p1900'.$i],
+                    $test_players['p2375'.$i],
+                    $test_players['p3375'.$i],
+                    $test_players['p1801'.$i],
+                    $test_players['p2625'.$i],
+                ]),
+                $factor = 0.4,
+                $expected_teams = [
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p3375'.$i],
+                            $test_players['p2025'.$i],
+                            $test_players['p1900'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p2625'.$i],
+                            $test_players['p2425'.$i],
+                            $test_players['p2375'.$i],
+                        ]),
+                    ],
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p1875'.$i],
+                            $test_players['p1700'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p1801'.$i],
+                            $test_players['p1800'.$i],
+                        ]),
+                    ],
+                ],
+            ];
+
+            $data_set['10_very_low_factor'.$i] = [
+                $list = match_players_list::from_match_players([
+                    $test_players['p1700'.$i],
+                    $test_players['p2025'.$i],
+                    $test_players['p1875'.$i],
+                    $test_players['p2425'.$i],
+                    $test_players['p1800'.$i],
+                    $test_players['p1900'.$i],
+                    $test_players['p2375'.$i],
+                    $test_players['p3375'.$i],
+                    $test_players['p1801'.$i],
+                    $test_players['p2625'.$i],
+                ]),
+                $factor = -10, //should be automatically increased to 0.0
+                $expected_teams = [
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p3375'.$i],
+                            $test_players['p2025'.$i],
+                            $test_players['p1900'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p2625'.$i],
+                            $test_players['p2425'.$i],
+                            $test_players['p2375'.$i],
+                        ]),
+                    ],
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p1875'.$i],
+                            $test_players['p1700'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p1801'.$i],
+                            $test_players['p1800'.$i],
+                        ]),
+                    ],
+                ],
+            ];
+            $data_set['10_high_factor'.$i] = [
+                $list = match_players_list::from_match_players([
+                    $test_players['p1700'.$i],
+                    $test_players['p2025'.$i],
+                    $test_players['p1875'.$i],
+                    $test_players['p2425'.$i],
+                    $test_players['p1800'.$i],
+                    $test_players['p1900'.$i],
+                    $test_players['p2375'.$i],
+                    $test_players['p3375'.$i],
+                    $test_players['p1801'.$i],
+                    $test_players['p2625'.$i],
+                ]),
+                $factor = 0.6,
+                $expected_teams = [
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p3375'.$i],
+                            $test_players['p2375'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p2625'.$i],
+                            $test_players['p2425'.$i],
+                        ]),
+                    ],
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p2025'.$i],
+                            $test_players['p1801'.$i],
+                            $test_players['p1700'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p1900'.$i],
+                            $test_players['p1875'.$i],
+                            $test_players['p1800'.$i],
+                        ]),
+                    ],
+                ],
+            ];
+            $data_set['10_very_high_factor'.$i] = [
+                $list = match_players_list::from_match_players([
+                    $test_players['p1700'.$i],
+                    $test_players['p2025'.$i],
+                    $test_players['p1875'.$i],
+                    $test_players['p2425'.$i],
+                    $test_players['p1800'.$i],
+                    $test_players['p1900'.$i],
+                    $test_players['p2375'.$i],
+                    $test_players['p3375'.$i],
+                    $test_players['p1801'.$i],
+                    $test_players['p2625'.$i],
+                ]),
+                $factor = 10, //should be automatically be reduced to 0.0
+                $expected_teams = [
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p3375'.$i],
+                            $test_players['p2025'.$i],
+                            $test_players['p1900'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p2625'.$i],
+                            $test_players['p2425'.$i],
+                            $test_players['p2375'.$i],
+                        ]),
+                    ],
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p1875'.$i],
+                            $test_players['p1700'.$i],
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p1801'.$i],
+                            $test_players['p1800'.$i],
+                        ]),
+                    ],
+                ],
+            ];
+        }
+        return $data_set;
     }
 }
