@@ -87,7 +87,7 @@ class match implements \JsonSerializable
             'post_time' => $this->post_time,
             'winner' => $this->winner,
             'result_poster' => $this->result_poster,
-            'forum_topic_link' => generate_board_url() . '/viewtopic.php?t=' . $this->forum_topic_id,
+            'forum_topic_link' => append_sid(generate_board_url() . '/viewtopic.php?t=' . $this->forum_topic_id),
             'drawer' => $this->drawer,
             'map' => $this->map,
             'civs' => $this->civs,

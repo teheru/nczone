@@ -1,6 +1,6 @@
 <template>
 <div class="zone-match" :class="{'zone-match-finished': match.post_time > 0}">
-  <div class="zone-match-title" v-if="match.post_time">{{ $t('NCZONE_MATCH_MATCH') }} #{{ match.id }} &emsp; <a v-bind:href="match.forum_topic_link" class="zone-match-link"> »zum Thread</a></div>
+  <div class="zone-match-title" v-if="match.post_time">{{ $t('NCZONE_MATCH_MATCH') }} #{{ match.id }} &emsp; <a v-bind:href="match.forum_topic_link" class="zone-match-link"> »{{ $t('NCZONE_MATCH_TO_TOPIC') }}</a></div>
   <div class="zone-match-title" v-else>{{ $t('NCZONE_MATCH_MATCH') }} #{{ match.id }}</div>
   <div class="zone-match-data">
     <template v-if="match.post_time">
