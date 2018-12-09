@@ -625,7 +625,8 @@ SELECT
     t.draw_time,
     t.post_time,
     t1.team_id AS team1_id,
-    t2.team_id AS team2_id
+    t2.team_id AS team2_id,
+    t.forum_topic_id
 FROM
   {$this->db->matches_table} AS t
   INNER JOIN {$this->db->match_teams_table} AS t1
