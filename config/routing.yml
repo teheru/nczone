@@ -129,18 +129,18 @@ eru_nczone_controller__api__player_details:
         user_id: \d+
 
 eru_nczone_controller__api__player_dreamteams:
-    path: /nczone/api/players/dreamteams/{user_id}/{limit}/
+    path: /nczone/api/players/dreamteams/{user_id}/{number}/
     defaults: { _controller: eru.nczone.controller.api:player_dreamteams }
     requirements:
         user_id: \d+
-        limit: \d+
+        number: \d+
 
 eru_nczone_controller__api__player_nightmareteams:
-    path: /nczone/api/players/nightmareteams/{user_id}/{limit}/
+    path: /nczone/api/players/nightmareteams/{user_id}/{number}/
     defaults: { _controller: eru.nczone.controller.api:player_nightmareteams }
     requirements:
         user_id: \d+
-        limit: \d+
+        number: \d+
 
 eru_nczone_controller__api__bets:
     path: /nczone/api/players/bets
