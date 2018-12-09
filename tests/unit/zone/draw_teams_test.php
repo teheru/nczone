@@ -20,36 +20,36 @@ class draw_teams_test extends TestCase
 
     public function make_matches_data_provider()
     {
-        $const = 1000; //a constant that is subtracted from each rating for each test set
-        $iterations = 5;
+        $additiveConst = 1000; //a constant that is added from each rating for each test set
+        $iterations = 2;
         $test_players = array();
         $j = 0;
         for ($i=0; $i < $iterations; $i++) {
-            $test_players['nili'.$i] = new match_player(3+$j, 3417-$i);
-            $test_players['chaos_2_win'.$i] = new match_player(4+$j, 3084-$i);
-            $test_players['nc_tonic'.$i] = new match_player(5+$j, 2431-$i);
-            $test_players['havoc'.$i] = new match_player(6+$j, 2102-$i);
-            $test_players['teutonic_tanks'.$i] = new match_player(7+$j, 3078-$i);
-            $test_players['nc_philipphjs'.$i] = new match_player(8+$j, 2917-$i);
-            $test_players['fwb2'.$i] = new match_player(9+$j, 2764-$i);
-            $test_players['ann0r'.$i] = new match_player(10+$j, 2407-$i);
-            $test_players['hooked_on_a_feeling'.$i] = new match_player(11+$j, 679-$i);
-            $test_players['omurchu'.$i] = new match_player(12+$j, 650-$i);
-            $test_players['samedo_sama'.$i] = new match_player(13+$j, 205-$i);
-            $test_players['kalaran'.$i] = new match_player(14+$j, 608-$i);
-            $test_players['trennig'.$i] = new match_player(15+$j, 498-$i);
-            $test_players['lion'.$i] = new match_player(16+$j, 463-$i);
-            $test_players['lion_copy'.$i] = new match_player(17+$j, 463-$i);
-            $test_players['p3375'.$i] = new match_player(18+$j, 3375-$i);
-            $test_players['p2375'.$i] = new match_player(19+$j, 2375-$i);
-            $test_players['p2625'.$i] = new match_player(20+$j, 2625-$i);
-            $test_players['p2425'.$i] = new match_player(21+$j, 2425-$i);
-            $test_players['p1900'.$i] = new match_player(22+$j, 1900-$i);
-            $test_players['p1800'.$i] = new match_player(23+$j, 1800-$i);
-            $test_players['p2025'.$i] = new match_player(24+$j, 2025-$i);
-            $test_players['p1875'.$i] = new match_player(25+$j, 1875-$i);
-            $test_players['p1700'.$i] = new match_player(26+$j, 1700-$i);
-            $test_players['p1801'.$i] = new match_player(27+$j, 1801-$i);
+            $test_players['nili'.$i] = new match_player(3+$j, 3417+$i*$additiveConst);
+            $test_players['chaos_2_win'.$i] = new match_player(4+$j, 3084+$i*$additiveConst);
+            $test_players['nc_tonic'.$i] = new match_player(5+$j, 2431+$i*$additiveConst);
+            $test_players['havoc'.$i] = new match_player(6+$j, 2102+$i*$additiveConst);
+            $test_players['teutonic_tanks'.$i] = new match_player(7+$j, 3078+$i*$additiveConst);
+            $test_players['nc_philipphjs'.$i] = new match_player(8+$j, 2917+$i*$additiveConst);
+            $test_players['fwb2'.$i] = new match_player(9+$j, 2764+$i*$additiveConst);
+            $test_players['ann0r'.$i] = new match_player(10+$j, 2407+$i*$additiveConst);
+            $test_players['hooked_on_a_feeling'.$i] = new match_player(11+$j, 679+$i*$additiveConst);
+            $test_players['omurchu'.$i] = new match_player(12+$j, 650+$i*$additiveConst);
+            $test_players['samedo_sama'.$i] = new match_player(13+$j, 205+$i*$additiveConst);
+            $test_players['kalaran'.$i] = new match_player(14+$j, 608+$i*$additiveConst);
+            $test_players['trennig'.$i] = new match_player(15+$j, 498+$i*$additiveConst);
+            $test_players['lion'.$i] = new match_player(16+$j, 463+$i*$additiveConst);
+            $test_players['lion_copy'.$i] = new match_player(17+$j, 463+$i*$additiveConst);
+            $test_players['p3375'.$i] = new match_player(18+$j, 3375+$i*$additiveConst);
+            $test_players['p2375'.$i] = new match_player(19+$j, 2375+$i*$additiveConst);
+            $test_players['p2625'.$i] = new match_player(20+$j, 2625+$i*$additiveConst);
+            $test_players['p2425'.$i] = new match_player(21+$j, 2425+$i*$additiveConst);
+            $test_players['p1900'.$i] = new match_player(22+$j, 1900+$i*$additiveConst);
+            $test_players['p1800'.$i] = new match_player(23+$j, 1800+$i*$additiveConst);
+            $test_players['p2025'.$i] = new match_player(24+$j, 2025+$i*$additiveConst);
+            $test_players['p1875'.$i] = new match_player(25+$j, 1875+$i*$additiveConst);
+            $test_players['p1700'.$i] = new match_player(26+$j, 1700+$i*$additiveConst);
+            $test_players['p1801'.$i] = new match_player(27+$j, 1801+$i*$additiveConst);
         }
 
         $dataSet = [];
