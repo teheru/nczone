@@ -1,6 +1,6 @@
 <template>
   <div v-if="match">
-    <nczone-match :match="match" />
+    <nczone-match :match="match" :standalone="true" />
   </div>
 </template>
 
