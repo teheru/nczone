@@ -106,6 +106,7 @@ class draw_teams_test extends TestCase
                     ],
                 ],
             ];
+
             $data_set['8_players'.$i] = [
                 $list = match_players_list::from_match_players([
                     $test_players['nc_philipphjs'.$i],
@@ -135,6 +136,7 @@ class draw_teams_test extends TestCase
                     ],
                 ],
             ];
+
             $data_set['6_players'.$i] = [
                 $list = match_players_list::from_match_players([
                     $test_players['lion'.$i],
@@ -290,7 +292,6 @@ class draw_teams_test extends TestCase
                     ],
                 ],
             ];
-
             $data_set['10_very_low_factor'.$i] = [
                 $list = match_players_list::from_match_players([
                     $test_players['p1700'.$i],
