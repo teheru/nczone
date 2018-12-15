@@ -69,6 +69,7 @@ export default () => {
       players: [],
       statistics: [],
       bets: [],
+      maps: [],
       runningMatches: [],
       pastMatches: {
         items: [],
@@ -88,6 +89,7 @@ export default () => {
       overlayComponent: (s) => (overlayRouting[s.overlay.name] || {}).component || null,
       overlayPayload: s => s.overlay.payload[s.overlay.name],
       players: (s) => s.players,
+      maps: (s) => s.maps,
       bets: (s) => s.bets,
       me: (s) => s.me,
       loggedInPlayers: (s) => s.players.filter(p => p.logged_in > 0).sort((a, b) => {
@@ -194,6 +196,19 @@ export default () => {
       },
       setBets (state, payload) {
         state.bets = payload
+      },
+      setMaps (state, payload) {
+        const maps = []
+        payload.forEach(map => {
+          maps.push(map)
+        })
+        console.log(maps)
+        state.maps = maps.sort((a, b) => {
+          if (a.weight === b.weight) {
+            return 0
+          }
+          return a.weight < b.weight ? 1 : -1
+        })
       },
       setMatch (state, payload) {
         state.match = payload
@@ -314,6 +329,10 @@ export default () => {
 
       async getBets ({ commit }) {
         commit('setBets', await api.actively.getBets())
+      },
+
+      async getMaps ({ commit }) {
+        commit('setMaps', await api.actively.getMaps())
       },
 
       async getRunningMatches ({ commit, dispatch }, { passive }) {

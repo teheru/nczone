@@ -127,6 +127,9 @@ export const actively = {
   // bets
   getBets: () => doGet('/players/bets'),
 
+  // maps
+  getMaps: () => doGet('/maps'),
+
   // information
   getInformation: () => doGet('/information'),
 

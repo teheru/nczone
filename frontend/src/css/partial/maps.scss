@@ -1,0 +1,25 @@
+.zone-maps {
+  .zone-content {
+    padding-top: 1rem;
+  }
+
+  .zone-map-container {
+    margin-bottom: 1rem;
+    margin-left: 50px;
+
+    .zone-map-header {
+      display: grid;
+      grid-template-columns: 250px 100px;
+
+      font-weight: bold;
+
+      .zone-map-name {
+        grid-column: 1;
+      }
+
+      .zone-map-weight {
+        grid-column: 2;
+      }
+    }
+  }
+}

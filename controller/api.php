@@ -533,6 +533,21 @@ class api
         });
     }
 
+    public function maps(): JsonResponse
+    {
+        return $this->respond(function () {
+            $resp = [];
+            foreach (zone_util::maps()->get_maps() as $map) {
+                $resp[] = [
+                    'id' => $map->get_id(),
+                    'name' => $map->get_name(),
+                    'weight' => $map->get_weight()
+                ];
+            }
+            return $resp;
+        });
+    }
+
     public function statistics(int $limit): JsonResponse
     {
         return $this->respond(function ($args) {
