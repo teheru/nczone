@@ -14,6 +14,7 @@ final class acl
     public const u_zone_view_matches = 'u_zone_view_matches';
     public const u_zone_view_bets = 'u_zone_view_bets';
     public const u_zone_bet = 'u_zone_bet';
+    public const u_zone_view_maps = 'u_zone_view_maps';
 
     public const a_zone_manage_general = 'a_zone_manage_general';
     public const a_zone_manage_draw = 'a_zone_manage_draw';
@@ -56,6 +57,7 @@ final class acl
         self::u_zone_view_matches,
         self::u_zone_view_bets,
         self::u_zone_bet,
+        self::u_zone_view_maps,
     ];
 
     public const ROLE_ADMIN = [
@@ -104,6 +106,7 @@ final class acl
             self::u_zone_view_matches => ['lang' => 'ACL_U_ZONE_VIEW_MATCHES', 'cat' => 'zone'],
             self::u_zone_view_bets => ['lang' => 'ACL_U_ZONE_VIEW_BETS', 'cat' => 'zone'],
             self::u_zone_bet => ['lang' => 'ACL_U_ZONE_BET', 'cat' => 'zone'],
+            self::u_zone_view_maps => ['lang' => 'ACL_U_ZONE_VIEW_MAPS', 'cat' => 'zone'],
 
             self::m_zone_manage_players => ['lang' => 'ACL_M_ZONE_MANAGE_PLAYERS', 'cat' => 'zone'],
             self::m_zone_manage_civs => ['lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone'],

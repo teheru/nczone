@@ -7,6 +7,7 @@ const permissions = {
   u_zone_view_matches: 'u_zone_view_matches',
   u_zone_view_bets: 'u_zone_view_bets',
   u_zone_bet: 'u_zone_bet',
+  u_zone_view_maps: 'u_zone_view_maps',
   a_zone_manage_general: 'a_zone_manage_general',
   a_zone_manage_draw: 'a_zone_manage_draw',
   m_zone_manage_players: 'm_zone_manage_players',

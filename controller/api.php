@@ -545,7 +545,9 @@ class api
                 ];
             }
             return $resp;
-        });
+        }, [
+            acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
+        ]);
     }
 
     public function statistics(int $limit): JsonResponse
