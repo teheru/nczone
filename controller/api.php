@@ -375,17 +375,19 @@ class api
         });
     }
 
-    /**
-     * Returns the list of past matches
-     *
-     * @route /nczone/api/pmatches
-     *
-     * @return JsonResponse
-     */
-    public function pmatches(): JsonResponse
+    public function pmatches(int $page = 0): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            return zone_util::matches()->get_pmatches($args['page']);
+        }, [], [
+            'page' => $page
+        ]);
+    }
+
+    public function pmatches_pages(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->get_pmatches();
+            return zone_util::matches()->get_pmatches_pages();
         });
     }
 

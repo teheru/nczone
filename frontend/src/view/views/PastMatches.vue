@@ -6,7 +6,16 @@
       <div class="error" v-else-if="error" v-t="'NCZONE_ERROR_LOADING'"></div>
       <template v-else="">
         <div v-if="matches.length === 0" v-t="'NCZONE_NO_PMATCHES'"></div>
-        <nczone-match v-else="" v-for="match in matches" :key="match.id" :match="match" />
+        <nczone-match v-else="" v-for="match in matches.items" :key="match.id" :match="match" />
+        <div class="zone-pagination">
+          <span class="zone-button" v-if="matches.page > 0" @click="decrPage">&lt;</span>
+          <span class="zone-button" v-if="matches.page > 0" @click="setPage(0)">1</span>
+          <span v-if="matches.page > 1">…</span>
+          <span class="zone-button">{{ matches.page + 1 }}</span>
+          <span v-if="matches.page < matches.total - 1">…</span>
+          <span class="zone-button" v-if="matches.page < matches.total" @click="setPage(matches.total)">{{ matches.total + 1 }}</span>
+          <span class="zone-button" v-if="matches.page < matches.total" @click="incrPage">&gt;</span>
+        </div>
       </template>
     </div>
   </div>
@@ -22,7 +31,12 @@ export default {
     })
   },
   created () {
+    this.matches.page = 0
     this.fetchData()
+    window.addEventListener('keyup', this.paginator)
+  },
+  beforeDestroy () {
+    window.removeEventListener('keyup', this.paginator)
   },
   watch: {
     '$route': 'fetchData'
@@ -31,15 +45,38 @@ export default {
     async fetchData () {
       this.loading = true
       try {
-        await this.getPastMatches({ passive: false })
+        await this.getPastMatchesPages()
+        await this.getPastMatches({ passive: false, page: this.matches.page })
       } catch (error) {
         this.error = true
       } finally {
         this.loading = false
       }
     },
+    async setPage (page) {
+      this.matches.page = page
+      this.fetchData()
+    },
+    async incrPage () {
+      if (this.matches.page < this.matches.total) {
+        this.setPage(this.matches.page + 1)
+      }
+    },
+    async decrPage () {
+      if (this.matches.page > 0) {
+        this.setPage(this.matches.page - 1)
+      }
+    },
+    paginator (e) {
+      if (e.key === 'ArrowLeft') {
+        this.decrPage()
+      } else if (e.key === 'ArrowRight') {
+        this.incrPage()
+      }
+    },
     ...mapActions([
-      'getPastMatches'
+      'getPastMatches',
+      'getPastMatchesPages'
     ])
   },
   data () {

@@ -79,7 +79,8 @@ export const setSid = (s) => {
 
 export const passively = {
   getRunningMatches: () => get('/matches/running'),
-  getPastMatches: () => get('/matches/past'),
+  getPastMatches: (page) => get(`/matches/past/${page}`),
+  getPastMatchesPages: () => get(`/matches/past/pages`),
   getLoggedInPlayers: () => get('/players/logged_in'),
   getAllPlayers: () => get('/players'),
   getInformation: () => get('/information'),
@@ -110,7 +111,7 @@ export const actively = {
 
   // matches
   getRunningMatches: () => doGet('/matches/running'),
-  getPastMatches: () => doGet('/matches/past'),
+  getPastMatches: (page) => doGet(`/matches/past/${page}`),
   placeBet: (matchId, team) => post(`/matches/${matchId}/bet`, { body: JSON.stringify({ team }) }),
   postMatchResult: (matchId, winner) => post(`/matches/${matchId}/post_result`, { body: JSON.stringify({ winner }) }),
 
