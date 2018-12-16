@@ -36,17 +36,22 @@ class matches {
         $this->db = $db;
     }
 
+    private static function get_draw_factor()
+    {
+        return config::get(config::draw_factor);
+    }
+
     /**
-     * @param int $replace_user_id
+     * @param int $user_id
      * @param int $match_id
-     * @param int $player1_id
+     * @param int $replace_player_id
      * @return array
      * @throws \Throwable
      */
-    public function replace_player(int $replace_user_id, int $match_id, int $player1_id): array
+    public function replace_player(int $user_id, int $match_id, int $replace_player_id): array
     {
-        return $this->db->run_txn(function () use ($replace_user_id, $match_id, $player1_id) {
-            $draw_id = $this->check_draw_process($replace_user_id);
+        return $this->db->run_txn(function () use ($user_id, $match_id, $replace_player_id) {
+            $draw_id = $this->get_draw_id_by_user_id($user_id);
             if (!$draw_id) {
                 throw new InvalidDrawIdError();
             }
@@ -68,11 +73,11 @@ class matches {
 
             $match_players = $this->get_match_players($match_id);
 
-            if (!$match_players->contains_id($player1_id) || $match_players->contains_id($player2_id)) {
+            if (!$match_players->contains_id($replace_player_id) || $match_players->contains_id($player2_id)) {
                 return [];
             }
 
-            $match_players->remove_by_id($player1_id);
+            $match_players->remove_by_id($replace_player_id);
 
             $p = zone_util::players()->get_player($player2_id);
 
@@ -82,8 +87,9 @@ class matches {
 
             $this->clean_match($match_id);
 
-            $match = zone_util::draw_teams()->make_match($match_players);
-            $setting = zone_util::draw_settings()->draw_settings($replace_user_id, $match[0], $match[1]);
+            $factor = self::get_draw_factor();
+            $draw_match = zone_util::draw_teams()->make_match($match_players, $factor);
+            $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
                 zone_util::players()->logout_player($player2_id);
@@ -94,15 +100,15 @@ class matches {
     }
 
     /**
-     * @param int $add_user_id
+     * @param int $user_id
      * @param int $match_id
      * @return array
      * @throws \Throwable
      */
-    public function add_pair(int $add_user_id, int $match_id): array
+    public function add_pair(int $user_id, int $match_id): array
     {
-        return $this->db->run_txn(function () use ($add_user_id, $match_id) {
-            $draw_id = $this->check_draw_process($add_user_id);
+        return $this->db->run_txn(function () use ($user_id, $match_id) {
+            $draw_id = $this->get_draw_id_by_user_id($user_id);
             if (!$draw_id) {
                 throw new InvalidDrawIdError();
             }
@@ -136,8 +142,9 @@ class matches {
 
             $this->clean_match($match_id);
 
-            $match = zone_util::draw_teams()->make_match($match_players);
-            $setting = zone_util::draw_settings()->draw_settings($add_user_id, $match[0], $match[1]);
+            $factor = self::get_draw_factor();
+            $draw_match = zone_util::draw_teams()->make_match($match_players, $factor);
+            $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
                 zone_util::players()->logout_player($player1->get_id());
@@ -149,16 +156,16 @@ class matches {
     }
 
     /**
-     * @param int $remove_user_id
+     * @param int $user_id
      * @param int $match_id
      * @param int $player1_id
      * @param int $player2_id
      * @return int
      * @throws \Throwable
      */
-    public function remove_pair(int $remove_user_id, int $match_id, int $player1_id, int $player2_id): int
+    public function remove_pair(int $user_id, int $match_id, int $player1_id, int $player2_id): int
     {
-        return $this->db->run_txn(function () use ($remove_user_id, $match_id, $player1_id, $player2_id) {
+        return $this->db->run_txn(function () use ($user_id, $match_id, $player1_id, $player2_id) {
             $match_players = $this->get_match_players($match_id);
             if (!$match_players->contains_id($player1_id) || !$match_players->contains_id($player2_id) || $match_players->length() <= 2) {
                 return 0;
@@ -169,8 +176,9 @@ class matches {
 
             $this->clean_match($match_id);
 
-            $match = zone_util::draw_teams()->make_match($match_players);
-            $setting = zone_util::draw_settings()->draw_settings($remove_user_id, $match[0], $match[1]);
+            $factor = self::get_draw_factor();
+            $draw_match = zone_util::draw_teams()->make_match($match_players, $factor);
+            $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
                 zone_util::players()->logout_players($player1_id, $player2_id);
@@ -747,7 +755,12 @@ SQL;
         return (int)$this->db->get_var($sql);
     }
 
-    public function check_draw_process(int $user_id = 0): int
+    public function is_any_draw_process_active(): bool
+    {
+        return $this->get_draw_id_by_user_id() > 0;
+    }
+
+    public function get_draw_id_by_user_id(int $user_id = 0): int
     {
         $row = $this->db->get_row([
             'SELECT' => 't.draw_id, t.time',
@@ -784,24 +797,24 @@ SQL;
 
     /**
      * @param int $user_id
-     * @return array
+     * @return entity\player[] Array of logged in players
      * @throws \Throwable
      */
     public function start_draw_process(int $user_id): array
     {
         return $this->db->run_txn(function () use ($user_id) {
-            if ($this->check_draw_process()) {
+            if ($this->is_any_draw_process_active()) {
                 return [];
             }
 
-            $logged_in = zone_util::players()->get_logged_in();
-            if (\count($logged_in) < 1) {
+            $players = zone_util::players()->get_logged_in();
+            if (\count($players) < 1) {
                 return [];
             }
 
             $draw_id = $this->insert_draw_process($user_id);
-            $this->insert_draw_process_players($draw_id, $logged_in);
-            return $logged_in;
+            $this->insert_draw_process_players($draw_id, $players);
+            return $players;
         });
     }
 
@@ -816,13 +829,16 @@ SQL;
 
     private function insert_draw_process_players(int $draw_id, array $players): void
     {
-        $this->db->sql_multi_insert($this->db->draw_players_table, array_map(function (entity\player $player) use ($draw_id) {
-            return [
-                'draw_id' => $draw_id,
-                'user_id' => $player->get_id(),
-                'logged_in' => $player->get_logged_in(),
-            ];
-        }, $players));
+        $this->db->sql_multi_insert(
+            $this->db->draw_players_table,
+            \array_map(function (entity\player $player) use ($draw_id) {
+                return [
+                    'draw_id' => $draw_id,
+                    'user_id' => $player->get_id(),
+                    'logged_in' => $player->get_logged_in(),
+                ];
+            }, $players)
+        );
     }
 
     /**
@@ -832,7 +848,7 @@ SQL;
     public function deny_draw_process(int $user_id): void
     {
         $this->db->run_txn(function () use ($user_id) {
-            if ($this->check_draw_process($user_id)) {
+            if ($this->get_draw_id_by_user_id($user_id)) {
                 $this->clear_draw_tables();
             }
         });
@@ -852,7 +868,7 @@ SQL;
     public function draw(int $user_id): array
     {
         return $this->db->run_txn(function () use ($user_id) {
-            $draw_id = $this->check_draw_process($user_id);
+            $draw_id = $this->get_draw_id_by_user_id($user_id);
             if (!$draw_id) {
                 throw new InvalidDrawIdError();
             }
@@ -869,20 +885,14 @@ SQL;
 
             $match_ids = [];
             $user_ids = [];
-            $factor = config::get(config::draw_factor);
-            $matches = zone_util::draw_teams()->make_matches($players_list, $factor);
-            foreach ($matches as $match) {
-                $setting = zone_util::draw_settings()->draw_settings($user_id, $match[0], $match[1]);
+            $factor = self::get_draw_factor();
+            $draw_matches = zone_util::draw_teams()->make_matches($players_list, $factor);
+            foreach ($draw_matches as $draw_match) {
+                $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
                 $match_ids[] = $this->create_match($setting);
 
-                /** @var entity\match_players_list $team1 */
-                /** @var entity\match_players_list $team2 */
-                [$team1, $team2] = [$match[0], $match[1]];
-                foreach ($team1->items() as $player) {
-                    $user_ids[] = $player->get_id();
-                }
-                foreach ($team2->items() as $player) {
-                    $user_ids[] = $player->get_id();
+                foreach ($draw_match->get_all_player_ids() as $player_id) {
+                    $user_ids[] = $player_id;
                 }
             }
             zone_util::players()->logout_players(...$user_ids);
