@@ -12,9 +12,9 @@
           <span class="zone-button" v-if="matches.page > 0" @click="setPage(0)">1</span>
           <span v-if="matches.page > 1">…</span>
           <span class="zone-button">{{ matches.page + 1 }}</span>
-          <span v-if="matches.page < matches.total_pages - 1">…</span>
-          <span class="zone-button" v-if="matches.page < matches.total_pages" @click="setPage(matches.total_pages)">{{ matches.total_pages + 1 }}</span>
-          <span class="zone-button" v-if="matches.page < matches.total_pages" @click="incrPage">&gt;</span>
+          <span v-if="matches.page < matches.total_pages - 2">…</span>
+          <span class="zone-button" v-if="matches.page < matches.total_pages - 1" @click="setPage(matches.total_pages - 1)">{{ matches.total_pages }}</span>
+          <span class="zone-button" v-if="matches.page < matches.total_pages - 1" @click="incrPage">&gt;</span>
         </div>
       </template>
     </div>
@@ -55,7 +55,7 @@ export default {
       this.setPastMatchesPage({ page: page })
     },
     async incrPage () {
-      if (this.matches.page < this.matches.total_pages) {
+      if (this.matches.page < this.matches.total_pages - 1) {
         this.setPage(this.matches.page + 1)
       }
     },

@@ -672,7 +672,7 @@ SQL;
     {
         $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE post_time > 0');
         $page_size = (int)config::get(config::pmatches_page_size);
-        return floor($num_matches / $page_size);
+        return ceil($num_matches / $page_size);
     }
 
     public function get_match_civs(int $match_id, int $map_id): array
