@@ -73,8 +73,8 @@ export default () => {
       runningMatches: [],
       pastMatches: {
         items: [],
-        total: 0,
-        page: 1
+        total_pages: 0,
+        page: 0
       },
       information: {
         items: [],
@@ -130,7 +130,7 @@ export default () => {
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
       isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
-      pastMatches: (s) => s.pastMatches.items,
+      pastMatches: (s) => s.pastMatches,
       info: (s) => s.information.items[s.information.index] || '',
       rules: (s) => s.rulesPost,
       informationIndex: (s) => s.information.index,
@@ -213,7 +213,11 @@ export default () => {
         state.runningMatches = payload
       },
       setPastMatches (state, payload) {
-        state.pastMatches.items = payload
+        state.pastMatches.items = payload.items
+        state.pastMatches.total_pages = payload.total_pages
+      },
+      setPastMatchesPage (state, page) {
+        state.pastMatches.page = page
       },
       setInformation (state, payload) {
         state.information.items = payload
@@ -282,14 +286,14 @@ export default () => {
         })
       },
 
-      async loadCurrentRouteData ({ rootState, dispatch }) {
+      async loadCurrentRouteData ({ rootState, dispatch, state }) {
         // only refresh the rest of the stuff when the route matches
         if (rootState.route.name === routes.ROUTE_RMATCHES) {
           // console.log('fetching rmatches')
           dispatch('getRunningMatches', { passive: true })
         } else if (rootState.route.name === routes.ROUTE_PMATCHES) {
           // console.log('fetching pmatches')
-          dispatch('getPastMatches', { passive: true })
+          dispatch('getPastMatches', { passive: true, page: state.pastMatches.page })
         } else if (rootState.route.name === routes.ROUTE_PLAYERS) {
           // console.log('fetching players')
           dispatch('getAllPlayers', { passive: true })
@@ -340,13 +344,18 @@ export default () => {
         }
       },
 
-      async getPastMatches ({ commit, dispatch }, { passive }) {
+      async getPastMatches ({ commit, dispatch }, { passive, page }) {
         if (passive) {
-          commit('setPastMatches', await api.passively.getPastMatches())
+          commit('setPastMatches', await api.passively.getPastMatches(page))
         } else {
-          commit('setPastMatches', await api.actively.getPastMatches())
+          commit('setPastMatches', await api.actively.getPastMatches(page))
           commit('setMeActive')
         }
+      },
+
+      async setPastMatchesPage ({ commit }, { page }) {
+        commit('setPastMatchesPage', page)
+        commit('setPastMatches', await api.actively.getPastMatches(page))
       },
 
       async getInformation ({ commit, dispatch }, { passive }) {

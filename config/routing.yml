@@ -15,8 +15,10 @@ eru_nczone_controller__api__running_matches:
     defaults: { _controller: eru.nczone.controller.api:rmatches }
 
 eru_nczone_controller__api__past_matches:
-    path: /nczone/api/matches/past
-    defaults: { _controller: eru.nczone.controller.api:pmatches }
+    path: /nczone/api/matches/past/{page}
+    defaults: { _controller: eru.nczone.controller.api:pmatches, page: 0 }
+    requirements:
+      page: \d+
 
 eru_nczone_controller__api__match:
     path: /nczone/api/matches/{match_id}

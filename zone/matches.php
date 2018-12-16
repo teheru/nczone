@@ -668,11 +668,11 @@ SQL;
         return \array_map([entity\match::class, 'create_by_row_finished'], $rows);
     }
 
-    public function get_pmatches_pages(): int
+    public function get_pmatches_total_pages(): int
     {
-        $limit = (int)config::get(config::pmatches_page_size);
-        $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE t.post_time > 0');
-        return (int)ceil($num_matches / $limit);
+        $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE post_time > 0');
+        $page_size = (int)config::get(config::pmatches_page_size);
+        return ceil($num_matches / $page_size);
     }
 
     public function get_match_civs(int $match_id, int $map_id): array
