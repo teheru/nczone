@@ -9,6 +9,7 @@
             <li><router-link :to="{name: 'rmatches'}" v-t="'NCZONE_RMATCHES'" /></li>
             <li><router-link :to="{name: 'pmatches'}" v-t="'NCZONE_PMATCHES'" /></li>
             <li><router-link :to="{name: 'players'}" v-t="'NCZONE_PLAYERS_TABLE'" /></li>
+            <li v-if="canViewMaps"><router-link :to="{name: 'maps'}" v-t="'NCZONE_MAPS'" /></li>
             <li><router-link :to="{name: 'bets'}" v-t="'NCZONE_BETS'" /></li>
             <!-- <li><router-link :to="{name: 'statistics'}" v-t="'NCZONE_STATISTICS'"></router-link></li> -->
           </ul>
@@ -31,12 +32,17 @@
   </div>
 </template>
 <script>
-import { mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'nczone-navigation',
   methods: {
     ...mapActions([
       'toggleLanguage'
+    ])
+  },
+  computed: {
+    ...mapGetters([
+      'canViewMaps'
     ])
   }
 }

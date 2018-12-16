@@ -533,6 +533,23 @@ class api
         });
     }
 
+    public function maps(): JsonResponse
+    {
+        return $this->respond(function () {
+            $resp = [];
+            foreach (zone_util::maps()->get_maps() as $map) {
+                $resp[] = [
+                    'id' => $map->get_id(),
+                    'name' => $map->get_name(),
+                    'weight' => $map->get_weight()
+                ];
+            }
+            return $resp;
+        }, [
+            acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
+        ]);
+    }
+
     public function statistics(int $limit): JsonResponse
     {
         return $this->respond(function ($args) {

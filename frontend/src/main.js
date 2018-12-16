@@ -66,6 +66,11 @@ export async function init (settings) {
           component: View.Views.Statistics
         },
         {
+          name: routes.ROUTE_MAPS,
+          path: '/maps',
+          component: View.Views.Maps
+        },
+        {
           name: routes.ROUTE_BETS,
           path: '/bets',
           component: View.Views.Bets

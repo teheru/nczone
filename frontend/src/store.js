@@ -69,6 +69,7 @@ export default () => {
       players: [],
       statistics: [],
       bets: [],
+      maps: [],
       runningMatches: [],
       pastMatches: {
         items: [],
@@ -88,6 +89,7 @@ export default () => {
       overlayComponent: (s) => (overlayRouting[s.overlay.name] || {}).component || null,
       overlayPayload: s => s.overlay.payload[s.overlay.name],
       players: (s) => s.players,
+      maps: (s) => s.maps,
       bets: (s) => s.bets,
       me: (s) => s.me,
       loggedInPlayers: (s) => s.players.filter(p => p.logged_in > 0).sort((a, b) => {
@@ -124,6 +126,7 @@ export default () => {
       canModPost: (s, g) => g.can(acl.permissions.m_zone_draw_match),
       canModLogin: (s, g) => g.can(acl.permissions.m_zone_login_players),
       canLogin: (s, g) => g.can(acl.permissions.u_zone_view_login) && g.can(acl.permissions.u_zone_login) && !g.isLoggedIn && !g.isPlaying,
+      canViewMaps: (s, g) => g.can(acl.permissions.u_zone_view_maps),
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
       isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
@@ -194,6 +197,14 @@ export default () => {
       },
       setBets (state, payload) {
         state.bets = payload
+      },
+      setMaps (state, payload) {
+        state.maps = payload.sort((a, b) => {
+          if (a.weight === b.weight) {
+            return 0
+          }
+          return a.weight < b.weight ? 1 : -1
+        })
       },
       setMatch (state, payload) {
         state.match = payload
@@ -314,6 +325,10 @@ export default () => {
 
       async getBets ({ commit }) {
         commit('setBets', await api.actively.getBets())
+      },
+
+      async getMaps ({ commit }) {
+        commit('setMaps', await api.actively.getMaps())
       },
 
       async getRunningMatches ({ commit, dispatch }, { passive }) {

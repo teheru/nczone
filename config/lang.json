@@ -110,6 +110,7 @@
       "NCZONE_DREAMTEAMS_PLAYER1": "Spieler 1",
       "NCZONE_DREAMTEAMS_PLAYER2": "Spieler 2",
       "NCZONE_DREAMTEAMS_WINSLOSS": "Siege / Verluste",
+      "NCZONE_MAPS": "Karten",
       "NCZONE_BETS_TABLE": "Wetten",
       "NCZONE_TABLE_HEADER_BETS_TOTAL": "Gesamt",
       "NCZONE_TABLE_HEADER_BETS_WON": "Gewonnen",
@@ -277,6 +278,7 @@
       "ACL_U_ZONE_VIEW_MATCHES": "Kann Spiele sehen",
       "ACL_U_ZONE_VIEW_BETS": "Kann Wetten sehen",
       "ACL_U_ZONE_BET": "Kann Wetten",
+      "ACL_U_ZONE_VIEW_MAPS": "Kann Karten einsehen",
       "ACL_A_ZONE_MANAGE_GENERAL": "Kann allgemeine Einstellungen verändern",
       "ACL_A_ZONE_MANAGE_DRAW": "Kann Loseinstellungen verändern"
     }
@@ -335,6 +337,7 @@
       "NCZONE_RMATCHES": "Running matches",
       "NCZONE_PMATCHES": "Past matches",
       "NCZONE_PLAYERS_TABLE": "Player list",
+      "NCZONE_MAPS": "Maps",
       "NCZONE_BETS": "Bets",
       "NCZONE_MENU_INFORMATION": "Information",
       "NCZONE_RULES": "Rules",
@@ -560,6 +563,7 @@
       "ACL_U_ZONE_VIEW_MATCHES": "can see matches",
       "ACL_U_ZONE_VIEW_BETS": "can see players bets",
       "ACL_U_ZONE_BET": "can bet on matches",
+      "ACL_U_ZONE_VIEW_MAPS": "can view maps",
       "ACL_A_ZONE_MANAGE_GENERAL": "can manage general settings",
       "ACL_A_ZONE_MANAGE_DRAW": "can manage draw settings"
     }
