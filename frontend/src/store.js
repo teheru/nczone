@@ -199,12 +199,7 @@ export default () => {
         state.bets = payload
       },
       setMaps (state, payload) {
-        const maps = []
-        payload.forEach(map => {
-          maps.push(map)
-        })
-        console.log(maps)
-        state.maps = maps.sort((a, b) => {
+        state.maps = payload.sort((a, b) => {
           if (a.weight === b.weight) {
             return 0
           }
