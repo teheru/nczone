@@ -31,8 +31,7 @@ export default {
     })
   },
   created () {
-    this.matches.page = 0
-    this.fetchData()
+    this.fetchData(true)
     window.addEventListener('keyup', this.paginator)
   },
   beforeDestroy () {
@@ -42,11 +41,11 @@ export default {
     '$route': 'fetchData'
   },
   methods: {
-    async fetchData () {
+    async fetchData (created = false) {
       this.loading = true
       try {
         await this.getPastMatchesPages()
-        await this.getPastMatches({ passive: false, page: this.matches.page })
+        await this.getPastMatches({ passive: false, page: created ? 0 : this.matches.page })
       } catch (error) {
         this.error = true
       } finally {
