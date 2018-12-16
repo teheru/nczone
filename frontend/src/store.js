@@ -338,10 +338,6 @@ export default () => {
         }
       },
 
-      async getPastMatchesPages ({ commit }) {
-        commit('setPastMatchesPages', await api.passively.getPastMatchesPages())
-      },
-
       async setPastMatchesPage ({ commit }, { page }) {
         commit('setPastMatchesPage', page)
         commit('setPastMatches', await api.actively.getPastMatches(page))
