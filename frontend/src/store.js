@@ -72,7 +72,7 @@ export default () => {
       runningMatches: [],
       pastMatches: {
         items: [],
-        total: 0,
+        total_pages: 0,
         page: 0
       },
       information: {
@@ -202,10 +202,8 @@ export default () => {
         state.runningMatches = payload
       },
       setPastMatches (state, payload) {
-        state.pastMatches.items = payload
-      },
-      setPastMatchesPages (state, payload) {
-        state.pastMatches.total = payload
+        state.pastMatches.items = payload.items
+        state.pastMatches.total_pages = payload.total_pages
       },
       setPastMatchesPage (state, page) {
         state.pastMatches.page = page
