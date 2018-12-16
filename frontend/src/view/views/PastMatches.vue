@@ -31,6 +31,9 @@ export default {
     })
   },
   created () {
+    if (this.matches.page > 0) {
+      this.setPage(0)
+    }
     this.fetchData(true)
     window.addEventListener('keyup', this.paginator)
   },
