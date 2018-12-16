@@ -55,7 +55,6 @@ export default {
     },
     async setPage (page) {
       this.setPastMatchesPage({ page: page })
-      this.fetchData()
     },
     async incrPage () {
       if (this.matches.page < this.matches.total) {
