@@ -54,7 +54,7 @@ export default {
       }
     },
     async setPage (page) {
-      this.matches.page = page
+      this.setPastMatchesPage({ page: page })
       this.fetchData()
     },
     async incrPage () {
@@ -76,7 +76,8 @@ export default {
     },
     ...mapActions([
       'getPastMatches',
-      'getPastMatchesPages'
+      'getPastMatchesPages',
+      'setPastMatchesPage'
     ])
   },
   data () {

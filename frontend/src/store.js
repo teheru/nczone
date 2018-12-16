@@ -207,6 +207,9 @@ export default () => {
       setPastMatchesPages (state, payload) {
         state.pastMatches.total = payload
       },
+      setPastMatchesPage (state, page) {
+        state.pastMatches.page = page
+      },
       setInformation (state, payload) {
         state.information.items = payload
         state.information.index = 0
@@ -281,7 +284,7 @@ export default () => {
           dispatch('getRunningMatches', { passive: true })
         } else if (rootState.route.name === routes.ROUTE_PMATCHES) {
           // console.log('fetching pmatches')
-          dispatch('getPastMatches', { passive: true, page: state.matches.page })
+          dispatch('getPastMatches', { passive: true, page: state.pastMatches.page })
         } else if (rootState.route.name === routes.ROUTE_PLAYERS) {
           // console.log('fetching players')
           dispatch('getAllPlayers', { passive: true })
@@ -339,6 +342,11 @@ export default () => {
 
       async getPastMatchesPages ({ commit }) {
         commit('setPastMatchesPages', await api.passively.getPastMatchesPages())
+      },
+
+      async setPastMatchesPage ({ commit }, { page }) {
+        commit('setPastMatchesPage', page)
+        commit('setPastMatches', await api.actively.getPastMatches(page))
       },
 
       async getInformation ({ commit, dispatch }, { passive }) {
