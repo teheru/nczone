@@ -7,8 +7,15 @@
           <template v-else="" v-for="(map, idx) in maps">
             <div class="zone-map-container" v-if="map.weight > 0" :key="`container-${idx}`">
               <div class="zone-map-header" :key="`header-${idx}`">
+                <div class="zone-map-arrow" :key="`arrow-${idx}`" @click="{{ toggleMap(map.id) }}">
+                  <span class="fas fa-angle-right" v-if="mapInfo.id != map.id"></span>
+                  <span class="fas fa-angle-down" v-if="mapInfo.id == map.id"></span>
+                </div>
                 <div class="zone-map-name" :key="`name-${idx}`" v-html="map.name"></div>
                 <div class="zone-map-weight" :key="`weight-${idx}`">{{ map.weight }}</div>
+              </div>
+              <div class="zone-map-civs-info" v-if="mapInfo.id == map.id">
+                <br />
               </div>
             </div>
           </template>
@@ -37,19 +44,34 @@ export default {
         this.loading = false
       }
     },
+
+    async toggleMap(mapId) {
+      this.loadMap = mapId
+      if (mapId != this.mapInfo.id) {
+        this.getMapInfo({id: 0})
+        this.getMapInfo({id: mapId})
+      } else {
+        this.getMapInfo({id: 0})
+      }
+      this.loadMap = 0
+    },
+
     ...mapActions([
-      'getMaps'
+      'getMaps',
+      'getMapInfo'
     ])
   },
   computed: {
     ...mapGetters([
-      'maps'
+      'maps',
+      'mapInfo'
     ])
   },
   data () {
     return {
       loading: false,
-      error: false
+      error: false,
+      loadMap: 0
     }
   }
 }

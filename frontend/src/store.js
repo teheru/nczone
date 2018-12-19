@@ -70,6 +70,11 @@ export default () => {
       statistics: [],
       bets: [],
       maps: [],
+      mapInfo: {
+        id: 0,
+        mapDescr: "",
+        civInfo: []
+      },
       runningMatches: [],
       pastMatches: {
         items: [],
@@ -133,6 +138,7 @@ export default () => {
       pastMatches: (s) => s.pastMatches.items,
       info: (s) => s.information.items[s.information.index] || '',
       rules: (s) => s.rulesPost,
+      mapInfo: (s) => s.mapInfo,
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
       match: (s) => s.match,
@@ -205,6 +211,15 @@ export default () => {
           }
           return a.weight < b.weight ? 1 : -1
         })
+      },
+      setMapInfoId (state, id) {
+        state.mapInfo.id = id
+      },
+      setMapDescr (state, payload) {
+        state.mapInfo.mapDescr = payload
+      },
+      setMapCivInfo (state, payload) {
+        state.mapInfo.civInfo = payload
       },
       setMatch (state, payload) {
         state.match = payload
@@ -329,6 +344,13 @@ export default () => {
 
       async getMaps ({ commit }) {
         commit('setMaps', await api.actively.getMaps())
+      },
+
+      async getMapInfo ({ commit }, { id }) {
+        commit('setMapInfoId', id)
+        if (id > 0) {
+          
+        }
       },
 
       async getRunningMatches ({ commit, dispatch }, { passive }) {

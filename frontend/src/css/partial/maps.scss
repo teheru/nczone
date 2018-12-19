@@ -1,24 +1,38 @@
 .zone-maps {
   .zone-content {
-    padding-top: 1rem;
+    padding: 1rem 0;
   }
 
   .zone-map-container {
     margin-bottom: 1rem;
-    margin-left: 50px;
+    margin: 0 1em;
+    border: 2px solid $base_color;
 
     .zone-map-header {
       display: grid;
-      grid-template-columns: 250px 100px;
+      grid-template-columns: calc(5%) calc(35%) calc(60%);
 
-      font-weight: bold;
+      padding: 4px 0;
+
+      background-color: $base_color;
+      color: $input_fg;
+
+      .zone-map-arrow {
+        margin-top: -0.2rem;
+        font-size: 1rem;
+        text-align: center;
+        color: $active_link_color;
+        cursor: pointer;
+      }
 
       .zone-map-name {
-        grid-column: 1;
+        grid-column: 2;
+        font-weight: bold;
       }
 
       .zone-map-weight {
-        grid-column: 2;
+        grid-column: 3;
+        font-weight: bold;
       }
     }
   }
