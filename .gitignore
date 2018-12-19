@@ -1,1 +1,5 @@
 deploy.sh
+composer.phar
+unittest
+.idea
+vendor
