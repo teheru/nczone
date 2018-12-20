@@ -618,16 +618,24 @@ class players
     {
         // todo: make limit dynamic
         $sql = 'select
-                    u.user_id, 
-                    u.username, 
-                    b.bets_won, 
+                    u.user_id,
+                    u.username,
+                    b.bets_won,
                     b.bets_loss,
                     (b.bets_won + b.bets_loss) as bets_total,
                     b.bets_won / (b.bets_won + b.bets_loss) * 100 as bet_quota
                 from '.$this->db->players_table.' b
                 left join '.$this->db->users_table.' u on u.user_id = b.user_id
-                where b.bets_won + b.bets_loss >= 10 and u.username is not null
-                order by (b.bets_won * b.bets_won + 1) / (b.bets_loss * b.bets_loss + 1) desc';
+                join (
+                    select
+                        avg(bets_won) as avg_bets_won,
+                        avg(bets_loss) as avg_bets_loss
+                    from '.$this->db->players_table.'
+                ) a
+                where
+                    b.bets_won + b.bets_loss >= 10 and
+                    u.username is not null
+                order by (b.bets_won * b.bets_won + a.avg_bets_won * a.avg_bets_won) / (b.bets_loss * b.bets_loss + a.avg_bets_loss * a.avg_bets_loss) desc';
 
         return \array_map(function ($row) {
             return [
