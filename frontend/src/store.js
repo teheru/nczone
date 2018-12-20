@@ -349,7 +349,7 @@ export default () => {
       async getMapInfo ({ commit }, { id }) {
         commit('setMapInfoId', id)
         if (id > 0) {
-          
+          commit('setMapCivInfo', await api.actively.getMapCivs(id))
         }
       },
 

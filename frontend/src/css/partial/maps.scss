@@ -35,5 +35,44 @@
         font-weight: bold;
       }
     }
+
+    .zone-map-civs-table {
+      display: grid;
+      grid-template-columns: calc(41%) calc(20%) calc(13%) calc(13%) calc(13%);
+
+      margin: 1em 2em;
+
+      text-align: center;
+
+      .zone-map-civs-table-head {
+        font-weight: bold;
+      }
+
+      .zone-map-civs-table-name {
+        padding-left: 1rem;
+        text-align: left;
+      }
+
+      .zone-map-civs-table-force-draw, .zone-map-civs-table-prevent-draw, .zone-map-civs-table-both-teams {
+        padding-top: 3px;
+      }
+
+      .odd, .zone-map-civs-table-head {
+        background-color: darken($base_light_bg, 8);
+      }
+
+      .fa-check {
+        color: $positive_color;
+      }
+
+      .fa-times {
+        color: $negative_color;
+      }
+    }
+
+    .zone-map-civs-table-loading {
+      width: 100%;
+      text-align: center;
+    }
   }
 }

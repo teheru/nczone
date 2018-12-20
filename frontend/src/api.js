@@ -129,6 +129,7 @@ export const actively = {
 
   // maps
   getMaps: () => doGet('/maps'),
+  getMapCivs: (map_id) => doGet(`/map/${map_id}/civs`),
 
   // information
   getInformation: () => doGet('/information'),
