@@ -69,11 +69,7 @@ export default () => {
       players: [],
       statistics: [],
       bets: [],
-      maps: [],
-      mapInfo: {
-        id: 0,
-        civInfo: []
-      },
+      maps: {},
       runningMatches: [],
       pastMatches: {
         items: [],
@@ -138,7 +134,6 @@ export default () => {
       pastMatches: (s) => s.pastMatches,
       info: (s) => s.information.items[s.information.index] || '',
       rules: (s) => s.rulesPost,
-      mapInfo: (s) => s.mapInfo,
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
       match: (s) => s.match,
@@ -205,18 +200,25 @@ export default () => {
         state.bets = payload
       },
       setMaps (state, payload) {
-        state.maps = payload.sort((a, b) => {
-          if (a.weight === b.weight) {
-            return 0
+        payload.forEach(map => {
+          if (!(map.id in state.maps))
+          {
+            state.maps[map.id] = {
+              'name': map.name,
+              'weight': map.weight,
+              'description': map.description
+            }
           }
-          return a.weight < b.weight ? 1 : -1
+          else
+          {
+            state.maps[map.id]['name'] = map.name
+            state.maps[map.id]['weight'] = map.weight,
+            state.maps[map.id]['description'] = map.description
+          }
         })
       },
-      setMapInfoId (state, id) {
-        state.mapInfo.id = id
-      },
-      setMapCivInfo (state, payload) {
-        state.mapInfo.civInfo = payload
+      setMapCivInfo (state, { id, civInfo }) {
+        state.maps[id].civInfo = civInfo
       },
       setMatch (state, payload) {
         state.match = payload
@@ -347,10 +349,11 @@ export default () => {
         commit('setMaps', await api.actively.getMaps())
       },
 
-      async getMapInfo ({ commit }, { id }) {
-        commit('setMapInfoId', id)
+      async getMapInfo ({ state, commit }, { id }) {
         if (id > 0) {
-          commit('setMapCivInfo', await api.actively.getMapCivs(id))
+          if (!('civInfo' in state.maps[id])) {
+            commit('setMapCivInfo', { id: id, civInfo: await api.actively.getMapCivs(id) })
+          }
         }
       },
 
