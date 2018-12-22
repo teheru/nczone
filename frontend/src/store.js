@@ -72,7 +72,6 @@ export default () => {
       maps: [],
       mapInfo: {
         id: 0,
-        mapDescr: "",
         civInfo: []
       },
       runningMatches: [],
@@ -132,6 +131,7 @@ export default () => {
       canModLogin: (s, g) => g.can(acl.permissions.m_zone_login_players),
       canLogin: (s, g) => g.can(acl.permissions.u_zone_view_login) && g.can(acl.permissions.u_zone_login) && !g.isLoggedIn && !g.isPlaying,
       canViewMaps: (s, g) => g.can(acl.permissions.u_zone_view_maps),
+      canEditMapDescription: (s, g) => g.can(acl.permissions.u_zone_view_maps) && g.can(acl.permissions.m_zone_manage_maps),
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
       isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
@@ -214,9 +214,6 @@ export default () => {
       },
       setMapInfoId (state, id) {
         state.mapInfo.id = id
-      },
-      setMapDescr (state, payload) {
-        state.mapInfo.mapDescr = payload
       },
       setMapCivInfo (state, payload) {
         state.mapInfo.civInfo = payload
@@ -355,6 +352,11 @@ export default () => {
         if (id > 0) {
           commit('setMapCivInfo', await api.actively.getMapCivs(id))
         }
+      },
+
+      async saveMapDescription ({ commit }, { id, description }) {
+        await api.actively.setMapDescription(id, description)
+        commit('setMaps', await api.actively.getMaps())
       },
 
       async getRunningMatches ({ commit, dispatch }, { passive }) {

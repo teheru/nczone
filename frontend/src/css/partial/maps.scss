@@ -1,12 +1,32 @@
 .zone-maps {
   .zone-content {
-    padding: 1rem 0;
+    padding: 1em 0;
   }
 
   .zone-map-container {
-    margin-bottom: 1rem;
+    margin-bottom: 1em;
     margin: 0 1em;
     border: 2px solid $base_color;
+
+    .zone-map-description {
+      display: grid;
+      grid-template-columns: calc(100% - 208px - 1em) 208px;
+      grid-column-gap: 1em;
+
+      padding: 0 1em;
+      margin: 1em;
+      margin-bottom: 2em;
+
+      background-color: darken($base_light_bg, 8);
+
+      pre {
+        white-space: pre-wrap;
+      }
+
+      textarea {
+        width: 100%;
+      }
+    }
 
     .zone-map-header {
       display: grid;
@@ -40,7 +60,7 @@
       display: grid;
       grid-template-columns: calc(41%) calc(20%) calc(13%) calc(13%) calc(13%);
 
-      margin: 1em 2em;
+      margin: 1em 1em;
 
       text-align: center;
 

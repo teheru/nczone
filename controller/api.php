@@ -539,7 +539,8 @@ class api
                 $resp[] = [
                     'id' => $map->get_id(),
                     'name' => $map->get_name(),
-                    'weight' => $map->get_weight()
+                    'weight' => $map->get_weight(),
+                    'description' => $map->get_description()
                 ];
             }
             return $resp;
@@ -574,6 +575,20 @@ class api
             acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
         ], [
             'map_id' => $map_id,
+        ]);
+    }
+
+    public function save_map_description(int $map_id): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            $data = self::get_request_data();
+            $description = $data['description'];
+
+            zone_util::maps()->set_map_description($args['map_id'], $description);
+
+            return [];
+        }, [], [
+            'map_id' => $map_id
         ]);
     }
 

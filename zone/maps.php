@@ -44,13 +44,12 @@ class maps
     public function get_maps(): array
     {
         $rows = $this->db->get_rows([
-            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight',
+            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight, m.description AS description',
             'FROM' => [$this->db->maps_table => 'm'],
             'ORDER_BY' => 'LOWER(name) ASC',
         ]);
         return array_map([entity\map::class, 'create_by_row'], $rows);
     }
-
 
     public function get_map_ids(): array
     {
@@ -101,6 +100,11 @@ class maps
             'FROM' => [$this->db->map_civs_table => 'c'],
             'WHERE' => 'c.map_id = ' . $map_id . ' AND c.both_teams',
         ]));
+    }
+
+    public function set_map_description(int $map_id, string $description): void
+    {
+        $this->db->update($this->db->maps_table, ['description' => trim($description)], ['map_id' => $map_id]);
     }
 
     /**
