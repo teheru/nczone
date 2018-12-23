@@ -36,16 +36,16 @@
                     <div class="zone-map-civs-table-head-prevent-draw">{{ $t('NCZONE_PREVENT_DRAW') }}</div>
                     <div class="zone-map-civs-table-head-both-teams">{{ $t('NCZONE_BOTH_TEAMS') }}</div>
                   </div>
-                <div class="zone-map-civs-table-row" v-for="(civ, idy) in maps[mapId].civInfo" :key="`row-${idy}`">
-                  <div class="zone-map-civs-table-name" :key="`name-${idy}`">{{ $t(civ.civ_name) }}</div>
-                  <div class="zone-map-civs-table-multiplier" :key="`multiplier-${idy}`">{{ civ.multiplier }}</div>
-                  <div class="zone-map-civs-table-force-draw fa fa-check" :key="`force-draw-${idy}`" v-if="civ.force_draw"></div>
-                  <div class="zone-map-civs-table-force-draw fa fa-times" :key="`force-draw-${idy}`" v-else=""></div>
-                  <div class="zone-map-civs-table-prevent-draw fa fa-check" :key="`prevent-draw-${idy}`" v-if="civ.prevent_draw"></div>
-                  <div class="zone-map-civs-table-prevent-draw fa fa-times" :key="`prevent-draw-${idy}`" v-else=""></div>
-                  <div class="zone-map-civs-table-both-teams fa fa-check" :key="`both-teams-${idy}`" v-if="civ.both_teams"></div>
-                  <div class="zone-map-civs-table-both-teams fa fa-times" :key="`both-teams-${idy}`" v-else=""></div>
-                </div>
+                  <div class="zone-map-civs-table-row" v-for="(civ, idy) in maps[mapId].civInfo" :key="`row-${idy}`">
+                    <div class="zone-map-civs-table-name" :key="`name-${idy}`">{{ $t(civ.civ_name) }}</div>
+                    <div class="zone-map-civs-table-multiplier" :key="`multiplier-${idy}`">{{ civ.multiplier }}</div>
+                    <div class="zone-map-civs-table-force-draw fa fa-check" :key="`force-draw-${idy}`" v-if="civ.force_draw"></div>
+                    <div class="zone-map-civs-table-force-draw fa fa-times" :key="`force-draw-${idy}`" v-else=""></div>
+                    <div class="zone-map-civs-table-prevent-draw fa fa-check" :key="`prevent-draw-${idy}`" v-if="civ.prevent_draw"></div>
+                    <div class="zone-map-civs-table-prevent-draw fa fa-times" :key="`prevent-draw-${idy}`" v-else=""></div>
+                    <div class="zone-map-civs-table-both-teams fa fa-check" :key="`both-teams-${idy}`" v-if="civ.both_teams"></div>
+                    <div class="zone-map-civs-table-both-teams fa fa-times" :key="`both-teams-${idy}`" v-else=""></div>
+                  </div>
                 </div>
               </template>
               <div class="zone-map-civs-table-loading fa fa-spinner" v-else></div>

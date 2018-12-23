@@ -201,20 +201,12 @@ export default () => {
       },
       setMaps (state, payload) {
         payload.forEach(map => {
-          if (!(map.id in state.maps))
+          state.maps[map.id] = Object.assign(state.maps[map.id] || {},
           {
-            state.maps[map.id] = {
-              'name': map.name,
-              'weight': map.weight,
-              'description': map.description
-            }
-          }
-          else
-          {
-            state.maps[map.id]['name'] = map.name
-            state.maps[map.id]['weight'] = map.weight,
-            state.maps[map.id]['description'] = map.description
-          }
+            'name': map.name,
+            'weight': map.weight,
+            'description': map.description
+          })
         })
       },
       setMapCivInfo (state, { id, civInfo }) {
