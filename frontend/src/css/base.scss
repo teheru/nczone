@@ -19,10 +19,18 @@
   grid-template-columns: 216px auto 216px;
   grid-gap: 18px;
   align-items: start;
+  color: $base_color;
   font-size: 9pt;
 
   a {
     cursor: pointer;
+    text-decoration: none;
+  }
+  
+  a:hover,
+  a:focus,
+  a:active {
+    text-decoration: underline;
   }
 }
 
@@ -100,6 +108,7 @@
 
 .zone-mini-button {
   padding: 0 2px;
+  font-size: 12px;
 }
 
 .zone-close-button {

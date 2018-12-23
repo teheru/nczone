@@ -69,7 +69,7 @@ export default () => {
       players: [],
       statistics: [],
       bets: [],
-      maps: [],
+      maps: {},
       runningMatches: [],
       pastMatches: {
         items: [],
@@ -127,6 +127,7 @@ export default () => {
       canModLogin: (s, g) => g.can(acl.permissions.m_zone_login_players),
       canLogin: (s, g) => g.can(acl.permissions.u_zone_view_login) && g.can(acl.permissions.u_zone_login) && !g.isLoggedIn && !g.isPlaying,
       canViewMaps: (s, g) => g.can(acl.permissions.u_zone_view_maps),
+      canEditMapDescription: (s, g) => g.can(acl.permissions.u_zone_view_maps) && g.can(acl.permissions.m_zone_manage_maps),
       isLoggedIn: (s, g) => g.loggedInUserIds.includes(s.me.id),
       isPlaying: (s, g) => !!g.runningMatches.find(m => m.players.team1.find(p => p.id === s.me.id) || m.players.team2.find(p => p.id === s.me.id)),
       runningMatches: (s) => s.runningMatches,
@@ -199,12 +200,17 @@ export default () => {
         state.bets = payload
       },
       setMaps (state, payload) {
-        state.maps = payload.sort((a, b) => {
-          if (a.weight === b.weight) {
-            return 0
-          }
-          return a.weight < b.weight ? 1 : -1
+        payload.forEach(map => {
+          state.maps[map.id] = Object.assign(state.maps[map.id] || {},
+          {
+            'name': map.name,
+            'weight': map.weight,
+            'description': map.description
+          })
         })
+      },
+      setMapCivInfo (state, { id, civInfo }) {
+        state.maps[id].civInfo = civInfo
       },
       setMatch (state, payload) {
         state.match = payload
@@ -332,6 +338,19 @@ export default () => {
       },
 
       async getMaps ({ commit }) {
+        commit('setMaps', await api.actively.getMaps())
+      },
+
+      async getMapInfo ({ state, commit }, { id }) {
+        if (id > 0) {
+          if (!('civInfo' in state.maps[id])) {
+            commit('setMapCivInfo', { id: id, civInfo: await api.actively.getMapCivs(id) })
+          }
+        }
+      },
+
+      async saveMapDescription ({ commit }, { id, description }) {
+        await api.actively.setMapDescription(id, description)
         commit('setMaps', await api.actively.getMaps())
       },
 

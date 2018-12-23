@@ -95,6 +95,7 @@ class install_db_create extends \phpbb\db\migration\migration
 						'map_id' => array('UINT', NULL, 'auto_increment'),
 						'map_name' => array('VCHAR:48', ''),
 						'weight' => array('DECIMAL', 0.0),
+						'description' => array('TEXT', '')
 					),
 					'PRIMARY_KEY' => 'map_id'
 				),

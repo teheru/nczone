@@ -1,25 +1,70 @@
 <template>
-    <div class="zone-maps">
-        <div class="zone-title" v-t="'NCZONE_MAPS'"></div>
-        <div class="zone-content">
-          <div class="loading" v-if="loading"><span v-t="'NCZONE_LOADING'"></span></div>
-          <div class="error" v-else-if="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
-          <template v-else="" v-for="(map, idx) in maps">
-            <div class="zone-map-container" v-if="map.weight > 0" :key="`container-${idx}`">
-              <div class="zone-map-header" :key="`header-${idx}`">
-                <div class="zone-map-name" :key="`name-${idx}`" v-html="map.name"></div>
-                <div class="zone-map-weight" :key="`weight-${idx}`">{{ map.weight }}</div>
+  <div class="zone-maps">
+    <div class="zone-title" v-t="'NCZONE_MAPS'"></div>
+    <div class="zone-content">
+      <div class="loading" v-if="loading"><span v-t="'NCZONE_LOADING'"></span></div>
+      <div class="error" v-else-if="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
+      <template v-else>
+        <template v-for="mapId in orderedMapIds">
+          <div class="zone-map-container" v-if="maps[mapId].weight > 0" :key="`container-${mapId}`">
+            <div class="zone-map-header" :key="`header-${mapId}`">
+              <div class="zone-map-arrow" :key="`arrow-${mapId}`" @click="{{ toggleMap(mapId) }}">
+                <span class="fa fa-angle-right" v-if="showMapId !== mapId"></span>
+                <span class="fa fa-angle-down" v-if="showMapId === mapId"></span>
               </div>
+              <div class="zone-map-name" :key="`name-${mapId}`" v-html="maps[mapId].name"></div>
+              <div class="zone-map-weight" :key="`weight-${mapId}`">{{ maps[mapId].weight }}</div>
             </div>
-          </template>
-        </div>
+            <div class="zone-map-civs-info" v-if="showMapId === mapId">
+              <template v-if="!loadMap">
+                <div class="zone-map-description" @dblclick="{{ editDescription() }}">
+                  <div v-if="maps[mapId].description || canEditMapDescription">
+                    <vue-markdown v-if="!editDescr" class="zone-map-description-text">{{ maps[mapId].description ? maps[mapId].description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
+                    <div v-else>
+                      <textarea v-model="tempDescription" rows="10"></textarea><br />
+                      <button @click="{{ saveDescription() }}">{{ $t('NCZONE_SAVE') }}</button>
+                    </div>
+                  </div>
+                  <div class="zone-map-description-image">
+                  </div>
+                </div>
+                <div class="zone-map-civs-table">
+                  <div class="zone-map-civs-table-head">
+                    <div class="zone-map-civs-table-head-name">{{ $t('NCZONE_CIV') }}</div>
+                    <div class="zone-map-civs-table-head-multiplier">{{ $t('NCZONE_MULTIPLIER') }}</div>
+                    <div class="zone-map-civs-table-head-force-draw">{{ $t('NCZONE_FORCE_DRAW') }}</div>
+                    <div class="zone-map-civs-table-head-prevent-draw">{{ $t('NCZONE_PREVENT_DRAW') }}</div>
+                    <div class="zone-map-civs-table-head-both-teams">{{ $t('NCZONE_BOTH_TEAMS') }}</div>
+                  </div>
+                  <div class="zone-map-civs-table-row" v-for="(civ, idy) in maps[mapId].civInfo" :key="`row-${idy}`">
+                    <div class="zone-map-civs-table-name" :key="`name-${idy}`">{{ $t(civ.civ_name) }}</div>
+                    <div class="zone-map-civs-table-multiplier" :key="`multiplier-${idy}`">{{ civ.multiplier }}</div>
+                    <div class="zone-map-civs-table-force-draw fa fa-check" :key="`force-draw-${idy}`" v-if="civ.force_draw"></div>
+                    <div class="zone-map-civs-table-force-draw fa fa-times" :key="`force-draw-${idy}`" v-else=""></div>
+                    <div class="zone-map-civs-table-prevent-draw fa fa-check" :key="`prevent-draw-${idy}`" v-if="civ.prevent_draw"></div>
+                    <div class="zone-map-civs-table-prevent-draw fa fa-times" :key="`prevent-draw-${idy}`" v-else=""></div>
+                    <div class="zone-map-civs-table-both-teams fa fa-check" :key="`both-teams-${idy}`" v-if="civ.both_teams"></div>
+                    <div class="zone-map-civs-table-both-teams fa fa-times" :key="`both-teams-${idy}`" v-else=""></div>
+                  </div>
+                </div>
+              </template>
+              <div class="zone-map-civs-table-loading fa fa-spinner" v-else></div>
+            </div>
+          </div>
+        </template>
+      </template>
     </div>
+  </div>
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import VueMarkdown from 'vue-markdown'
 
 export default {
   name: 'nczone-maps',
+  components: {
+    VueMarkdown
+  },
   created () {
     this.fetchData()
   },
@@ -31,25 +76,71 @@ export default {
       this.loading = true
       try {
         await this.getMaps()
+        this.orderMapIds()
       } catch (error) {
         this.error = true
       } finally {
         this.loading = false
       }
     },
+
+    orderMapIds () {
+      this.orderedMapIds = Object.keys(this.maps).sort((a, b) => {
+        var mapA = this.maps[a]
+        var mapB = this.maps[b]
+        if (mapA.weight === mapB.weight) {
+          return 0
+        }
+        return mapA.weight < mapB.weight ? 1 : -1
+      })
+    },
+
+    async toggleMap (mapId) {
+      this.loadMap = true
+      this.editDescr = false
+      const toggleId = mapId !== this.showMapId ? mapId : 0
+      if (toggleId) {
+        await this.getMapInfo({ id: toggleId })
+      }
+      this.showMapId = toggleId
+      this.loadMap = false
+    },
+
+    editDescription () {
+      if (this.canEditMapDescription) {
+        this.tempDescription = this.maps[this.showMapId].description
+        this.editDescr = true
+      }
+    },
+
+    async saveDescription () {
+      this.loadMap = true
+      await this.saveMapDescription({ id: this.showMapId, description: this.tempDescription })
+      this.editDescr = false
+      this.loadMap = false
+    },
+
     ...mapActions([
-      'getMaps'
+      'getMaps',
+      'getMapInfo',
+      'saveMapDescription'
     ])
   },
   computed: {
     ...mapGetters([
-      'maps'
+      'maps',
+      'canEditMapDescription'
     ])
   },
   data () {
     return {
-      loading: false,
-      error: false
+      loading: true,
+      error: false,
+      orderedMapIds: [],
+      showMapId: 0,
+      loadMap: true,
+      editDescr: false,
+      tempDescription: ''
     }
   }
 }

@@ -10,6 +10,8 @@ class map
     private $name = '';
     /** @var float */
     private $weight = .0;
+    /** @var string */
+    private $description = '';
 
     public static function create_by_row(array $row): map
     {
@@ -17,6 +19,7 @@ class map
         $map->id = (int)$row['id'];
         $map->name = (string)$row['name'];
         $map->weight = (float)$row['weight'];
+        $map->description = $row['description'];
         return $map;
     }
 
@@ -33,5 +36,10 @@ class map
     public function get_weight(): float
     {
         return $this->weight;
+    }
+
+    public function get_description(): string
+    {
+        return $this->description;
     }
 }

@@ -539,12 +539,56 @@ class api
                 $resp[] = [
                     'id' => $map->get_id(),
                     'name' => $map->get_name(),
-                    'weight' => $map->get_weight()
+                    'weight' => $map->get_weight(),
+                    'description' => $map->get_description()
                 ];
             }
             return $resp;
         }, [
             acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
+        ]);
+    }
+
+    public function map_civs(int $map_id): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            $civs = zone_util::civs()->get_civs();
+            $civ_names = [];
+            foreach($civs as $civ) {
+                $civ_names[$civ->get_id()] = $civ->get_name();
+            }
+
+            $resp = [];
+            foreach (zone_util::maps()->get_map_civs($args['map_id']) as $map_civ) {
+                $resp[] = [
+                    'map_id' => $map_civ->get_map_id(),
+                    'civ_id' => $map_civ->get_civ_id(),
+                    'civ_name' => $civ_names[$map_civ->get_civ_id()],
+                    'multiplier' => $map_civ->get_multiplier(),
+                    'force_draw' => $map_civ->get_force_draw(),
+                    'prevent_draw' => $map_civ->get_prevent_draw(),
+                    'both_teams' => $map_civ->get_both_teams(),
+                ];
+            }
+            return $resp;
+        }, [
+            acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
+        ], [
+            'map_id' => $map_id,
+        ]);
+    }
+
+    public function save_map_description(int $map_id): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            $data = self::get_request_data();
+            $description = $data['description'];
+
+            zone_util::maps()->set_map_description($args['map_id'], $description);
+
+            return [];
+        }, [], [
+            'map_id' => $map_id
         ]);
     }
 

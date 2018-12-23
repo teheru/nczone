@@ -19,6 +19,10 @@
     list-style-type: "»";
     padding-left: 1em;
 
+    a {
+      color: $base_color;
+    }
+
     li {
       padding-left: .5em;
     }
