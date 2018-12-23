@@ -17,11 +17,11 @@
             </div>
             <div class="zone-map-civs-info" v-if="showMapId === mapId">
               <template v-if="!loadMap">
-                <div class="zone-map-description" @dblclick="{{ editDescription() }}">
+                <div v-if="maps[mapId].description || mapImageExists || canEditMapDescription" class="zone-map-description" @dblclick="{{ editDescription() }}">
                   <div v-if="maps[mapId].description || canEditMapDescription">
                     <label for="upload-map-image">
                       <img v-if="mapImageExists" class="zone-map-upload-image" :src="mapImagePath" />
-                      <div v-else class="zone-map-upload-image">{{ $t('NCZONE_UPLOAD_IMAGE') }}</div>
+                      <div v-else-if="canEditMapDescription" class="zone-map-upload-image">{{ $t('NCZONE_UPLOAD_IMAGE') }}</div>
                     </label>
                     <input id="upload-map-image" v-if="canEditMapDescription" type="file" accept="image/*" @change="uploadImage" />
                     <vue-markdown v-if="!editDescr" class="zone-map-description-text">{{ maps[mapId].description ? maps[mapId].description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
