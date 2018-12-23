@@ -51,6 +51,7 @@ export default () => {
 
   return new Vuex.Store({
     state: {
+      basepath: '',
       me: {
         id: 0,
         sid: '',
@@ -85,6 +86,7 @@ export default () => {
       timer: timer
     },
     getters: {
+      basepath: (s) => s.basepath,
       can: (s) => (permission) => acl.can(s.me, permission),
       overlayComponent: (s) => (overlayRouting[s.overlay.name] || {}).component || null,
       overlayPayload: s => s.overlay.payload[s.overlay.name],
@@ -140,13 +142,15 @@ export default () => {
       timer: (s) => s.timer
     },
     mutations: {
-      init (state, { me, i18n }) {
+      init (state, { me, i18n, basepath }) {
         state.me.id = me.id || 0
         state.me.sid = me.sid || ''
         state.me.permissions = me.permissions
 
         state.i18n = i18n
         state.i18n.locale = me.lang
+
+        state.basepath = basepath.basepath
 
         api.setSid(state.me.sid)
       },
@@ -267,7 +271,11 @@ export default () => {
           commit('setMatch', await api.passively.getMatch(payload.matchId))
           commit('init', { me: payload.me, i18n: payload.i18n })
         } else {
-          commit('init', { me: payload.me, i18n: payload.i18n })
+          commit('init', {
+            me: payload.me,
+            i18n: payload.i18n,
+            basepath: await api.passively.getBasepath()
+          })
 
           dispatch('getInformation', { passive: true })
           dispatch('getLoggedInPlayers', { passive: true })
@@ -351,6 +359,11 @@ export default () => {
 
       async saveMapDescription ({ commit }, { id, description }) {
         await api.actively.setMapDescription(id, description)
+        commit('setMaps', await api.actively.getMaps())
+      },
+
+      async saveMapImage ({ commit }, {id, image}) {
+        await api.actively.setMapImage(id, image)
         commit('setMaps', await api.actively.getMaps())
       },
 

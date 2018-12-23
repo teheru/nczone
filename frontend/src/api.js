@@ -78,6 +78,7 @@ export const setSid = (s) => {
 }
 
 export const passively = {
+  getBasepath: () => doGet('/basepath'),
   getRunningMatches: () => get('/matches/running'),
   getPastMatches: (page) => get(`/matches/past/${page}`),
   getLoggedInPlayers: () => get('/players/logged_in'),
@@ -131,6 +132,7 @@ export const actively = {
   getMaps: () => doGet('/maps'),
   getMapCivs: (map_id) => doGet(`/map/${map_id}/civs`),
   setMapDescription: (map_id, description) => post(`/map/${map_id}/description`, { body: JSON.stringify({ description }) }),
+  setMapImage: (map_id, image) => post(`/map/${map_id}/image`, { body: JSON.stringify({ image }) }),
 
   // information
   getInformation: () => doGet('/information'),

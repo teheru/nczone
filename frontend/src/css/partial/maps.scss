@@ -9,15 +9,15 @@
     border: 2px solid $base_color;
 
     .zone-map-description {
-      display: grid;
-      grid-template-columns: calc(100% - 208px - 1em) 208px;
-      grid-column-gap: 1em;
-
       padding: 0 1em;
+      padding-bottom: 1em;
+
       margin: 1em;
       margin-bottom: 2em;
 
       background-color: darken($base_light_bg, 8);
+
+      overflow: hidden; // THIS STUFF IS WHY I HATE FRONTEND CODING
 
       pre {
         white-space: pre-wrap;
@@ -25,6 +25,16 @@
 
       textarea {
         width: 100%;
+      }
+
+      input {
+        display: none;
+      }
+
+      .zone-map-upload-image {
+        margin: 0.5em;
+        float: right;
+        font-style: italic;
       }
     }
 

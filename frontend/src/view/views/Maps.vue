@@ -19,13 +19,16 @@
               <template v-if="!loadMap">
                 <div class="zone-map-description" @dblclick="{{ editDescription() }}">
                   <div v-if="maps[mapId].description || canEditMapDescription">
+                    <label for="upload-map-image">
+                      <img v-if="mapImageExists" class="zone-map-upload-image" :src="mapImagePath" />
+                      <div v-else class="zone-map-upload-image">{{ $t('NCZONE_UPLOAD_IMAGE') }}</div>
+                    </label>
+                    <input id="upload-map-image" v-if="canEditMapDescription" type="file" accept="image/*" @change="uploadImage" />
                     <vue-markdown v-if="!editDescr" class="zone-map-description-text">{{ maps[mapId].description ? maps[mapId].description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
-                    <div v-else>
+                    <template v-else>
                       <textarea v-model="tempDescription" rows="10"></textarea><br />
                       <button @click="{{ saveDescription() }}">{{ $t('NCZONE_SAVE') }}</button>
-                    </div>
-                  </div>
-                  <div class="zone-map-description-image">
+                    </template>
                   </div>
                 </div>
                 <div class="zone-map-civs-table">
@@ -120,15 +123,45 @@ export default {
       this.loadMap = false
     },
 
+    async uploadImage (evt) {
+      this.loadMap = true
+      var files = evt.target.files || evt.dataTransfer.files
+      if (!files.length) {
+        return
+      }
+      var reader = new FileReader();
+      reader.onload = async (p) => {
+        await this.saveMapImage({ id: this.showMapId, image: p.target.result })
+        this.$forceUpdate()
+        this.loadMap = false
+      }
+      reader.readAsDataURL(files[0])
+    },
+
     ...mapActions([
       'getMaps',
       'getMapInfo',
-      'saveMapDescription'
+      'saveMapDescription',
+      'saveMapImage'
     ])
   },
   computed: {
+    mapImagePath () {
+      return this.basepath + 'maps/map_' + this.showMapId + '.png'
+    },
+
+    mapImageExists () {
+      var img = new Image()
+      img.src = this.mapImagePath
+      if (img.height > 0) {
+        return true
+      }
+      return false
+    },
+
     ...mapGetters([
       'maps',
+      'basepath',
       'canEditMapDescription'
     ])
   },

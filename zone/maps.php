@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\utility\db;
+use eru\nczone\utility\phpbb_util;
 use eru\nczone\zone\entity\map_civ;
 
 /**
@@ -105,6 +106,22 @@ class maps
     public function set_map_description(int $map_id, string $description): void
     {
         $this->db->update($this->db->maps_table, ['description' => trim($description)], ['map_id' => $map_id]);
+    }
+
+    public function set_map_image(int $map_id, string $image_raw): bool
+    {
+        $image_raw = \base64_decode(\explode(',', $image_raw)[1]);
+        $image = @\imagecreatefromstring($image_raw);
+        if ($image) {
+            imagesavealpha($image, TRUE);
+            $width = \imagesx($image);
+            $height = \imagesy($image);
+            if ($width <= 200 && $height <= 500) {
+                \imagepng($image, phpbb_util::nczone_path() . 'maps/map_' . $map_id . '.png');
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

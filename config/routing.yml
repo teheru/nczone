@@ -148,6 +148,10 @@ eru_nczone_controller__api__bets:
     path: /nczone/api/players/bets
     defaults: { _controller: eru.nczone.controller.api:bets }
 
+eru_nczone_controller__api__basepath:
+    path: /nczone/api/basepath
+    defaults: { _controller: eru.nczone.controller.api:basepath}
+
 eru_nczone_controller__api__maps:
     path: /nczone/api/maps
     defaults: { _controller: eru.nczone.controller.api:maps}
@@ -161,6 +165,12 @@ eru_nczone_controller__api__map_civs:
 eru_nczone_controller__api__save_map_description:
     path: /nczone/api/map/{map_id}/description
     defaults: { _controller: eru.nczone.controller.api:save_map_description}
+    requirements:
+        map_id: \d+
+
+eru_nczone_controller__api__save_map_image:
+    path: /nczone/api/map/{map_id}/image
+    defaults: { _controller: eru.nczone.controller.api:save_map_image}
     requirements:
         map_id: \d+
 

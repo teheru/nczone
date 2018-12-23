@@ -587,7 +587,32 @@ class api
             zone_util::maps()->set_map_description($args['map_id'], $description);
 
             return [];
-        }, [], [
+        }, [
+            acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
+        ], [
+            'map_id' => $map_id
+        ]);
+    }
+
+    public function basepath(): JsonResponse
+    {
+        return $this->respond(function () {
+            return ['basepath' => generate_board_url() . \substr(phpbb_util::nczone_path(), 1)];
+        });
+    }
+
+    public function save_map_image(int $map_id): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            $data = self::get_request_data();
+            $image_raw = $data['image'];
+
+            zone_util::maps()->set_map_image($args['map_id'], $image_raw);
+
+            return [];
+        }, [
+            acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
+        ], [
             'map_id' => $map_id
         ]);
     }

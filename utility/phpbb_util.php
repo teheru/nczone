@@ -35,4 +35,9 @@ class phpbb_util
     {
         return $GLOBALS['phpbb_root_path'] . $basename . '.' . $GLOBALS['phpEx'];
     }
+
+    public static function nczone_path(): string
+    {
+        return $GLOBALS['phpbb_root_path'] . 'ext/eru/nczone/';
+    }
 }
