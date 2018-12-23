@@ -10,7 +10,7 @@
  */
 
 namespace eru\nczone\zone;
-use eru\nczone\config\config;
+use eru\nczone\zone\entity;
 
 /**
  * Class to make teams (not maps or civs!)
@@ -176,9 +176,10 @@ class draw_teams
         return $permutes;
     }
 
-    public function make_match(entity\match_players_list $player_list): array
-    {
-        $factor = config::get(config::draw_factor);
+    public function make_match(
+        entity\match_players_list $player_list,
+        float $factor
+    ): entity\draw_match {
         [$match] = $this->make_matches($player_list, $factor);
         return $match;
     }
@@ -189,7 +190,7 @@ class draw_teams
      * @param entity\match_players_list $player_list List of the players (must have index 'rating') to be put in teams
      * @param $factor
      *
-     * @return array
+     * @return entity\draw_match[]
      */
     public function make_matches(
         entity\match_players_list $player_list,
@@ -204,18 +205,18 @@ class draw_teams
         $match_sizes = self::get_match_sizes($sorted_player_list->length());
         $permutes = self::permute_match_sizes($match_sizes);
         $best_value = -1;
-        $best_teams = [];
+        $best_draw_matches = [];
 
         foreach ($permutes as $permute) {
             $curr_rating_diff = 0;
             $curr_variance = 0;
-            $curr_teams = [];
+            $curr_draw_matches = [];
 
             $offset = 0;
             foreach ($permute as $match_size) {
-                $result = $this->_make_match($sorted_player_list->slice($offset, $match_size * 2));
-                $curr_rating_diff += $result['rating_diff'];
-                $curr_teams[] = $result['teams'];
+                $draw_match = $this->_make_match($sorted_player_list->slice($offset, $match_size * 2));
+                $curr_rating_diff += $draw_match->get_abs_rating_difference();
+                $curr_draw_matches[] = $draw_match;
                 $curr_variance += entity\match_players_list::get_abs_rating_variance($sorted_player_list->slice($offset, $match_size * 2));
                 $offset += $match_size * 2;
             }
@@ -226,10 +227,10 @@ class draw_teams
             $curr_value = $factor * $curr_variance + (1.0 - $factor) * $curr_rating_diff;
             if ($best_value < 0.0 || $curr_value < $best_value) {
                 $best_value = $curr_value;
-                $best_teams = $curr_teams;
+                $best_draw_matches = $curr_draw_matches;
             }
         }
-        return $best_teams;
+        return $best_draw_matches;
     }
 
     /**
@@ -238,31 +239,40 @@ class draw_teams
      *
      * @param entity\match_players_list $players List of the players to be put in teams.
      *
-     * @return array
+     * @return entity\draw_match
      */
-    private function _make_match(entity\match_players_list $players): array
-    {
-        return $this->make_match_with_team_def(self::$teams_def[$players->length()] ?? [], $players);
+    private function _make_match(
+        entity\match_players_list $players
+    ): entity\draw_match {
+        return $this->make_match_with_team_def(
+            self::$teams_def[$players->length()] ?? [],
+            $players
+        );
     }
 
-    private function make_match_with_team_def(array $team_def, entity\match_players_list $players): array
-    {
-        $best_value = -1.0;
-        $best_teams = [];
+    private function make_match_with_team_def(
+        array $team_def,
+        entity\match_players_list $players
+    ): entity\draw_match {
+        if (empty($team_def)) {
+            throw new \InvalidArgumentException(
+                'team definition may not be empty'
+            );
+        }
+
+        /** @var entity\draw_match $best */
+        $best = null;
 
         foreach ($team_def as $teams) {
-            $team1 = $players->pick_indexes(...$teams[0]);
-            $team2 = $players->pick_indexes(...$teams[1]);
-            $value = $team1->get_abs_rating_difference($team2);
-            if ($best_value < 0.0 || $value < $best_value) {
-                $best_value = $value;
-                $best_teams = [$team1, $team2];
+            $current = new entity\draw_match(
+                $players->pick_indexes(...$teams[0]),
+                $players->pick_indexes(...$teams[1])
+            );
+            if ($best === null || $current->get_abs_rating_difference() < $best->get_abs_rating_difference()) {
+                $best = $current;
             }
         }
 
-        return [
-            'teams' => $best_teams,
-            'rating_diff' => $best_value,
-        ];
+        return $best;
     }
 }

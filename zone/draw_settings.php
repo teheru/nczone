@@ -30,29 +30,23 @@ class draw_settings {
         $this->db = $db;
     }
 
-    public function draw_settings(int $draw_user_id, entity\match_players_list $team1, entity\match_players_list $team2): entity\draw_setting
-    {
-        $players = new entity\match_players_list;
-        foreach ($team1->items() as $item) {
-            $players->add($item);
-        }
-        foreach ($team2->items() as $item) {
-            $players->add($item);
-        }
-
+    public function draw_settings(
+        int $draw_user_id,
+        entity\draw_match $draw_match
+    ): entity\draw_setting {
         $match_civ_ids = [];
         $team1_civ_ids = [];
         $team2_civ_ids = [];
         $player_civ_ids = [];
-        $map_id = $this->get_players_map_id($players);
+        $map_id = $this->get_players_map_id($draw_match->get_all_player_ids());
 
-        $match_size = $team1->length();
+        $match_size = $draw_match->get_match_size();
 
-        $civ_kind = $this->decide_draw_civs_kind($team1, $team2);
+        $civ_kind = $this->decide_draw_civs_kind($draw_match);
         if($civ_kind === self::MATCH_CIVS)
         {
             $extra_civs = config::draw_match_extra_civs($match_size);
-            $match_civs = $this->draw_match_civs($map_id, $players, $extra_civs);
+            $match_civs = $this->draw_match_civs($map_id, $draw_match, $extra_civs);
             foreach($match_civs as $civ)
             {
                 $match_civ_ids[] = (int)$civ['id'];
@@ -61,7 +55,7 @@ class draw_settings {
         elseif($civ_kind === self::TEAM_CIVS)
         {
             $extra_civs = config::draw_team_extra_civs($match_size);
-            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $team1, $team2, $extra_civs);
+            [$team1_civs, $team2_civs] = $this->draw_teams_civs($map_id, $draw_match, $extra_civs);
             foreach($team1_civs as $civ)
             {
                 $team1_civ_ids[] = (int)$civ['id'];
@@ -74,7 +68,7 @@ class draw_settings {
         else
         {
             $num_civs = config::draw_player_num_civs($match_size);
-            $player_civs = $this->draw_player_civs($map_id, $team1, $team2, $num_civs);
+            $player_civs = $this->draw_player_civs($map_id, $draw_match, $num_civs);
             foreach($player_civs as $user_id => $pc)
             {
                 $player_civ_ids[$user_id] = $pc['id'];
@@ -88,19 +82,19 @@ class draw_settings {
         $draw_setting->set_team1_civ_ids($team1_civ_ids);
         $draw_setting->set_team2_civ_ids($team2_civ_ids);
         $draw_setting->set_player_civ_ids($player_civ_ids);
-        $draw_setting->set_team1($team1);
-        $draw_setting->set_team2($team2);
+        $draw_setting->set_team1($draw_match->get_team1());
+        $draw_setting->set_team2($draw_match->get_team2());
         return $draw_setting;
     }
 
     /**
      * Calculates the next map (id) to be drawn for a group of players
      *
-     * @param entity\match_players_list $users
+     * @param array $user_ids
      *
      * @return int
      */
-    public function get_players_map_id(entity\match_players_list $users): int
+    public function get_players_map_id(array $user_ids): int
     {
         $sql = '
             select
@@ -137,7 +131,7 @@ class draw_settings {
                         from phpbb_zone_player_map p1
                         join phpbb_zone_player_map p4 on p4.user_id = p1.user_id
                         join phpbb_zone_maps p5 on p5.map_id = p4.map_id
-                        where '.$this->db->sql_in_set('p1.user_id', $users->get_ids()).'
+                        where '.$this->db->sql_in_set('p1.user_id', $user_ids).'
                     ) sq2
                     group by sq2.user_id
                 ) sq3
@@ -153,21 +147,26 @@ class draw_settings {
         return (int)$map_id;
     }
 
-    public function decide_draw_civs_kind(entity\match_players_list $team1, entity\match_players_list $team2): string
+    public function decide_draw_civs_kind(entity\draw_match $draw_match): string
     {
-        if ($team1->get_min_max_diff($team2) >= config::get(config::draw_player_civs)) {
+        if ($draw_match->get_min_max_diff() >= config::get(config::draw_player_civs)) {
             return self::PLAYER_CIVS;
         }
 
-        if($team1->get_abs_rating_difference($team2) >= config::get(config::draw_team_civs)) {
+        if ($draw_match->get_abs_rating_difference() >= config::get(config::draw_team_civs)) {
             return self::TEAM_CIVS;
         }
 
         return self::MATCH_CIVS;
     }
 
-    protected function draw_players_civs(int $map_id, entity\match_players_list $users, int $num_civs, int $extra_civs, bool $ignore_force=False): array
-    {
+    protected function draw_players_civs(
+        int $map_id,
+        array $user_ids,
+        int $num_civs,
+        int $extra_civs,
+        bool $ignore_force = false
+    ): array {
         // first, get one of the force draw civs
         $force_civ_num = 0;
         $sql_add = '';
@@ -178,7 +177,7 @@ class draw_settings {
             $force_civ = $this->db->get_row([
                 'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
                 'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
-                'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $users->get_ids()),
+                'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
                 'GROUP_BY' => 'c.civ_id',
                 'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
             ]);
@@ -194,7 +193,7 @@ class draw_settings {
         $draw_civs = $this->db->get_num_rows([
             'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
             'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
-            'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $users->get_ids()) . $sql_add,
+            'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids) . $sql_add,
             'GROUP_BY' => 'c.civ_id',
             'ORDER_BY' => 'SUM(' . time() . ' - p.time) DESC',
         ], $num_civs + $extra_civs);
@@ -225,9 +224,17 @@ class draw_settings {
         return [$force_civ ?: [], $best_civs];
     }
 
-    public function draw_match_civs(int $map_id, entity\match_players_list $users, int $extra_civs=4): array
-    {
-        $players_civs = $this->draw_players_civs($map_id, $users, $users->length() / 2, $extra_civs);
+    public function draw_match_civs(
+        int $map_id,
+        entity\draw_match $draw_match,
+        int $extra_civs = 4
+    ): array {
+        $players_civs = $this->draw_players_civs(
+            $map_id,
+            $draw_match->get_all_player_ids(),
+            $draw_match->get_match_size(),
+            $extra_civs
+        );
 
         $drawed_civs = $players_civs[0]
             ? array_merge([$players_civs[0]], $players_civs[1])
@@ -236,9 +243,15 @@ class draw_settings {
         return civs::sort_by_multiplier($drawed_civs);
     }
 
-    public function draw_teams_civs(int $map_id, entity\match_players_list $team1_users, entity\match_players_list $team2_users, int $extra_civs=2): array
-    {
-        $num_civs = $team1_users->length();
+    public function draw_teams_civs(
+        int $map_id,
+        entity\draw_match $draw_match,
+        int $extra_civs = 2
+    ): array {
+        $team1_users = $draw_match->get_team1();
+        $team2_users = $draw_match->get_team2();
+
+        $num_civs = $draw_match->get_match_size();
 
         $team1_sum_rating = $team1_users->get_total_rating();
         $team2_sum_rating = $team2_users->get_total_rating();
@@ -247,7 +260,7 @@ class draw_settings {
         $both_teams_civs = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
 
         // we use some extra civs to be able to draw fair civs for the teams
-        [$team1_force_civ, $team1_civpool] = $this->draw_players_civs($map_id, $team1_users, $num_civs + $extra_civs, 0);
+        [$team1_force_civ, $team1_civpool] = $this->draw_players_civs($map_id, $team1_users->get_ids(), $num_civs + $extra_civs, 0);
 
         // if the force civ must be in both teams, we don't want to draw another one for team 2
         $ignore_force = False;
@@ -261,7 +274,7 @@ class draw_settings {
             }
         }
 
-        $team2_players_civs = $this->draw_players_civs($map_id, $team2_users, $num_civs + $extra_civs, 0, $ignore_force);
+        $team2_players_civs = $this->draw_players_civs($map_id, $team2_users->get_ids(), $num_civs + $extra_civs, 0, $ignore_force);
         $team2_force_civ = $team2_players_civs[0];
         if($ignore_force)
         {
@@ -393,8 +406,14 @@ class draw_settings {
         ];
     }
 
-    public function draw_player_civs(int $map_id, entity\match_players_list $team1, entity\match_players_list $team2, int $num_civs=3): array
-    {
+    public function draw_player_civs(
+        int $map_id,
+        entity\draw_match $draw_match,
+        int $num_civs = 3
+    ): array {
+        $team1 = $draw_match->get_team1();
+        $team2 = $draw_match->get_team2();
+
         $civs_module = zone_util::civs();
 
         // find out which civs have to be in both teams
@@ -459,7 +478,7 @@ class draw_settings {
 
         $user_civs = $civs_module->get_map_players_multiple_civs(
             $map_id,
-            \array_merge($team1->get_ids(), $team2->get_ids()),
+            $draw_match->get_all_player_ids(),
             $force_civ_ids
         );
 

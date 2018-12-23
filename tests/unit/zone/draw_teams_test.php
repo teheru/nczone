@@ -3,6 +3,7 @@
 namespace eru\nczone\tests\zone;
 
 use eru\nczone\zone\draw_teams;
+use eru\nczone\zone\entity\draw_match;
 use eru\nczone\zone\entity\match_player;
 use eru\nczone\zone\entity\match_players_list;
 use PHPUnit\Framework\TestCase;
@@ -11,11 +12,12 @@ class draw_teams_test extends TestCase
 {
     /**
      * @dataProvider make_matches_data_provider
+     * @throws \Exception
      */
-    public function test_make_matches($list, $factor, $expected_teams)
+    public function test_make_matches($list, $factor, $expected_matches)
     {
         $dt = new draw_teams();
-        self::assertEquals($expected_teams, $dt->make_matches($list, $factor));
+        self::assertEquals($expected_matches, $dt->make_matches($list, $factor));
     }
 
     public function make_matches_data_provider()
@@ -60,11 +62,11 @@ class draw_teams_test extends TestCase
                     $test_players['kalaran'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([$test_players['nili'.$i]]),
-                        match_players_list::from_match_players([$test_players['kalaran'.$i]]),
-                    ],
+                        match_players_list::from_match_players([$test_players['kalaran'.$i]])
+                    ),
                 ],
             ];
             $data_set['2_players_reverse'.$i] = [
@@ -73,11 +75,11 @@ class draw_teams_test extends TestCase
                     $test_players['nili'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([$test_players['nili'.$i]]),
-                        match_players_list::from_match_players([$test_players['kalaran'.$i]]),
-                    ],
+                        match_players_list::from_match_players([$test_players['kalaran'.$i]])
+                    ),
                 ],
             ];
             $data_set['2_players_same'.$i] = [
@@ -86,11 +88,11 @@ class draw_teams_test extends TestCase
                     $test_players['lion'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([$test_players['lion_copy'.$i]]),
-                        match_players_list::from_match_players([$test_players['lion'.$i]]),
-                    ],
+                        match_players_list::from_match_players([$test_players['lion'.$i]])
+                    ),
                 ],
             ];
             $data_set['2_players_same_reverse'.$i] = [
@@ -99,11 +101,11 @@ class draw_teams_test extends TestCase
                     $test_players['lion_copy'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([$test_players['lion'.$i]]),
-                        match_players_list::from_match_players([$test_players['lion_copy'.$i]]),
-                    ],
+                        match_players_list::from_match_players([$test_players['lion_copy'.$i]])
+                    ),
                 ],
             ];
 
@@ -119,8 +121,8 @@ class draw_teams_test extends TestCase
                     $test_players['fwb2'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['nili'.$i],
                             $test_players['chaos_2_win'.$i],
@@ -132,8 +134,8 @@ class draw_teams_test extends TestCase
                             $test_players['nc_philipphjs'.$i],
                             $test_players['fwb2'.$i],
                             $test_players['ann0r'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
 
@@ -147,8 +149,8 @@ class draw_teams_test extends TestCase
                     $test_players['omurchu'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['hooked_on_a_feeling'.$i],
                             $test_players['omurchu'.$i],
@@ -158,8 +160,8 @@ class draw_teams_test extends TestCase
                             $test_players['kalaran'.$i],
                             $test_players['trennig'.$i],
                             $test_players['lion'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
             $data_set['14_players'.$i] = [
@@ -180,8 +182,8 @@ class draw_teams_test extends TestCase
                     $test_players['trennig'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['nili'.$i],
                             $test_players['chaos_2_win'.$i],
@@ -193,9 +195,9 @@ class draw_teams_test extends TestCase
                             $test_players['nc_philipphjs'.$i],
                             $test_players['fwb2'.$i],
                             $test_players['ann0r'.$i],
-                        ]),
-                    ],
-                    [
+                        ])
+                    ),
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['hooked_on_a_feeling'.$i],
                             $test_players['omurchu'.$i],
@@ -205,8 +207,8 @@ class draw_teams_test extends TestCase
                             $test_players['kalaran'.$i],
                             $test_players['trennig'.$i],
                             $test_players['lion'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
             $data_set['13_players'.$i] = [
@@ -226,8 +228,8 @@ class draw_teams_test extends TestCase
                     $test_players['trennig'.$i], // :( last player in list will be cut off
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['nili'.$i],
                             $test_players['teutonic_tanks'.$i],
@@ -237,9 +239,9 @@ class draw_teams_test extends TestCase
                             $test_players['chaos_2_win'.$i],
                             $test_players['nc_philipphjs'.$i],
                             $test_players['fwb2'.$i],
-                        ]),
-                    ],
-                    [
+                        ])
+                    ),
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['ann0r'.$i],
                             $test_players['kalaran'.$i],
@@ -249,8 +251,8 @@ class draw_teams_test extends TestCase
                             $test_players['havoc'.$i],
                             $test_players['omurchu'.$i],
                             $test_players['lion'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
             $data_set['10_low_factor'.$i] = [
@@ -267,8 +269,8 @@ class draw_teams_test extends TestCase
                     $test_players['p2625'.$i],
                 ]),
                 $factor = 0.4,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p3375'.$i],
                             $test_players['p2025'.$i],
@@ -278,9 +280,9 @@ class draw_teams_test extends TestCase
                             $test_players['p2625'.$i],
                             $test_players['p2425'.$i],
                             $test_players['p2375'.$i],
-                        ]),
-                    ],
-                    [
+                        ])
+                    ),
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p1875'.$i],
                             $test_players['p1700'.$i],
@@ -288,8 +290,8 @@ class draw_teams_test extends TestCase
                         match_players_list::from_match_players([
                             $test_players['p1801'.$i],
                             $test_players['p1800'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
             $data_set['10_very_low_factor'.$i] = [
@@ -306,8 +308,8 @@ class draw_teams_test extends TestCase
                     $test_players['p2625'.$i],
                 ]),
                 $factor = -10, //should be automatically increased to 0.0
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p3375'.$i],
                             $test_players['p2025'.$i],
@@ -317,9 +319,9 @@ class draw_teams_test extends TestCase
                             $test_players['p2625'.$i],
                             $test_players['p2425'.$i],
                             $test_players['p2375'.$i],
-                        ]),
-                    ],
-                    [
+                        ])
+                    ),
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p1875'.$i],
                             $test_players['p1700'.$i],
@@ -327,8 +329,8 @@ class draw_teams_test extends TestCase
                         match_players_list::from_match_players([
                             $test_players['p1801'.$i],
                             $test_players['p1800'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
             $data_set['10_high_factor'.$i] = [
@@ -345,8 +347,8 @@ class draw_teams_test extends TestCase
                     $test_players['p2625'.$i],
                 ]),
                 $factor = 0.6,
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p3375'.$i],
                             $test_players['p2375'.$i],
@@ -354,9 +356,9 @@ class draw_teams_test extends TestCase
                         match_players_list::from_match_players([
                             $test_players['p2625'.$i],
                             $test_players['p2425'.$i],
-                        ]),
-                    ],
-                    [
+                        ])
+                    ),
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p2025'.$i],
                             $test_players['p1801'.$i],
@@ -366,8 +368,8 @@ class draw_teams_test extends TestCase
                             $test_players['p1900'.$i],
                             $test_players['p1875'.$i],
                             $test_players['p1800'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
             $data_set['10_very_high_factor'.$i] = [
@@ -384,8 +386,8 @@ class draw_teams_test extends TestCase
                     $test_players['p2625'.$i],
                 ]),
                 $factor = 10, //should be automatically be reduced to 0.0
-                $expected_teams = [
-                    [
+                $expected_matches = [
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p3375'.$i],
                             $test_players['p2025'.$i],
@@ -395,9 +397,9 @@ class draw_teams_test extends TestCase
                             $test_players['p2625'.$i],
                             $test_players['p2425'.$i],
                             $test_players['p2375'.$i],
-                        ]),
-                    ],
-                    [
+                        ])
+                    ),
+                    new draw_match(
                         match_players_list::from_match_players([
                             $test_players['p1875'.$i],
                             $test_players['p1700'.$i],
@@ -405,8 +407,8 @@ class draw_teams_test extends TestCase
                         match_players_list::from_match_players([
                             $test_players['p1801'.$i],
                             $test_players['p1800'.$i],
-                        ]),
-                    ],
+                        ])
+                    ),
                 ],
             ];
         }
