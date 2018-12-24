@@ -164,6 +164,12 @@ eru_nczone_controller__api__save_map_description:
     requirements:
         map_id: \d+
 
+eru_nczone_controller__api__save_map_image:
+    path: /nczone/api/map/{map_id}/image
+    defaults: { _controller: eru.nczone.controller.api:save_map_image}
+    requirements:
+        map_id: \d+
+
 eru_nczone_controller__api__statistics:
     path: /nczone/api/players/statistics/{limit}
     defaults: { _controller: eru.nczone.controller.api:statistics }

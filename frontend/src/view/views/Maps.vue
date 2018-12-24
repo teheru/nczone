@@ -17,15 +17,19 @@
             </div>
             <div class="zone-map-civs-info" v-if="showMapId === mapId">
               <template v-if="!loadMap">
-                <div class="zone-map-description" @dblclick="{{ editDescription() }}">
+                <div v-if="maps[mapId].description || maps[mapId].image || canEditMapDescription" class="zone-map-description" @dblclick="{{ editDescription() }}">
                   <div v-if="maps[mapId].description || canEditMapDescription">
+                    <label for="upload-map-image" class="zone-map-upload-image-label">
+                      <img v-if="maps[mapId].image" class="zone-map-upload-image" :src="maps[mapId].image" />
+                      <div v-else-if="canEditMapDescription" class="zone-map-upload-image">{{ $t('NCZONE_UPLOAD_IMAGE') }}</div>
+                      <div v-if="canEditMapDescription" class="zone-map-upload-image-description">{{ $t('NCZONE_UPLOAD_IMAGE_HINT') }}</div>
+                    </label>
+                    <input id="upload-map-image" v-if="canEditMapDescription" type="file" accept="image/*" @change="uploadImage" />
                     <vue-markdown v-if="!editDescr" class="zone-map-description-text">{{ maps[mapId].description ? maps[mapId].description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
-                    <div v-else>
+                    <template v-else>
                       <textarea v-model="tempDescription" rows="10"></textarea><br />
                       <button @click="{{ saveDescription() }}">{{ $t('NCZONE_SAVE') }}</button>
-                    </div>
-                  </div>
-                  <div class="zone-map-description-image">
+                    </template>
                   </div>
                 </div>
                 <div class="zone-map-civs-table">
@@ -120,10 +124,25 @@ export default {
       this.loadMap = false
     },
 
+    async uploadImage (evt) {
+      this.loadMap = true
+      var files = evt.target.files || evt.dataTransfer.files
+      if (!files.length) {
+        return
+      }
+      var reader = new FileReader();
+      reader.onload = async (p) => {
+        await this.saveMapImage({ id: this.showMapId, image: p.target.result })
+        this.loadMap = false
+      }
+      reader.readAsDataURL(files[0])
+    },
+
     ...mapActions([
       'getMaps',
       'getMapInfo',
-      'saveMapDescription'
+      'saveMapDescription',
+      'saveMapImage'
     ])
   },
   computed: {

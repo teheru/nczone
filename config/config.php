@@ -42,6 +42,7 @@ final class config
     public const draw_player_num_civs_3vs3 = 'nczone_draw_player_num_civs_3vs3';
     public const draw_player_num_civs_4vs4 = 'nczone_draw_player_num_civs_4vs4';
     public const draw_factor = 'nczone_draw_factor';
+    public const map_images_path = 'maps/';
 
     public const ACL_CONFIG_KEYS = [
         self::rules_post_id,

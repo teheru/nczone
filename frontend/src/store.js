@@ -205,7 +205,8 @@ export default () => {
           {
             'name': map.name,
             'weight': map.weight,
-            'description': map.description
+            'description': map.description,
+            'image': map.image
           })
         })
       },
@@ -267,7 +268,10 @@ export default () => {
           commit('setMatch', await api.passively.getMatch(payload.matchId))
           commit('init', { me: payload.me, i18n: payload.i18n })
         } else {
-          commit('init', { me: payload.me, i18n: payload.i18n })
+          commit('init', {
+            me: payload.me,
+            i18n: payload.i18n
+          })
 
           dispatch('getInformation', { passive: true })
           dispatch('getLoggedInPlayers', { passive: true })
@@ -351,6 +355,11 @@ export default () => {
 
       async saveMapDescription ({ commit }, { id, description }) {
         await api.actively.setMapDescription(id, description)
+        commit('setMaps', await api.actively.getMaps())
+      },
+
+      async saveMapImage ({ commit }, {id, image}) {
+        await api.actively.setMapImage(id, image)
         commit('setMaps', await api.actively.getMaps())
       },
 

@@ -9,15 +9,15 @@
     border: 2px solid $base_color;
 
     .zone-map-description {
-      display: grid;
-      grid-template-columns: calc(100% - 208px - 1em) 208px;
-      grid-column-gap: 1em;
-
       padding: 0 1em;
+      padding-bottom: 1em;
+
       margin: 1em;
       margin-bottom: 2em;
 
       background-color: darken($base_light_bg, 8);
+
+      overflow: hidden;
 
       pre {
         white-space: pre-wrap;
@@ -25,6 +25,20 @@
 
       textarea {
         width: 100%;
+      }
+
+      input {
+        display: none;
+      }
+
+      .zone-map-upload-image {
+        margin: 0.5em;
+        font-style: italic;
+      }
+
+      .zone-map-upload-image-label {
+        float: right;
+        text-align: center;
       }
     }
 
@@ -54,6 +68,44 @@
         grid-column: 3;
         font-weight: bold;
       }
+
+      .zone-map-civs-table-head {
+        background-color: $dark_rows;
+        font-weight: bold;
+      }
+
+      .zone-map-civs-table-row:nth-child(odd) {
+        background-color: $dark_rows;
+      }
+
+      .zone-map-civs-table-head, .zone-map-civs-table-row {
+        display: grid;
+        grid-template-columns: calc(41%) calc(20%) calc(13%) calc(13%) calc(13%);
+
+        text-align: center;
+
+        .zone-map-civs-table-name {
+          padding-left: 1rem;
+          text-align: left;
+        }
+
+        .zone-map-civs-table-force-draw, .zone-map-civs-table-prevent-draw, .zone-map-civs-table-both-teams {
+          padding-top: 3px;
+        }
+
+        .fa-check {
+          color: $positive_color;
+        }
+
+        .fa-times {
+          color: $negative_color;
+        }
+      }
+    }
+
+    .zone-map-civs-table-loading {
+      width: 100%;
+      text-align: center;
     }
 
     .zone-map-civs-table {

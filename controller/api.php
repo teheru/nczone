@@ -2,6 +2,7 @@
 
 namespace eru\nczone\controller;
 
+use eru\nczone\config\config;
 use eru\nczone\config\acl;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
@@ -536,11 +537,18 @@ class api
         return $this->respond(function () {
             $resp = [];
             foreach (zone_util::maps()->get_maps() as $map) {
+                $image_path = zone_util::maps()->get_image_path($map->get_id());
+                $image_url = '';
+                if (\file_exists($image_path)) {
+                    $image_url = generate_board_url() . \substr($image_path, 1);
+                }
+
                 $resp[] = [
                     'id' => $map->get_id(),
                     'name' => $map->get_name(),
                     'weight' => $map->get_weight(),
-                    'description' => $map->get_description()
+                    'description' => $map->get_description(),
+                    'image' => $image_url,
                 ];
             }
             return $resp;
@@ -587,7 +595,25 @@ class api
             zone_util::maps()->set_map_description($args['map_id'], $description);
 
             return [];
-        }, [], [
+        }, [
+            acl::m_zone_manage_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_MANAGE_MAPS',
+        ], [
+            'map_id' => $map_id
+        ]);
+    }
+
+    public function save_map_image(int $map_id): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            $data = self::get_request_data();
+            $image_raw = $data['image'];
+
+            zone_util::maps()->set_map_image($args['map_id'], $image_raw);
+
+            return [];
+        }, [
+            acl::m_zone_manage_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_MANAGE_MAPS',
+        ], [
             'map_id' => $map_id
         ]);
     }
