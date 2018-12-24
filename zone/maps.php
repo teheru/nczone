@@ -11,6 +11,7 @@
 
 namespace eru\nczone\zone;
 
+use eru\nczone\config\config;
 use eru\nczone\utility\db;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\zone\entity\map_civ;
@@ -117,11 +118,16 @@ class maps
             $width = \imagesx($image);
             $height = \imagesy($image);
             if ($width <= 200 && $height <= 500) {
-                \imagepng($image, phpbb_util::nczone_path() . 'maps/map_' . $map_id . '.png');
+                \imagepng($image, $this->get_image_path($map_id));
                 return true;
             }
         }
         return false;
+    }
+
+    public function get_image_path(int $map_id): string
+    {
+        return phpbb_util::nczone_path() . config::map_images_path . 'map_' . $map_id . '.png';
     }
 
     /**

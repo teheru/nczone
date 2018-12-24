@@ -78,7 +78,6 @@ export const setSid = (s) => {
 }
 
 export const passively = {
-  getBasepath: () => doGet('/basepath'),
   getRunningMatches: () => get('/matches/running'),
   getPastMatches: (page) => get(`/matches/past/${page}`),
   getLoggedInPlayers: () => get('/players/logged_in'),

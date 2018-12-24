@@ -148,10 +148,6 @@ eru_nczone_controller__api__bets:
     path: /nczone/api/players/bets
     defaults: { _controller: eru.nczone.controller.api:bets }
 
-eru_nczone_controller__api__basepath:
-    path: /nczone/api/basepath
-    defaults: { _controller: eru.nczone.controller.api:basepath}
-
 eru_nczone_controller__api__maps:
     path: /nczone/api/maps
     defaults: { _controller: eru.nczone.controller.api:maps}

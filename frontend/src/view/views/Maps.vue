@@ -17,11 +17,12 @@
             </div>
             <div class="zone-map-civs-info" v-if="showMapId === mapId">
               <template v-if="!loadMap">
-                <div v-if="maps[mapId].description || mapImageExists || canEditMapDescription" class="zone-map-description" @dblclick="{{ editDescription() }}">
+                <div v-if="maps[mapId].description || maps[mapId].image || canEditMapDescription" class="zone-map-description" @dblclick="{{ editDescription() }}">
                   <div v-if="maps[mapId].description || canEditMapDescription">
-                    <label for="upload-map-image">
-                      <img v-if="mapImageExists" class="zone-map-upload-image" :src="mapImagePath" />
+                    <label for="upload-map-image" class="zone-map-upload-image-label">
+                      <img v-if="maps[mapId].image" class="zone-map-upload-image" :src="maps[mapId].image" />
                       <div v-else-if="canEditMapDescription" class="zone-map-upload-image">{{ $t('NCZONE_UPLOAD_IMAGE') }}</div>
+                      <div v-if="canEditMapDescription" class="zone-map-upload-image-description">{{ $t('NCZONE_UPLOAD_IMAGE_HINT') }}</div>
                     </label>
                     <input id="upload-map-image" v-if="canEditMapDescription" type="file" accept="image/*" @change="uploadImage" />
                     <vue-markdown v-if="!editDescr" class="zone-map-description-text">{{ maps[mapId].description ? maps[mapId].description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
@@ -132,7 +133,6 @@ export default {
       var reader = new FileReader();
       reader.onload = async (p) => {
         await this.saveMapImage({ id: this.showMapId, image: p.target.result })
-        this.$forceUpdate()
         this.loadMap = false
       }
       reader.readAsDataURL(files[0])
@@ -146,22 +146,8 @@ export default {
     ])
   },
   computed: {
-    mapImagePath () {
-      return this.basepath + 'maps/map_' + this.showMapId + '.png'
-    },
-
-    mapImageExists () {
-      var img = new Image()
-      img.src = this.mapImagePath
-      if (img.height > 0) {
-        return true
-      }
-      return false
-    },
-
     ...mapGetters([
       'maps',
-      'basepath',
       'canEditMapDescription'
     ])
   },
