@@ -24,11 +24,11 @@
                     <div v-if="canEditMapDescription" class="zone-map-upload-image-description">{{ $t('NCZONE_UPLOAD_IMAGE_HINT') }}</div>
                   </label>
                   <input id="upload-map-image" v-if="canEditMapDescription" type="file" accept="image/*" @change="uploadImage" />
-                  <vue-markdown v-if="(!editDescr && canEditMapDescription) || maps[mapId].description" class="zone-map-description-text">{{ maps[mapId].description ? maps[mapId].description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
-                  <template v-else-if="editDescr && canEditMapDescription">
+                  <template v-if="editDescr && canEditMapDescription">
                     <textarea v-model="tempDescription" rows="10"></textarea><br />
                     <button @click="{{ saveDescription() }}">{{ $t('NCZONE_SAVE') }}</button>
                   </template>
+                  <vue-markdown v-else-if="maps[mapId].description || canEditMapDescription" class="zone-map-description-text">{{ maps[mapId].description ? maps[mapId].description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
                 </div>
                 <div class="zone-map-civs-table">
                   <div class="zone-map-civs-table-head">
