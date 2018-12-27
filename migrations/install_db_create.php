@@ -12,195 +12,195 @@ namespace eru\nczone\migrations;
 
 class install_db_create extends \phpbb\db\migration\migration
 {
-	static public function depends_on()
-	{
-		return array('\phpbb\db\migration\data\v31x\v314');
-	}
+    static public function depends_on()
+    {
+        return ['\phpbb\db\migration\data\v31x\v314'];
+    }
 
-	public function update_schema()
-	{
-		return array(
-			'add_tables' => array(
-				$this->table_prefix . 'zone_players' => array(
-					'COLUMNS' => array(
-						'user_id' => array('UINT', null),
-						'rating' => array('UINT:8', 0),
-						'logged_in' => array('TIMESTAMP', 0),
-						'matches_won' => array('UINT', 0),
-						'matches_loss' => array('UINT', 0),
-						'bets_won' => array('UINT', 0),
-						'bets_loss' => array('UINT', 0),
-						'activity' => array('UINT:3', 0),
-					),
-					'PRIMARY_KEY' => 'user_id'
-				),
-				$this->table_prefix . 'zone_matches' => array(
-					'COLUMNS' => array(
-						'match_id' => array('UINT', null, 'auto_increment'),
-						'map_id' => array('UINT', 0),
-						'draw_user_id' => array('UINT', 0),
-						'post_user_id' => array('UINT', 0),
-						'draw_time' => array('TIMESTAMP', 0),
-						'post_time' => array('TIMESTAMP', 0),
-						'winner_team_id' => array('UINT', 0),
-						'forum_topic_id' => array('UINT', 0)
-					),
-					'PRIMARY_KEY' => 'match_id',
-					'KEYS' => array(
-						'map_id' => array('INDEX', 'map_id'),
-						'draw_uid' => array('INDEX', 'draw_user_id'),
-						'post_uid' => array('INDEX', 'post_user_id'),
-						'post_tid' => array('INDEX', 'forum_topic_id')
-					)
-				),
-				$this->table_prefix . 'zone_match_teams' => array(
-					'COLUMNS' => array(
-						'team_id' => array('UINT', null, 'auto_increment'),
-						'match_id' => array('UINT', 0),
-						'match_team' => array('UINT:2', 0),
-					),
-					'PRIMARY_KEY' => 'team_id',
-					'KEYS' => array(
-						'mid' => array('INDEX', 'match_id')
-					)
-				),
-				$this->table_prefix . 'zone_dreamteams' => array(
-					'COLUMNS' => array(
-						'user1_id' => array('UINT', 0),
-						'user2_id' => array('UINT', 0),
-						'matches_won' => array('UINT', 0),
-						'matches_loss' => array('UINT', 0),
-					),
-					'PRIMARY_KEY' => array('user1_id', 'user2_id'),
-				),
-				$this->table_prefix . 'zone_match_players' => array(
-					'COLUMNS' => array(
-						'team_id' => array('UINT', 0),
-						'user_id' => array('UINT', 0),
-						'draw_rating' => array('UINT:8', 0),
-						'rating_change' => array('INT:8', 0),
-						'streak' => array('INT:4', 0),
-					),
-					'PRIMARY_KEY' => array('team_id', 'user_id')
-				),
-				$this->table_prefix . 'zone_civs' => array(
-					'COLUMNS' => array(
-						'civ_id' => array('UINT', NULL, 'auto_increment'),
-						'civ_name' => array('VCHAR:48', '')
-					),
-					'PRIMARY_KEY' => 'civ_id'
-				),
-				$this->table_prefix . 'zone_maps' => array(
-					'COLUMNS' => array(
-						'map_id' => array('UINT', NULL, 'auto_increment'),
-						'map_name' => array('VCHAR:48', ''),
-						'weight' => array('DECIMAL', 0.0),
-						'description' => array('TEXT', '')
-					),
-					'PRIMARY_KEY' => 'map_id'
-				),
-				$this->table_prefix . 'zone_map_civs' => array(
-					'COLUMNS' => array(
-						'map_id' => array('UINT', 0),
-						'civ_id' => array('UINT', 0),
-						'multiplier' => array('DECIMAL', 0.0),
-						'force_draw' => array('BOOL', 0),
-						'prevent_draw' => array('BOOL', 0),
-						'both_teams' => array('BOOL', 0)
-					),
-					'PRIMARY_KEY' => array('map_id', 'civ_id')
-				),
-				$this->table_prefix . 'zone_match_civs' => array(
-					'COLUMNS' => array(
-						'match_id' => array('UINT', 0),
-						'civ_id' => array('UINT', 0),
-						'number' => array('UINT:3', 0)
-					),
-					'PRIMARY_KEY' => array('match_id', 'civ_id')
-				),
-				$this->table_prefix . 'zone_match_team_civs' => array(
-					'COLUMNS' => array(
-						'team_id' => array('UINT', 0),
-						'civ_id' => array('UINT', 0),
-						'number' => array('UINT:3', 0)
-					),
-					'PRIMARY_KEY' => array('team_id', 'civ_id')
-				),
-				$this->table_prefix . 'zone_match_player_civs' => array(
-					'COLUMNS' => array(
-						'match_id' => array('UINT', 0),
-						'user_id' => array('UINT', 0),
-						'civ_id' => array('UINT', 0)
-					),
-					'PRIMARY_KEY' => array('match_id', 'user_id')
-				),
-				$this->table_prefix . 'zone_player_map' => array(
-					'COLUMNS' => array(
-						'user_id' => array('UINT', 0),
-						'map_id' => array('UINT', 0),
-						'time' => array('TIMESTAMP', 0)
-					),
-					'PRIMARY_KEY' => array('user_id', 'map_id')
-				),
-				$this->table_prefix . 'zone_player_civ' => array(
-					'COLUMNS' => array(
-						'user_id' => array('UINT', 0),
-						'civ_id' => array('UINT', 0),
-						'time' => array('TIMESTAMP', 0)
-					),
-					'PRIMARY_KEY' => array('user_id', 'civ_id')
-				),
-				$this->table_prefix . 'zone_bets' => array(
-					'COLUMNS' => array(
-						'user_id' => array('UINT', 0),
-						'team_id' => array('UINT', 0),
-						'time' => array('TIMESTAMP', 0),
-						'counted' => array('UINT:1', 0),
-					),
-					'PRIMARY_KEY' => array('user_id', 'team_id')
-				),
-				$this->table_prefix . 'zone_draw_process' => array(
-					'COLUMNS' => array(
-						'draw_id' => array('UINT', NULL, 'auto_increment'),
-						'user_id' => array('UINT', 0),
-						'time' => array('TIMESTAMP', 0)
-					),
-					'PRIMARY_KEY' => 'draw_id',
-					'KEYS' => array(
-						'uid' => array('INDEX', 'user_id')
-					)
-				),
-				$this->table_prefix . 'zone_draw_players' => array(
-					'COLUMNS' => array(
-						'draw_id' => array('UINT', 0),
-						'user_id' => array('UINT', 0),
-						'logged_in' => array('TIMESTAMP', 0),
-					),
-					'PRIMARY_KEY' => array('draw_id', 'user_id')
-				)
-			)
-		);
-	}
+    public function update_schema()
+    {
+        return [
+            'add_tables' => [
+                $this->table_prefix . 'zone_players' => [
+                    'COLUMNS' => [
+                        'user_id' => ['UINT', null],
+                        'rating' => ['UINT:8', 0],
+                        'logged_in' => ['TIMESTAMP', 0],
+                        'matches_won' => ['UINT', 0],
+                        'matches_loss' => ['UINT', 0],
+                        'bets_won' => ['UINT', 0],
+                        'bets_loss' => ['UINT', 0],
+                        'activity' => ['UINT:3', 0],
+                    ],
+                    'PRIMARY_KEY' => 'user_id',
+                ],
+                $this->table_prefix . 'zone_matches' => [
+                    'COLUMNS' => [
+                        'match_id' => ['UINT', null, 'auto_increment'],
+                        'map_id' => ['UINT', 0],
+                        'draw_user_id' => ['UINT', 0],
+                        'post_user_id' => ['UINT', 0],
+                        'draw_time' => ['TIMESTAMP', 0],
+                        'post_time' => ['TIMESTAMP', 0],
+                        'winner_team_id' => ['UINT', 0],
+                        'forum_topic_id' => ['UINT', 0],
+                    ],
+                    'PRIMARY_KEY' => 'match_id',
+                    'KEYS' => [
+                        'map_id' => ['INDEX', 'map_id'],
+                        'draw_uid' => ['INDEX', 'draw_user_id'],
+                        'post_uid' => ['INDEX', 'post_user_id'],
+                        'post_tid' => ['INDEX', 'forum_topic_id'],
+                    ],
+                ],
+                $this->table_prefix . 'zone_match_teams' => [
+                    'COLUMNS' => [
+                        'team_id' => ['UINT', null, 'auto_increment'],
+                        'match_id' => ['UINT', 0],
+                        'match_team' => ['UINT:2', 0],
+                    ],
+                    'PRIMARY_KEY' => 'team_id',
+                    'KEYS' => [
+                        'mid' => ['INDEX', 'match_id'],
+                    ],
+                ],
+                $this->table_prefix . 'zone_dreamteams' => [
+                    'COLUMNS' => [
+                        'user1_id' => ['UINT', 0],
+                        'user2_id' => ['UINT', 0],
+                        'matches_won' => ['UINT', 0],
+                        'matches_loss' => ['UINT', 0],
+                    ],
+                    'PRIMARY_KEY' => ['user1_id', 'user2_id'],
+                ],
+                $this->table_prefix . 'zone_match_players' => [
+                    'COLUMNS' => [
+                        'team_id' => ['UINT', 0],
+                        'user_id' => ['UINT', 0],
+                        'draw_rating' => ['UINT:8', 0],
+                        'rating_change' => ['INT:8', 0],
+                        'streak' => ['INT:4', 0],
+                    ],
+                    'PRIMARY_KEY' => ['team_id', 'user_id'],
+                ],
+                $this->table_prefix . 'zone_civs' => [
+                    'COLUMNS' => [
+                        'civ_id' => ['UINT', null, 'auto_increment'],
+                        'civ_name' => ['VCHAR:48', ''],
+                    ],
+                    'PRIMARY_KEY' => 'civ_id',
+                ],
+                $this->table_prefix . 'zone_maps' => [
+                    'COLUMNS' => [
+                        'map_id' => ['UINT', null, 'auto_increment'],
+                        'map_name' => ['VCHAR:48', ''],
+                        'weight' => ['DECIMAL', 0.0],
+                        'description' => ['TEXT', ''],
+                    ],
+                    'PRIMARY_KEY' => 'map_id',
+                ],
+                $this->table_prefix . 'zone_map_civs' => [
+                    'COLUMNS' => [
+                        'map_id' => ['UINT', 0],
+                        'civ_id' => ['UINT', 0],
+                        'multiplier' => ['DECIMAL', 0.0],
+                        'force_draw' => ['BOOL', 0],
+                        'prevent_draw' => ['BOOL', 0],
+                        'both_teams' => ['BOOL', 0],
+                    ],
+                    'PRIMARY_KEY' => ['map_id', 'civ_id'],
+                ],
+                $this->table_prefix . 'zone_match_civs' => [
+                    'COLUMNS' => [
+                        'match_id' => ['UINT', 0],
+                        'civ_id' => ['UINT', 0],
+                        'number' => ['UINT:3', 0],
+                    ],
+                    'PRIMARY_KEY' => ['match_id', 'civ_id'],
+                ],
+                $this->table_prefix . 'zone_match_team_civs' => [
+                    'COLUMNS' => [
+                        'team_id' => ['UINT', 0],
+                        'civ_id' => ['UINT', 0],
+                        'number' => ['UINT:3', 0],
+                    ],
+                    'PRIMARY_KEY' => ['team_id', 'civ_id'],
+                ],
+                $this->table_prefix . 'zone_match_player_civs' => [
+                    'COLUMNS' => [
+                        'match_id' => ['UINT', 0],
+                        'user_id' => ['UINT', 0],
+                        'civ_id' => ['UINT', 0],
+                    ],
+                    'PRIMARY_KEY' => ['match_id', 'user_id'],
+                ],
+                $this->table_prefix . 'zone_player_map' => [
+                    'COLUMNS' => [
+                        'user_id' => ['UINT', 0],
+                        'map_id' => ['UINT', 0],
+                        'time' => ['TIMESTAMP', 0],
+                    ],
+                    'PRIMARY_KEY' => ['user_id', 'map_id'],
+                ],
+                $this->table_prefix . 'zone_player_civ' => [
+                    'COLUMNS' => [
+                        'user_id' => ['UINT', 0],
+                        'civ_id' => ['UINT', 0],
+                        'time' => ['TIMESTAMP', 0],
+                    ],
+                    'PRIMARY_KEY' => ['user_id', 'civ_id'],
+                ],
+                $this->table_prefix . 'zone_bets' => [
+                    'COLUMNS' => [
+                        'user_id' => ['UINT', 0],
+                        'team_id' => ['UINT', 0],
+                        'time' => ['TIMESTAMP', 0],
+                        'counted' => ['UINT:1', 0],
+                    ],
+                    'PRIMARY_KEY' => ['user_id', 'team_id'],
+                ],
+                $this->table_prefix . 'zone_draw_process' => [
+                    'COLUMNS' => [
+                        'draw_id' => ['UINT', null, 'auto_increment'],
+                        'user_id' => ['UINT', 0],
+                        'time' => ['TIMESTAMP', 0],
+                    ],
+                    'PRIMARY_KEY' => 'draw_id',
+                    'KEYS' => [
+                        'uid' => ['INDEX', 'user_id'],
+                    ],
+                ],
+                $this->table_prefix . 'zone_draw_players' => [
+                    'COLUMNS' => [
+                        'draw_id' => ['UINT', 0],
+                        'user_id' => ['UINT', 0],
+                        'logged_in' => ['TIMESTAMP', 0],
+                    ],
+                    'PRIMARY_KEY' => ['draw_id', 'user_id'],
+                ],
+            ],
+        ];
+    }
 
-	public function revert_schema()
-	{
-		return array(
-			'drop_tables'	=> array(
-				$this->table_prefix . 'zone_players',
-				$this->table_prefix . 'zone_matches',
-				$this->table_prefix . 'zone_match_players',
-				$this->table_prefix . 'zone_civs',
-				$this->table_prefix . 'zone_maps',
-				$this->table_prefix . 'zone_map_civs',
-				$this->table_prefix . 'zone_match_civs',
-				$this->table_prefix . 'zone_match_team_civs',
-				$this->table_prefix . 'zone_match_player_civs',
-				$this->table_prefix . 'zone_player_map',
-				$this->table_prefix . 'zone_player_civ',
-				$this->table_prefix . 'zone_bets',
-				$this->table_prefix . 'zone_draw_process',
-				$this->table_prefix . 'zone_draw_players'
-			),
-		);
-	}
+    public function revert_schema()
+    {
+        return [
+            'drop_tables' => [
+                $this->table_prefix . 'zone_players',
+                $this->table_prefix . 'zone_matches',
+                $this->table_prefix . 'zone_match_players',
+                $this->table_prefix . 'zone_civs',
+                $this->table_prefix . 'zone_maps',
+                $this->table_prefix . 'zone_map_civs',
+                $this->table_prefix . 'zone_match_civs',
+                $this->table_prefix . 'zone_match_team_civs',
+                $this->table_prefix . 'zone_match_player_civs',
+                $this->table_prefix . 'zone_player_map',
+                $this->table_prefix . 'zone_player_civ',
+                $this->table_prefix . 'zone_bets',
+                $this->table_prefix . 'zone_draw_process',
+                $this->table_prefix . 'zone_draw_players',
+            ],
+        ];
+    }
 }
