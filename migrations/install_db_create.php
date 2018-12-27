@@ -179,6 +179,11 @@ class install_db_create extends \phpbb\db\migration\migration
                     'PRIMARY_KEY' => ['draw_id', 'user_id'],
                 ],
             ],
+            'add_index' => [
+                $this->table_prefix . 'zone_match_players' => [
+                    'user_id_rating_change' => ['user_id', 'rating_change'],
+                ],
+            ],
         ];
     }
 
