@@ -21,7 +21,7 @@ class install_cron extends \phpbb\db\migration\migration
 
     static public function depends_on()
     {
-        return array('\phpbb\db\migration\data\v31x\v314');
+        return ['\phpbb\db\migration\data\v31x\v314'];
     }
 
     public function update_data()

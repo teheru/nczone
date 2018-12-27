@@ -22,28 +22,30 @@ class install_acp_module extends \phpbb\db\migration\migration
 
     static public function depends_on()
     {
-        return array('\phpbb\db\migration\data\v31x\v314');
+        return ['\phpbb\db\migration\data\v31x\v314'];
     }
 
     public function update_data()
     {
         return \array_merge(config::module_data(config::ACL_CONFIG_KEYS), [
             [
-                'module.add', [
-                'acp',
-                'ACP_CAT_DOT_MODS',
-                'ACP_NCZONE_TITLE'
-            ]
+                'module.add',
+                [
+                    'acp',
+                    'ACP_CAT_DOT_MODS',
+                    'ACP_NCZONE_TITLE',
+                ],
             ],
             [
-                'module.add', [
-                'acp',
-                'ACP_NCZONE_TITLE',
+                'module.add',
                 [
-                    'module_basename'	=> '\eru\nczone\acp\main_module',
-                    'modes'				=> ['general', 'draw'],
+                    'acp',
+                    'ACP_NCZONE_TITLE',
+                    [
+                        'module_basename' => '\eru\nczone\acp\main_module',
+                        'modes' => ['general', 'draw'],
+                    ],
                 ],
-            ]
             ],
         ], acl::module_data(acl::PERMISSIONS_ADMIN, acl::ROLE_ADMIN));
     }
