@@ -509,13 +509,15 @@ class players
     public function get_player_rating_data(int $user_id): array
     {
         $sql = 'select
-                  m.draw_time as time, draw_rating as rating
+                    m.draw_time as time, draw_rating as rating
                 from '.$this->db->matches_table.' m
-                  join '.$this->db->match_teams_table.' t on m.match_id = t.match_id
-                  join '.$this->db->match_players_table.' p on t.team_id = p.team_id
-                where user_id = '.$user_id.' and
-                      winner_team_id != 0 and
-                      post_time > 0';
+                    join '.$this->db->match_teams_table.' t on m.match_id = t.match_id
+                    join '.$this->db->match_players_table.' p on t.team_id = p.team_id
+                where
+                    user_id = '.$user_id.' and
+                    winner_team_id != 0 and
+                    post_time > 0
+                order by time asc';
 
         $match_numbers = [];
         $match_ratings = [];
