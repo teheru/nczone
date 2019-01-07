@@ -348,6 +348,8 @@ class draw_settings {
                         $both_civs_indices_team_2[] = $index;
                     }
                 }
+                sort($both_civs_indices_team_1);
+                sort($both_civs_indices_team_2);
                 if($both_civs_indices_team_1 != $both_civs_indices_team_2)
                 {
                         continue 1;
