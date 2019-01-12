@@ -86,13 +86,31 @@ class main_module
             $username = '';
         }
 
+        $rating = (int)$request->variable('rating', 0);
         if ($request->variable('new_player', '0') == '1') {
+            if ($rating < 1) {
+                $template->assign_var('S_INVALID_RATING', true);
+                $template->assign_var('S_SELECT_PLAYER', true);
+                $template->assign_var('U_FIND_USERNAME', append_sid(phpbb_util::file_url('memberlist'), 'mode=searchuser&amp;form=mcp&amp;field=username&amp;select_single=true'));
+                return;
+            }
+
             $activate = $request->variable('activate', '') === 'on';
             if ($activate) {
-                zone_util::players()->activate_player((int)$user_id, (int)$request->variable('rating', 0));
+                if (!zone_util::players()->activate_player((int)$user_id, ($rating))) {
+                    // workaround if rating = 0
+                    zone_util::players()->edit_player((int)$user_id, ['rating' => $rating]);
+                }
             }
         } elseif ($request->variable('edit_player', '0') == '1') {
-            zone_util::players()->edit_player((int)$user_id, ['rating' => (int)$request->variable('rating', 0)]);
+            if ($rating < 1) {
+                $template->assign_var('S_INVALID_RATING', true);
+                $template->assign_var('S_SELECT_PLAYER', true);
+                $template->assign_var('U_FIND_USERNAME', append_sid(phpbb_util::file_url('memberlist'), 'mode=searchuser&amp;form=mcp&amp;field=username&amp;select_single=true'));
+                return;
+            }
+
+            zone_util::players()->edit_player((int)$user_id, ['rating' => $rating]);
         } elseif ($user_id) {
             $template->assign_var('USER_ID', $user_id);
 

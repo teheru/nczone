@@ -260,7 +260,8 @@
       "MCP_TEAM2": "Team 2",
       "MCP_NO_RESULT": "Ohne Wertung",
       "MCP_WRONG_WINNER": "Du hast keinen Sieger ausgewählt",
-      "MCP_MATCH_REPOSTED": "Das Spiel wurde umgepostet"
+      "MCP_MATCH_REPOSTED": "Das Spiel wurde umgepostet",
+      "MCP_INVALID_RATING": "Spielerrating muss mindestens 1 sein"
     },
     "info_ucp": {
       "UCP_DEMO": "Settings",
@@ -554,7 +555,8 @@
       "MCP_TEAM2": "Team 2",
       "MCP_NO_RESULT": "No Result",
       "MCP_WRONG_WINNER": "You selected a wrong winner",
-      "MCP_MATCH_REPOSTED": "The match was reposted"
+      "MCP_MATCH_REPOSTED": "The match was reposted",
+      "MCP_INVALID_RATING": "Player rating must be at least 1"
     },
     "info_ucp": {
       "UCP_DEMO": "Settings",
