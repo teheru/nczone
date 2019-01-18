@@ -2,6 +2,8 @@
 
 namespace eru\nczone\zone\entity;
 
+use eru\nczone\config\config;
+
 class player implements \JsonSerializable
 {
     /** @var int */
@@ -25,8 +27,10 @@ class player implements \JsonSerializable
     /** @var int */
     private $bets_won = 0;
     /** @var int */
-    private $bets_loss = 0/** @var int */
-    ;
+    private $bets_loss = 0;
+    /** @var int */
+    private $activity_matches = 0;
+    /** @var int */
     private $activity = 0;
 
     public static function create_by_row(array $row): player
@@ -43,7 +47,8 @@ class player implements \JsonSerializable
         $p->streak = (int)$row['streak'];
         $p->bets_won = (int)$row['bets_won'];
         $p->bets_loss = (int)$row['bets_loss'];
-        $p->activity = (int)$row['activity'];
+        $p->activity_matches = (int)$row['activity_matches'];
+        $p->activity = config::activity_by_match_count($p->activity_matches);
         return $p;
     }
 
@@ -101,6 +106,7 @@ class player implements \JsonSerializable
             'streak' => $this->streak,
             'bets_won' => $this->bets_won,
             'bets_loss' => $this->bets_loss,
+            'activity_matches' => $this->activity_matches,
             'activity' => $this->activity,
         ];
     }

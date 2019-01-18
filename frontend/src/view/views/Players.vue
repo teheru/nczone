@@ -17,7 +17,7 @@
           <div class="zone-players-table-streak" @click="setSort('streak')" v-t="'NCZONE_TABLE_HEADER_STREAK'"></div>
           <div class="zone-players-table-rating-change" @click="setSort('ratingchange')" v-t="'NCZONE_TABLE_HEADER_RATING_CHANGE'"></div>
           <div class="zone-players-table-rating" @click="setSort('rating')" v-t="'NCZONE_TABLE_HEADER_RATING'"></div>
-          <div class="zone-players-table-activity" @click="setSort('activity')" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
+          <div class="zone-players-table-activity" @click="setSort('activity_matches')" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
           <template v-for="(player, idx) in players">
             <div class="zone-players-table-idx" :key="`idx-${idx}`">{{ idx+1 }}</div>
             <div class="zone-players-table-kick" :key="`kick-${idx}`" v-if="canModLogin">
