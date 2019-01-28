@@ -160,7 +160,8 @@ class maps
         return $this->db->insert($this->db->maps_table, [
             'map_id' => 0,
             'map_name' => $map_name,
-            'weight' => $weight
+            'weight' => $weight,
+            'description' => ''
         ]);
     }
 
