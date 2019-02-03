@@ -296,12 +296,16 @@ class draw_settings {
         {
             if(\in_array($civ['id'], $both_teams_civs))
             {
-                $both_civpool[] = $civ;
+                if (!\in_array($civ['id'], $both_civpool))
+                {
+                    $both_civpool[] = $civ;
+                }
                 unset($team2_civpool[$key]);
             }
         }
 
         [$team1_civpool, $team2_civpool] = $this->remove_extra_civs_from_civpools($team1_civpool, $team2_civpool);
+
         $unique_civpool_num = \count($team1_civpool);
 
         $test_indices = $this->get_civpool_test_indices($num_civs, $extra_civs);
@@ -313,8 +317,7 @@ class draw_settings {
         // we test all possible combinations and take the combination, which minimizes |diff(player_ratings * multipliers)|
         foreach($test_indices as $team1_indices)
         {
-            $both_civs_indices = [];
-
+            $both_civs_indices_team_1 = [];
             $team1_sum_multiplier = 0;
             foreach($team1_indices as $index)
             {
@@ -325,7 +328,7 @@ class draw_settings {
                 else
                 {
                     $team1_sum_multiplier += $both_civpool[$index - $unique_civpool_num]['multiplier'];
-                    $both_civs_indices[] = $index;
+                    $both_civs_indices_team_1[] = $index;
                 }
             }
             if($team1_force_civ)
@@ -335,15 +338,8 @@ class draw_settings {
 
             foreach($test_indices as $team2_indices)
             {
-                foreach($both_civs_indices as $index)
-                {
-                    if(!\in_array($index, $team2_indices))
-                    {
-                        continue 2;
-                    }
-                }
-
                 $team2_sum_multiplier = 0;
+                $both_civs_indices_team_2 = [];
                 foreach($team2_indices as $index)
                 {
                     if($index < $unique_civpool_num)
@@ -353,8 +349,16 @@ class draw_settings {
                     else
                     {
                         $team2_sum_multiplier += $both_civpool[$index - $unique_civpool_num]['multiplier'];
+                        $both_civs_indices_team_2[] = $index;
                     }
                 }
+                sort($both_civs_indices_team_1);
+                sort($both_civs_indices_team_2);
+                if($both_civs_indices_team_1 != $both_civs_indices_team_2)
+                {
+                        continue 1;
+                }
+
                 if($team2_force_civ)
                 {
                     $team2_sum_multiplier += $team2_force_civ['multiplier'];
