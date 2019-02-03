@@ -251,7 +251,6 @@ class draw_settings {
         $team1_users = $draw_match->get_team1();
         $team2_users = $draw_match->get_team2();
 
-        //$string = "";
         $num_civs = $draw_match->get_match_size();
 
         $team1_sum_rating = $team1_users->get_total_rating();
