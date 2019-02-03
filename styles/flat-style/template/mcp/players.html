@@ -1,6 +1,12 @@
 {% extends "mcp/base.html" %}
 
 {% block content %}
+    {% if S_INVALID_RATING %}
+        <div class="zone_errorbox">
+            {{ lang('MCP_INVALID_RATING') }}
+        </div>
+    {% endif %}
+
     {% if S_NEW_PLAYER or S_EDIT_PLAYER %}
         <fieldset>
             <dl>
@@ -20,7 +26,19 @@
                 </dt>
                 <dd>
                     <input class="inputbox" id="rating" name="rating" type="text"
-                           value="{% if S_EDIT_PLAYER %}{{ PLAYER_RATING }}{% else %}0{% endif %}"/>
+                           value="{% if S_EDIT_PLAYER %}{{ PLAYER_RATING }}{% else %}2000{% endif %}"/>
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    <label for="rating">{{ lang('MCP_PLAYER_LOGGED_IN') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_PLAYER_LOGGED_IN_HINT') }}</span>
+                </dt>
+                <dd>
+                    <input class="inputbox half-inputbox" id="logged_in_date" name="logged_in_date" type="date"
+                           value="{% if S_EDIT_PLAYER %}{{ PLAYER_LOGGED_IN_DATE }}{% endif %}"/>
+                    <input class="inputbox half-inputbox" id="logged_in_time" name="logged_in_time" type="time" step="1"
+                           value="{% if S_EDIT_PLAYER %}{{ PLAYER_LOGGED_IN_TIME }}{% endif %}"/>
                 </dd>
             </dl>
             {% if S_NEW_PLAYER %}

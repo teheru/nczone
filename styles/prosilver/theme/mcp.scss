@@ -9,3 +9,9 @@ table.mcp_nczone {
     text-align: center;
   }
 }
+
+#mcp {
+  .half-inputbox {
+    width: calc(85% / 2 - 6px);
+  }
+}

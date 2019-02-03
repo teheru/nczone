@@ -86,13 +86,36 @@ class main_module
             $username = '';
         }
 
+        $rating = (int)$request->variable('rating', 0);
+        $logged_in_date = $request->variable('logged_in_date', '');
+        $logged_in_time = $request->variable('logged_in_time', '');
+        if ($logged_in_date && $logged_in_time) {
+            $logged_in_datetime = $logged_in_date . ' ' . $logged_in_time;
+            $logged_in_timestamp = \strtotime($logged_in_datetime);
+        }
         if ($request->variable('new_player', '0') == '1') {
+            if ($rating < 1) {
+                $template->assign_var('S_INVALID_RATING', true);
+                $template->assign_var('S_SELECT_PLAYER', true);
+                $template->assign_var('U_FIND_USERNAME', append_sid(phpbb_util::file_url('memberlist'), 'mode=searchuser&amp;form=mcp&amp;field=username&amp;select_single=true'));
+                return;
+            }
+
             $activate = $request->variable('activate', '') === 'on';
             if ($activate) {
-                zone_util::players()->activate_player((int)$user_id, (int)$request->variable('rating', 0));
+                if (!zone_util::players()->activate_player((int)$user_id, ($rating))) {
+                    zone_util::players()->edit_player((int)$user_id, ['rating' => $rating, 'logged_in' => $logged_in_timestamp ?: 0]);
+                }
             }
         } elseif ($request->variable('edit_player', '0') == '1') {
-            zone_util::players()->edit_player((int)$user_id, ['rating' => (int)$request->variable('rating', 0)]);
+            if ($rating < 1) {
+                $template->assign_var('S_INVALID_RATING', true);
+                $template->assign_var('S_SELECT_PLAYER', true);
+                $template->assign_var('U_FIND_USERNAME', append_sid(phpbb_util::file_url('memberlist'), 'mode=searchuser&amp;form=mcp&amp;field=username&amp;select_single=true'));
+                return;
+            }
+
+            zone_util::players()->edit_player((int)$user_id, ['rating' => $rating, 'logged_in' => $logged_in_timestamp ?: 0]);
         } elseif ($user_id) {
             $template->assign_var('USER_ID', $user_id);
 
@@ -100,8 +123,11 @@ class main_module
             if ($player->is_activated()) {
                 $template->assign_var('S_EDIT_PLAYER', true);
 
+                $logged_in = $player->get_logged_in();
                 $template->assign_var('USERNAME', $player->get_username());
                 $template->assign_var('PLAYER_RATING', $player->get_rating());
+                $template->assign_var('PLAYER_LOGGED_IN_DATE', $logged_in ? date('Y-m-d', $logged_in) : '');
+                $template->assign_var('PLAYER_LOGGED_IN_TIME', $logged_in ? date('H:i:s', $logged_in) : '');
             } else {
                 $template->assign_var('S_NEW_PLAYER', true);
             }

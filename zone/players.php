@@ -56,7 +56,7 @@ class players
                 COALESCE(t.streak, 0) AS streak,
                 p.bets_won AS bets_won,
                 p.bets_loss AS bets_loss,
-                p.activity
+                p.activity_matches
             FROM
                 ' . $this->db->players_table . ' p
                 INNER JOIN ' . $this->db->users_table . ' u 
@@ -104,7 +104,7 @@ class players
                 'matches_loss' => 0,
                 'bets_won' => 0,
                 'bets_loss' => 0,
-                'activity' => 0,
+                'activity_matches' => 0,
             ]);
 
             $this->db->sql_query(
@@ -160,8 +160,8 @@ class players
         if (array_key_exists('bets_loss', $player_info)) {
             $sql_array['bets_loss'] = (int)$player_info['bets_loss'];
         }
-        if (array_key_exists('activity', $player_info)) {
-            $sql_array['activity'] = (int)$player_info['activity'];
+        if (array_key_exists('activity_matches', $player_info)) {
+            $sql_array['activity_matches'] = (int)$player_info['activity_matches'];
         }
 
         $this->db->update($this->db->players_table, $sql_array, ['user_id' => $user_id]);
@@ -309,12 +309,12 @@ class players
     /**
      * Gets the user id, name and rating of all players
      *
-     * @param int $min_matches Minimum count of matches that the returned players must have.
+     * @param int $min_matches Minimum count of activity matches that the returned players must have.
      * @return entity\player[]
      */
-    public function get_all(int $min_matches = 0): array
+    public function get_all(int $min_activity_matches = 0): array
     {
-        return $this->get_players(['min_matches' => $min_matches]);
+        return $this->get_players(['min_activity_matches' => $min_activity_matches]);
     }
 
     private function get_players(array $filter): array
@@ -328,6 +328,10 @@ class players
             $where[] = '(p.matches_won + p.matches_loss) >= ' . (int)$filter['min_matches'];
         }
 
+        if (isset($filter['min_activity_matches'])) {
+            $where[] = 'p.activity_matches >= ' . (int)$filter['min_activity_matches'];
+        }
+
         $rows = $this->db->get_rows('
             SELECT
                 p.user_id AS id, 
@@ -336,13 +340,13 @@ class players
                 p.logged_in, 
                 p.matches_won, 
                 p.matches_loss, 
-                p.activity, 
+                p.activity_matches, 
                 MAX(s.session_time) AS last_activity,
                 COALESCE(t.rating_change, 0) AS rating_change,
                 COALESCE(t.streak, 0) AS streak,
                 p.bets_won AS bets_won,
                 p.bets_loss AS bets_loss,
-                p.activity
+                p.activity_matches
             FROM
                 ' . $this->db->players_table . ' p
                 INNER JOIN ' . $this->db->users_table . ' u 
@@ -482,8 +486,7 @@ class players
             ;
         ';
         foreach ($this->db->get_rows($sql) as $row) {
-            $activity = config::activity_by_match_count((int)$row['match_count']);
-            $this->edit_player((int)$row['user_id'], ['activity' => $activity]);
+            $this->edit_player((int)$row['user_id'], ['activity_matches' => (int)$row['match_count']]);
         }
     }
 
