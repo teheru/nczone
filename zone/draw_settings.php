@@ -296,7 +296,10 @@ class draw_settings {
         {
             if(\in_array($civ['id'], $both_teams_civs))
             {
-                if (!\in_array($civ['id'], $both_civpool))   $both_civpool[] = $civ;
+                if (!\in_array($civ['id'], $both_civpool))
+                {
+                    $both_civpool[] = $civ;
+                }
                 unset($team2_civpool[$key]);
             }
         }
