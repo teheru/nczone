@@ -260,11 +260,9 @@ class draw_settings {
         // find out which civs have to be in both teams
         $both_teams_civs = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
 
-        //$string .= "both_teams_civs\n" . print_r($both_teams_civs, true);
         // we use some extra civs to be able to draw fair civs for the teams
         [$team1_force_civ, $team1_civpool] = $this->draw_players_civs($map_id, $team1_users->get_ids(), $num_civs + $extra_civs, 0);
-        //$string .= "team1_force_civ\n" . print_r($team1_force_civ, true);
-        //$string .= "team1_civpool\n" . print_r($team1_civpool, true);
+
         // if the force civ must be in both teams, we don't want to draw another one for team 2
         $ignore_force = False;
         if($team1_force_civ)
@@ -285,9 +283,6 @@ class draw_settings {
         }
         $team2_civpool = $team2_players_civs[1];
 
-        //$string .= "team2_force_civ\n" . print_r($team2_force_civ, true);
-        //$string .= "team2_civpool\n" . print_r($team2_civpool, true);
-
         // create a common civpool for civs which has to be in both teams
         $both_civpool = [];
         foreach($team1_civpool as $key => $civ)
@@ -306,12 +301,8 @@ class draw_settings {
                 unset($team2_civpool[$key]);
             }
         }
-        //$string .= "both_civpool\n" . print_r($both_civpool, true);
 
         [$team1_civpool, $team2_civpool] = $this->remove_extra_civs_from_civpools($team1_civpool, $team2_civpool);
-
-        //$string .= "team1_civpool_afer_removal\n" . print_r($team1_civpool, true);
-        //$string .= "team2_civpool_afer_removal\n" . print_r($team2_civpool, true);
 
         $unique_civpool_num = \count($team1_civpool);
 
@@ -410,10 +401,6 @@ class draw_settings {
         {
             $team2_civs[] = $team2_force_civ;
         }
-        
-        //$string .= "Chosen Civs Team 1\n" . print_r($team1_civs, true);
-        //$string .= "Chosen Civs Team 2\n" . print_r($team2_civs, true);
-        //file_put_contents("nCZoneLog.txt", $string);
 
         return [
             civs::sort_by_multiplier($team1_civs),
