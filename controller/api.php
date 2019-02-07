@@ -34,7 +34,6 @@ class api
 
     private function respond(
         callable $callable,
-        array $acl = [],
         array $args = []
     ): JsonResponse {
         $request = phpbb_util::request();
@@ -56,11 +55,6 @@ class api
         }
 
         try {
-            foreach ($acl as $perm => $err) {
-                if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), $perm)) {
-                    throw new ForbiddenError($err);
-                }
-            }
             return new JsonResponse($callable($args), self::CODE_OK, $headers);
         } catch (ForbiddenError $t) {
             return new JsonResponse([
@@ -123,11 +117,12 @@ class api
     public function me_logout(): JsonResponse
     {
         return $this->respond(function () {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_login)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_LOGIN');
+            }
             zone_util::players()->logout_player($this->get_user_id());
             return [];
-        }, [
-            acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
-        ]);
+        });
     }
 
     /**
@@ -143,12 +138,12 @@ class api
             if (zone_util::players()->in_match($this->get_user_id())) {
                 throw new BadRequestError('NCZONE_ALREADY_IN_A_MATCH');
             }
-
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_login)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_LOGIN');
+            }
             zone_util::players()->login_player($this->get_user_id());
             return [];
-        }, [
-            acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
-        ]);
+        });
     }
 
     /**
@@ -156,20 +151,23 @@ class api
      *
      * @route /nczone/api/players/login
      *
+     *TODO: This does not work....
+     *
      * @param int $user_id
      * @return JsonResponse
      */
     public function player_login(int $user_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_login_players)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_LOGIN');
+            }
             if (!self::is_activated($args['player_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
             zone_util::players()->login_player($args['player_id']);
             return [];
         }, [
-            acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
-        ], [
             'player_id' => $user_id
         ]);
     }
@@ -185,15 +183,15 @@ class api
     public function player_logout(int $user_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_login_players)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_LOGIN');
+            }
             if (!self::is_activated($args['player_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
-
             zone_util::players()->logout_player($args['player_id']);
             return [];
         }, [
-            acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
-        ], [
             'player_id' => $user_id
         ]);
     }
@@ -201,34 +199,40 @@ class api
     public function draw_preview(): JsonResponse
     {
         return $this->respond(function () {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_draw)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             return zone_util::matches()->start_draw_process($this->get_user_id());
-        }, [
-            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ]);
+        });
     }
 
     public function draw_cancel(): JsonResponse
     {
         return $this->respond(function () {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_draw)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
-        }, [
-            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ]);
+        });
     }
 
     public function draw_confirm(): JsonResponse
     {
         return $this->respond(function () {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_draw)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             return zone_util::matches()->draw($this->get_user_id());
-        }, [
-            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ]);
+        });
     }
 
     public function replace_preview(int $replace_user_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             if (!self::is_activated($args['replace_user_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
@@ -243,8 +247,6 @@ class api
                 'replace_by_player' => $players[0]
             ];
         }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
             'replace_user_id' => $replace_user_id,
         ]);
     }
@@ -252,16 +254,20 @@ class api
     public function replace_cancel(): JsonResponse
     {
         return $this->respond(function () {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ]);
+        });
     }
 
     public function replace_confirm(int $replace_user_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             if (!self::is_activated($args['replace_user_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
@@ -275,8 +281,6 @@ class api
                 $args['replace_user_id']
             );
         }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
             'replace_user_id' => $replace_user_id,
         ]);
     }
@@ -284,6 +288,12 @@ class api
     public function add_pair_preview(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            $allowed_to_do_this = false;
+            if (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) $allowed_to_do_this=true;
+            if (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) && ($this->get_user_id() == zone_util::matches()->get_drawer_id($args['match_id']))) $allowed_to_do_this=true;
+            if (!$allowed_to_do_this) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             $players_loggedin = zone_util::matches()->start_draw_process($this->get_user_id());
             if (\count($players_loggedin) < 2) {
                 throw new ForbiddenError('NCZONE_REASON_NO_ONE_LOGGED_IN');
@@ -295,31 +305,39 @@ class api
             if($players_match->length() === 8) {
                 throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
             }
-
-            return [
+            $additionalPlayers = [
                 'add_player1' => zone_util::players()->get_player($player1_id),
                 'add_player2' => zone_util::players()->get_player($player2_id)
             ];
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
-            'match_id' => $match_id,
+            return $additionalPlayers;
+        },[
+            'match_id' => $match_id
         ]);
     }
 
     public function add_pair_cancel(): JsonResponse
     {
         return $this->respond(function () {
+            $allowed_to_do_this = false;
+            if (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) $allowed_to_do_this=true;
+            if (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) && ($this->get_user_id() == zone_util::matches()->get_drawer_id($args['match_id']))) $allowed_to_do_this=true;
+            if (!$allowed_to_do_this) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ]);
+        });
     }
 
     public function add_pair_confirm(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            $allowed_to_do_this = false;
+            if (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) $allowed_to_do_this=true;
+            if (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) && ($this->get_user_id() == zone_util::matches()->get_drawer_id($args['match_id']))) $allowed_to_do_this=true;
+            if (!$allowed_to_do_this) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             $players_match = zone_util::matches()->get_match_players($args['match_id']);
             if($players_match->length() === 8) {
                 throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
@@ -327,8 +345,6 @@ class api
 
             return zone_util::matches()->add_pair($this->get_user_id(), $args['match_id']);
         }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
             'match_id' => $match_id,
         ]);
     }
@@ -357,7 +373,6 @@ class api
     public function all_players(): JsonResponse
     {
         return $this->respond(function () {
-            // todo: replace min matches by something with activity
             return zone_util::players()->get_all(1);
         });
     }
@@ -383,7 +398,7 @@ class api
                 'items' => zone_util::matches()->get_pmatches($args['page']),
                 'total_pages' => zone_util::matches()->get_pmatches_total_pages()
             ];
-        }, [], [
+        }, [
             'page' => $page
         ]);
     }
@@ -392,7 +407,7 @@ class api
     {
         return $this->respond(function ($args) {
             return zone_util::matches()->get_match($args['match_id']);
-        }, [], [
+        }, [
             'match_id' => $match_id,
         ]);
     }
@@ -400,6 +415,9 @@ class api
     public function match_bet(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_bet)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_BET');
+            }
             $data = self::get_request_data();
             if (!isset($data['team'])) {
                 throw new BadRequestError('team is not set');
@@ -420,8 +438,6 @@ class api
             );
             return [];
         }, [
-            acl::u_zone_bet => 'NCZONE_REASON_NOT_ALLOWED_TO_BET',
-        ], [
             'match_id' => $match_id,
         ]);
     }
@@ -429,6 +445,9 @@ class api
     public function match_post_result(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_draw)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT');
+            }
             $data = self::get_request_data();
             if (!isset($data['winner'])) {
                 throw new BadRequestError('winner is not set');
@@ -446,8 +465,6 @@ class api
             );
             return [];
         }, [
-            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT',
-        ], [
             'match_id' => $match_id,
         ]);
     }
@@ -455,10 +472,9 @@ class api
     public function information(): JsonResponse
     {
         return $this->respond(function () {
-            if (!$this->auth->acl_get(acl::u_zone_view_info)) { // todo: this does not work
-                return [];
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_info)) {
+                return[];
             }
-
             return zone_util::misc()->get_information_posts();
         });
     }
@@ -481,7 +497,7 @@ class api
                 'dreamteams' => $players->get_player_dreamteams($args['user_id'], 5),
                 'nightmareteams' => $players->get_player_nightmareteams($args['user_id'], 5),
             ];
-        }, [], [
+        }, [
             'user_id' => $user_id,
         ]);
     }
@@ -495,7 +511,7 @@ class api
                 $args['user_id'],
                 $args['number']
             );
-        }, [], [
+        }, [
             'user_id' => $user_id,
             'number' => $number,
         ]);
@@ -510,7 +526,7 @@ class api
                 $args['user_id'],
                 $args['number']
             );
-        }, [], [
+        }, [
             'user_id' => $user_id,
             'number' => $number,
         ]);
@@ -520,7 +536,7 @@ class api
     {
         return $this->respond(function ($args) {
             return zone_util::players()->get_player_rating_data($args['user_id']);
-        }, [], [
+        }, [
             'user_id' => $user_id,
         ]);
     }
@@ -535,6 +551,9 @@ class api
     public function maps(): JsonResponse
     {
         return $this->respond(function () {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS');
+            }
             $resp = [];
             foreach (zone_util::maps()->get_maps() as $map) {
                 $image_path = zone_util::maps()->get_image_path($map->get_id());
@@ -552,14 +571,15 @@ class api
                 ];
             }
             return $resp;
-        }, [
-            acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
-        ]);
+        });
     }
 
     public function map_civs(int $map_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS');
+            }
             $civs = zone_util::civs()->get_civs();
             $civ_names = [];
             foreach($civs as $civ) {
@@ -580,8 +600,6 @@ class api
             }
             return $resp;
         }, [
-            acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
-        ], [
             'map_id' => $map_id,
         ]);
     }
@@ -589,6 +607,9 @@ class api
     public function save_map_description(int $map_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_manage_maps)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_MANAGE_MAPS');
+            }
             $data = self::get_request_data();
             $description = $data['description'];
 
@@ -596,8 +617,6 @@ class api
 
             return [];
         }, [
-            acl::m_zone_manage_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_MANAGE_MAPS',
-        ], [
             'map_id' => $map_id
         ]);
     }
@@ -605,6 +624,9 @@ class api
     public function save_map_image(int $map_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_manage_maps)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_MANAGE_MAPS');
+            }
             $data = self::get_request_data();
             $image_raw = $data['image'];
 
@@ -612,8 +634,6 @@ class api
 
             return [];
         }, [
-            acl::m_zone_manage_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_MANAGE_MAPS',
-        ], [
             'map_id' => $map_id
         ]);
     }
@@ -628,7 +648,7 @@ class api
                 'best_rating_changes' => $players->get_best_rating_changes($args['limit']),
                 'worst_rating_changes' => $players->get_worst_rating_changes($args['limit']),
             ];
-        }, [], [
+        }, [
             'limit' => $limit,
         ]);
     }

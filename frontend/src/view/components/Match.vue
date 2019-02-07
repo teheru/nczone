@@ -139,13 +139,14 @@ export default {
       return this.match.post_time > 0
     },
     canAddPairPlayers () {
-      return this.canAddPair && !this.isFinished && this.match.players.team1.length < 4
+      return (this.canAddPairMod || (this.canAddPairUser && (this.match.drawer.id === this.me.id))) && !this.isFinished && this.match.players.team1.length < 4
     },
     ...mapGetters([
       'me',
       'timer',
       'canModPost',
-      'canAddPair'
+      'canAddPairMod',
+      'canAddPairUser'
     ])
   },
   data () {

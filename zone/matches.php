@@ -899,4 +899,15 @@ SQL;
             return $match_ids;
         });
     }
+
+//TODO eru: Does it work like that???
+    public function get_drawer_id(int $match_id): int
+    {
+        //TODO!
+        $sql = 'SELECT draw_user_id FROM '
+                . $this->db->matches_table . 
+                ' WHERE '
+                    .'match_id = ' . $match_id ;
+         return (int)$this->db->get_var($sql);
+    }
 }
