@@ -151,8 +151,6 @@ class api
      *
      * @route /nczone/api/players/login
      *
-     *TODO: This does not work....
-     *
      * @param int $user_id
      * @return JsonResponse
      */

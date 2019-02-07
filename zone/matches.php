@@ -900,10 +900,9 @@ SQL;
         });
     }
 
-//TODO eru: Does it work like that???
+    //TODO: eru....can we do it like that? This looks way easier than the complicated sql stuff you are doing....
     public function get_drawer_id(int $match_id): int
     {
-        //TODO!
         $sql = 'SELECT draw_user_id FROM '
                 . $this->db->matches_table . 
                 ' WHERE '
