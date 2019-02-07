@@ -104,7 +104,11 @@ class misc
 
     public function block_draw(): void
     {
-        config::set(config::draw_blocked_until, time() + (int)config::get(config::draw_block_time) * 60);
+        $draw_block_time = (int)config::get(config::draw_block_time);
+        if ($draw_block_time === 0) {
+            $draw_block_time = 60 * 24 * 365 * 10;
+        }
+        config::set(config::draw_blocked_until, time() + $draw_block_time * 60);
     }
 
     public function unblock_draw(): void

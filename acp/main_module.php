@@ -72,7 +72,11 @@ class main_module
             config::set(config::draw_team_extra_civs_3vs3, (int)$request->variable('nczone_draw_team_extra_civs_3vs3', config::default(config::draw_team_extra_civs_3vs3)));
             config::set(config::draw_team_extra_civs_4vs4, (int)$request->variable('nczone_draw_team_extra_civs_4vs4', config::default(config::draw_team_extra_civs_4vs4)));
             config::set(config::draw_factor, $request->variable('nczone_draw_factor', (float)config::default(config::draw_factor)));
-            config::set(config::draw_block_time, $request->variable('nczone_draw_block_time', (int)config::default(config::draw_block_time)));
+
+            $draw_block_time = (int)config::default(config::draw_block_time);
+            if ($draw_block_time >= 0 && $draw_block_time <= 1440) {
+                config::set(config::draw_block_time, $request->variable('nczone_draw_block_time', $draw_block_time));
+            }
             $player_num_civs_1vs1 = (int)$request->variable('nczone_draw_player_num_civs_1vs1', config::default(config::draw_player_num_civs_1vs1));
             $player_num_civs_2vs2 = (int)$request->variable('nczone_draw_player_num_civs_2vs2', config::default(config::draw_player_num_civs_2vs2));
             $player_num_civs_3vs3 = (int)$request->variable('nczone_draw_player_num_civs_3vs3', config::default(config::draw_player_num_civs_3vs3));
