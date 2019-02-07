@@ -302,17 +302,17 @@ class draw_settings {
         {
             if(\in_array($civ['id'], $both_teams_civs))
             {
-                if (!\in_array($civ['id'], $both_civpool))   $both_civpool[] = $civ;
+                if (!\in_array($civ['id'], $both_civpool))
+                {
+                    $both_civpool[] = $civ;
+                }
                 unset($team2_civpool[$key]);
             }
         }
         //$string .= "both_civpool\n" . print_r($both_civpool, true);
 
         [$team1_civpool, $team2_civpool] = $this->remove_extra_civs_from_civpools($team1_civpool, $team2_civpool);
-
-        //$string .= "team1_civpool_afer_removal\n" . print_r($team1_civpool, true);
-        //$string .= "team2_civpool_afer_removal\n" . print_r($team2_civpool, true);
-
+        
         $unique_civpool_num = \count($team1_civpool);
 
         $test_indices = $this->get_civpool_test_indices($num_civs, $extra_civs);
