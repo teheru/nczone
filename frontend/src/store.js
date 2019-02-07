@@ -66,6 +66,7 @@ export default () => {
         }
       },
       match: null, // single match
+      drawBlockedTime: 0,
       players: [],
       statistics: [],
       bets: [],
@@ -99,6 +100,8 @@ export default () => {
         return a.logged_in > b.logged_in ? 1 : -1
       }),
       loggedInUserIds: (s) => s.players.filter(p => p.logged_in > 0).map(u => u.id),
+      drawBlockedTime: (s) => s.drawBlockedTime,
+      canBlockDraw: (s, g) => g.can(acl.permissions.m_zone_block_draw),
       canDraw: (s, g) => {
         if (!g.can(acl.permissions.u_zone_view_login)) {
           return false
@@ -193,6 +196,9 @@ export default () => {
         })
         state.players = players
       },
+      setDrawBlockedTime (state, payload) {
+        state.drawBlockedTime = payload['draw_blocked_until']
+      },
       setStatistics (state, payload) {
         state.statistics = payload
       },
@@ -276,6 +282,7 @@ export default () => {
           dispatch('getInformation', { passive: true })
           dispatch('getLoggedInPlayers', { passive: true })
           dispatch('loadCurrentRouteData', { passive: true })
+          dispatch('getDrawBlockedTime')
 
           dispatch('poll')
         }
@@ -293,6 +300,9 @@ export default () => {
         })
         state.timer.every(15, () => {
           dispatch('loadCurrentRouteData')
+        })
+        state.timer.every(10, () => {
+          dispatch('getDrawBlockedTime')
         })
       },
 
@@ -331,6 +341,20 @@ export default () => {
           commit('setAllPlayers', await api.actively.getAllPlayers())
           commit('setMeActive')
         }
+      },
+
+      async getDrawBlockedTime ({ commit }) {
+        commit('setDrawBlockedTime', await api.passively.getDrawBlockedTime())
+      },
+
+      async drawBlock ({ commit }) {
+        await api.actively.drawBlock()
+        commit('setDrawBlockedTime', await api.passively.getDrawBlockedTime())
+      },
+
+      async drawUnblock ({ commit }) {
+        await api.actively.drawUnblock()
+        commit('setDrawBlockedTime', await api.passively.getDrawBlockedTime())
       },
 
       async getStatistics ({ commit }) {

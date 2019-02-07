@@ -101,4 +101,14 @@ class misc
 
         return (int)$data['topic_id'];
     }
+
+    public function block_draw(): void
+    {
+        config::set(config::draw_blocked_until, time() + (int)config::get(config::draw_block_time) * 60);
+    }
+
+    public function unblock_draw(): void
+    {
+        config::set(config::draw_blocked_until, 0);
+    }
 }

@@ -83,7 +83,8 @@ export const passively = {
   getLoggedInPlayers: () => get('/players/logged_in'),
   getAllPlayers: () => get('/players'),
   getInformation: () => get('/information'),
-  getMatch: (matchId) => get(`/matches/${matchId}`)
+  getMatch: (matchId) => get(`/matches/${matchId}`),
+  getDrawBlockedTime: () => get('/draw/blocked')
 }
 
 export const actively = {
@@ -94,6 +95,8 @@ export const actively = {
   setLang: (lang) => post('/me/set_language', { body: JSON.stringify({ lang }) }),
 
   // draw
+  drawBlock: () => post('/draw/block'),
+  drawUnblock: () => post('/draw/unblock'),
   drawPreview: () => post('/draw/preview'),
   drawConfirm: () => post('/draw/confirm'),
   drawCancel: () => post('/draw/cancel'),

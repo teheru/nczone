@@ -54,6 +54,19 @@ eru_nczone_controller__api__me_logout:
     path: /nczone/api/me/logout
     defaults: { _controller: eru.nczone.controller.api:me_logout }
 
+
+eru_nczone_controller__api__block_draw:
+    path: /nczone/api/draw/block
+    defaults: { _controller: eru.nczone.controller.api:block_draw }
+
+eru_nczone_controller__api__unblock_draw:
+    path: /nczone/api/draw/unblock
+    defaults: { _controller: eru.nczone.controller.api:unblock_draw }
+
+eru_nczone_controller__api__draw_blocked_until:
+    path: /nczone/api/draw/blocked
+    defaults: { _controller: eru.nczone.controller.api:draw_blocked_until }
+
 eru_nczone_controller__api__draw_preview:
     path: /nczone/api/draw/preview
     defaults: { _controller: eru.nczone.controller.api:draw_preview }

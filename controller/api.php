@@ -198,10 +198,43 @@ class api
         ]);
     }
 
+    public function draw_blocked_until(): JsonResponse
+    {
+        return $this->respond(function () {
+            return ['draw_blocked_until' => (int)config::get(config::draw_blocked_until)];
+        }, [
+            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+        ]);
+    }
+
+    public function block_draw(): JsonResponse
+    {
+        return $this->respond(function () {
+            zone_util::misc()->block_draw();
+            return [];
+        }, [
+            acl::m_zone_block_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_BLOCK_DRAW',
+        ]);
+    }
+
+    public function unblock_draw(): JsonResponse
+    {
+        return $this->respond(function () {
+            zone_util::misc()->unblock_draw();
+            return [];
+        }, [
+            acl::m_zone_block_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_BLOCK_DRAW',
+        ]);
+    }
+
     public function draw_preview(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->start_draw_process($this->get_user_id());
+            if ((int)config::get(config::draw_blocked_until) < time()) {
+                return zone_util::matches()->start_draw_process($this->get_user_id());
+            } else {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -220,7 +253,11 @@ class api
     public function draw_confirm(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->draw($this->get_user_id());
+            if ((int)config::get(config::draw_blocked_until) < time()) {
+                return zone_util::matches()->draw($this->get_user_id());
+            } else {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
