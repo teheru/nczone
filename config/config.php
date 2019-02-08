@@ -42,6 +42,7 @@ final class config
     public const draw_player_num_civs_3vs3 = 'nczone_draw_player_num_civs_3vs3';
     public const draw_player_num_civs_4vs4 = 'nczone_draw_player_num_civs_4vs4';
     public const draw_factor = 'nczone_draw_factor';
+    public const free_pick_civ_id = 'nczone_free_pick_civ_id';
     public const map_images_path = 'maps/';
 
     public const ACL_CONFIG_KEYS = [
@@ -77,6 +78,7 @@ final class config
         self::draw_player_num_civs_3vs3,
         self::draw_player_num_civs_4vs4,
         self::draw_factor,
+        self::free_pick_civ_id,
     ];
 
     private static $defaults = [
@@ -113,6 +115,7 @@ final class config
         self::draw_player_num_civs_3vs3 => 4,
         self::draw_player_num_civs_4vs4 => 3,
         self::draw_factor => 0.4,
+        self::free_pick_civ_id => 32,
     ];
 
     public static function get(string $key, $default = null)

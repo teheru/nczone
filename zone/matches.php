@@ -700,7 +700,7 @@ SQL;
                 'multiplier' => (float)$row['multiplier'],
             ];
         }, $rows);
-    }
+    }  
 
     public function get_team_civs(int $team1_id, int $team2_id, int $map_id): array
     {
@@ -725,6 +725,67 @@ SQL;
         }
 
         return $teams;
+    }
+
+    private static function get_free_pick_civ_id()
+    {
+        return config::get(config::free_pick_civ_id);
+    }
+
+    public function get_banned_civs(int $match_id, int $map_id): array
+    {
+        $freePickCivId = strval($this->get_free_pick_civ_id());
+        $banned_civs = \array_map(function($row) {
+            return [
+                'id' => (int)$row['id'],
+                'title' => $row['title'],
+           ];   
+        }, $this->db->get_rows([
+            'SELECT' => 'c.civ_id AS id, c.civ_name AS title',
+            'FROM' => [$this->db->map_civs_table => 'mc', $this->db->civs_table => 'c'],
+            'WHERE' => 'mc.civ_id = c.civ_id AND mc.map_id = ' . $map_id . ' AND mc.prevent_draw',
+        ]));
+
+        //test if teams have freePickCiv
+        $teams = $this->db->get_rows([
+            'SELECT' => 'mt.team_id',
+            'FROM' => [$this->db->match_teams_table => 'mt'],
+            'WHERE' => 'mt.match_id = ' . $match_id,
+        ]);
+        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+            'SELECT' => 'c.civ_id',
+            'FROM' => [$this->db->match_team_civs_table => 'c'],
+            'WHERE' => 'c.team_id = ' . $teams['0']['team_id'],
+        ]))) {
+            return $banned_civs;
+        }
+        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+            'SELECT' => 'c.civ_id',
+            'FROM' => [$this->db->match_team_civs_table => 'c'],
+            'WHERE' => 'c.team_id = ' . $teams['1']['team_id'],
+        ]))) {
+            return $banned_civs;
+        }
+
+        //test if some player has freePickCiv
+        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+            'SELECT' => 'c.civ_id',
+            'FROM' => [$this->db->match_player_civs_table => 'c'],
+            'WHERE' => 'c.match_id = ' . $match_id,
+        ]))) {
+            return $banned_civs;
+        }
+
+        //test if some match has freePickCiv
+        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+            'SELECT' => 'c.civ_id',
+            'FROM' => [$this->db->match_civs_table => 'c'],
+            'WHERE' => 'c.match_id = ' . $match_id,
+        ]))) {
+            return $banned_civs;
+        }
+
+        return [];
     }
 
     public function is_over(int $match_id): bool

@@ -104,6 +104,20 @@ class maps
         ]));
     }
 
+    public function get_banned_civs(int $map_id): array
+    {
+        return \array_map(function($row) {
+            return [
+                'id' => (int)$row['id'],
+                'title' => $row['title'],
+           ];   
+        }, $this->db->get_rows([
+            'SELECT' => 'c.civ_id AS id, c.civ_name AS title',
+            'FROM' => [$this->db->map_civs_table => 'mc', $this->db->civs_table => 'c'],
+            'WHERE' => 'mc.civ_id = c.civ_id AND mc.map_id = ' . $map_id . ' AND mc.prevent_draw',
+        ]));
+    }
+
     public function set_map_description(int $map_id, string $description): void
     {
         $this->db->update($this->db->maps_table, ['description' => trim($description)], ['map_id' => $map_id]);
