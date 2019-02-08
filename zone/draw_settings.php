@@ -305,7 +305,7 @@ class draw_settings {
         }
 
         [$team1_civpool, $team2_civpool] = $this->remove_extra_civs_from_civpools($team1_civpool, $team2_civpool);
-        
+
         $unique_civpool_num = \count($team1_civpool);
 
         $test_indices = $this->get_civpool_test_indices($num_civs, $extra_civs);
