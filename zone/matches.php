@@ -899,4 +899,13 @@ SQL;
             return $match_ids;
         });
     }
+
+    public function get_draw_user_id(int $match_id): int
+    {
+        $sql = 'SELECT draw_user_id FROM '
+                . $this->db->matches_table . 
+                ' WHERE '
+                    .'match_id = ' . $match_id ;
+         return (int)$this->db->get_var($sql);
+    }
 }
