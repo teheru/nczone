@@ -109,6 +109,7 @@ final class acl
             self::u_zone_view_bets => ['lang' => 'ACL_U_ZONE_VIEW_BETS', 'cat' => 'zone'],
             self::u_zone_bet => ['lang' => 'ACL_U_ZONE_BET', 'cat' => 'zone'],
             self::u_zone_view_maps => ['lang' => 'ACL_U_ZONE_VIEW_MAPS', 'cat' => 'zone'],
+            self::u_zone_change_match => ['lang' => 'ACL_U_ZONE_CHANGE_MATCH', 'cat' => 'zone'],
 
             self::m_zone_manage_players => ['lang' => 'ACL_M_ZONE_MANAGE_PLAYERS', 'cat' => 'zone'],
             self::m_zone_manage_civs => ['lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone'],

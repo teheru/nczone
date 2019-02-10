@@ -143,8 +143,8 @@ class api
             if (zone_util::players()->in_match($this->get_user_id())) {
                 throw new BadRequestError('NCZONE_ALREADY_IN_A_MATCH');
             }
-
             zone_util::players()->login_player($this->get_user_id());
+
             return [];
         }, [
             acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -188,8 +188,8 @@ class api
             if (!self::is_activated($args['player_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
-
             zone_util::players()->logout_player($args['player_id']);
+            
             return [];
         }, [
             acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -266,6 +266,9 @@ class api
     public function replace_preview(int $replace_user_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             if (!self::is_activated($args['replace_user_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
@@ -279,26 +282,26 @@ class api
                 'replace_player' => zone_util::players()->get_player($args['replace_user_id']),
                 'replace_by_player' => $players[0]
             ];
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
-            'replace_user_id' => $replace_user_id,
-        ]);
+        }, [], ['replace_user_id' => $replace_user_id]);
     }
 
     public function replace_cancel(): JsonResponse
     {
         return $this->respond(function () {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ]);
+        });
     }
 
     public function replace_confirm(int $replace_user_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             if (!self::is_activated($args['replace_user_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
@@ -311,16 +314,21 @@ class api
                 $match_id,
                 $args['replace_user_id']
             );
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
-            'replace_user_id' => $replace_user_id,
-        ]);
+        }, [], ['replace_user_id' => $replace_user_id]);
     }
 
     public function add_pair_preview(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (
+                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
+                (
+                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
+                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($args['match_id']))
+                )
+            )) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             $players_loggedin = zone_util::matches()->start_draw_process($this->get_user_id());
             if (\count($players_loggedin) < 2) {
                 throw new ForbiddenError('NCZONE_REASON_NO_ONE_LOGGED_IN');
@@ -332,42 +340,50 @@ class api
             if($players_match->length() === 8) {
                 throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
             }
-
-            return [
+            $additionalPlayers = [
                 'add_player1' => zone_util::players()->get_player($player1_id),
                 'add_player2' => zone_util::players()->get_player($player2_id)
             ];
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
-            'match_id' => $match_id,
-        ]);
+            return $additionalPlayers;
+        }, [], ['match_id' => $match_id]);
     }
 
     public function add_pair_cancel(): JsonResponse
     {
         return $this->respond(function () {
+            if (
+                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
+                (
+                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
+                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($args['match_id']))
+                )
+            )) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             zone_util::matches()->deny_draw_process($this->get_user_id());
             return [];
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ]);
+        });
     }
 
     public function add_pair_confirm(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
+            if (
+                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
+                (
+                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
+                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($args['match_id']))
+                )
+            )) {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
             $players_match = zone_util::matches()->get_match_players($args['match_id']);
             if($players_match->length() === 8) {
                 throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
             }
 
             return zone_util::matches()->add_pair($this->get_user_id(), $args['match_id']);
-        }, [
-            acl::m_zone_change_match => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
-        ], [
-            'match_id' => $match_id,
-        ]);
+        }, [], ['match_id' => $match_id]);
     }
 
     /**
@@ -394,7 +410,6 @@ class api
     public function all_players(): JsonResponse
     {
         return $this->respond(function () {
-            // todo: replace min matches by something with activity
             return zone_util::players()->get_all(1);
         });
     }
@@ -492,10 +507,9 @@ class api
     public function information(): JsonResponse
     {
         return $this->respond(function () {
-            if (!$this->auth->acl_get(acl::u_zone_view_info)) { // todo: this does not work
+            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_info)) {
                 return [];
             }
-
             return zone_util::misc()->get_information_posts();
         });
     }

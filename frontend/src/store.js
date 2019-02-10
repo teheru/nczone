@@ -120,11 +120,17 @@ export default () => {
         }
         return g.can(acl.permissions.m_zone_change_match)
       },
-      canAddPair: (s, g) => {
+      canAddPairMod: (s, g) => {
         if (g.loggedInUserIds.length < 2) {
           return false
         }
         return g.can(acl.permissions.m_zone_change_match)
+      },
+      canAddPairUser: (s, g) => {
+        if (g.loggedInUserIds.length < 2) {
+          return false
+        }
+        return g.can(acl.permissions.u_zone_change_match)
       },
       canModPost: (s, g) => g.can(acl.permissions.m_zone_draw_match),
       canModLogin: (s, g) => g.can(acl.permissions.m_zone_login_players),
@@ -208,12 +214,12 @@ export default () => {
       setMaps (state, payload) {
         payload.forEach(map => {
           state.maps[map.id] = Object.assign(state.maps[map.id] || {},
-          {
-            'name': map.name,
-            'weight': map.weight,
-            'description': map.description,
-            'image': map.image
-          })
+            {
+              'name': map.name,
+              'weight': map.weight,
+              'description': map.description,
+              'image': map.image
+            })
         })
       },
       setMapCivInfo (state, { id, civInfo }) {
@@ -382,7 +388,7 @@ export default () => {
         commit('setMaps', await api.actively.getMaps())
       },
 
-      async saveMapImage ({ commit }, {id, image}) {
+      async saveMapImage ({ commit }, { id, image }) {
         await api.actively.setMapImage(id, image)
         commit('setMaps', await api.actively.getMaps())
       },
