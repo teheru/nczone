@@ -14,6 +14,7 @@ const permissions = {
   m_zone_manage_civs: 'm_zone_manage_civs',
   m_zone_manage_maps: 'm_zone_manage_maps',
   m_zone_create_maps: 'm_zone_create_maps',
+  m_zone_block_draw: 'm_zone_block_draw',
   m_zone_draw_match: 'm_zone_draw_match',
   m_zone_login_players: 'm_zone_login_players',
   m_zone_change_match: 'm_zone_change_match'

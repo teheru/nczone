@@ -14,7 +14,11 @@
         <button class="zone-button" v-if="canLogin" @click="doLogin" v-t="'NCZONE_LOGIN'"></button>
         <button class="zone-button" v-if="isLoggedIn" @click="doLogout" v-t="'NCZONE_LOGOUT'"></button>
 
-        <button class="zone-button" v-if="canDraw" @click="doDraw" v-t="'NCZONE_DRAW'"></button>
+        <button class="zone-button" v-if="canDraw && !(canBlockDraw && drawBlocked)" @click="doDraw" v-t="'NCZONE_DRAW'">
+          <template v-if="drawBlocked">&nbsp;<div class="fa fa-lock"></div></template>
+        </button>
+        <button class="zone-button fa fa-unlock" v-if="canBlockDraw && drawBlocked" @click="doDrawUnblock"></button>
+        <button class="zone-button fa fa-lock" v-if="canBlockDraw" @click="doDrawBlock"></button>
       </div>
     </div>
   </div>
@@ -24,34 +28,73 @@ import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'nczone-player-area',
+  data () {
+    return {
+      'blockSeconds': 0
+    }
+  },
   computed: {
     ...mapGetters([
-      'canDraw',
       'canLogin',
-      'isLoggedIn'
+      'drawBlockedTime',
+      'canBlockDraw',
+      'canDraw',
+      'isLoggedIn',
+      'timer'
     ]),
     ...mapGetters({
       players: 'loggedInPlayers'
     }),
     havePossibleActions () {
-      return this.canDraw || this.canLogin || this.isLoggedIn
+      return this.canDraw || this.canLogin || this.isLoggedIn || this.canBlockDraw
+    },
+    drawBlocked () {
+      return this.blockSeconds > 0
     }
   },
   methods: {
     doLogin () {
+      this.getDrawBlockedTime()
       this.login()
     },
     doLogout () {
       this.logout()
     },
+    doDrawBlock () {
+      this.drawBlock()
+    },
+    doDrawUnblock () {
+      this.drawUnblock()
+    },
     doDraw () {
-      this.openDrawPreviewOverlay()
+      this.getDrawBlockedTime()
+      if (!this.drawBlocked) {
+        this.openDrawPreviewOverlay()
+      }
     },
     ...mapActions([
       'login',
       'logout',
+      'getDrawBlockedTime',
+      'drawBlock',
+      'drawUnblock',
       'openDrawPreviewOverlay'
-    ])
+    ]),
+    cb (now) {
+      this.blockSeconds = this.drawBlockedTime - now / 1000
+    },
+    start () {
+      this.timer.every(2, this.cb)
+    },
+    stop () {
+      this.timer.off(this.cb)
+    }
+  },
+  mounted () {
+    this.start()
+  },
+  beforeDestroy () {
+    this.stop()
   }
 }
 </script>

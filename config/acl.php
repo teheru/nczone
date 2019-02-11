@@ -24,6 +24,7 @@ final class acl
     public const m_zone_manage_maps = 'm_zone_manage_maps';
     public const m_zone_create_maps = 'm_zone_create_maps';
     public const m_zone_draw_match = 'm_zone_draw_match';
+    public const m_zone_block_draw = 'm_zone_block_draw';
     public const m_zone_login_players = 'm_zone_login_players';
     public const m_zone_change_match = 'm_zone_change_match';
 
@@ -44,6 +45,7 @@ final class acl
         self::m_zone_manage_maps,
         self::m_zone_create_maps,
         self::m_zone_draw_match,
+        self::m_zone_block_draw,
         self::m_zone_login_players,
         self::m_zone_change_match,
     ];
@@ -115,6 +117,7 @@ final class acl
             self::m_zone_create_maps => ['lang' => 'ACL_M_ZONE_CREATE_MAPS', 'cat' => 'zone'],
             self::m_zone_login_players => ['lang' => 'ACL_M_ZONE_LOGIN_PLAYERS', 'cat' => 'zone'],
             self::m_zone_draw_match => ['lang' => 'ACL_M_ZONE_DRAW_MATCH', 'cat' => 'zone'],
+            self::m_zone_block_draw => ['lang' => 'ACL_M_ZONE_BLOCK_DRAW', 'cat' => 'zone'],
             self::m_zone_change_match => ['lang' => 'ACL_M_ZONE_CHANGE_MATCH', 'cat' => 'zone'],
 
             self::a_zone_manage_general => ['lang' => 'ACL_A_ZONE_MANAGE_GENERAL', 'cat' => 'zone'],

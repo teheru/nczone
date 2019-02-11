@@ -189,7 +189,7 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
             zone_util::players()->logout_player($args['player_id']);
-            
+
             return [];
         }, [
             acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -198,10 +198,43 @@ class api
         ]);
     }
 
+    public function draw_blocked_until(): JsonResponse
+    {
+        return $this->respond(function () {
+            return ['draw_blocked_until' => (int)config::get(config::draw_blocked_until)];
+        }, [
+            acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
+        ]);
+    }
+
+    public function block_draw(): JsonResponse
+    {
+        return $this->respond(function () {
+            zone_util::misc()->block_draw();
+            return [];
+        }, [
+            acl::m_zone_block_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_BLOCK_DRAW',
+        ]);
+    }
+
+    public function unblock_draw(): JsonResponse
+    {
+        return $this->respond(function () {
+            zone_util::misc()->unblock_draw();
+            return [];
+        }, [
+            acl::m_zone_block_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_BLOCK_DRAW',
+        ]);
+    }
+
     public function draw_preview(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->start_draw_process($this->get_user_id());
+            if ((int)config::get(config::draw_blocked_until) < time()) {
+                return zone_util::matches()->start_draw_process($this->get_user_id());
+            } else {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -220,7 +253,11 @@ class api
     public function draw_confirm(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->draw($this->get_user_id());
+            if ((int)config::get(config::draw_blocked_until) < time()) {
+                return zone_util::matches()->draw($this->get_user_id());
+            } else {
+                throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
+            }
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -454,11 +491,22 @@ class api
             ) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT');
             }
+
             zone_util::matches()->post(
                 $args['match_id'],
                 $this->get_user_id(),
                 (int) $data['winner']
             );
+
+            $draw_block_after_match = (int)config::get(config::draw_block_after_match);
+            if ($draw_block_after_match > 0) {
+                $draw_block_new_until = time() + $draw_block_after_match * 60;
+                $draw_block_old_until = (float)config::get(config::draw_blocked_until);
+                if ($draw_block_old_until < $draw_block_new_until) {
+                    config::set(config::draw_blocked_until, $draw_block_new_until);
+                }
+            }
+
             return [];
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT',

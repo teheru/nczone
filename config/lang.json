@@ -128,7 +128,7 @@
       "NCZONE_DRAW_PREVIEW": "Losevorschau",
       "NCZONE_DRAW_DO_YOU_WANT_TO_DRAW": "Möchtest du losen?",
       "NCZONE_DRAW_LOGGED_IN_PLAYERS": "Folgende Spieler sind eingeloggt:",
-      "NCZONE_DRAW_PREVIEW_NO_PLAYERS": "Es sind nicht genügend Spieler zum Losen da.",
+      "NCZONE_DRAW_PREVIEW_NOT_POSSIBLE": "Es ist gerade nicht möglich zu losen.",
       "NCZONE_REPLACE_PREVIEW": "Spieler ersetzen Vorschau",
       "NCZONE_REPLACE_PREVIEW_NO_PLAYERS": "Es ist kein Spieler zum Austauschen da.",
       "NCZONE_REPLACE_PLAYER": "Willst du ",
@@ -189,7 +189,11 @@
       "NCZONE_DRAW_PLAYER_NUM_CIVS": "Anzahl an Kulturen für Spielercivs",
       "NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR": "Anzahl an Kulturen für Spielercivs. Ein höherer Wert sorgt für fairere Kulturen im Bezug auf Ratingunterschiede im Spiel, erhöht allerdings auch die Rechenzeit <i>sehr stark</i>. 1vs1 / 2vs2 / 3vs3 / 4vs4",
       "NCZONE_DRAW_FACTOR": "Faktor für den Algorithmus",
-      "NCZONE_DRAW_FACTOR_DESCR": "Wert muss zwischen 0 und 1 liegen. Je höher der Wert, desto eher wählt der Algorithmus eine Permutation der Spielerzahlen, die die Varianz von Ratings in den Losungen minimiert. (Anstatt der gesamten Ratingdifferenzen.)"
+      "NCZONE_DRAW_FACTOR_DESCR": "Wert muss zwischen 0 und 1 liegen. Je höher der Wert, desto eher wählt der Algorithmus eine Permutation der Spielerzahlen, die die Varianz von Ratings in den Losungen minimiert. (Anstatt der gesamten Ratingdifferenzen.)",
+      "NCZONE_DRAW_BLOCK_TIME": "Dauer einer Losungsblockade",
+      "NCZONE_DRAW_BLOCK_TIME_DESCR": "Dauer in Minuten einer Losungsblockade wenn ein Moderator den Button klickt. Der höchste zugelassene Wert ist 1440 (ein Tag), ein Wert von 0 bedeutet, dass die Losungsblockade manuell aufgehoben werden muss.",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH": "Losungsblockade nach einem Spiel",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH_DESCR": "Zeit in Minuten nach einem Spiel, in denen automatisch das Losen blockiert wird. Erlaubte Werte sind zwischen 0 (gar nicht blockieren) und 10 Minuten."
     },
     "info_mcp": {
       "NCZONE_AZTECS": "Azteken",
@@ -281,6 +285,7 @@
       "ACL_M_ZONE_MANAGE_CIVS": "Kulturen verwalten",
       "ACL_M_ZONE_LOGIN_PLAYERS": "Andere Spieler einloggen",
       "ACL_M_ZONE_DRAW_MATCH": "Losen (auch wenn nicht eingeloggt)",
+      "ACL_M_ZONE_BLOCK_DRAW": "Losen blockieren",
       "ACL_M_ZONE_CHANGE_MATCH": "Andere Spiele ändern",
       "ACL_U_ZONE_VIEW_INFO": "Informationen sehen",
       "ACL_U_ZONE_DRAW": "Losen",
@@ -424,7 +429,7 @@
       "NCZONE_DRAW_PREVIEW": "Draw preview",
       "NCZONE_DRAW_DO_YOU_WANT_TO_DRAW": "Do you want to draw?",
       "NCZONE_DRAW_LOGGED_IN_PLAYERS": "The following players are logged in:",
-      "NCZONE_DRAW_PREVIEW_NO_PLAYERS": "There are not enough players to draw.",
+      "NCZONE_DRAW_PREVIEW_NOT_POSSIBLE": "It is currently not possible to draw.",
       "NCZONE_REPLACE_PREVIEW": "Replace preview",
       "NCZONE_REPLACE_PREVIEW_NO_PLAYERS": "There is currently no to player to replace with.",
       "NCZONE_REPLACE_PLAYER": "Do you want to replace ",
@@ -485,8 +490,11 @@
       "NCZONE_DRAW_PLAYER_NUM_CIVS": "Number civs for player civs",
       "NCZONE_DRAW_PLAYER_NUM_CIVS_DESCR": "Number of civs to draw for player civs. A higher value results in fairer civs in relation to the rating difference of the teams, but also increases calculation time <i>a lot</i>. The value should be at least 1 and at least 2 to enable the mechanism to draw fair(er) civs. 1vs1 / 2vs2 / 3vs3 / 4vs4",
       "NCZONE_DRAW_FACTOR": "Factor for Algorithm",
-      "NCZONE_DRAW_FACTOR_DESCR": "Value should be between 0 and 1. The higher the number, the more the algo chooses a drawing permutation that minimizes the variance of ratings within one team, instead of minimizing the rating difference."
-
+      "NCZONE_DRAW_FACTOR_DESCR": "Value should be between 0 and 1. The higher the number, the more the algo chooses a drawing permutation that minimizes the variance of ratings within one team, instead of minimizing the rating difference.",
+      "NCZONE_DRAW_BLOCK_TIME": "Draw block time",
+      "NCZONE_DRAW_BLOCK_TIME_DESCR": "Amount of time in minutes drawing is blocked when a mod clicks the block button. The highest value is 1440 (a day), setting the value to 0 results in a block which has to be released manually.",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH": "Draw block after match",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH_DESCR": "Time in minutes to automatically block drawing after a match has been posted. Legal values are between 0 (do not block at all) an 10 minutes."
     },
     "info_mcp": {
       "NCZONE_AZTECS": "Aztecs",
@@ -578,6 +586,7 @@
       "ACL_M_ZONE_MANAGE_CIVS": "manage civilizations",
       "ACL_M_ZONE_LOGIN_PLAYERS": "login other players",
       "ACL_M_ZONE_DRAW_MATCH": "draw matches (even when not logged in)",
+      "ACL_M_ZONE_BLOCK_DRAW": "Block drawing",
       "ACL_M_ZONE_CHANGE_MATCH": "change other matches",
       "ACL_U_ZONE_VIEW_INFO": "can view information",
       "ACL_U_ZONE_DRAW": "draw matches",
