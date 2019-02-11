@@ -191,7 +191,9 @@
       "NCZONE_DRAW_FACTOR": "Faktor für den Algorithmus",
       "NCZONE_DRAW_FACTOR_DESCR": "Wert muss zwischen 0 und 1 liegen. Je höher der Wert, desto eher wählt der Algorithmus eine Permutation der Spielerzahlen, die die Varianz von Ratings in den Losungen minimiert. (Anstatt der gesamten Ratingdifferenzen.)",
       "NCZONE_DRAW_BLOCK_TIME": "Dauer einer Losungsblockade",
-      "NCZONE_DRAW_BLOCK_TIME_DESCR": "Dauer in Minuten einer Losungsblockade wenn ein Moderator den Button klickt. Der höchste zugelassene Wert ist 1440 (ein Tag), ein Wert von 0 bedeutet, dass die Losungsblockade manuell aufgehoben werden muss."
+      "NCZONE_DRAW_BLOCK_TIME_DESCR": "Dauer in Minuten einer Losungsblockade wenn ein Moderator den Button klickt. Der höchste zugelassene Wert ist 1440 (ein Tag), ein Wert von 0 bedeutet, dass die Losungsblockade manuell aufgehoben werden muss.",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH": "Losungsblockade nach einem Spiel",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH_DESCR": "Zeit in Minuten nach einem Spiel, in denen automatisch das Losen blockiert wird. Erlaubte Werte sind zwischen 0 (gar nicht blockieren) und 10 Minuten."
     },
     "info_mcp": {
       "NCZONE_AZTECS": "Azteken",
@@ -490,8 +492,9 @@
       "NCZONE_DRAW_FACTOR": "Factor for Algorithm",
       "NCZONE_DRAW_FACTOR_DESCR": "Value should be between 0 and 1. The higher the number, the more the algo chooses a drawing permutation that minimizes the variance of ratings within one team, instead of minimizing the rating difference.",
       "NCZONE_DRAW_BLOCK_TIME": "Draw block time",
-      "NCZONE_DRAW_BLOCK_TIME_DESCR": "Amount of time in minutes drawing is blocked when a mod clicks the block button. The highest value is 1440 (a day), setting the value to 0 results in a block which has to be released manually."
-
+      "NCZONE_DRAW_BLOCK_TIME_DESCR": "Amount of time in minutes drawing is blocked when a mod clicks the block button. The highest value is 1440 (a day), setting the value to 0 results in a block which has to be released manually.",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH": "Draw block after match",
+      "NCZONE_DRAW_BLOCK_AFTER_MATCH_DESCR": "Time in minutes to automatically block drawing after a match has been posted. Legal values are between 0 (do not block at all) an 10 minutes."
     },
     "info_mcp": {
       "NCZONE_AZTECS": "Aztecs",

@@ -77,6 +77,10 @@ class main_module
             if ($draw_block_time >= 0 && $draw_block_time <= 1440) {
                 config::set(config::draw_block_time, $request->variable('nczone_draw_block_time', $draw_block_time));
             }
+            $draw_block_after_match = (int)config::default(config::draw_block_after_match);
+            if ($draw_block_after_match >= 0 && $draw_block_after_match <= 10) {
+                config::set(config::draw_block_after_match, $request->variable('nczone_draw_block_after_match', $draw_block_after_match));
+            }
             $player_num_civs_1vs1 = (int)$request->variable('nczone_draw_player_num_civs_1vs1', config::default(config::draw_player_num_civs_1vs1));
             $player_num_civs_2vs2 = (int)$request->variable('nczone_draw_player_num_civs_2vs2', config::default(config::draw_player_num_civs_2vs2));
             $player_num_civs_3vs3 = (int)$request->variable('nczone_draw_player_num_civs_3vs3', config::default(config::draw_player_num_civs_3vs3));
@@ -112,6 +116,7 @@ class main_module
             'nczone_draw_player_num_civs_4vs4' => config::get(config::draw_player_num_civs_4vs4),
             'nczone_draw_factor' => config::get(config::draw_factor),
             'nczone_draw_block_time' => config::get(config::draw_block_time),
+            'nczone_draw_block_after_match' => config::get(config::draw_block_after_match),
         ));
     }
 

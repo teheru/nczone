@@ -85,6 +85,15 @@
 			<input type="number" step="1" min="0" max="1440" name="nczone_draw_block_time" value="{{ nczone_draw_block_time }}" />
 		</dd>
 	</dl>
+	<dl>
+		<dt>
+			<label for="nczone_draw_block_after_match">{{ lang('NCZONE_DRAW_BLOCK_AFTER_MATCH') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_DRAW_BLOCK_AFTER_MATCH_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" step="1" min="0" max="10" name="nczone_draw_block_after_match" value="{{ nczone_draw_block_after_match }}" />
+		</dd>
+	</dl>
 </fieldset>
 
 {% endblock %}
