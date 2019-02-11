@@ -36,9 +36,6 @@
         <div v-if="match.civs.team2.length > 0">
           <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-civ-list :list="match.civs.team2" />
         </div>
-        <div v-if="match.civs.banned.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_BANNED'"></span>:  <nczone-civ-list :list="match.civs.banned" />
-        </div>
       </div>
     </template>
 
