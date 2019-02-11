@@ -727,14 +727,9 @@ SQL;
         return $teams;
     }
 
-    private static function get_free_pick_civ_id()
-    {
-        return config::get(config::free_pick_civ_id);
-    }
-
     public function get_banned_civs(int $match_id, int $map_id): array
     {
-        $freePickCivId = strval($this->get_free_pick_civ_id());
+        $free_pick_civ_id = strval(config::get(config::free_pick_civ_id));
         $banned_civs = \array_map(function($row) {
             return [
                 'id' => (int)$row['id'],
@@ -752,14 +747,14 @@ SQL;
             'FROM' => [$this->db->match_teams_table => 'mt'],
             'WHERE' => 'mt.match_id = ' . $match_id,
         ]);
-        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_team_civs_table => 'c'],
             'WHERE' => 'c.team_id = ' . $teams['0']['team_id'],
         ]))) {
             return $banned_civs;
         }
-        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_team_civs_table => 'c'],
             'WHERE' => 'c.team_id = ' . $teams['1']['team_id'],
@@ -768,7 +763,7 @@ SQL;
         }
 
         //test if some player has freePickCiv
-        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_player_civs_table => 'c'],
             'WHERE' => 'c.match_id = ' . $match_id,
@@ -777,7 +772,7 @@ SQL;
         }
 
         //test if some match has freePickCiv
-        if (in_array(['civ_id' => $freePickCivId], $this->db->get_rows([
+        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_civs_table => 'c'],
             'WHERE' => 'c.match_id = ' . $match_id,

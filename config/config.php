@@ -121,7 +121,7 @@ final class config
         self::draw_player_num_civs_3vs3 => 4,
         self::draw_player_num_civs_4vs4 => 3,
         self::draw_factor => 0.4,
-        self::free_pick_civ_id => 32,
+        self::free_pick_civ_id => 0,
         self::draw_block_time => 10,
         self::draw_blocked_until => 0,
         self::draw_block_after_match => 3,
