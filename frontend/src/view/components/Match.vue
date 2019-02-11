@@ -36,6 +36,18 @@
         <div v-if="match.civs.team2.length > 0">
           <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-civ-list :list="match.civs.team2" />
         </div>
+        <div v-if="match.civs.banned.length > 0">
+          <span v-t="'NCZONE_MATCH_CIVS_BANNED'"></span>:  <nczone-civ-list :list="match.civs.banned" />
+        </div>
+      </div>
+    </template>
+
+    <template v-if="haveBannedCivs">
+      <div v-t="'NCZONE_MATCH_CIVS_BANNED'"></div>
+      <div>
+        <div v-if="match.civs.banned.length > 0">
+          <nczone-civ-list :list="match.civs.banned" />
+        </div>
       </div>
     </template>
 
@@ -129,6 +141,9 @@ export default {
       return this.match.civs.both.length > 0 ||
         this.match.civs.team1.length > 0 ||
         this.match.civs.team2.length > 0
+    },
+    haveBannedCivs () {
+      return this.match.civs.banned.length > 0
     },
     canManage () {
       return this.match.players.team1.map(p => p.id).includes(this.me.id) ||

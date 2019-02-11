@@ -92,6 +92,15 @@
 			<textarea style="width:200px;height:100px;" name="nczone_info_posts">{{ nczone_info_posts }}</textarea>
 		</dd>
 	</dl>
+	<dl>
+		<dt>
+			<label for="nczone_free_pick_civ_id">{{ lang('NCZONE_FREE_PICK_CIV_ID') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_FREE_PICK_CIV_ID_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" step="1" min="1" name="nczone_free_pick_civ_id" value="{{ nczone_free_pick_civ_id }}" />
+		</dd>
+	</dl>
 </fieldset>
 
 {% endblock %}

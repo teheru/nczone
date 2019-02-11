@@ -72,6 +72,7 @@ class main_module
             config::set(config::draw_team_extra_civs_3vs3, (int)$request->variable('nczone_draw_team_extra_civs_3vs3', config::default(config::draw_team_extra_civs_3vs3)));
             config::set(config::draw_team_extra_civs_4vs4, (int)$request->variable('nczone_draw_team_extra_civs_4vs4', config::default(config::draw_team_extra_civs_4vs4)));
             config::set(config::draw_factor, $request->variable('nczone_draw_factor', config::default(config::draw_factor)));
+
             $player_num_civs_1vs1 = (int)$request->variable('nczone_draw_player_num_civs_1vs1', config::default(config::draw_player_num_civs_1vs1));
             $player_num_civs_2vs2 = (int)$request->variable('nczone_draw_player_num_civs_2vs2', config::default(config::draw_player_num_civs_2vs2));
             $player_num_civs_3vs3 = (int)$request->variable('nczone_draw_player_num_civs_3vs3', config::default(config::draw_player_num_civs_3vs3));
@@ -132,6 +133,8 @@ class main_module
             config::set(config::points_4vs4, (int)$request->variable('nczone_points_4vs4', config::default(config::points_4vs4)));
             config::set(config::extra_points, (int)$request->variable('nczone_extra_points', config::default(config::extra_points)));
             config::set(config::info_posts, implode(',', array_map('\intval', preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
+            config::set(config::free_pick_civ_id, $request->variable('nczone_free_pick_civ_id', config::default(config::free_pick_civ_id)));
+
 
             trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
         }
@@ -154,6 +157,7 @@ class main_module
             'nczone_points_4vs4' => config::get(config::points_4vs4),
             'nczone_extra_points' => config::get(config::extra_points),
             'nczone_info_posts' => str_replace(',', "\n", config::get(config::info_posts)),
+            'nczone_free_pick_civ_id' => config::get(config::free_pick_civ_id),
         ));
     }
 }
