@@ -700,7 +700,7 @@ SQL;
                 'multiplier' => (float)$row['multiplier'],
             ];
         }, $rows);
-    }  
+    }
 
     public function get_team_civs(int $team1_id, int $team2_id, int $map_id): array
     {
