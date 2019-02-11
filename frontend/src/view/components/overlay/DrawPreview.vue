@@ -9,7 +9,7 @@
         <span v-t="'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW'"></span>
       </div>
       <div v-else="">
-        <span v-t="'NCZONE_DRAW_PREVIEW_NO_PLAYERS'"></span>
+        <span v-t="'NCZONE_DRAW_PREVIEW_NOT_POSSIBLE'"></span>
       </div>
     </template>
     <template slot="actions">
