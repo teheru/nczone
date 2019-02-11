@@ -42,7 +42,7 @@
       </div>
     </template>
 
-    <template v-if="haveBannedCivs">
+    <template v-if="haveBannedCivs && !isFinished">
       <div v-t="'NCZONE_MATCH_CIVS_BANNED'"></div>
       <div>
         <div v-if="match.civs.banned.length > 0">
