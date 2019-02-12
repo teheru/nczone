@@ -12,6 +12,7 @@ namespace eru\nczone\acp;
 
 use eru\nczone\config\config;
 use eru\nczone\utility\phpbb_util;
+use eru\nczone\utility\zone_util;
 
 /**
  * nC Zone ACP module.
@@ -168,5 +169,12 @@ class main_module
             'nczone_info_posts' => str_replace(',', "\n", config::get(config::info_posts)),
             'nczone_free_pick_civ_id' => config::get(config::free_pick_civ_id),
         ));
+
+        foreach (zone_util::civs()->get_civs() as $civ) {
+            phpbb_util::template()->assign_block_vars('civs', [
+                'ID' => $civ->get_id(),
+                'NAME' => $civ->get_name()
+            ]);
+        }
     }
 }

@@ -43,7 +43,7 @@
       <div v-t="'NCZONE_MATCH_CIVS_BANNED'"></div>
       <div>
         <div v-if="match.civs.banned.length > 0">
-          <nczone-civ-list :list="match.civs.banned" />
+          <nczone-civ-list :list="match.civs.banned" :tooltip="false" />
         </div>
       </div>
     </template>

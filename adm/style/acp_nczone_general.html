@@ -98,7 +98,12 @@
 			<span>{{ lang('NCZONE_FREE_PICK_CIV_ID_DESCR') }}</span>
 		</dt>
 		<dd>
-			<input type="number" step="1" min="0" name="nczone_free_pick_civ_id" value="{{ nczone_free_pick_civ_id }}" />
+            <select name="nczone_free_pick_civ_id">
+                <option value="0">{{ lang('NCZONE_NO_FREE_PICK_CIV') }}</option>
+                {% for civ in civs %}
+                    <option value="{{ civ.ID }}" {% if civ.ID == nczone_free_pick_civ_id %}selected="selected"{% endif %}>{{ lang(civ.NAME) }}</option>
+                {% endfor %}
+            </select>
 		</dd>
 	</dl>
 </fieldset>

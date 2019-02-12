@@ -1,7 +1,7 @@
 <template>
     <span>
         <span v-for="(civ, idx) in list" :key="idx">
-            <span class="zone-match-civ">{{ $t(civ.title) }}<span class="zone-match-civ-tooltip">{{ civ.multiplier }}</span></span>
+            <span class="zone-match-civ">{{ $t(civ.title) }}<span class="zone-match-civ-tooltip" v-if="tooltip">{{ civ.multiplier }}</span></span>
             <span v-if="idx+1 < list.length">, </span>
         </span>
     </span>
@@ -13,6 +13,10 @@ export default {
     list: {
       type: Array,
       required: true
+    },
+    tooltip: {
+      type: Boolean,
+      default: true
     }
   }
 }
