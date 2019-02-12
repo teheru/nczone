@@ -53,7 +53,7 @@ class match implements \JsonSerializable
             'id' => $map_id,
             'title' => $row['map_name'],
         ];
-        $entity->civs = array_merge(['both' => zone_util::matches()->get_match_civs($match_id, $map_id)], zone_util::matches()->get_team_civs($team1_id, $team2_id, $map_id));
+        $entity->civs = array_merge(['both' => zone_util::matches()->get_match_civs($match_id, $map_id), 'banned' => zone_util::matches()->get_banned_civs($match_id, $map_id)], zone_util::matches()->get_team_civs($team1_id, $team2_id, $map_id));
         $entity->bets = zone_util::bets()->get_bets($team1_id, $team2_id, $finished ? true : false);
         $entity->players = zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id);
         $entity->forum_topic_id = $forum_topic_id;

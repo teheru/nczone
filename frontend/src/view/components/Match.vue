@@ -39,6 +39,15 @@
       </div>
     </template>
 
+    <template v-if="haveBannedCivs && !isFinished">
+      <div v-t="'NCZONE_MATCH_CIVS_BANNED'"></div>
+      <div>
+        <div v-if="match.civs.banned.length > 0">
+          <nczone-civ-list :list="match.civs.banned" :tooltip="false" />
+        </div>
+      </div>
+    </template>
+
     <div v-t="'NCZONE_MATCH_START_TIME'"></div>
     <div>{{ matchStartTime }}</div>
 
@@ -129,6 +138,9 @@ export default {
       return this.match.civs.both.length > 0 ||
         this.match.civs.team1.length > 0 ||
         this.match.civs.team2.length > 0
+    },
+    haveBannedCivs () {
+      return this.match.civs.banned.length > 0
     },
     canManage () {
       return this.match.players.team1.map(p => p.id).includes(this.me.id) ||

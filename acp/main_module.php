@@ -12,6 +12,7 @@ namespace eru\nczone\acp;
 
 use eru\nczone\config\config;
 use eru\nczone\utility\phpbb_util;
+use eru\nczone\utility\zone_util;
 
 /**
  * nC Zone ACP module.
@@ -143,6 +144,7 @@ class main_module
             config::set(config::points_4vs4, (int)$request->variable('nczone_points_4vs4', config::default(config::points_4vs4)));
             config::set(config::extra_points, (int)$request->variable('nczone_extra_points', config::default(config::extra_points)));
             config::set(config::info_posts, implode(',', array_map('\intval', preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
+            config::set(config::free_pick_civ_id, (int)$request->variable('nczone_free_pick_civ_id', config::default(config::free_pick_civ_id)));
 
             trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
         }
@@ -165,6 +167,14 @@ class main_module
             'nczone_points_4vs4' => config::get(config::points_4vs4),
             'nczone_extra_points' => config::get(config::extra_points),
             'nczone_info_posts' => str_replace(',', "\n", config::get(config::info_posts)),
+            'nczone_free_pick_civ_id' => config::get(config::free_pick_civ_id),
         ));
+
+        foreach (zone_util::civs()->get_civs() as $civ) {
+            phpbb_util::template()->assign_block_vars('civs', [
+                'ID' => $civ->get_id(),
+                'NAME' => $civ->get_name()
+            ]);
+        }
     }
 }
