@@ -1,7 +1,7 @@
 <template>
   <nczone-overlay class="zone-replace-preview" :title="'NCZONE_PLAYER_DETAILS_TITLE'" @close="cancel">
     <template slot="content">
-      <div v-if="canReplace">
+      <div v-if="canReplaceMod || canReplaceUser">
         <span v-t="'NCZONE_REPLACE_PLAYER'"></span>
         <span class="zone-replace-player" v-html="replacePlayer.username"></span>
         <span v-t="'NCZONE_REPLACE_BY_PLAYER'"></span>
@@ -13,9 +13,9 @@
       </div>
     </template>
     <template slot="actions">
-      <button v-if="canReplace" class="zone-button" v-t="'NCZONE_CANCEL'" @click="cancel"></button>
-      <button v-if="canReplace" class="zone-button" v-t="'NCZONE_OK'" @click="confirm"></button>
-      <button v-if="!canReplace" class="zone-button" v-t="'NCZONE_OK'" @click="cancel"></button>
+      <button v-if="canReplaceMod || canReplaceUser" class="zone-button" v-t="'NCZONE_CANCEL'" @click="cancel"></button>
+      <button v-if="canReplaceMod || canReplaceUser" class="zone-button" v-t="'NCZONE_OK'" @click="confirm"></button>
+      <button v-if="!canReplaceMod && !canReplaceUser" class="zone-button" v-t="'NCZONE_CANCEL'" @click="cancel"></button>
     </template>
   </nczone-overlay>
 </template>
@@ -33,7 +33,8 @@ export default {
     },
     ...mapGetters([
       'overlayPayload',
-      'canReplace'
+      'canReplaceMod',
+      'canReplaceUser'
     ])
   },
   methods: {
