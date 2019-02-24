@@ -114,11 +114,17 @@ export default () => {
         }
         return g.can(acl.permissions.m_zone_draw_match)
       },
-      canReplace: (s, g) => {
+      canReplaceMod: (s, g) => {
         if (g.loggedInUserIds.length === 0) {
           return false
         }
         return g.can(acl.permissions.m_zone_change_match)
+      },
+      canReplaceUser: (s, g) => {
+        if (g.loggedInUserIds.length === 0) {
+          return false
+        }
+        return g.can(acl.permissions.u_zone_change_match)
       },
       canAddPairMod: (s, g) => {
         if (g.loggedInUserIds.length < 2) {

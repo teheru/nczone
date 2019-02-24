@@ -266,7 +266,15 @@ class api
     public function replace_preview(int $replace_user_id): JsonResponse
     {
         return $this->respond(function ($args) {
-            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+            $match_id = zone_util::players()->get_running_match_id($args['replace_user_id']);
+            // todo: check here if replace_user_id is in the match
+            if (
+                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
+                (
+                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
+                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($match_id))
+                )
+            )) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             if (!self::is_activated($args['replace_user_id'])) {
@@ -288,7 +296,10 @@ class api
     public function replace_cancel(): JsonResponse
     {
         return $this->respond(function () {
-            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+            if (
+                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
+                    (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match))
+            )) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             zone_util::matches()->deny_draw_process($this->get_user_id());
@@ -299,15 +310,20 @@ class api
     public function replace_confirm(int $replace_user_id): JsonResponse
     {
         return $this->respond(function ($args) {
-            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match)) {
+            $match_id = zone_util::players()->get_running_match_id($args['replace_user_id']);
+            // todo: check here if replace_user_id is in the match
+            if (
+                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
+                (
+                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
+                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($match_id))
+                )
+            )) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             if (!self::is_activated($args['replace_user_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
-
-            $match_id = zone_util::players()->get_running_match_id($args['replace_user_id']);
-            // todo: check here if replace_user_id is in the match
 
             return zone_util::matches()->replace_player(
                 $this->get_user_id(),
@@ -353,10 +369,7 @@ class api
         return $this->respond(function () {
             if (
                 !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
-                (
-                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
-                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($args['match_id']))
-                )
+                    (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match))
             )) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
