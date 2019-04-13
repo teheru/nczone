@@ -43,6 +43,13 @@ const overlayRouting = {
       replacePlayer: null,
       replaceByPlayer: null
     }
+  },
+  MAP_DESCRIPTION: {
+    name: 'MAP_DESCRIPTION',
+    component: View.Components.MapDescriptionOverlay,
+    props: {
+      map: null
+    }
   }
 }
 
@@ -62,7 +69,8 @@ export default () => {
           [overlayRouting.ADD_PAIR_PREVIEW.name]: {},
           [overlayRouting.DRAW_PREVIEW.name]: {},
           [overlayRouting.PLAYER_DETAILS.name]: {},
-          [overlayRouting.REPLACE_PREVIEW.name]: {}
+          [overlayRouting.REPLACE_PREVIEW.name]: {},
+          [overlayRouting.MAP_DESCRIPTION.name]: {}
         }
       },
       match: null, // single match
@@ -422,7 +430,7 @@ export default () => {
         commit('setPastMatches', await api.actively.getPastMatches(page))
       },
 
-      async getInformation ({ commit, dispatch }, { passive }) {
+      async getInformation ({ commit }, { passive }) {
         if (passive) {
           commit('setInformation', await api.passively.getInformation())
         } else {
@@ -436,7 +444,7 @@ export default () => {
         commit('setMeActive')
       },
 
-      async openAddPairPreviewOverlay ({ commit, dispatch }, matchId) {
+      async openAddPairPreviewOverlay ({ commit }, matchId) {
         const payload = await api.actively.addPairPreview(matchId)
         const route = overlayRouting.ADD_PAIR_PREVIEW
         commit('setOverlay', {
@@ -450,7 +458,7 @@ export default () => {
         commit('setMeActive')
       },
 
-      async openPlayerReplacePreviewOverlay ({ commit, dispatch }, userId) {
+      async openPlayerReplacePreviewOverlay ({ commit }, userId) {
         const payload = await api.actively.replacePreview(userId)
         const route = overlayRouting.REPLACE_PREVIEW
         commit('setOverlay', {
@@ -463,7 +471,7 @@ export default () => {
         commit('setMeActive')
       },
 
-      async openPlayerDetailsOverlay ({ state, commit, dispatch }, userId) {
+      async openPlayerDetailsOverlay ({ state, commit }, userId) {
         const route = overlayRouting.PLAYER_DETAILS
         const playerDetails = await api.actively.getPlayerDetails(userId)
         commit('setOverlay', {
@@ -485,6 +493,17 @@ export default () => {
           name: route.name,
           payload: assign(route.props, {
             players: await api.actively.drawPreview()
+          })
+        })
+        commit('setMeActive')
+      },
+
+      async openMapDescriptionOverlay ({ state, commit }, map) {
+        const route = overlayRouting.MAP_DESCRIPTION
+        commit('setOverlay', {
+          name: route.name,
+          payload: assign(route.props, {
+            map: map
           })
         })
         commit('setMeActive')

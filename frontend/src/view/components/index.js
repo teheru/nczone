@@ -16,6 +16,7 @@ import Overlay from './overlay/Overlay'
 import OverlayView from './overlay/OverlayView'
 import PlayerDetails from './overlay/PlayerDetails'
 import ReplacePreview from './overlay/ReplacePreview'
+import MapDescriptionOverlay from './overlay/MapDescriptionOverlay'
 
 export default {
   CivList,
@@ -34,5 +35,6 @@ export default {
   Overlay,
   OverlayView,
   PlayerDetails,
-  ReplacePreview
+  ReplacePreview,
+  MapDescriptionOverlay
 }

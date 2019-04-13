@@ -36,6 +36,12 @@ class match implements \JsonSerializable
         $team2_id = (int)$row['team2_id'];
         $forum_topic_id = (int)$row['forum_topic_id'];
 
+        $map_image_path = zone_util::maps()->get_image_path($map_id);
+        $map_image_url = '';
+        if (\file_exists($map_image_path)) {
+            $map_image_url = generate_board_url() . \substr($map_image_path, 1);
+        }
+
         $entity = new self();
         $entity->match_id = $match_id;
         $entity->draw_time = (int)$row['draw_time'];
@@ -51,7 +57,9 @@ class match implements \JsonSerializable
         ];
         $entity->map = empty($map_id) ? null : [
             'id' => $map_id,
-            'title' => $row['map_name'],
+            'name' => $row['map_name'],
+            'description' => $row['map_description'],
+            'image' => $map_image_url
         ];
         $entity->civs = array_merge(['both' => zone_util::matches()->get_match_civs($match_id, $map_id), 'banned' => zone_util::matches()->get_banned_civs($match_id, $map_id)], zone_util::matches()->get_team_civs($team1_id, $team2_id, $map_id));
         $entity->bets = zone_util::bets()->get_bets($team1_id, $team2_id, $finished ? true : false);

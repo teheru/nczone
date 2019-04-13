@@ -72,6 +72,7 @@
 /* Team table (Team 1 VS Team 2)
 ===================================================================*/
 .zone-match-team-table {
+  z-index: 0;
   margin: 1em 0;
   display: grid;
   grid-template-columns: calc(50% - 20px) 40px calc(50% - 20px);

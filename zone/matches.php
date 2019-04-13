@@ -624,7 +624,8 @@ class matches {
 SELECT 
     t.match_id, 
     t.map_id, 
-    m.map_name, 
+    m.map_name,
+    m.description as map_description,
     t.draw_user_id, 
     t.post_user_id, 
     t.winner_team_id,

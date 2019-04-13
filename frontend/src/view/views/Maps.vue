@@ -16,7 +16,8 @@
               <div class="zone-map-weight" :key="`weight-${mapId}`">{{ maps[mapId].weight }}</div>
             </div>
             <div class="zone-map-civs-info" v-if="showMapId === mapId">
-              <nczone-map-description :mapId="showMapId" :map="maps[showMapId]"></nczone-map-description>
+              <nczone-map-description :map="maps[showMapId]" :viewTable="true" v-if="!mapLoading"></nczone-map-description>
+              <div class="zone-map-civs-table-loading fa fa-spinner" v-else></div>
             </div>
           </div>
         </template>
@@ -61,10 +62,14 @@ export default {
 
     async toggleMap (mapId) {
       this.showMapId = this.showMapId !== mapId ? mapId : 0
+      this.mapLoading = true
+      await this.getMapInfo({ id: this.showMapId })
+      this.mapLoading = false
     },
 
     ...mapActions([
-      'getMaps'
+      'getMaps',
+      'getMapInfo'
     ])
   },
   computed: {
@@ -78,9 +83,7 @@ export default {
       error: false,
       orderedMapIds: [],
       showMapId: 0,
-      loadMap: true,
-      editDescr: false,
-      tempDescription: ''
+      mapLoading: false
     }
   }
 }

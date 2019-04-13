@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div>
     <div v-if="map.description || map.image || canEditMapDescription" class="zone-map-description" @dblclick="editDescription()">
       <label v-if="map.image || canEditMapDescription" for="upload-map-image" class="zone-map-upload-image-label">
         <img v-if="map.image" class="zone-map-upload-image" :src="map.image" />
@@ -13,7 +13,7 @@
       </template>
       <vue-markdown v-else-if="map.description || canEditMapDescription" class="zone-map-description-text">{{ map.description ? map.description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
     </div>
-    <div class="zone-map-civs-table">
+    <div class="zone-map-civs-table" v-if="viewTable">
       <div class="zone-map-civs-table-head">
         <div class="zone-map-civs-table-head-name">{{ $t('NCZONE_CIV') }}</div>
         <div class="zone-map-civs-table-head-multiplier">{{ $t('NCZONE_MULTIPLIER') }}</div>
@@ -33,7 +33,6 @@
       </div>
     </div>
   </div>
-  <div class="zone-map-civs-table-loading fa fa-spinner" v-else></div>
 </template>
 <script>
 import VueMarkdown from 'vue-markdown'
@@ -46,23 +45,13 @@ export default {
     VueMarkdown
   },
   props: [
-    'mapId',
-    'map'
+    'map',
+    'viewTable'
   ],
-  created () {
-    this.fetchData()
-  },
   watch: {
     '$route': 'fetchData'
   },
   methods: {
-    async fetchData () {
-      this.loading = true
-      this.editDescr = false
-      await this.getMapInfo({ id: this.mapId })
-      this.loading = false
-    },
-
     editDescription () {
       if (this.canEditMapDescription) {
         this.tempDescription = this.map.description
@@ -72,7 +61,7 @@ export default {
 
     async saveDescription () {
       this.loading = true
-      await this.saveMapDescription({ id: this.mapId, description: this.tempDescription })
+      await this.saveMapDescription({ id: this.map.id, description: this.tempDescription })
       this.editDescr = false
       this.loading = false
     },
@@ -85,14 +74,12 @@ export default {
       }
       var reader = new FileReader()
       reader.onload = async (p) => {
-        await this.saveMapImage({ id: this.mapId, image: p.target.result })
+        await this.saveMapImage({ id: this.map.id, image: p.target.result })
         this.loading = false
       }
       reader.readAsDataURL(files[0])
     },
-
     ...mapActions([
-      'getMapInfo',
       'saveMapDescription',
       'saveMapImage'
     ])
@@ -104,8 +91,6 @@ export default {
   },
   data () {
     return {
-      loading: true,
-      error: false,
       editDescr: false,
       tempDescription: ''
     }

@@ -21,7 +21,7 @@
 
     <template v-if="match.map">
       <div v-t="'NCZONE_MATCH_MAP'"></div>
-      <div>{{ match.map.title }}</div>
+      <div @click="openMapDescriptionOverlay(match.map)">{{ match.map.name }}</div>
     </template>
 
     <template v-if="haveGlobalCivs">
@@ -119,7 +119,8 @@ export default {
     },
     ...mapActions([
       'postMatchResult',
-      'openAddPairPreviewOverlay'
+      'openAddPairPreviewOverlay',
+      'openMapDescriptionOverlay'
     ])
   },
   computed: {
