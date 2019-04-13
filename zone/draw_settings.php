@@ -96,55 +96,35 @@ class draw_settings {
      */
     public function get_players_map_id(array $user_ids): int
     {
-        $sql = '
-            select
-                sq4.map_id,
-                sum(sq4.time_diff / sq4.max_time_diff) as value
-            from (
-                select
-                    sq3.user_id,
-                    p7.map_id,
-                    sq3.max_time_diff,
-                    ((
-                        select
-                            max(p6.time) as max_time
-                        from
-                            phpbb_zone_player_map p6
-                        where p6.user_id = sq3.user_id
-                    ) - p7.time) * p8.weight as time_diff
-                from (
-                    select
-                        sq2.user_id,
-                        max((sq2.max_time - sq2.time) * sq2.weight) as max_time_diff
-                    from (
-                        select
-                            p1.user_id,
-                            p4.time,
-                            p5.weight,
-                            (
-                                select
-                                    max(p2.time) as max_time
-                                from
-                                    phpbb_zone_player_map p2
-                                where p2.user_id = p1.user_id
-                            ) as max_time
-                        from phpbb_zone_player_map p1
-                        join phpbb_zone_player_map p4 on p4.user_id = p1.user_id
-                        join phpbb_zone_maps p5 on p5.map_id = p4.map_id
-                        where '.$this->db->sql_in_set('p1.user_id', $user_ids).'
-                    ) sq2
-                    group by sq2.user_id
-                ) sq3
-                join phpbb_zone_player_map p7 on p7.user_id = sq3.user_id
-                join phpbb_zone_maps p8 on p8.map_id = p7.map_id
-            ) sq4
-            group by map_id
-            order by value desc;
-        ';
+        $user_maps_indices = [];
+        foreach($user_ids as $user_id) {
+            $user_maps_indices[$user_id] = 0;
+        }
 
-        $map_id = $this->db->get_var($sql) ?: 0;
+        $players_maps = $this->db->get_rows([
+            'SELECT' => 'm.map_id, m.weight, pm.user_id',
+            'FROM' => [$this->db->maps_table => 'm', $this->db->player_map_table => 'pm'],
+            'WHERE' => 'm.map_id = pm.map_id',
+            'ORDER_BY' => 'pm.time DESC',
+        ]);
 
-        return (int)$map_id;
+        $maps_weighted = [];
+
+        foreach($players_maps as $player_map) {
+            $map_id = (int)$player_map['map_id'];
+            $weight = (float)$player_map['weight'];
+            $user_id = (int)$player_map['user_id'];
+
+            if(!array_key_exists($map_id, $maps_weighted)) {
+                $maps_weighted[$map_id] = 0.0;
+            }
+            $maps_weighted[$map_id] += $user_maps_indices[$user_id] * $weight;
+            $user_maps_indices[$user_id]++;
+        }
+
+        asort($maps_weighted);
+        end($maps_weighted);
+        return key($maps_weighted);
     }
 
     public function decide_draw_civs_kind(entity\draw_match $draw_match): string
