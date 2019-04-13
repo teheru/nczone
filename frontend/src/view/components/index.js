@@ -7,6 +7,7 @@ import PlayerArea from './PlayerArea'
 import PlayerGraph from './PlayerGraph'
 import PlayerLoginRow from './PlayerLoginRow'
 import Team from './Team'
+import MapDescription from './MapDescription'
 
 // Overlays
 import AddPairPreview from './overlay/AddPairPreview'
@@ -26,6 +27,7 @@ export default {
   PlayerGraph,
   PlayerLoginRow,
   Team,
+  MapDescription,
 
   AddPairPreview,
   DrawPreview,
