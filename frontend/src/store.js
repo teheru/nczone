@@ -229,6 +229,7 @@ export default () => {
         payload.forEach(map => {
           state.maps[map.id] = Object.assign(state.maps[map.id] || {},
             {
+              'id': map.id,
               'name': map.name,
               'weight': map.weight,
               'description': map.description,
