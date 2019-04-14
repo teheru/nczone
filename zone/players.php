@@ -118,13 +118,13 @@ class players
             );
 
             $this->db->sql_query(
-                'INSERT INTO `' . $this->db->player_map_table . '` (`user_id`, `map_id`, `time`) ' .
-                'SELECT "' . $user_id . '", map_id, "' . time() . '" FROM `' . $this->db->maps_table . '`'
+                'INSERT INTO `' . $this->db->player_map_table . '` (`user_id`, `map_id`, `counter`) ' .
+                'SELECT "' . $user_id . '", map_id, 0 FROM `' . $this->db->maps_table . '`'
             );
 
             $this->db->sql_query(
-                'INSERT INTO `' . $this->db->player_civ_table . '` (`user_id`, `civ_id`, `time`) ' .
-                'SELECT "' . $user_id . '", civ_id, "' . time() . '" FROM `' . $this->db->civs_table . '`'
+                'INSERT INTO `' . $this->db->player_civ_table . '` (`user_id`, `civ_id`, `counter`) ' .
+                'SELECT "' . $user_id . '", civ_id, 0 FROM `' . $this->db->civs_table . '`'
             );
 
             return true;

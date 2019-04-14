@@ -327,7 +327,12 @@ class matches {
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
                 $user_ids = array_merge($user1_ids, $user2_ids);
-                $this->db->update($this->db->player_map_table, ['time' => $draw_time], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id . ' AND `time` < ' . $draw_time);
+                $this->db->update($this->db->player_map_table, ['counter' => 0], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id);
+                $this->db->sql_query('
+                    UPDATE ' . $this->db->player_map_table . ' mp
+                    SET counter = counter + (SELECT weight FROM ' . $this->db->maps_table . ' m WHERE m.map_id = mp.map_id)
+                    WHERE mp.map_id != ' . $map_id . ' AND '. $this->db->sql_in_set('user_id', $user_ids)
+                );
 
                 zone_util::bets()->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {

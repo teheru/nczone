@@ -102,29 +102,26 @@ class draw_settings {
         }
 
         $players_maps = $this->db->get_rows([
-            'SELECT' => 'm.map_id, m.weight, pm.user_id',
+            'SELECT' => 'm.map_id, pm.counter',
             'FROM' => [$this->db->maps_table => 'm', $this->db->player_map_table => 'pm'],
-            'WHERE' => 'm.map_id = pm.map_id',
-            'ORDER_BY' => 'pm.time DESC',
+            'WHERE' => 'm.map_id = pm.map_id AND ' . $this->db->sql_in_set('pm.user_id', $user_ids)
         ]);
 
-        $maps_weighted = [];
+        $maps_counter = [];
 
         foreach($players_maps as $player_map) {
             $map_id = (int)$player_map['map_id'];
-            $weight = (float)$player_map['weight'];
-            $user_id = (int)$player_map['user_id'];
+            $counter = (float)$player_map['counter'];
 
-            if(!array_key_exists($map_id, $maps_weighted)) {
-                $maps_weighted[$map_id] = 0.0;
+            if(!array_key_exists($map_id, $maps_counter)) {
+                $maps_counter[$map_id] = 0.0;
             }
-            $maps_weighted[$map_id] += $user_maps_indices[$user_id] * $weight;
-            $user_maps_indices[$user_id]++;
+            $maps_counter[$map_id] += $counter;
         }
 
-        asort($maps_weighted);
-        end($maps_weighted);
-        return key($maps_weighted);
+        asort($maps_counter);
+        end($maps_counter);
+        return key($maps_counter);
     }
 
     public function decide_draw_civs_kind(entity\draw_match $draw_match): string
