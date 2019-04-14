@@ -79,10 +79,10 @@
   }
 
   .zone-overlay-panel {
-    width: 622px;
+    min-width: 622px;
     position: absolute;
     z-index: 6;
-    top: 25%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
