@@ -12,6 +12,8 @@ class map
     private $weight = .0;
     /** @var string */
     private $description = '';
+    /** @var array */
+    private $match_sizes = [1 => false, 2 => false, 3 => false, 4 => false];
 
     public static function create_by_row(array $row): map
     {
@@ -20,6 +22,12 @@ class map
         $map->name = (string)$row['name'];
         $map->weight = (float)$row['weight'];
         $map->description = $row['description'];
+        $map->match_sizes = [
+            1 => $row['draw_1vs1'],
+            2 => $row['draw_2vs2'],
+            3 => $row['draw_3vs3'],
+            4 => $row['draw_4vs4']
+        ];
         return $map;
     }
 
@@ -41,5 +49,10 @@ class map
     public function get_description(): string
     {
         return $this->description;
+    }
+
+    public function get_match_sizes(): array
+    {
+        return $this->match_sizes;
     }
 }

@@ -188,16 +188,28 @@ class main_module
         $map_id = $request->variable('map_id', '');
 
         if ($request->variable('create_map', '') && phpbb_util::auth()->acl_get(acl::m_zone_create_maps)) {
+            $match_sizes = [
+                1 => $request->variable('map_match_sizes_1vs1', '') === 'on',
+                2 => $request->variable('map_match_sizes_2vs2', '') === 'on',
+                3 => $request->variable('map_match_sizes_3vs3', '') === 'on',
+                4 => $request->variable('map_match_sizes_4vs4', '') === 'on'
+            ];
+
             zone_util::maps()->create_map(
                 $request->variable('map_name', ''),
                 (float)$request->variable('map_weight', 1.0),
-                (int)$request->variable('copy_map_id', 0)
+                (int)$request->variable('copy_map_id', 0),
+                $match_sizes
             );
         } elseif ($request->variable('edit_map', '')) {
             zone_util::maps()->edit_map(map::create_by_row([
                 'id' => (int)$map_id,
                 'name' => $request->variable('map_name', ''),
                 'weight' => (float)$request->variable('map_weight', 1.0),
+                'draw_1vs1' => $request->variable('map_match_sizes_1vs1', '') === 'on',
+                'draw_2vs2' => $request->variable('map_match_sizes_2vs2', '') === 'on',
+                'draw_3vs3' => $request->variable('map_match_sizes_3vs3', '') === 'on',
+                'draw_4vs4' => $request->variable('map_match_sizes_4vs4', '') === 'on'
             ]));
 
             $map_civs = [];
@@ -246,6 +258,11 @@ class main_module
             $template->assign_var('S_MAP_ID', $map->get_id());
             $template->assign_var('S_MAP_NAME', $map->get_name());
             $template->assign_var('S_MAP_WEIGHT', $map->get_weight());
+            $match_sizes = $map->get_match_sizes();
+            $template->assign_var('S_DRAW_FOR_1VS1', $match_sizes[1]);
+            $template->assign_var('S_DRAW_FOR_2VS2', $match_sizes[2]);
+            $template->assign_var('S_DRAW_FOR_3VS3', $match_sizes[3]);
+            $template->assign_var('S_DRAW_FOR_4VS4', $match_sizes[4]);
 
             foreach (zone_util::maps()->get_map_civs($map->get_id()) as $map_civ) {
                 # todo: dont fetch civs one by one in a loop.

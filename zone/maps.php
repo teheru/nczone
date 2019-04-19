@@ -46,7 +46,8 @@ class maps
     public function get_maps(): array
     {
         $rows = $this->db->get_rows([
-            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight, m.description AS description',
+            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight, m.description,
+                         m.draw_1vs1, m.draw_2vs2, m.draw_3vs3, m.draw_4vs4',
             'FROM' => [$this->db->maps_table => 'm'],
             'ORDER_BY' => 'LOWER(name) ASC',
         ]);
@@ -71,7 +72,8 @@ class maps
     public function get_map(int $map_id): entity\map
     {
         $row = $this->db->get_row([
-            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight AS weight',
+            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight,
+                         m.draw_1vs1, m.draw_2vs2, m.draw_3vs3, m.draw_4vs4',
             'FROM' => [$this->db->maps_table => 'm'],
             'WHERE' => 'm.map_id = ' . $map_id
         ]);
@@ -153,10 +155,10 @@ class maps
      * @return string
      * @throws \Throwable
      */
-    public function create_map(string $map_name, float $weight, int $copy_map_id = 0): string
+    public function create_map(string $map_name, float $weight, array $match_sizes, int $copy_map_id = 0): string
     {
         return $this->db->run_txn(function () use ($map_name, $weight, $copy_map_id) {
-            $map_id = $this->insert_map($map_name, $weight);
+            $map_id = $this->insert_map($map_name, $weight, $match_sizes);
 
             if ($copy_map_id) {
                 $this->copy_map_civs($map_id, $copy_map_id);
@@ -169,13 +171,17 @@ class maps
         });
     }
 
-    private function insert_map(string $map_name, float $weight): int
+    private function insert_map(string $map_name, float $weight, array $match_sizes): int
     {
         return $this->db->insert($this->db->maps_table, [
             'map_id' => 0,
             'map_name' => $map_name,
             'weight' => $weight,
-            'description' => ''
+            'description' => '',
+            'draw_1vs1' => $match_sizes[1],
+            'draw_2vs2' => $match_sizes[2],
+            'draw_3vs3' => $match_sizes[3],
+            'draw_4vs4' => $match_sizes[4]
         ]);
     }
 
@@ -207,7 +213,7 @@ class maps
     }
 
     /**
-     * Edits the information (name, weight) of a map
+     * Edits the information (name, weight, match_sizes) of a map
      *
      * @param entity\map $map Information of the map
      *
@@ -215,9 +221,14 @@ class maps
      */
     public function edit_map(entity\map $map): void
     {
+        $match_sizes = $map->get_match_sizes();
         $this->db->update($this->db->maps_table, [
             'map_name' => $map->get_name(),
             'weight' => $map->get_weight(),
+            'draw_1vs1' => $match_sizes[1],
+            'draw_2vs2' => $match_sizes[2],
+            'draw_3vs3' => $match_sizes[3],
+            'draw_4vs4' => $match_sizes[4]
         ], [
             'map_id' => $map->get_id(),
         ]);

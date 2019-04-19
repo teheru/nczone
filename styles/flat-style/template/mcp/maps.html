@@ -45,6 +45,18 @@
                         value="{{ S_MAP_WEIGHT }}" {% else %} value="1.0" {% endif %} />
                 </dd>
             </dl>
+            <dl>
+                <dt>
+                    <label for="map_match_sizes">{{ lang('MCP_MAP_MATCH_SIZES') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_MAP_MATCH_SIZES_HINT') }}</span>
+                </dt>
+                <dd>
+                    {{ lang('MCP_MAP_MATCH_1VS1') }} <input id="map_match_sizes_1vs1" name="map_match_sizes_1vs1" type="checkbox" {% if S_DRAW_FOR_1VS1 %}checked="" {% endif %}/>
+                    {{ lang('MCP_MAP_MATCH_2VS2') }} <input id="map_match_sizes_2vs2" name="map_match_sizes_2vs2" type="checkbox" {% if S_DRAW_FOR_2VS2 %}checked="" {% endif %}/>
+                    {{ lang('MCP_MAP_MATCH_3VS3') }} <input id="map_match_sizes_3vs3" name="map_match_sizes_3vs3" type="checkbox" {% if S_DRAW_FOR_3VS3 %}checked="" {% endif %}/>
+                    {{ lang('MCP_MAP_MATCH_4VS4') }} <input id="map_match_sizes_4vs4" name="map_match_sizes_4vs4" type="checkbox" {% if S_DRAW_FOR_4VS4 %}checked="" {% endif %}/>
+                </dd>
+            </dl>
 
             {% if S_NEW_MAP %}
                 <dl>

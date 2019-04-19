@@ -96,6 +96,9 @@ class draw_settings {
      */
     public function get_players_map_id(array $user_ids): int
     {
+        $match_size = (int)(\count($user_ids) / 2);
+        $draw_for_name = 'draw_' . $match_size . 'vs' . $match_size;
+
         $user_maps_indices = [];
         foreach($user_ids as $user_id) {
             $user_maps_indices[$user_id] = 0;
@@ -104,7 +107,7 @@ class draw_settings {
         $players_maps = $this->db->get_rows([
             'SELECT' => 'm.map_id, pm.counter',
             'FROM' => [$this->db->maps_table => 'm', $this->db->player_map_table => 'pm'],
-            'WHERE' => 'm.map_id = pm.map_id AND ' . $this->db->sql_in_set('pm.user_id', $user_ids)
+            'WHERE' => 'm.map_id = pm.map_id AND m.'. $draw_for_name .' = true AND ' . $this->db->sql_in_set('pm.user_id', $user_ids)
         ]);
 
         $maps_counter = [];
