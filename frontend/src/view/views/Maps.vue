@@ -14,6 +14,7 @@
               </div>
               <div class="zone-map-name" :key="`name-${mapId}`" v-html="maps[mapId].name"></div>
               <div class="zone-map-weight" :key="`weight-${mapId}`">{{ maps[mapId].weight }}</div>
+              <div class="zone-map-percent" :key="`percent-${mapId}`">{{ Math.round(maps[mapId].proportion * 10000) / 100 }}%</div>
             </div>
             <div class="zone-map-civs-info" v-if="showMapId === mapId">
               <nczone-map-description :map="maps[showMapId]" :viewTable="true" v-if="!mapLoading"></nczone-map-description>

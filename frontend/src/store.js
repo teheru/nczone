@@ -232,6 +232,7 @@ export default () => {
               'id': map.id,
               'name': map.name,
               'weight': map.weight,
+              'proportion': map.proportion,
               'description': map.description,
               'image': map.image
             })

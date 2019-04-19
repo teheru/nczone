@@ -611,6 +611,15 @@ class api
     {
         return $this->respond(function () {
             $resp = [];
+
+            $map_weight = [];
+            $total_weights = 0.0;
+            foreach (zone_util::maps()->get_maps() as $map) {
+                $map_id = (int)$map->get_id();
+                $map_weight[$map_id] = (float)$map->get_weight();
+                $total_weights += $map_weight[$map_id];
+            }
+
             foreach (zone_util::maps()->get_maps() as $map) {
                 $image_path = zone_util::maps()->get_image_path($map->get_id());
                 $image_url = '';
@@ -618,14 +627,18 @@ class api
                     $image_url = generate_board_url() . \substr($image_path, 1);
                 }
 
+                $map_id = (int)$map->get_id();
+
                 $resp[] = [
-                    'id' => $map->get_id(),
+                    'id' => $map_id,
                     'name' => $map->get_name(),
-                    'weight' => $map->get_weight(),
+                    'weight' => $map_weight[$map_id],
+                    'proportion' => $map_weight[$map_id] / $total_weights,
                     'description' => $map->get_description(),
                     'image' => $image_url,
                 ];
             }
+
             return $resp;
         }, [
             acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',

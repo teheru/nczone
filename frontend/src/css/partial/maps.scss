@@ -10,7 +10,7 @@
 
     .zone-map-header {
       display: grid;
-      grid-template-columns: calc(5%) calc(35%) calc(60%);
+      grid-template-columns: calc(5%) calc(35%) calc(15%) calc(45%);
 
       padding: 4px 0;
 
@@ -32,6 +32,11 @@
 
       .zone-map-weight {
         grid-column: 3;
+        font-weight: bold;
+      }
+
+      .zone-map-percent {
+        grid-column: 4;
         font-weight: bold;
       }
 
