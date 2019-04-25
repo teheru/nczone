@@ -473,16 +473,19 @@ class players
     {
         $min_time = time() - (int)config::get(config::activity_time) * 60 * 60 * 24;
         $sql = '
-            SELECT
-                user_id,
-                COUNT(*) AS match_count
-            FROM
-                ' . $this->db->match_players_table . ' p
-                INNER JOIN ' . $this->db->match_teams_table . ' t ON p.team_id = t.team_id
-                INNER JOIN ' . $this->db->matches_table . ' m ON m.match_id = t.match_id
-                AND m.post_time > '.$min_time.' AND m.winner_team_id != 0
-            GROUP BY 
-                p.user_id
+            SELECT p.user_id, COALESCE(t.match_count, 0) AS match_count FROM ' . $this->db->players_table . ' p
+            LEFT JOIN (
+                SELECT
+                    mp.user_id,
+                    COUNT(*) AS match_count
+                FROM
+                    ' . $this->db->match_players_table . ' mp
+                    INNER JOIN ' . $this->db->match_teams_table . ' t ON mp.team_id = t.team_id
+                    INNER JOIN ' . $this->db->matches_table . ' m ON m.match_id = t.match_id
+                    AND m.post_time > '.$min_time.' AND m.winner_team_id != 0
+                GROUP BY 
+                    mp.user_id
+            ) t ON p.user_id = t.user_id
             ;
         ';
         foreach ($this->db->get_rows($sql) as $row) {
