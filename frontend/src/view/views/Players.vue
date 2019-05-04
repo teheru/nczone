@@ -7,17 +7,46 @@
       <template v-else="">
         <div v-if="players.length === 0"><span v-t="'NCZONE_NO_ACTIVE_PLAYERS'"></span></div>
         <div v-else="" class="zone-players">
+
           <div class="zone-players-table-idx">#</div>
           <div class="zone-players-table-login" v-if="canModLogin"></div>
-          <div class="zone-players-table-name" @click="setSort('username')" v-t="'NCZONE_TABLE_HEADER_NAME'"></div>
-          <div class="zone-players-table-games" @click="setSort('games')" v-t="'NCZONE_TABLE_HEADER_GAMES'"></div>
-          <div class="zone-players-table-wins" @click="setSort('wins')" v-t="'NCZONE_TABLE_HEADER_WINS'"></div>
-          <div class="zone-players-table-losses" @click="setSort('losses')" v-t="'NCZONE_TABLE_HEADER_LOSSES'"></div>
-          <div class="zone-players-table-winrate" @click="setSort('winrate')" v-t="'NCZONE_TABLE_HEADER_WINRATE'"></div>
-          <div class="zone-players-table-streak" @click="setSort('streak')" v-t="'NCZONE_TABLE_HEADER_STREAK'"></div>
-          <div class="zone-players-table-rating-change" @click="setSort('ratingchange')" v-t="'NCZONE_TABLE_HEADER_RATING_CHANGE'"></div>
-          <div class="zone-players-table-rating" @click="setSort('rating')" v-t="'NCZONE_TABLE_HEADER_RATING'"></div>
-          <div class="zone-players-table-activity" @click="setSort('activity_matches')" v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></div>
+          <div class="zone-players-table-name zone-players-sortable" @click="setSort('username')">
+            <span v-t="'NCZONE_TABLE_HEADER_NAME'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'username'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-games zone-players-sortable" @click="setSort('games')">
+            <span v-t="'NCZONE_TABLE_HEADER_GAMES'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'games'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-wins zone-players-sortable" @click="setSort('wins')">
+            <span v-t="'NCZONE_TABLE_HEADER_WINS'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'wins'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-losses zone-players-sortable" @click="setSort('losses')">
+            <span v-t="'NCZONE_TABLE_HEADER_LOSSES'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'losses'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-winrate zone-players-sortable" @click="setSort('winrate')">
+            <span v-t="'NCZONE_TABLE_HEADER_WINRATE'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'winrate'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-streak zone-players-sortable" @click="setSort('streak')">
+            <span v-t="'NCZONE_TABLE_HEADER_STREAK'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'streak'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-rating-change zone-players-sortable" @click="setSort('ratingchange')">
+            <span v-t="'NCZONE_TABLE_HEADER_RATING_CHANGE'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'ratingchange'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-rating zone-players-sortable" @click="setSort('rating')">
+            <span v-t="'NCZONE_TABLE_HEADER_RATING'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'rating'" :order="sort.order" />
+          </div>
+          <div class="zone-players-table-activity zone-players-sortable" @click="setSort('activity_matches')">
+            <span v-t="'NCZONE_TABLE_HEADER_ACTIVITY'"></span>
+            <nczone-sort-indicator v-if="sort.field === 'activity_matches'" :order="sort.order" />
+          </div>
+
           <template v-for="(player, idx) in players">
             <div class="zone-players-table-idx" :key="`idx-${idx}`">{{ idx+1 }}</div>
             <div class="zone-players-table-kick" :key="`kick-${idx}`" v-if="canModLogin">
@@ -27,12 +56,15 @@
             <div class="zone-players-table-games" :key="`games-${idx}`">{{ player.games || 0 }}</div>
             <div class="zone-players-table-wins" :key="`wins-${idx}`">{{ player.wins || 0 }}</div>
             <div class="zone-players-table-losses" :key="`losses-${idx}`">{{ player.losses || 0 }}</div>
-            <div class="zone-players-table-winrate" :key="`winrate-${idx}`">{{ Math.round(player.winrate) || 0 }}%</div>
-            <div class="zone-players-table-streak" :key="`streak-${idx}`">{{ player.streak || 0 }}</div>
-            <div class="zone-players-table-rating-change" :key="`rating-change-${idx}`">{{ player.ratingchange || 0 }}</div>
+            <div class="zone-players-table-winrate" :key="`winrate-${idx}`" :class="{'zone-players-table-winrate-positive': (Math.round(player.winrate) || 0) > 50, 'zone-players-table-winrate-negative': (Math.round(player.winrate) || 0) < 50}">{{ Math.round(player.winrate) || 0 }}%</div>
+            <div class="zone-players-table-streak" :key="`streak-${idx}`" :class="{'zone-players-table-streak-positive': (player.streak || 0) > 0, 'zone-players-table-streak-negative': (player.streak || 0) < 0}">{{ player.streak || 0 }}</div>
+            <div class="zone-players-table-rating-change" :key="`rating-change-${idx}`" :class="{'zone-players-table-rating-change-positive': (player.ratingchange || 0) > 0, 'zone-players-table-rating-change-negative': (player.ratingchange || 0) < 0}">{{ player.ratingchange || 0 }}</div>
             <div class="zone-players-table-rating" :key="`rating-${idx}`">{{ player.rating || 0 }}</div>
-            <div class="zone-players-table-activity" :key="`activity-${idx}`">{{ player.activity || 0 }}</div>
+            <div class="zone-players-table-activity" :key="`activity-${idx}`">
+              <nczone-activiy :activity="player.activity || 0" />
+            </div>
           </template>
+
           <div class="zone-players-table-idx">Ø</div>
           <div class="zone-players-table-login" v-if="canModLogin"></div>
           <div class="zone-players-table-name" v-t="'NCZONE_TABLE_FOOTER_AVERAGE'"></div>
@@ -43,7 +75,9 @@
           <div class="zone-players-table-streak">{{ avgStreak }}</div>
           <div class="zone-players-table-rating-change">{{ avgRatingChange }}</div>
           <div class="zone-players-table-rating">{{ avgRating }}</div>
-          <div class="zone-players-table-activity">{{ avgActivity }}</div>
+          <div class="zone-players-table-activity">
+            <nczone-activiy :activity="avgActivity" />
+          </div>
         </div>
       </template>
     </div>
@@ -52,9 +86,12 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { avg } from '@/functions'
+import NczoneActiviy from "../components/Activity";
+import NczoneSortIndicator from "../components/SortIndicator";
 
 export default {
   name: 'nczone-players-table',
+  components: {NczoneSortIndicator, NczoneActiviy},
   computed: {
     players () {
       const p = this.allPlayers
