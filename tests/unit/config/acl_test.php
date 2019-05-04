@@ -41,6 +41,7 @@ class acl_test extends TestCase
                     ['permission.add', ['m_zone_manage_maps', true]],
                     ['permission.add', ['m_zone_create_maps', true]],
                     ['permission.add', ['m_zone_draw_match', true]],
+                    ['permission.add', ['m_zone_block_draw', true]],
                     ['permission.add', ['m_zone_login_players', true]],
                     ['permission.add', ['m_zone_change_match', true]],
 
@@ -50,6 +51,7 @@ class acl_test extends TestCase
                     ['permission.permission_set', ['nC Zone Mod', 'm_zone_manage_maps']],
                     ['permission.permission_set', ['nC Zone Mod', 'm_zone_create_maps']],
                     ['permission.permission_set', ['nC Zone Mod', 'm_zone_draw_match']],
+                    ['permission.permission_set', ['nC Zone Mod', 'm_zone_block_draw']],
                     ['permission.permission_set', ['nC Zone Mod', 'm_zone_login_players']],
                     ['permission.permission_set', ['nC Zone Mod', 'm_zone_change_match']],
                 ],
@@ -66,6 +68,7 @@ class acl_test extends TestCase
                     ['permission.add', ['u_zone_view_matches', true]],
                     ['permission.add', ['u_zone_view_bets', true]],
                     ['permission.add', ['u_zone_bet', true]],
+                    ['permission.add', ['u_zone_view_maps', true]],
 
                     ['permission.permission_set', ['ROLE_USER_STANDARD', 'u_zone_view_info'],],
                     ['permission.permission_set', ['ROLE_USER_STANDARD', 'u_zone_login'],],
@@ -75,6 +78,7 @@ class acl_test extends TestCase
                     ['permission.permission_set', ['ROLE_USER_STANDARD', 'u_zone_view_matches'],],
                     ['permission.permission_set', ['ROLE_USER_STANDARD', 'u_zone_view_bets'],],
                     ['permission.permission_set', ['ROLE_USER_STANDARD', 'u_zone_bet'],],
+                    ['permission.permission_set', ['ROLE_USER_STANDARD', 'u_zone_view_maps'],],
                 ],
                 $permissions = acl::PERMISSIONS_USER_STANDARD,
                 $role = acl::ROLE_USER_STANDARD,
