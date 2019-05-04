@@ -94,7 +94,7 @@ class draw_settings {
      *
      * @return int
      */
-    public function get_players_map_id(array $user_ids): int
+    private function get_players_map_id(array $user_ids): int
     {
         $match_size = (int)(\count($user_ids) / 2);
         $draw_for_name = 'draw_' . $match_size . 'vs' . $match_size;
@@ -127,7 +127,7 @@ class draw_settings {
         return key($maps_counter);
     }
 
-    public function decide_draw_civs_kind(entity\draw_match $draw_match): string
+    private function decide_draw_civs_kind(entity\draw_match $draw_match): string
     {
         if ($draw_match->get_min_max_diff() >= config::get(config::draw_player_civs)) {
             return self::PLAYER_CIVS;
@@ -140,7 +140,7 @@ class draw_settings {
         return self::MATCH_CIVS;
     }
 
-    protected function draw_players_civs(
+    private function draw_players_civs(
         int $map_id,
         array $user_ids,
         int $num_civs,
@@ -204,7 +204,7 @@ class draw_settings {
         return [$force_civ ?: [], $best_civs];
     }
 
-    public function draw_match_civs(
+    private function draw_match_civs(
         int $map_id,
         entity\draw_match $draw_match,
         int $extra_civs = 4
@@ -223,7 +223,7 @@ class draw_settings {
         return civs::sort_by_multiplier($drawed_civs);
     }
 
-    public function draw_teams_civs(
+    private function draw_teams_civs(
         int $map_id,
         entity\draw_match $draw_match,
         int $extra_civs = 2
@@ -390,7 +390,7 @@ class draw_settings {
         ];
     }
 
-    public function draw_player_civs(
+    private function draw_player_civs(
         int $map_id,
         entity\draw_match $draw_match,
         int $num_civs = 3
