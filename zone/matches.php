@@ -674,7 +674,7 @@ SQL;
         return \array_map(
             function(array $row) use ($with_description): entity\match
             {
-                return entity\match::create_by_row_finished($row, $with_description);
+                return entity\match::create_by_row_unfinished($row, $with_description);
             },
             $rows
         );
