@@ -659,27 +659,39 @@ SQL;
         return $this->db->get_rows($sql, $limit, $offset);
     }
 
-    public function get_match(int $match_id): entity\match
+    public function get_match(int $match_id, bool $with_description = True): entity\match
     {
         $rows = $this->load_match_rows(["t.match_id = {$match_id}"]);
         if (empty($rows)) {
             return null;
         }
-        return entity\match::create_by_row_finished($rows[0]);
+        return entity\match::create_by_row_finished($rows[0], $with_description);
     }
 
-    public function get_all_rmatches(): array
+    public function get_all_rmatches(bool $with_description = True): array
     {
         $rows = $this->load_match_rows(['t.post_time = 0'], ['t.draw_time DESC']);
-        return \array_map([match::class, 'create_by_row_unfinished'], $rows);
+        return \array_map(
+            function(array $row) use ($with_description): entity\match
+            {
+                return entity\match::create_by_row_finished($row, $with_description);
+            },
+            $rows
+        );
     }
 
-    public function get_pmatches(int $page = 0): array
+    public function get_pmatches(int $page = 0, bool $with_description = True): array
     {
         $limit = (int)config::get(config::pmatches_page_size);
         $offset = $page * $limit;
         $rows = $this->load_match_rows(['t.post_time > 0'], ['t.post_time DESC'], $offset, $limit);
-        return \array_map([entity\match::class, 'create_by_row_finished'], $rows);
+        return \array_map(
+            function(array $row) use ($with_description): entity\match
+            {
+                return entity\match::create_by_row_finished($row, $with_description);
+            },
+            $rows
+        );
     }
 
     public function get_pmatches_total_pages(): int

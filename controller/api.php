@@ -437,7 +437,7 @@ class api
     public function rmatches(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->get_all_rmatches();
+            return zone_util::matches()->get_all_rmatches(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps));
         });
     }
 
@@ -445,7 +445,10 @@ class api
     {
         return $this->respond(function ($args) {
             return [
-                'items' => zone_util::matches()->get_pmatches($args['page']),
+                'items' => zone_util::matches()->get_pmatches(
+                    $args['page'],
+                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps)
+                ),
                 'total_pages' => zone_util::matches()->get_pmatches_total_pages()
             ];
         }, [], [
@@ -456,7 +459,10 @@ class api
     public function match(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
-            return zone_util::matches()->get_match($args['match_id']);
+            $match = zone_util::matches()->get_match(
+                $args['match_id'],
+                acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps)
+            );
         }, [], [
             'match_id' => $match_id,
         ]);
