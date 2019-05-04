@@ -459,7 +459,7 @@ class api
     public function match(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
-            $match = zone_util::matches()->get_match(
+            return zone_util::matches()->get_match(
                 $args['match_id'],
                 acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps)
             );
