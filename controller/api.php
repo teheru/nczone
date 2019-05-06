@@ -58,7 +58,7 @@ class api
 
         try {
             foreach ($acl as $perm => $err) {
-                if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), $perm)) {
+                if (!$this->has_permission($perm)) {
                     throw new ForbiddenError($err);
                 }
             }
@@ -231,11 +231,11 @@ class api
     public function draw_preview(): JsonResponse
     {
         return $this->respond(function () {
-            if ((int)config::get(config::draw_blocked_until) < time()) {
-                return zone_util::matches()->start_draw_process($this->get_user_id());
-            } else {
+            if ((int) config::get(config::draw_blocked_until) >= time()) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
+
+            return zone_util::matches()->start_draw_process($this->get_user_id());
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -254,11 +254,11 @@ class api
     public function draw_confirm(): JsonResponse
     {
         return $this->respond(function () {
-            if ((int)config::get(config::draw_blocked_until) < time()) {
-                return zone_util::matches()->draw($this->get_user_id());
-            } else {
+            if ((int) config::get(config::draw_blocked_until) >= time()) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
+
+            return zone_util::matches()->draw($this->get_user_id());
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -269,13 +269,7 @@ class api
         return $this->respond(function ($args) {
             $match_id = zone_util::players()->get_running_match_id($args['replace_user_id']);
             // todo: check here if replace_user_id is in the match
-            if (
-                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
-                (
-                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
-                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($match_id))
-                )
-            )) {
+            if (!$this->can_change_match($match_id)) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             if (!self::is_activated($args['replace_user_id'])) {
@@ -297,10 +291,7 @@ class api
     public function replace_cancel(): JsonResponse
     {
         return $this->respond(function () {
-            if (
-                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
-                    (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match))
-            )) {
+            if (!$this->can_change_any_match()) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             zone_util::matches()->deny_draw_process($this->get_user_id());
@@ -313,13 +304,7 @@ class api
         return $this->respond(function ($args) {
             $match_id = zone_util::players()->get_running_match_id($args['replace_user_id']);
             // todo: check here if replace_user_id is in the match
-            if (
-                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
-                (
-                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
-                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($match_id))
-                )
-            )) {
+            if (!$this->can_change_match($match_id)) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             if (!self::is_activated($args['replace_user_id'])) {
@@ -337,13 +322,7 @@ class api
     public function add_pair_preview(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
-            if (
-                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
-                (
-                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
-                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($args['match_id']))
-                )
-            )) {
+            if (!$this->can_change_match($args['match_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             $players_loggedin = zone_util::matches()->start_draw_process($this->get_user_id());
@@ -354,24 +333,20 @@ class api
             $player2_id = $players_loggedin[1]->get_id();
 
             $players_match = zone_util::matches()->get_match_players($args['match_id']);
-            if($players_match->length() === 8) {
+            if ($players_match->length() === 8) {
                 throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
             }
-            $additionalPlayers = [
+            return [
                 'add_player1' => zone_util::players()->get_player($player1_id),
                 'add_player2' => zone_util::players()->get_player($player2_id)
             ];
-            return $additionalPlayers;
         }, [], ['match_id' => $match_id]);
     }
 
     public function add_pair_cancel(): JsonResponse
     {
         return $this->respond(function () {
-            if (
-                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
-                    (acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match))
-            )) {
+            if (!$this->can_change_any_match()) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             zone_util::matches()->deny_draw_process($this->get_user_id());
@@ -382,17 +357,11 @@ class api
     public function add_pair_confirm(int $match_id): JsonResponse
     {
         return $this->respond(function ($args) {
-            if (
-                !(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::m_zone_change_match) ||
-                (
-                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_change_match) &&
-                    ($this->get_user_id() == zone_util::matches()->get_draw_user_id($args['match_id']))
-                )
-            )) {
+            if (!$this->can_change_match($args['match_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
             $players_match = zone_util::matches()->get_match_players($args['match_id']);
-            if($players_match->length() === 8) {
+            if ($players_match->length() === 8) {
                 throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
             }
 
@@ -438,17 +407,26 @@ class api
     public function rmatches(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->get_all_rmatches(acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps));
+            return zone_util::matches()->get_all_rmatches($this->can_view_maps());
         });
     }
 
+    /**
+     * Returns the list of past matches
+     *
+     * @route /nczone/api/pmatches
+     *
+     * @param int $page
+     *
+     * @return JsonResponse
+     */
     public function pmatches(int $page = 0): JsonResponse
     {
         return $this->respond(function ($args) {
             return [
                 'items' => zone_util::matches()->get_pmatches(
                     $args['page'],
-                    acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps)
+                    $this->can_view_maps()
                 ),
                 'total_pages' => zone_util::matches()->get_pmatches_total_pages()
             ];
@@ -462,7 +440,7 @@ class api
         return $this->respond(function ($args) {
             return zone_util::matches()->get_match(
                 $args['match_id'],
-                acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_maps)
+                $this->can_view_maps()
             );
         }, [], [
             'match_id' => $match_id,
@@ -538,7 +516,7 @@ class api
     public function information(): JsonResponse
     {
         return $this->respond(function () {
-            if (!acl::has_permission($this->auth, self::is_activated($this->get_user_id()), acl::u_zone_view_info)) {
+            if (!$this->has_permission(acl::u_zone_view_info)) {
                 return [];
             }
             return zone_util::misc()->get_information_posts();
@@ -715,6 +693,62 @@ class api
         ]);
     }
 
+    /**
+     * Determine if the user is allowed to change matches in general.
+     *
+     * @return bool
+     */
+    private function can_change_any_match(): bool
+    {
+        return $this->can_change_match(0);
+    }
+
+    /**
+     * Determine if the user is allowed to change a certain match.
+     *
+     * @param int $match_id
+     *
+     * @return bool
+     */
+    private function can_change_match(int $match_id): bool
+    {
+        if ($this->has_permission(acl::m_zone_change_match)) {
+            return true;
+        }
+
+        if ($this->has_permission(acl::u_zone_change_match)) {
+            return !$match_id || $this->get_user_id() === zone_util::matches()->get_draw_user_id($match_id);
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if the user is allowed to view map details.
+     *
+     * @return bool
+     */
+    private function can_view_maps(): bool
+    {
+        return $this->has_permission(acl::u_zone_view_maps);
+    }
+
+    /**
+     * Determine if the user has a certain permission.
+     *
+     * @param string $permission
+     *
+     * @return bool
+     */
+    private function has_permission(string $permission): bool
+    {
+        return acl::has_permission(
+            $this->auth,
+            self::is_activated($this->get_user_id()),
+            $permission
+        );
+    }
+
     private static function get_request_data(): array
     {
         return \json_decode(\file_get_contents('php://input'), true) ?: [];
@@ -727,10 +761,7 @@ class api
 
     private static function is_activated(int $user_id): bool
     {
-        static $is_activated;
-        if ($is_activated === null) {
-            $is_activated = [];
-        }
+        static $is_activated = [];
         if (!isset($is_activated[$user_id])) {
             $is_activated[$user_id] = zone_util::players()->is_activated($user_id);
         }
