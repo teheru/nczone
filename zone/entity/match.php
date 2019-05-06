@@ -18,17 +18,17 @@ class match implements \JsonSerializable
     private $players;
     private $forum_topic_id;
 
-    public static function create_by_row_finished(array $row, bool $with_description = True): match
+    public static function create_by_row_finished(array $row, bool $with_description): match
     {
         return self::_create_by_row($row, true, $with_description);
     }
 
-    public static function create_by_row_unfinished(array $row, bool $with_description = True): match
+    public static function create_by_row_unfinished(array $row, bool $with_description): match
     {
         return self::_create_by_row($row, false, $with_description);
     }
 
-    private static function _create_by_row(array $row, bool $finished, bool $with_description = True): match
+    private static function _create_by_row(array $row, bool $finished, bool $with_description): match
     {
         $match_id = (int)$row['match_id'];
         $map_id = (int)$row['map_id'];
@@ -60,7 +60,13 @@ class match implements \JsonSerializable
         }
 
         $entity->map = empty($map_id) ? null : $map_array;
-        $entity->civs = array_merge(['both' => zone_util::matches()->get_match_civs($match_id, $map_id), 'banned' => zone_util::matches()->get_banned_civs($match_id, $map_id)], zone_util::matches()->get_team_civs($team1_id, $team2_id, $map_id));
+        $entity->civs = array_merge(
+            [
+                'both' => zone_util::matches()->get_match_civs($match_id, $map_id),
+                'banned' => zone_util::matches()->get_banned_civs($match_id, $map_id),
+            ],
+            zone_util::matches()->get_team_civs($team1_id, $team2_id, $map_id)
+        );
         $entity->bets = zone_util::bets()->get_bets($team1_id, $team2_id, $finished ? true : false);
         $entity->players = zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id);
         $entity->forum_topic_id = $forum_topic_id;
