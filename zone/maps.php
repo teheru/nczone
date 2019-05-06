@@ -159,13 +159,14 @@ class maps
      *
      * @param string $map_name Name of the new map
      * @param float $weight Drawing weight
+     * @param array $match_sizes
      * @param int $copy_map_id id of a map to be copied
      * @return string
      * @throws \Throwable
      */
     public function create_map(string $map_name, float $weight, array $match_sizes, int $copy_map_id = 0): string
     {
-        return $this->db->run_txn(function () use ($map_name, $weight, $copy_map_id) {
+        return $this->db->run_txn(function () use ($map_name, $weight, $match_sizes, $copy_map_id) {
             $map_id = $this->insert_map($map_name, $weight, $match_sizes);
 
             if ($copy_map_id) {
