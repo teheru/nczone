@@ -195,14 +195,13 @@ class match_players_list
 
     private static function get_mean_rating(match_players_list ...$players_lists): int
     {
-       $value = 0;
-       $number = 0;
-       foreach ($players_lists as $list) {
-        $value += $list->get_total_rating();
-        $number += $list->length();
-       }
-       if ($number == 0) return 0;
-       else return $value / ($number);
+        $value = 0;
+        $number = 0;
+        foreach ($players_lists as $list) {
+            $value += $list->get_total_rating();
+            $number += $list->length();
+        }
+        return $number === 0 ? 0 : ($value / $number);
     }
 
     public static function get_abs_rating_variance(match_players_list ...$players_lists): int

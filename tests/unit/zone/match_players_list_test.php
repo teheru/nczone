@@ -39,39 +39,27 @@ class match_players_list_test extends TestCase
     /**
      * @dataProvider get_max_rating_data_provider
      */
-    public function test_get_max_rating(array $player_lists, int $expected): void
+    public function test_get_max_rating(array $players, int $expected): void
     {
-        $list = new match_players_list;
-        foreach ($player_lists as $player) {
-            $list->add($player);
-        }
-
+        $list = match_players_list::from_match_players($players);
         $this->assertSame($expected, $list->get_max_rating());
     }
 
     /**
      * @dataProvider get_min_rating_data_provider
      */
-    public function test_get_min_rating(array $player_lists, int $expected): void
+    public function test_get_min_rating(array $players, int $expected): void
     {
-        $list = new match_players_list;
-        foreach ($player_lists as $player) {
-            $list->add($player);
-        }
-
+        $list = match_players_list::from_match_players($players);
         $this->assertSame($expected, $list->get_min_rating());
     }
 
     /**
      * @dataProvider get_abs_rating_variance_data_provider
      */
-    public function test_get_abs_rating_variance(array $player_lists, int $expected): void
+    public function test_get_abs_rating_variance(array $players, int $expected): void
     {
-        $list = new match_players_list;
-        foreach ($player_lists as $player) {
-            $list->add($player);
-        }
-
+        $list = match_players_list::from_match_players($players);
         $this->assertSame($expected, match_players_list::get_abs_rating_variance($list));
     }
 

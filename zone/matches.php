@@ -259,7 +259,6 @@ class matches {
                     $winner
                 );
 
-
                 $match_civ_ids = $this->db->get_col([
                     'SELECT' => 't.civ_id',
                     'FROM' => [$this->db->match_civs_table => 't'],
@@ -477,12 +476,8 @@ class matches {
             'FROM' => [$this->db->match_players_table => 't'],
             'WHERE' => $this->db->sql_in_set('t.team_id', $team_ids)
         ]);
-
-        $list = new entity\match_players_list;
-        foreach ($rows as $r) {
-            $list->add(entity\match_player::create_by_row($r));
-        }
-        return $list;
+        $match_players = entity\match_player::array_by_rows($rows);
+        return entity\match_players_list::from_match_players($match_players);
     }
 
     private function get_match_points_by_match_size(
@@ -670,34 +665,27 @@ SQL;
     public function get_all_rmatches(bool $with_description = True): array
     {
         $rows = $this->load_match_rows(['t.post_time = 0'], ['t.draw_time DESC']);
-        return \array_map(
-            function(array $row) use ($with_description): entity\match
-            {
-                return entity\match::create_by_row_unfinished($row, $with_description);
-            },
-            $rows
-        );
+        return entity\match::array_by_rows_unfinished($rows, $with_description);
     }
 
     public function get_pmatches(int $page = 0, bool $with_description = True): array
     {
-        $limit = (int)config::get(config::pmatches_page_size);
+        $limit = $this->get_pmatches_page_size();
         $offset = $page * $limit;
         $rows = $this->load_match_rows(['t.post_time > 0'], ['t.post_time DESC'], $offset, $limit);
-        return \array_map(
-            function(array $row) use ($with_description): entity\match
-            {
-                return entity\match::create_by_row_finished($row, $with_description);
-            },
-            $rows
-        );
+        return entity\match::array_by_rows_finished($rows, $with_description);
     }
 
     public function get_pmatches_total_pages(): int
     {
         $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE post_time > 0');
-        $page_size = (int)config::get(config::pmatches_page_size);
+        $page_size = $this->get_pmatches_page_size();
         return ceil($num_matches / $page_size);
+    }
+
+    private function get_pmatches_page_size(): int
+    {
+        return (int) config::get(config::pmatches_page_size);
     }
 
     public function get_match_civs(int $match_id, int $map_id): array
@@ -746,7 +734,7 @@ SQL;
 
     public function get_banned_civs(int $match_id, int $map_id): array
     {
-        $free_pick_civ_id = strval(config::get(config::free_pick_civ_id));
+        $free_pick_civ_id = (string) config::get(config::free_pick_civ_id);
         $banned_civs = \array_map(function($row) {
             return [
                 'id' => (int)$row['id'],
@@ -861,11 +849,8 @@ SQL;
             'WHERE' => 'd.draw_id = ' . $draw_id . ' AND d.user_id = p.user_id',
             'ORDER_BY' => 'd.logged_in ASC'
         ]);
-        $list = new entity\match_players_list;
-        foreach ($rows as $row) {
-            $list->add(entity\match_player::create_by_row($row));
-        }
-        return $list;
+        $match_players = entity\match_player::array_by_rows($rows);
+        return entity\match_players_list::from_match_players($match_players);
     }
 
     /**

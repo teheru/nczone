@@ -18,6 +18,32 @@ class match implements \JsonSerializable
     private $players;
     private $forum_topic_id;
 
+    /**
+     * @param array $rows
+     * @param bool $with_description
+     *
+     * @return match[]
+     */
+    public static function array_by_rows_unfinished(array $rows, bool $with_description): array
+    {
+        return \array_map(static function(array $row) use ($with_description) {
+            return self::create_by_row_unfinished($row, $with_description);
+        }, $rows);
+    }
+
+    /**
+     * @param array $rows
+     * @param bool $with_description
+     *
+     * @return match[]
+     */
+    public static function array_by_rows_finished(array $rows, bool $with_description): array
+    {
+        return \array_map(static function(array $row) use ($with_description) {
+            return self::create_by_row_finished($row, $with_description);
+        }, $rows);
+    }
+
     public static function create_by_row_finished(array $row, bool $with_description): match
     {
         return self::_create_by_row($row, true, $with_description);
