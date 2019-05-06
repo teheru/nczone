@@ -618,22 +618,24 @@ class api
         return $this->respond(function () {
             $resp = [];
 
+            $maps = zone_util::maps()->get_maps();
+
             $map_weight = [];
             $total_weights = 0.0;
-            foreach (zone_util::maps()->get_maps() as $map) {
-                $map_id = (int)$map->get_id();
-                $map_weight[$map_id] = (float)$map->get_weight();
+            foreach ($maps as $map) {
+                $map_id = $map->get_id();
+                $map_weight[$map_id] = $map->get_weight();
                 $total_weights += $map_weight[$map_id];
             }
 
-            foreach (zone_util::maps()->get_maps() as $map) {
+            foreach ($maps as $map) {
                 $image_path = zone_util::maps()->get_image_path($map->get_id());
                 $image_url = '';
                 if (\file_exists($image_path)) {
                     $image_url = generate_board_url() . \substr($image_path, 1);
                 }
 
-                $map_id = (int)$map->get_id();
+                $map_id = $map->get_id();
 
                 $resp[] = [
                     'id' => $map_id,
