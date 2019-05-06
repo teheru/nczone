@@ -2,10 +2,11 @@
 
 namespace eru\nczone\controller;
 
-use eru\nczone\config\config;
 use eru\nczone\config\acl;
+use eru\nczone\config\config;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
+use eru\nczone\zone\entity\map;
 use eru\nczone\zone\error\BadRequestError;
 use eru\nczone\zone\error\ForbiddenError;
 use phpbb\auth\auth;
@@ -616,38 +617,23 @@ class api
     public function maps(): JsonResponse
     {
         return $this->respond(function () {
-            $resp = [];
-
             $maps = zone_util::maps()->get_maps();
 
-            $map_weight = [];
             $total_weights = 0.0;
             foreach ($maps as $map) {
-                $map_id = $map->get_id();
-                $map_weight[$map_id] = $map->get_weight();
-                $total_weights += $map_weight[$map_id];
+                $total_weights += $map->get_weight();
             }
 
-            foreach ($maps as $map) {
-                $image_path = zone_util::maps()->get_image_path($map->get_id());
-                $image_url = '';
-                if (\file_exists($image_path)) {
-                    $image_url = generate_board_url() . \substr($image_path, 1);
-                }
-
-                $map_id = $map->get_id();
-
-                $resp[] = [
-                    'id' => $map_id,
+            return \array_map(static function (map $map) use ($total_weights) {
+                return [
+                    'id' => $map->get_id(),
                     'name' => $map->get_name(),
-                    'weight' => $map_weight[$map_id],
-                    'proportion' => $map_weight[$map_id] / $total_weights,
+                    'weight' => $map->get_weight(),
+                    'proportion' => $map->get_weight() / $total_weights,
                     'description' => $map->get_description(),
-                    'image' => $image_url,
+                    'image' => zone_util::maps()->get_image_url($map->get_id()),
                 ];
-            }
-
-            return $resp;
+            }, $maps);
         }, [
             acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
         ]);

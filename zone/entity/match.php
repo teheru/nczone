@@ -36,12 +36,6 @@ class match implements \JsonSerializable
         $team2_id = (int)$row['team2_id'];
         $forum_topic_id = (int)$row['forum_topic_id'];
 
-        $map_image_path = zone_util::maps()->get_image_path($map_id);
-        $map_image_url = '';
-        if (\file_exists($map_image_path)) {
-            $map_image_url = generate_board_url() . \substr($map_image_path, 1);
-        }
-
         $entity = new self();
         $entity->match_id = $match_id;
         $entity->draw_time = (int)$row['draw_time'];
@@ -62,7 +56,7 @@ class match implements \JsonSerializable
         ];
         if ($with_description) {
             $map_array['description'] = $row['map_description'];
-            $map_array['image'] = $map_image_url;
+            $map_array['image'] = zone_util::maps()->get_image_url($map_id);
         }
 
         $entity->map = empty($map_id) ? null : $map_array;

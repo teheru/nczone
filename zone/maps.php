@@ -141,9 +141,17 @@ class maps
         return false;
     }
 
-    public function get_image_path(int $map_id): string
+    private function get_image_path(int $map_id): string
     {
         return phpbb_util::nczone_path() . config::map_images_path . 'map_' . $map_id . '.png';
+    }
+
+    public function get_image_url(int $map_id): string
+    {
+        $map_image_path = $this->get_image_path($map_id);
+        return \file_exists($map_image_path)
+            ? generate_board_url() . \substr($map_image_path, 1)
+            : '';
     }
 
     /**
