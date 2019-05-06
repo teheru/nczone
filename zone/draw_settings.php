@@ -99,11 +99,6 @@ class draw_settings {
         $match_size = (int)(\count($user_ids) / 2);
         $draw_for_name = 'draw_' . $match_size . 'vs' . $match_size;
 
-        $user_maps_indices = [];
-        foreach($user_ids as $user_id) {
-            $user_maps_indices[$user_id] = 0;
-        }
-
         $players_maps = $this->db->get_rows([
             'SELECT' => 'm.map_id, pm.counter',
             'FROM' => [$this->db->maps_table => 'm', $this->db->player_map_table => 'pm'],

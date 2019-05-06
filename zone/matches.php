@@ -14,7 +14,6 @@ namespace eru\nczone\zone;
 use eru\nczone\config\config;
 use eru\nczone\utility\db;
 use eru\nczone\utility\zone_util;
-use eru\nczone\zone\entity\match;
 use eru\nczone\zone\error\InvalidDrawIdError;
 use eru\nczone\zone\error\NoDrawPlayersError;
 
