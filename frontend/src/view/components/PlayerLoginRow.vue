@@ -1,5 +1,5 @@
 <template>
-  <div class="zone-player-login-row" :class="activityClass">
+  <div class="zone-player-login-row" :class="activityClass" :title="idleSince">
     <div class="zone-player-table-idx">{{ idx + 1 }}.</div>
     <div class="zone-player-table-kick" v-if="canModLogin">
       <button class="zone-mini-button" @click="modLogout(player.id)">x</button>
@@ -10,6 +10,8 @@
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { pad } from '@/functions'
+
 export default {
   name: 'nczone-player-login-row',
   props: {
@@ -64,6 +66,14 @@ export default {
         }
       }
       return `zone-player-activity-${breakpoints.length}`
+    },
+    idleSince () {
+      const diff = this.t - this.player.last_activity
+
+      const hours = parseInt(diff / 3600, 10)
+      const min = parseInt(diff % 3600 / 60, 10)
+      const sec = parseInt(diff % 3600 % 60, 10)
+      return pad(hours) + ':' + pad(min) + ':' + pad(sec)
     }
   }
 }
