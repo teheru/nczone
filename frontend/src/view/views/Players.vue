@@ -61,7 +61,7 @@
             <div class="zone-players-table-rating-change" :key="`rating-change-${idx}`" :class="{'zone-players-table-rating-change-positive': (player.ratingchange || 0) > 0, 'zone-players-table-rating-change-negative': (player.ratingchange || 0) < 0}">{{ player.ratingchange || 0 }}</div>
             <div class="zone-players-table-rating" :key="`rating-${idx}`">{{ player.rating || 0 }}</div>
             <div class="zone-players-table-activity" :key="`activity-${idx}`">
-              <nczone-activiy :activity="player.activity || 0" />
+              <nczone-activiy :activity="player.activity || 0" :activity_matches="player.activity_matches || 0" />
             </div>
           </template>
 
