@@ -14,6 +14,18 @@
 @import "partial/rules.scss";
 @import "partial/map-description.scss";
 
+.zone-sortable {
+  cursor: pointer;
+}
+
+.color-negative {
+  color: $negative_color;
+}
+
+.color-positive {
+  color: $positive_color;
+}
+
 .zone-container {
   margin-top: 20px;
   margin-bottom: 20px;

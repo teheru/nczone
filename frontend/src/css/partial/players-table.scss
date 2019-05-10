@@ -46,19 +46,3 @@
 .zone-players-table-activity {
   grid-column: 11;
 }
-
-.zone-players-table-streak-positive,
-.zone-players-table-rating-change-positive,
-.zone-players-table-winrate-positive {
-  color: $positive_color;
-}
-
-.zone-players-table-streak-negative,
-.zone-players-table-rating-change-negative,
-.zone-players-table-winrate-negative {
-  color: $negative_color;
-}
-
-.zone-players-sortable {
-  cursor: pointer;
-}
