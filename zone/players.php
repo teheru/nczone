@@ -58,8 +58,8 @@ class players
                 p.bets_loss AS bets_loss,
                 p.activity_matches
             FROM
-                ' . $this->db->players_table . ' p
-                INNER JOIN ' . $this->db->users_table . ' u 
+                ' . $this->db->users_table . ' u
+                LEFT JOIN ' . $this->db->players_table . ' p  
                 ON u.user_id = p.user_id
                 
                 LEFT JOIN ' . $this->db->session_table . ' s 

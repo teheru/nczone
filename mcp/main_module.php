@@ -120,11 +120,11 @@ class main_module
             $template->assign_var('USER_ID', $user_id);
 
             $player = zone_util::players()->get_player((int)$user_id);
+            $template->assign_var('USERNAME', $player->get_username());
             if ($player->is_activated()) {
                 $template->assign_var('S_EDIT_PLAYER', true);
 
                 $logged_in = $player->get_logged_in();
-                $template->assign_var('USERNAME', $player->get_username());
                 $template->assign_var('PLAYER_RATING', $player->get_rating());
                 $template->assign_var('PLAYER_LOGGED_IN_DATE', $logged_in ? date('Y-m-d', $logged_in) : '');
                 $template->assign_var('PLAYER_LOGGED_IN_TIME', $logged_in ? date('H:i:s', $logged_in) : '');
