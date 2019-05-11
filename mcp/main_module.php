@@ -76,7 +76,7 @@ class main_module
         if ($user_id == '') {
             // why is there no dependency injection for mcp?
             $db = new db($GLOBALS['db'], $GLOBALS['table_prefix']);
-            $username = $request->variable('username', '');
+            $username = $request->variable('username', '', true);
             $user_id = (int)$db->get_var([
                 'SELECT' => 'user_id',
                 'FROM' => [USERS_TABLE => 'u'],
