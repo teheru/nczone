@@ -12,3 +12,12 @@ export const assign = (source, source2) => {
   }
   return obj
 }
+
+export const sort = (arr, sort) => {
+  return arr.sort((a, b) => {
+    if (a[sort.field] === b[sort.field]) {
+      return 0
+    }
+    return (a[sort.field] > b[sort.field] ? 1 : -1) * sort.order
+  })
+}
