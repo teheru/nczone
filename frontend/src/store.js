@@ -300,7 +300,7 @@ export default () => {
         } else {
           state.sort.order *= -1
         }
-        if (order !== 0) {
+        if (order === -1 || order === 1) {
           state.sort.order = order
         }
       }
