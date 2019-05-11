@@ -5,7 +5,7 @@
 </template>
 <script>
 export default {
-  name: 'nczone-activiy',
+  name: 'nczone-activity',
   props: {
     activity: Number,
     activity_matches: Number

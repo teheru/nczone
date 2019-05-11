@@ -60,7 +60,7 @@
             <div class="zone-players-table-rating-change" :key="`rating-change-${idx}`" :class="{'color-positive': (player.ratingchange || 0) > 0, 'color-negative': (player.ratingchange || 0) < 0}">{{ player.ratingchange || 0 }}</div>
             <div class="zone-players-table-rating" :key="`rating-${idx}`">{{ player.rating || 0 }}</div>
             <div class="zone-players-table-activity" :key="`activity-${idx}`">
-              <nczone-activiy :activity="player.activity || 0" :activity_matches="player.activity_matches || 0" />
+              <nczone-activity :activity="player.activity || 0" :activity_matches="player.activity_matches || 0" />
             </div>
           </template>
 
@@ -75,7 +75,7 @@
           <div class="zone-players-table-rating-change">{{ avgRatingChange }}</div>
           <div class="zone-players-table-rating">{{ avgRating }}</div>
           <div class="zone-players-table-activity">
-            <nczone-activiy :activity="avgActivity" />
+            <nczone-activity :activity="avgActivity" />
           </div>
         </div>
       </template>
@@ -85,14 +85,14 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { avg, sort } from '@/functions'
-import NczoneActiviy from '../components/Activity'
+import NczoneActivity from '../components/Activity'
 import NczoneSortIndicator from '../components/SortIndicator'
 
 export default {
   name: 'nczone-players-table',
   components: {
     NczoneSortIndicator,
-    NczoneActiviy
+    NczoneActivity
   },
   computed: {
     players () {
