@@ -303,13 +303,13 @@ class players
      */
     public function get_logged_in(): array
     {
-        return $this->get_players(['logged_in' => true]);
+        return $this->get_players(['logged_in' => true], ['order_by' => 'logged_in', 'how' => 'ASC']);
     }
 
     /**
      * Gets the user id, name and rating of all players
      *
-     * @param int $min_matches Minimum count of activity matches that the returned players must have.
+     * @param int $min_activity_matches Minimum count of activity matches that the returned players must have.
      * @return entity\player[]
      */
     public function get_all(int $min_activity_matches = 0): array
@@ -317,7 +317,7 @@ class players
         return $this->get_players(['min_activity_matches' => $min_activity_matches]);
     }
 
-    private function get_players(array $filter): array
+    private function get_players(array $filter, array $order_by = []): array
     {
         $where = [];
         if (isset($filter['logged_in']) && $filter['logged_in']) {
@@ -330,6 +330,14 @@ class players
 
         if (isset($filter['min_activity_matches'])) {
             $where[] = 'p.activity_matches >= ' . (int)$filter['min_activity_matches'];
+        }
+
+        $order = '';
+        if ($order_by) {
+            $order = 'ORDER BY ' . $order_by['order_by'];
+            if (isset($order_by['how'])) {
+                $order .= ' ' . $order_by['how'];
+            }
         }
 
         $rows = $this->db->get_rows('
@@ -362,6 +370,7 @@ class players
                 '.(empty($where) ? '1=1' : implode(' AND ', $where)).'
             GROUP BY
                 p.user_id
+            ' . $order . '
             ;
         ');
         return array_map([entity\player::class, 'create_by_row'], $rows);
