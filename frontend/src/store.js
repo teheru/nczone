@@ -6,7 +6,7 @@ import acl from '@/acl'
 import * as api from './api'
 import * as timer from './timer'
 import * as routes from './routes'
-import { assign } from '@/functions'
+import { assign, sort } from '@/functions'
 
 const overlayRouting = {
   ADD_PAIR_PREVIEW: {
@@ -73,6 +73,10 @@ export default () => {
           [overlayRouting.MAP_DESCRIPTION.name]: {}
         }
       },
+      sort: {
+        field: '',
+        order: -1
+      },
       match: null, // single match
       drawBlockedTime: 0,
       players: [],
@@ -97,9 +101,9 @@ export default () => {
       can: (s) => (permission) => acl.can(s.me, permission),
       overlayComponent: (s) => (overlayRouting[s.overlay.name] || {}).component || null,
       overlayPayload: s => s.overlay.payload[s.overlay.name],
-      players: (s) => s.players,
+      players: (s) => sort(s.players, s.sort),
       maps: (s) => s.maps,
-      bets: (s) => s.bets,
+      bets: (s) => sort(s.bets, s.sort),
       me: (s) => s.me,
       loggedInPlayers: (s) => s.players.filter(p => p.logged_in > 0).sort((a, b) => {
         if (a.logged_in === b.logged_in) {
@@ -160,7 +164,8 @@ export default () => {
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
       match: (s) => s.match,
-      timer: (s) => s.timer
+      timer: (s) => s.timer,
+      sort: (s) => s.sort
     },
     mutations: {
       init (state, { me, i18n }) {
@@ -287,6 +292,13 @@ export default () => {
         state.overlay.name = name
         if (name) {
           state.overlay.payload[name] = payload
+        }
+      },
+      setSort (state, field) {
+        if (state.sort.field !== field) {
+          state.sort.field = field
+        } else {
+          state.sort.order *= -1
         }
       }
     },
@@ -590,6 +602,10 @@ export default () => {
         const lang = state.i18n.locale === 'en' ? 'de' : 'en'
         api.actively.setLang(lang) // async language set
         commit('setLang', lang)
+      },
+
+      setSort ({ commit }, field) {
+        commit('setSort', field)
       }
     }
   })

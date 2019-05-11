@@ -14,7 +14,7 @@
 @import "partial/rules.scss";
 @import "partial/map-description.scss";
 
-.zone-sortable {
+.zone-clickable {
   cursor: pointer;
 }
 
@@ -138,7 +138,13 @@
   text-align: center;
 }
 
-.zone-players-table-idx {
-  padding: 1px 0;
+.zone-table-row {
+  &:nth-child(2n) {
+    background: darken($base_light_bg, 5);
+  }
+
+  > div {
+    padding: 2px 0;
+  }
 }
 

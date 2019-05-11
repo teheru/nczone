@@ -1,3 +1,4 @@
+import Activity from './Activity'
 import CivList from './CivList'
 import Csv from './Csv'
 import Information from './Information'
@@ -6,6 +7,8 @@ import Navigation from './Navigation'
 import PlayerArea from './PlayerArea'
 import PlayerGraph from './PlayerGraph'
 import PlayerLoginRow from './PlayerLoginRow'
+import SortIndicator from './SortIndicator'
+import TableHeaderCol from './TableHeaderCol'
 import Team from './Team'
 import MapDescription from './MapDescription'
 
@@ -19,6 +22,7 @@ import ReplacePreview from './overlay/ReplacePreview'
 import MapDescriptionOverlay from './overlay/MapDescriptionOverlay'
 
 export default {
+  Activity,
   CivList,
   Csv,
   Information,
@@ -27,6 +31,8 @@ export default {
   PlayerArea,
   PlayerGraph,
   PlayerLoginRow,
+  SortIndicator,
+  TableHeaderCol,
   Team,
   MapDescription,
 

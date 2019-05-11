@@ -3,46 +3,20 @@
   grid-auto-flow: dense;
 }
 
-.zone-players-table-idx {
-  grid-column: 1;
+.zone-table-row {
+  grid-column: 1 / -1;
+  display: grid;
 }
 
-.zone-players-table-login {
-  grid-column: 2;
+.zone-players {
+  .zone-table-row {
+    grid-template-columns: .5fr 3fr repeat(8, 1fr);
+  }
 }
 
-.zone-players-table-name {
-  grid-column: 3;
+.zone-players.zone-players-mod {
+  .zone-table-row {
+    grid-template-columns: .5fr .5fr 3fr repeat(8, 1fr);
+  }
 }
 
-.zone-players-table-games {
-  grid-column: 4;
-}
-
-.zone-players-table-wins {
-  grid-column: 5;
-}
-
-.zone-players-table-losses {
-  grid-column: 6;
-}
-
-.zone-players-table-winrate {
-  grid-column: 7;
-}
-
-.zone-players-table-streak {
-  grid-column: 8;
-}
-
-.zone-players-table-rating-change {
-  grid-column: 9;
-}
-
-.zone-players-table-rating {
-  grid-column: 10;
-}
-
-.zone-players-table-activity {
-  grid-column: 11;
-}
