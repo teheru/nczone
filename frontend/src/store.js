@@ -294,11 +294,14 @@ export default () => {
           state.overlay.payload[name] = payload
         }
       },
-      setSort (state, field) {
+      setSort (state, { field, order }) {
         if (state.sort.field !== field) {
           state.sort.field = field
         } else {
           state.sort.order *= -1
+        }
+        if (order !== 0) {
+          state.sort.order = order
         }
       }
     },
@@ -604,8 +607,8 @@ export default () => {
         commit('setLang', lang)
       },
 
-      setSort ({ commit }, field) {
-        commit('setSort', field)
+      setSort ({ commit }, { field, order }) {
+        commit('setSort', { field, order })
       }
     }
   })

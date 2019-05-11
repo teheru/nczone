@@ -95,7 +95,7 @@ export default {
   },
   created () {
     this.fetchData()
-    this.setSort('rating')
+    this.setSort({ field: 'rating', order: -1 })
   },
   watch: {
     '$route': 'fetchData'

@@ -34,7 +34,7 @@ export default {
   },
   methods: {
     onSortClick () {
-      this.setSort(this.sortField)
+      this.setSort({ field: this.sortField })
     },
     ...mapActions([
       'setSort'

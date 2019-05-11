@@ -61,7 +61,7 @@ export default {
   },
   created () {
     this.fetchData()
-    this.setSort('bet_quota')
+    this.setSort({ field: 'bet_quota', order: -1 })
   },
   watch: {
     '$route': 'fetchData'
