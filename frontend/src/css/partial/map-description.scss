@@ -1,10 +1,9 @@
 .zone-map-description {
-  padding: 0 1em;
-  padding-bottom: 1em;
+  padding: 0 1em 1em 1em;
 
   margin: 1em;
 
-  background-color: darken($base_light_bg, 8);
+  background-color: $base_dark_bg;
 
   overflow-y: hidden;
 
@@ -32,33 +31,19 @@
 }
 
 .zone-map-civs-table {
-  margin: 1em;
-  margin-top: 2em;
+  margin: 2em 1em 1em 1em;
 
-  $dark_rows: darken($base_light_bg, 8);
-
-  .zone-map-civs-table-head {
-    background-color: $dark_rows;
-    font-weight: bold;
-  }
-
-  .zone-map-civs-table-row:nth-child(odd) {
-    background-color: $dark_rows;
-  }
-
-  .zone-map-civs-table-head, .zone-map-civs-table-row {
+  .zone-table-row {
     display: grid;
     grid-template-columns: calc(41%) calc(20%) calc(13%) calc(13%) calc(13%);
 
-    text-align: center;
+    > div {
+      text-align: center;
 
-    .zone-map-civs-table-name {
-      padding-left: 1rem;
-      text-align: left;
-    }
-
-    .zone-map-civs-table-force-draw, .zone-map-civs-table-prevent-draw, .zone-map-civs-table-both-teams {
-      padding-top: 3px;
+      &:first-child {
+        padding-left: 1rem;
+        text-align: left;
+      }
     }
 
     .fa-check {
@@ -80,9 +65,5 @@
   .zone-content {
     max-height: 60vh;
     overflow-y: auto;
-  }
-
-  .zone-replace-player {
-    font-weight: bold;
   }
 }

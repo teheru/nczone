@@ -25,4 +25,4 @@ $block_border_radius: 0;
 $active_link_color: #dc6500;
 $menu_separator_color: $active_link_color;
 
-$dark_rows: darken($base_light_bg, 8);
+$base_dark_bg: darken($base_light_bg, 8);

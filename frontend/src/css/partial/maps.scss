@@ -4,8 +4,7 @@
   }
 
   .zone-map-container {
-    margin-bottom: 1em;
-    margin: 0 1em;
+    margin: 0 1em 0 1em;
     border: 2px solid $base_color;
 
     .zone-map-header {
@@ -38,39 +37,6 @@
       .zone-map-percent {
         grid-column: 4;
         font-weight: bold;
-      }
-
-      .zone-map-civs-table-head {
-        background-color: $dark_rows;
-        font-weight: bold;
-      }
-
-      .zone-map-civs-table-row:nth-child(odd) {
-        background-color: $dark_rows;
-      }
-
-      .zone-map-civs-table-head, .zone-map-civs-table-row {
-        display: grid;
-        grid-template-columns: calc(41%) calc(20%) calc(13%) calc(13%) calc(13%);
-
-        text-align: center;
-
-        .zone-map-civs-table-name {
-          padding-left: 1rem;
-          text-align: left;
-        }
-
-        .zone-map-civs-table-force-draw, .zone-map-civs-table-prevent-draw, .zone-map-civs-table-both-teams {
-          padding-top: 3px;
-        }
-
-        .fa-check {
-          color: $positive_color;
-        }
-
-        .fa-times {
-          color: $negative_color;
-        }
       }
     }
   }

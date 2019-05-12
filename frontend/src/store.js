@@ -82,7 +82,8 @@ export default () => {
       players: [],
       statistics: [],
       bets: [],
-      maps: {},
+      maps: [],
+      mapCivInfo: {},
       runningMatches: [],
       pastMatches: {
         items: [],
@@ -102,8 +103,10 @@ export default () => {
       overlayComponent: (s) => (overlayRouting[s.overlay.name] || {}).component || null,
       overlayPayload: s => s.overlay.payload[s.overlay.name],
       players: (s) => sort(s.players, s.sort),
-      maps: (s) => s.maps,
-      bets: (s) => sort(s.bets, s.sort),
+      maps: (s, g) => sort(g.mapsWithCivInfo, s.sort),
+      mapsWithCivInfo: (s) => s.maps.map(map => Object.assign({}, map, { civInfo: s.mapCivInfo[map.id] })),
+      bets: (s, g) => sort(g.betsEnriched, s.sort),
+      betsEnriched: (s) => s.bets.map(bet => Object.assign({}, bet, { bet_skill: (bet.bets_won * 3 - bet.bets_loss * 2) })),
       me: (s) => s.me,
       loggedInPlayers: (s) => s.players.filter(p => p.logged_in > 0).sort((a, b) => {
         if (a.logged_in === b.logged_in) {
@@ -231,20 +234,10 @@ export default () => {
         state.bets = payload
       },
       setMaps (state, payload) {
-        payload.forEach(map => {
-          state.maps[map.id] = Object.assign(state.maps[map.id] || {},
-            {
-              'id': map.id,
-              'name': map.name,
-              'weight': map.weight,
-              'proportion': map.proportion,
-              'description': map.description,
-              'image': map.image
-            })
-        })
+        state.maps = payload
       },
-      setMapCivInfo (state, { id, civInfo }) {
-        state.maps[id].civInfo = civInfo
+      setMapCivInfo (state, { mapId, civInfo }) {
+        state.mapCivInfo = Object.assign({}, state.mapCivInfo, { [mapId]: civInfo })
       },
       setMatch (state, payload) {
         state.match = payload
@@ -406,11 +399,9 @@ export default () => {
         commit('setMaps', await api.actively.getMaps())
       },
 
-      async getMapInfo ({ state, commit }, { id }) {
-        if (id > 0) {
-          if (!('civInfo' in state.maps[id])) {
-            commit('setMapCivInfo', { id: id, civInfo: await api.actively.getMapCivs(id) })
-          }
+      async getMapInfo ({ state, commit }, { mapId }) {
+        if (mapId > 0 && typeof state.mapCivInfo[mapId] === 'undefined') {
+          commit('setMapCivInfo', { mapId, civInfo: await api.actively.getMapCivs(mapId) })
         }
       },
 

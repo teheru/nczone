@@ -8,7 +8,7 @@
 export default {
   name: 'nczone-sort-indicator',
   props: {
-    order: Number,
-  },
+    order: Number
+  }
 }
 </script>

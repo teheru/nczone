@@ -1,5 +1,6 @@
 @import "partial/activity.scss";
 @import "partial/block.scss";
+@import "partial/button.scss";
 @import "partial/past-matches.scss";
 @import "partial/players-table.scss";
 @import "partial/bets-table.scss";
@@ -7,15 +8,23 @@
 @import "partial/player-details.scss";
 @import "partial/menu.scss";
 @import "partial/match.scss";
+@import "partial/overlay.scss";
 @import "partial/player-area.scss";
 @import "partial/draw-preview.scss";
 @import "partial/replace-preview.scss";
 @import "partial/add-pair-preview.scss";
 @import "partial/rules.scss";
+@import "partial/table.scss";
 @import "partial/map-description.scss";
 
 .zone-clickable {
   cursor: pointer;
+}
+
+.zone-link {
+  @extend .zone-clickable;
+  text-decoration: underline;
+  color: $active_link_color;
 }
 
 .color-negative {
@@ -67,84 +76,3 @@
   list-style: decimal;
   padding-left: 1.8em;
 }
-
-.zone-overlay {
-  position: fixed;
-  z-index: 5;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: $overlay_bg;
-
-  .zone-title-bar {
-    display: grid;
-
-    .zone-title {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .zone-close-button {
-      grid-column: 2;
-      grid-row: 1;
-    }
-  }
-
-  .zone-overlay-panel {
-    min-width: 622px;
-    position: absolute;
-    z-index: 6;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-}
-
-.zone-button, .zone-mini-button, .zone-close-button {
-  border: solid 1px lighten($input_bg, 25);
-  background: $input_bg;
-  color: $input_fg;
-  padding: 2px 4px;
-  cursor: pointer;
-
-  &:hover {
-    background: darken($input_bg, 10);
-    border-color: lighten($input_bg, 15);
-  }
-
-  &:disabled {
-    color: $input_fg_disabled;
-    background: $input_bg_disabled;
-    background-image: none;
-    cursor: not-allowed;
-  }
-}
-
-.zone-mini-button {
-  padding: 0 2px;
-  font-size: 12px;
-}
-
-.zone-close-button {
-  margin-left: auto;
-  margin-right: 0;
-  margin-bottom: 5px;
-  padding: 0;
-
-  width: 1.2rem;
-  height: 1.2rem;
-
-  text-align: center;
-}
-
-.zone-table-row {
-  &:nth-child(2n) {
-    background: darken($base_light_bg, 5);
-  }
-
-  > div {
-    padding: 2px 0;
-  }
-}
-

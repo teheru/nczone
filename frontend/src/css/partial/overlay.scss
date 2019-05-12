@@ -1,0 +1,32 @@
+.zone-overlay {
+  position: fixed;
+  z-index: 5;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $overlay_bg;
+
+  .zone-title-bar {
+    display: grid;
+
+    .zone-title {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .zone-close-button {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+
+  .zone-overlay-panel {
+    min-width: 622px;
+    position: absolute;
+    z-index: 6;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
