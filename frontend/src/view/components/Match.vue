@@ -21,7 +21,8 @@
 
     <template v-if="match.map">
       <div v-t="'NCZONE_MATCH_MAP'"></div>
-      <div class="zone-link" @click="openMapDescription(match.map)">{{ match.map.name }}</div>
+      <div v-if="isSingle">{{ match.map.name }}</div>
+      <div v-else class="zone-link" @click="openMapDescription(match.map)">{{ match.map.name }}</div>
     </template>
 
     <template v-if="haveGlobalCivs">
@@ -153,6 +154,7 @@ export default {
     },
     ...mapGetters([
       'me',
+      'isSingle',
       'timer',
       'canModPost',
       'canAddPairMod',

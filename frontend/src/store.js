@@ -167,6 +167,8 @@ export default () => {
       informationIndex: (s) => s.information.index,
       playerById: (s) => (id) => s.players.find(p => p.id === id),
       match: (s) => s.match,
+      mode: (s) => s.match ? 'single' : 'default',
+      isSingle: (s, g) => g.mode === 'single',
       timer: (s) => s.timer,
       sort: (s) => s.sort
     },
