@@ -40,6 +40,10 @@
     > div {
       text-align: center;
 
+      &.fa {
+        padding-top: 3px;
+      }
+
       &:first-child {
         padding-left: 1rem;
         text-align: left;
