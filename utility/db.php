@@ -45,8 +45,10 @@ class db
     public $match_team_civs_table;
     /** @var string */
     public $draw_process_table;
-    /** @var string string */
+    /** @var string */
     public $draw_players_table;
+    /** @var string */
+    public $user_settings_table;
 
     public function __construct(driver_interface $db, string $table_prefix)
     {
@@ -72,6 +74,7 @@ class db
         $this->match_team_civs_table = $table_prefix . 'zone_match_team_civs';
         $this->draw_process_table = $table_prefix . 'zone_draw_process';
         $this->draw_players_table = $table_prefix . 'zone_draw_players';
+        $this->user_settings_table = $table_prefix . 'zone_user_settings';
     }
 
     /**

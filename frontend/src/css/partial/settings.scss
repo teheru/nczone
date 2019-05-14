@@ -1,0 +1,22 @@
+.user-settings-table {
+  display: grid;
+  grid-template-columns: 75% 25%;
+  grid-column-gap: 1em;
+  grid-row-gap: 1em;
+
+  margin: 1em;
+
+  .setting-label {
+    .setting-title {
+      font-weight: bold;
+    }
+
+    .setting-description {
+      font-size: 90%;
+    }
+  }
+}
+
+.save-settings {
+  text-align: center;
+}

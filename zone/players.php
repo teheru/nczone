@@ -12,6 +12,7 @@
 namespace eru\nczone\zone;
 
 use eru\nczone\config\config;
+use eru\nczone\config\user_settings;
 use eru\nczone\utility\db;
 use eru\nczone\utility\zone_util;
 
@@ -126,6 +127,13 @@ class players
                 'INSERT INTO `' . $this->db->player_civ_table . '` (`user_id`, `civ_id`, `time`) ' .
                 'SELECT "' . $user_id . '", civ_id, "' . time() . '" FROM `' . $this->db->civs_table . '`'
             );
+
+            foreach (user_settings::SETTINGS as $setting => $default_value) {
+                $this->db->sql_query(
+                    'INSERT INTO `' . $this->db->user_settings_table . '` (`user_id`, `setting`, `value`) ' .
+                    'VALUES (' . $user_id . ', "' . $setting . '", "' . $default_value . '")'
+                );
+            }
 
             return true;
         });
@@ -715,5 +723,32 @@ SQL;
                 'value' => (int) $row['value'],
             ];
         }, $this->db->get_rows($sql));
+    }
+
+    public function get_settings(int $user_id)
+    {
+        $rows = $this->db->get_rows('
+            select
+                s.setting,
+                s.value
+            from ' . $this->db->user_settings_table . ' s
+            where s.user_id = ' . $user_id
+        );
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row['setting']] = $row['value'];
+        }
+        return $result;
+    }
+
+    public function set_setting(int $user_id, string $setting, string $value) {
+        $this->db->update(
+            $this->db->user_settings_table,
+            ['value' => $value],
+            [
+                'user_id' => $user_id,
+                'setting' => '"' . $setting . '"'
+            ]
+        );
     }
 }

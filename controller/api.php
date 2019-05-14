@@ -4,6 +4,7 @@ namespace eru\nczone\controller;
 
 use eru\nczone\config\acl;
 use eru\nczone\config\config;
+use eru\nczone\config\user_settings;
 use eru\nczone\utility\phpbb_util;
 use eru\nczone\utility\zone_util;
 use eru\nczone\zone\entity\map;
@@ -89,15 +90,56 @@ class api
     public function me(): JsonResponse
     {
         return $this->respond(function () {
+            $user_id = $this->get_user_id();
             return [
-                'id' => $this->get_user_id(),
+                'id' => $user_id,
                 'sid' => $this->user->session_id,
                 'lang' => $this->user->data['user_lang'],
                 'permissions' => acl::all_user_permissions(
                     $this->auth,
-                    self::is_activated($this->get_user_id())
+                    self::is_activated($user_id)
                 ),
+                'settings' => zone_util::players()->get_settings($user_id)
             ];
+        });
+    }
+
+    public function me_get_settings(): JsonResponse
+    {
+        return $this->respond(function () {
+            $user_id = $this->get_user_id();
+            return zone_util::players()->get_settings($user_id);
+        });
+    }
+
+
+    /**
+     * Sets a user settings
+     *
+     * @route /nczone/api/me/settings
+     *
+     * @return JsonResponse
+     */
+    public function me_set_settings(): JsonResponse
+    {
+        return $this->respond(function () {
+            $data = self::get_request_data()['settings'];
+
+            foreach ($data as $setting => $value) {
+                if (!array_key_exists($setting, user_settings::SETTINGS)) {
+                    return ['error' => 'SETTING_NOT_FOUND'];
+                }
+                if (!preg_match(user_settings::SETTINGS[$setting]['pattern'], $value)) {
+                    return ['error' => 'VALUE_NOT_VALID'];
+                }
+            }
+
+            $user_id = $this->get_user_id();
+            foreach ($data as $setting => $value) {
+                zone_util::players()->set_setting($user_id, $setting, $value);
+            }
+
+            return ['success'];
         });
     }
 

@@ -61,7 +61,8 @@ export default () => {
       me: {
         id: 0,
         sid: '',
-        permissions: []
+        permissions: [],
+        settings: []
       },
       overlay: {
         name: false,
@@ -177,6 +178,11 @@ export default () => {
         state.i18n.locale = me.lang
 
         api.setSid(state.me.sid)
+      },
+      syncSettings (state, { settings }) {
+        state.me.settings = {
+          view_mchat: settings.view_mchat === '1'
+        }
       },
       setLang (state, payload) {
         state.i18n.locale = payload
@@ -315,6 +321,7 @@ export default () => {
             me: payload.me,
             i18n: payload.i18n
           })
+          commit('syncSettings', { settings: payload.me.settings })
 
           dispatch('getInformation', { passive: true })
           dispatch('getLoggedInPlayers', { passive: true })
@@ -323,6 +330,15 @@ export default () => {
 
           dispatch('poll')
         }
+      },
+
+      async syncSettings ({ commit }) {
+        commit('syncSettings', { settings: api.passively.getMeSettings() })
+      },
+
+      async setSettings ({ state, commit }, settings) {
+        settings.view_mchat = settings.view_mchat ? '1' : '0'
+        await api.actively.setMeSettings(settings)
       },
 
       async poll ({ dispatch, state }) {

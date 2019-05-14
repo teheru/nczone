@@ -145,7 +145,10 @@
       "NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT": "Nicht erlaubt Ergebnis zu posten.",
       "NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT": "Nicht erlaubt das Ergebnis von jemand anderem zu posten.",
       "NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER": "Kein aktivierter Spieler.",
-      "NCZONE_NO_BETTING_PLAYERS": "Keine Wetten."
+      "NCZONE_NO_BETTING_PLAYERS": "Keine Wetten.",
+      "NCZONE_SETTINGS_VIEW_MCHAT": "mChat anzeigen",
+      "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Hier kannst du einstellen ob der mChat unter der Zone angezeigt werden soll. Wenn du mChat hier ausstellst, kannst du ihn weiterhin über den mChat Menüpunkt (siehe oben) erreichen.",
+      "NCZONE_SAVE_SETTINGS": "Speichern"
     },
     "common": {
       "NCZONE": "nC Zone",
@@ -458,7 +461,10 @@
       "NCZONE_REASON_NOT_ALLOWED_TO_POST_RESULT": "Not allowed to post match results.",
       "NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT": "Not allowed to post someone else's match results.",
       "NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER": "Not an activated player.",
-      "NCZONE_NO_BETTING_PLAYERS": "No bets."
+      "NCZONE_NO_BETTING_PLAYERS": "No bets.",
+      "NCZONE_SETTINGS_VIEW_MCHAT": "view mChat",
+      "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Configure if the mChat should be shown below the zone. If you deactive mChat here, you can still reach it in the menu above.",
+      "NCZONE_SAVE_SETTINGS": "Save"
     },
     "common": {
       "NCZONE": "nC Zone",
