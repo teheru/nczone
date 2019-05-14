@@ -333,7 +333,7 @@ export default () => {
       },
 
       async syncSettings ({ commit }) {
-        commit('syncSettings', { settings: api.passively.getMeSettings() })
+        commit('syncSettings', { settings: await api.passively.getMeSettings() })
       },
 
       async setSettings ({ state, commit }, settings) {
