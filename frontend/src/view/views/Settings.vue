@@ -2,8 +2,8 @@
   <div class="zone-settings">
     <div class="zone-title" v-t="'NCZONE_SETTINGS'"></div>
     <div class="zone-content">
-      <div class="loading" v-if="loading" v-t="'NCZONE_LOADING'"></div>
-      <div class="error" v-else-if="error" v-t="'NCZONE_ERROR_LOADING'"></div>
+      <div v-if="loading" class="loading" v-t="'NCZONE_LOADING'"></div>
+      <div v-else-if="error" class="error" v-t="'NCZONE_ERROR_LOADING'"></div>
       <div v-else>
         <div class="user-settings-table">
           <div class="setting-label">
@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="save-settings">
-          <button class="zone-button" @click="saveSettings" v-t="'NCZONE_SAVE_SETTINGS'"></button>
+          <button class="zone-button" @click="saveData" v-t="'NCZONE_SAVE_SETTINGS'"></button>
         </div>
       </div>
     </div>
@@ -31,19 +31,12 @@ export default {
       settings: {
         view_mchat: true
       },
-
-      loading: true,
+      loading: false,
       error: false
     }
   },
-  watch: {
-    'me.settings'(val) {
-      this.settings = val
-    }
-  },
   async created () {
-    await this.syncSettings()
-    this.loading = false
+    await this.fetchData()
   },
   computed: {
     ...mapGetters([
@@ -51,15 +44,31 @@ export default {
     ])
   },
   methods: {
-    async saveSettings () {
+    async saveData () {
       this.loading = true
-      await this.setSettings(this.settings)
-      await this.syncSettings()
-      this.loading = false
+      try {
+        await this.saveSettings(this.settings)
+        this.settings = this.me.settings
+      } catch (error) {
+        this.error = true
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchData () {
+      this.loading = true
+      try {
+        await this.loadSettings()
+        this.settings = this.me.settings
+      } catch (error) {
+        this.error = true
+      } finally {
+        this.loading = false
+      }
     },
     ...mapActions([
-      'syncSettings',
-      'setSettings'
+      'loadSettings',
+      'saveSettings'
     ])
   }
 }

@@ -114,7 +114,7 @@ class api
 
 
     /**
-     * Sets a user settings
+     * Sets a user settings. Returns the new settings.
      *
      * @route /nczone/api/me/settings
      *
@@ -139,7 +139,7 @@ class api
                 zone_util::players()->set_setting($user_id, $setting, $value);
             }
 
-            return ['success'];
+            return zone_util::players()->get_settings($user_id);
         });
     }
 

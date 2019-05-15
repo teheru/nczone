@@ -179,7 +179,7 @@ export default () => {
 
         api.setSid(state.me.sid)
       },
-      syncSettings (state, { settings }) {
+      setSettings (state, { settings }) {
         state.me.settings = {
           view_mchat: settings.view_mchat === '1'
         }
@@ -321,7 +321,7 @@ export default () => {
             me: payload.me,
             i18n: payload.i18n
           })
-          commit('syncSettings', { settings: payload.me.settings })
+          commit('setSettings', { settings: payload.me.settings })
 
           dispatch('getInformation', { passive: true })
           dispatch('getLoggedInPlayers', { passive: true })
@@ -332,13 +332,16 @@ export default () => {
         }
       },
 
-      async syncSettings ({ commit }) {
-        commit('syncSettings', { settings: await api.passively.getMeSettings() })
+      async loadSettings ({ commit }) {
+        const settings = await api.passively.getMeSettings()
+        commit('setSettings', { settings })
       },
 
-      async setSettings ({ state, commit }, settings) {
-        settings.view_mchat = settings.view_mchat ? '1' : '0'
-        await api.actively.setMeSettings(settings)
+      async saveSettings ({ state, commit }, newSettings) {
+        const settings = await api.actively.setMeSettings({
+          view_mchat: newSettings.view_mchat ? '1' : '0'
+        })
+        commit('setSettings', { settings })
       },
 
       async poll ({ dispatch, state }) {
