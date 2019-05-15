@@ -36,9 +36,13 @@ export default {
       error: false
     }
   },
+  watch: {
+    'me.settings'(val) {
+      this.settings = val
+    }
+  },
   async created () {
     await this.syncSettings()
-    this.settings = this.me.settings
     this.loading = false
   },
   computed: {
