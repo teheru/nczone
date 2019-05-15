@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="save-settings">
-          <button class="zone-button" @click="saveData" v-t="'NCZONE_SAVE_SETTINGS'"></button>
+          <button class="zone-button" @click="onSaveClick" v-t="'NCZONE_SAVE_SETTINGS'"></button>
         </div>
       </div>
     </div>
@@ -36,7 +36,15 @@ export default {
     }
   },
   async created () {
-    await this.fetchData()
+    this.loading = true
+    try {
+      await this.loadSettings()
+      this.settings = this.me.settings
+    } catch (error) {
+      this.error = true
+    } finally {
+      this.loading = false
+    }
   },
   computed: {
     ...mapGetters([
@@ -44,21 +52,10 @@ export default {
     ])
   },
   methods: {
-    async saveData () {
+    async onSaveClick () {
       this.loading = true
       try {
         await this.saveSettings(this.settings)
-        this.settings = this.me.settings
-      } catch (error) {
-        this.error = true
-      } finally {
-        this.loading = false
-      }
-    },
-    async fetchData () {
-      this.loading = true
-      try {
-        await this.loadSettings()
         this.settings = this.me.settings
       } catch (error) {
         this.error = true
