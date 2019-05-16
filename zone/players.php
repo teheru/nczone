@@ -725,7 +725,7 @@ SQL;
         }, $this->db->get_rows($sql));
     }
 
-    public function get_settings(int $user_id)
+    public function get_settings(int $user_id): array
     {
         $rows = $this->db->get_rows('
             select
@@ -741,7 +741,19 @@ SQL;
         return $result;
     }
 
-    public function set_setting(int $user_id, string $setting, string $value) {
+    public function get_setting(int $user_id, string $setting): string
+    {
+        $value = $this->db->get_var('
+            select
+                s.value
+            from ' . $this->db->user_settings_table . ' s
+            where s.user_id = ' . $user_id . ' and s.setting = "' . $setting . '"'
+        );
+        return $value;
+    }
+
+    public function set_setting(int $user_id, string $setting, string $value)
+    {
         $this->db->update(
             $this->db->user_settings_table,
             ['value' => $value],

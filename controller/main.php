@@ -10,27 +10,37 @@
 
 namespace eru\nczone\controller;
 
+use phpbb\user;
+use dmzx\mchat\core\mchat;
 use eru\nczone\config\acl;
 use eru\nczone\utility\phpbb_util;
+use eru\nczone\utility\zone_util;
+use phpbb\controller\helper;
 
 /**
  * nC Zone main controller.
  */
 class main
 {
-    /* @var \phpbb\controller\helper */
+    /* @var user */
+    protected $user;
+
+    /* @var helper */
     protected $helper;
 
-    /* @var \dmzx\mchat\core\mchat */
+    /* @var mchat */
     protected $mchat;
 
     /**
      * Constructor
      *
-     * @param \phpbb\controller\helper $helper
+     * @param user $user
+     * @param helper $helper
+     * @param mchat|null $mchat
      */
-    public function __construct(\phpbb\controller\helper $helper, \dmzx\mchat\core\mchat $mchat = null)
+    public function __construct(user $user, helper $helper, mchat $mchat = null)
     {
+        $this->user = $user;
         $this->helper = $helper;
         $this->mchat = $mchat;
     }
@@ -46,7 +56,9 @@ class main
             phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
         }
 
-        if ($this->mchat) {
+        $user_id = (int) $this->user->data['user_id'];
+        $user_view_mchat = zone_util::players()->get_setting($user_id, 'view_mchat');
+        if ($this->mchat && $user_view_mchat) {
             $this->mchat->page_nczone();
         }
         return $this->helper->render('zone.html');
