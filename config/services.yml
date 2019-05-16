@@ -11,6 +11,7 @@ services:
     eru.nczone.controller:
         class: eru\nczone\controller\main
         arguments:
+            - '@user'
             - '@controller.helper'
             - '@?dmzx.mchat.core'
 
