@@ -182,6 +182,14 @@ class install_db_create extends \phpbb\db\migration\migration
                     ],
                     'PRIMARY_KEY' => ['draw_id', 'user_id'],
                 ],
+                $this->table_prefix . 'zone_user_settings' => [
+                    'COLUMNS' => [
+                        'user_id' => ['UINT', 0],
+                        'setting' => ['VARCHAR:256', ''],
+                        'value' => ['VARCHAR:256', ''],
+                    ],
+                    'PRIMARY_KEY' => ['user_id', 'setting'],
+                ],
             ],
             'add_index' => [
                 $this->table_prefix . 'zone_match_players' => [
@@ -209,6 +217,7 @@ class install_db_create extends \phpbb\db\migration\migration
                 $this->table_prefix . 'zone_bets',
                 $this->table_prefix . 'zone_draw_process',
                 $this->table_prefix . 'zone_draw_players',
+                $this->table_prefix . 'zone_settings',
             ],
         ];
     }

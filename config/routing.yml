@@ -18,7 +18,7 @@ eru_nczone_controller__api__past_matches:
     path: /nczone/api/matches/past/{page}
     defaults: { _controller: eru.nczone.controller.api:pmatches, page: 0 }
     requirements:
-      page: \d+
+        page: \d+
 
 eru_nczone_controller__api__match:
     path: /nczone/api/matches/{match_id}
@@ -41,6 +41,14 @@ eru_nczone_controller__api__matches_post_result:
 eru_nczone_controller__api__me:
     path: /nczone/api/me
     defaults: { _controller: eru.nczone.controller.api:me }
+
+eru_nczone_controller__api__me_get_settings:
+    path: /nczone/api/me/get/settings
+    defaults: { _controller: eru.nczone.controller.api:me_get_settings}
+
+eru_nczone_controller__api__me_set_settings:
+    path: /nczone/api/me/set/settings
+    defaults: { _controller: eru.nczone.controller.api:me_set_settings}
 
 eru_nczone_controller__api__me_set_language:
     path: /nczone/api/me/set_language

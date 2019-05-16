@@ -78,6 +78,7 @@ export const setSid = (s) => {
 }
 
 export const passively = {
+  getMeSettings: () => doGet('/me/get/settings'),
   getRunningMatches: () => get('/matches/running'),
   getPastMatches: (page) => get(`/matches/past/${page}`),
   getLoggedInPlayers: () => get('/players/logged_in'),
@@ -93,6 +94,7 @@ export const actively = {
   doLogin: () => post('/me/login'),
   doLogout: () => post('/me/logout'),
   setLang: (lang) => post('/me/set_language', { body: JSON.stringify({ lang }) }),
+  setMeSettings: (settings) => post('/me/set/settings', { body: JSON.stringify({ settings }) }),
 
   // draw
   drawBlock: () => post('/draw/block'),
