@@ -1,0 +1,36 @@
+.zone-button, .zone-mini-button, .zone-close-button {
+  border: solid 1px lighten($input_bg, 25);
+  background: $input_bg;
+  color: $input_fg;
+  padding: 2px 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: darken($input_bg, 10);
+    border-color: lighten($input_bg, 15);
+  }
+
+  &:disabled {
+    color: $input_fg_disabled;
+    background: $input_bg_disabled;
+    background-image: none;
+    cursor: not-allowed;
+  }
+}
+
+.zone-mini-button {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.zone-close-button {
+  margin-left: auto;
+  margin-right: 0;
+  margin-bottom: 5px;
+  padding: 0;
+
+  width: 1.2rem;
+  height: 1.2rem;
+
+  text-align: center;
+}

@@ -14,22 +14,19 @@
       <vue-markdown v-else-if="map.description || canEditMapDescription" class="zone-map-description-text">{{ map.description ? map.description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
     </div>
     <div class="zone-map-civs-table" v-if="viewTable">
-      <div class="zone-map-civs-table-head">
-        <div class="zone-map-civs-table-head-name">{{ $t('NCZONE_CIV') }}</div>
-        <div class="zone-map-civs-table-head-multiplier">{{ $t('NCZONE_MULTIPLIER') }}</div>
-        <div class="zone-map-civs-table-head-force-draw">{{ $t('NCZONE_FORCE_DRAW') }}</div>
-        <div class="zone-map-civs-table-head-prevent-draw">{{ $t('NCZONE_PREVENT_DRAW') }}</div>
-        <div class="zone-map-civs-table-head-both-teams">{{ $t('NCZONE_BOTH_TEAMS') }}</div>
+      <div class="zone-table-row zone-table-head-row">
+        <nczone-table-header-col label="NCZONE_CIV" />
+        <nczone-table-header-col label="NCZONE_MULTIPLIER" />
+        <nczone-table-header-col label="NCZONE_FORCE_DRAW" />
+        <nczone-table-header-col label="NCZONE_PREVENT_DRAW" />
+        <nczone-table-header-col label="NCZONE_BOTH_TEAMS" />
       </div>
-      <div class="zone-map-civs-table-row" v-for="(civ, idy) in map.civInfo" :key="`row-${idy}`">
-        <div class="zone-map-civs-table-name" :key="`name-${idy}`">{{ $t(civ.civ_name) }}</div>
-        <div class="zone-map-civs-table-multiplier" :key="`multiplier-${idy}`">{{ civ.multiplier }}</div>
-        <div class="zone-map-civs-table-force-draw fa fa-check" :key="`force-draw-${idy}`" v-if="civ.force_draw"></div>
-        <div class="zone-map-civs-table-force-draw fa fa-times" :key="`force-draw-${idy}`" v-else=""></div>
-        <div class="zone-map-civs-table-prevent-draw fa fa-check" :key="`prevent-draw-${idy}`" v-if="civ.prevent_draw"></div>
-        <div class="zone-map-civs-table-prevent-draw fa fa-times" :key="`prevent-draw-${idy}`" v-else=""></div>
-        <div class="zone-map-civs-table-both-teams fa fa-check" :key="`both-teams-${idy}`" v-if="civ.both_teams"></div>
-        <div class="zone-map-civs-table-both-teams fa fa-times" :key="`both-teams-${idy}`" v-else=""></div>
+      <div class="zone-table-row" v-for="(civ, idx) in map.civInfo" :key="`row-${idx}`">
+        <div>{{ $t(civ.civ_name) }}</div>
+        <div>{{ civ.multiplier }}</div>
+        <div class="fa" :class="{'fa-check': civ.force_draw, 'fa-times': !civ.force_draw}"></div>
+        <div class="fa" :class="{'fa-check': civ.prevent_draw, 'fa-times': !civ.prevent_draw}"></div>
+        <div class="fa" :class="{'fa-check': civ.both_teams, 'fa-times': !civ.both_teams}"></div>
       </div>
     </div>
   </div>
@@ -44,10 +41,10 @@ export default {
   components: {
     VueMarkdown
   },
-  props: [
-    'map',
-    'viewTable'
-  ],
+  props: {
+    map: Object,
+    viewTable: Boolean
+  },
   watch: {
     '$route': 'fetchData'
   },
@@ -68,11 +65,11 @@ export default {
 
     async uploadImage (evt) {
       this.loading = true
-      var files = evt.target.files || evt.dataTransfer.files
+      const files = evt.target.files || evt.dataTransfer.files
       if (!files.length) {
         return
       }
-      var reader = new FileReader()
+      const reader = new FileReader()
       reader.onload = async (p) => {
         await this.saveMapImage({ id: this.map.id, image: p.target.result })
         this.loading = false

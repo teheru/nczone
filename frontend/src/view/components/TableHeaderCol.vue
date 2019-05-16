@@ -1,10 +1,10 @@
 <template>
-  <div v-if="!!sortField" class="zone-clickable" @click="onSortClick">
+  <div v-if="!!sortField" class="zone-clickable" @click="onSortClick" :title="$t(title)">
     <span v-if="translateableLabel" v-t="translateableLabel"></span>
     <span v-else>{{ label }}</span>
     <nczone-sort-indicator v-if="sort.field === sortField" :order="sort.order" />
   </div>
-  <div v-else>
+  <div v-else :title="$t(title)">
     <span v-if="translateableLabel" v-t="translateableLabel"></span>
     <span v-else>{{ label }}</span>
   </div>
@@ -20,6 +20,10 @@ export default {
       default: null
     },
     label: {
+      type: String,
+      default: null
+    },
+    title: {
       type: String,
       default: null
     }

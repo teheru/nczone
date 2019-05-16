@@ -21,7 +21,8 @@
 
     <template v-if="match.map">
       <div v-t="'NCZONE_MATCH_MAP'"></div>
-      <div @click="openMapDescription(match.map)">{{ match.map.name }}</div>
+      <div v-if="isSingle">{{ match.map.name }}</div>
+      <div v-else class="zone-link" @click="openMapDescription(match.map)">{{ match.map.name }}</div>
     </template>
 
     <template v-if="haveGlobalCivs">
@@ -51,25 +52,17 @@
     <div v-t="'NCZONE_MATCH_START_TIME'"></div>
     <div>{{ matchStartTime }}</div>
 
-    <template v-if="match.post_time">
-      <div v-t="'NCZONE_MATCH_LENGTH'"></div>
-      <div>{{ matchLength }}</div>
-    </template>
-    <template v-else="">
-      <div v-t="'NCZONE_MATCH_TIME_SINCE_DRAW'"></div>
-      <div>{{ matchLength }}</div>
-    </template>
+    <div v-t="match.post_time ? 'NCZONE_MATCH_LENGTH' : 'NCZONE_MATCH_TIME_SINCE_DRAW'"></div>
+    <div>{{ matchLength }}</div>
   </div>
 
   <div class="zone-match-title" v-t="'NCZONE_MATCH_TEAMS'"></div>
   <div class="zone-match-team-table">
-
     <nczone-team :match="match" :team="1" />
 
     <div class="zone-match-vs" v-t="'NCZONE_MATCH_VS'"></div>
 
     <nczone-team :match="match" :team="2" />
-
   </div>
 
   <div v-if="canAddPairPlayers" class="zone-match-add-pair">
@@ -161,6 +154,7 @@ export default {
     },
     ...mapGetters([
       'me',
+      'isSingle',
       'timer',
       'canModPost',
       'canAddPairMod',

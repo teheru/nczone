@@ -1,0 +1,17 @@
+.zone-table-row {
+  grid-column: 1 / -1;
+  display: grid;
+
+  &.zone-table-head-row {
+    font-weight: bold;
+  }
+
+  &:nth-child(2n - 1) {
+    background: $base_dark_bg;
+  }
+
+  > div {
+    padding: 2px 0;
+  }
+}
+

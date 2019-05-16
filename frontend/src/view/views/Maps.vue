@@ -4,25 +4,20 @@
     <div class="zone-content">
       <div class="loading" v-if="loading"><span v-t="'NCZONE_LOADING'"></span></div>
       <div class="error" v-else-if="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
-      <template v-else>
-        <template v-for="mapId in orderedMapIds">
-          <div class="zone-map-container" v-if="maps[mapId].weight > 0" :key="`container-${mapId}`">
-            <div class="zone-map-header" :key="`header-${mapId}`">
-              <div class="zone-map-arrow" :key="`arrow-${mapId}`" @click="{{ toggleMap(mapId) }}">
-                <span class="fa fa-angle-right" v-if="showMapId !== mapId"></span>
-                <span class="fa fa-angle-down" v-if="showMapId === mapId"></span>
-              </div>
-              <div class="zone-map-name" :key="`name-${mapId}`" v-html="maps[mapId].name"></div>
-              <div class="zone-map-weight" :key="`weight-${mapId}`">{{ maps[mapId].weight }}</div>
-              <div class="zone-map-percent" :key="`percent-${mapId}`">{{ Math.round(maps[mapId].proportion * 10000) / 100 }}%</div>
-            </div>
-            <div class="zone-map-civs-info" v-if="showMapId === mapId">
-              <nczone-map-description :map="maps[showMapId]" :viewTable="true" v-if="!mapLoading"></nczone-map-description>
-              <div class="zone-map-civs-table-loading fa fa-spinner" v-else></div>
-            </div>
+      <div v-else v-for="(map, idx) in weightedMaps" class="zone-map-container" :key="`container-${idx}`">
+        <div class="zone-map-header zone-clickable" @click="toggleMap(map.id)">
+          <div class="zone-map-arrow">
+            <span class="fa" :class="{'fa-angle-right': showMapId !== map.id, 'fa-angle-down': showMapId === map.id}"></span>
           </div>
-        </template>
-      </template>
+          <div class="zone-map-name" v-html="map.name"></div>
+          <div class="zone-map-weight">{{ map.weight }}</div>
+          <div class="zone-map-percent">{{ Math.round(map.proportion * 10000) / 100 }}%</div>
+        </div>
+        <div class="zone-map-civs-info" v-if="showMapId === map.id">
+          <nczone-map-description v-if="!mapLoading" :map="map" :viewTable="true" />
+          <div v-else class="zone-map-civs-table-loading fa fa-spinner"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -33,6 +28,7 @@ export default {
   name: 'nczone-maps',
   created () {
     this.fetchData()
+    this.setSort({ field: 'weight', order: -1 })
   },
   watch: {
     '$route': 'fetchData'
@@ -42,38 +38,30 @@ export default {
       this.loading = true
       try {
         await this.getMaps()
-        this.orderMapIds()
       } catch (error) {
         this.error = true
       } finally {
         this.loading = false
       }
     },
-
-    orderMapIds () {
-      this.orderedMapIds = Object.keys(this.maps).sort((a, b) => {
-        var mapA = this.maps[a]
-        var mapB = this.maps[b]
-        if (mapA.weight === mapB.weight) {
-          return 0
-        }
-        return mapA.weight < mapB.weight ? 1 : -1
-      })
-    },
-
     async toggleMap (mapId) {
       this.showMapId = this.showMapId !== mapId ? mapId : 0
-      this.mapLoading = true
-      await this.getMapInfo({ id: this.showMapId })
-      this.mapLoading = false
+      if (this.showMapId > 0) {
+        this.mapLoading = true
+        await this.getMapInfo({ mapId: this.showMapId })
+        this.mapLoading = false
+      }
     },
-
     ...mapActions([
       'getMaps',
-      'getMapInfo'
+      'getMapInfo',
+      'setSort'
     ])
   },
   computed: {
+    weightedMaps () {
+      return this.maps.filter(m => m.weight > 0)
+    },
     ...mapGetters([
       'maps'
     ])
@@ -82,7 +70,6 @@ export default {
     return {
       loading: true,
       error: false,
-      orderedMapIds: [],
       showMapId: 0,
       mapLoading: false
     }

@@ -3,11 +3,6 @@
   grid-auto-flow: dense;
 }
 
-.zone-table-row {
-  grid-column: 1 / -1;
-  display: grid;
-}
-
 .zone-players {
   .zone-table-row {
     grid-template-columns: .5fr 3fr repeat(8, 1fr);

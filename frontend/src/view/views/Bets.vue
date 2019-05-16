@@ -6,12 +6,13 @@
       <div class="error" v-else-if="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
       <div v-else-if="bets.length === 0"><span v-t="'NCZONE_NO_BETTING_PLAYERS'"></span></div>
       <div v-else class="zone-bets">
-        <div class="zone-table-row">
+        <div class="zone-table-row zone-table-head-row">
           <nczone-table-header-col label="#" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_NAME" sort-field="username" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_TOTAL" sort-field="bets_total" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_WON" sort-field="bets_won" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_LOSS" sort-field="bets_loss" />
+          <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_SKILL" sort-field="bet_skill" title="NCZONE_TABLE_HEADER_BETS_SKILL_TOOLTIP" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_QUOTA" sort-field="bet_quota" />
         </div>
 
@@ -21,6 +22,7 @@
           <div>{{ player.bets_total || 0 }}</div>
           <div>{{ player.bets_won || 0 }}</div>
           <div>{{ player.bets_loss || 0 }}</div>
+          <div>{{ player.bet_skill || 0 }}</div>
           <div :class="{'color-positive': (Math.round(player.bet_quota) || 0) > 50, 'color-negative': (Math.round(player.bet_quota) || 0) < 50}">{{ Math.round(player.bet_quota) || 0 }}%</div>
         </div>
 
@@ -30,7 +32,8 @@
           <div>{{ avgBetsTotal }}</div>
           <div>{{ avgBetsWon }}</div>
           <div>{{ avgBetsLoss }}</div>
-          <div>{{ avgBetsQuota }}%</div>
+          <div>{{ avgBetSkill }}</div>
+          <div>{{ avgBetQuota }}%</div>
         </div>
       </div>
     </div>
@@ -52,7 +55,10 @@ export default {
     avgBetsLoss () {
       return this.avgField('bets_loss')
     },
-    avgBetsQuota () {
+    avgBetSkill () {
+      return this.avgField('bet_skill')
+    },
+    avgBetQuota () {
       return this.avgField('bet_quota')
     },
     ...mapGetters([
@@ -61,7 +67,7 @@ export default {
   },
   created () {
     this.fetchData()
-    this.setSort({ field: 'bet_quota', order: -1 })
+    this.setSort({ field: 'bet_skill', order: -1 })
   },
   watch: {
     '$route': 'fetchData'

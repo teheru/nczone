@@ -6,7 +6,7 @@
       <div v-else-if="error" class="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
       <div v-else-if="players.length === 0"><span v-t="'NCZONE_NO_ACTIVE_PLAYERS'"></span></div>
       <div v-else class="zone-players" :class="{'zone-players-mod': canModLogin}">
-        <div class="zone-table-row">
+        <div class="zone-table-row zone-table-head-row">
           <nczone-table-header-col label="#" />
           <nczone-table-header-col v-if="canModLogin" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_NAME" sort-field="username" />
