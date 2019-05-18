@@ -749,6 +749,9 @@ SQL;
             from ' . $this->db->user_settings_table . ' s
             where s.user_id = ' . $user_id . ' and s.setting = "' . $setting . '"'
         );
+        if(!$value) {
+            return '';
+        }
         return $value;
     }
 
