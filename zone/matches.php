@@ -354,7 +354,7 @@ class matches {
 
                 $title = $this->create_match_topic_title($match_id, $team1_id, $team2_id, $winner);
                 $message = $this->create_match_shortcode($match_id);
-                $update_sql['forum_topic_id'] = $this->create_match_topic(
+                $update_sql['forum_topic_id'] = $this->create_topic_and_post(
                     $title,
                     $message,
                     $forum_id,
@@ -369,7 +369,7 @@ class matches {
     }
 
     /**
-     * Create a match topic and post.
+     * Create a topic and first post.
      *
      * Note: If topic already exists, this only updates title of
      * topic and first post.
@@ -381,7 +381,7 @@ class matches {
      *
      * @return int
      */
-    protected function create_match_topic(
+    protected function create_topic_and_post(
         string $title,
         string $message,
         int $forum_id,
@@ -996,24 +996,22 @@ SQL;
         int $team2_id,
         int $winner
     ): string {
-        $team_names = zone_util::players()->get_team_usernames($team1_id,
-            $team2_id);
+        $team_names = zone_util::players()->get_team_usernames($team1_id, $team2_id);
         if ($winner === 1) {
-            $team1_str = ' (W)';
-            $team2_str = ' (L)';
+            $t1_str = ' (W)';
+            $t2_str = ' (L)';
         } elseif ($winner === 2) {
-            $team1_str = ' (L)';
-            $team2_str = ' (W)';
+            $t1_str = ' (L)';
+            $t2_str = ' (W)';
         } else {
-            $team1_str = '';
-            $team2_str = '';
+            $t1_str = '';
+            $t2_str = '';
         }
 
-        $title = '[#' . $match_id . '] '
-            . implode(', ', $team_names[$team1_id]) . $team1_str
-            . ' vs. '
-            . implode(', ', $team_names[$team2_id]) . $team2_str;
-        return $title;
+        $t1_names = \implode(', ', $team_names[$team1_id]);
+        $t2_names = \implode(', ', $team_names[$team2_id]);
+
+        return "[#{$match_id}] {$t1_names}{$t1_str} vs. {$t2_names}{$t2_str}";
 }
 
     private function create_match_shortcode(int $match_id): string
