@@ -18,22 +18,22 @@ class locks
     /**
      * Aquire a lock, then call $fn, then release the lock.
      *
-     * The lock hash is calculated from the given $payload. If $timeoutSec
+     * The lock hash is calculated from the given $payload. If $timeout_sec
      * is greater than 0, the lock is released (ignored) after this
      * many seconds.
      *
      * @param mixed $payload
      * @param callable $fn
-     * @param int $timeoutSec
+     * @param int $timeout_sec
      *
      * @return mixed
      * @throws UnableToAquireLockError
      */
-    public function runExclusive($payload, callable $fn, int $timeoutSec = 0)
+    public function runExclusive($payload, callable $fn, int $timeout_sec = 0)
     {
         $hash = $this->hash($payload);
 
-        $this->aquire($hash, $payload, $timeoutSec);
+        $this->aquire($hash, $payload, $timeout_sec);
 
         $ret = $fn();
 
@@ -61,11 +61,11 @@ class locks
      *
      * @param string $hash
      * @param mixed $payload
-     * @param int $timeoutSec
+     * @param int $timeout_sec
      *
      * @throws UnableToAquireLockError
      */
-    private function aquire(string $hash, $payload, int $timeoutSec): void
+    private function aquire(string $hash, $payload, int $timeout_sec): void
     {
         $now = \time();
 
@@ -79,7 +79,7 @@ class locks
             'hash' => $hash,
             'payload' => $payloadStr,
             'created' => $now,
-            'expires' => $timeoutSec,
+            'expires' => $timeout_sec,
         ]);
         $this->db->sql_return_on_error(false);
         if (!$inserted) {
