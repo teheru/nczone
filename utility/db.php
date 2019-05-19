@@ -16,6 +16,8 @@ class db
     /** @var string */
     public $posts_table;
     /** @var string */
+    public $topics_table;
+    /** @var string */
     public $bets_table;
     /** @var string */
     public $players_table;
@@ -70,6 +72,7 @@ class db
         $this->users_table = $table_prefix . 'users';
         $this->session_table = $table_prefix . 'sessions';
         $this->posts_table = $table_prefix . 'posts';
+        $this->topics_table = $table_prefix . 'topics';
 
         $this->bets_table = $table_prefix . 'zone_bets';
         $this->players_table = $table_prefix . 'zone_players';
