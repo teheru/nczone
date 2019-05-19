@@ -16,7 +16,7 @@ class locks
     }
 
     /**
-     * Aquire a lock, then call $fn, then release the lock.
+     * Aquire lock, then call $fn, then release lock.
      *
      * The lock hash is calculated from the given $payload. If $timeout_sec
      * is greater than 0, the lock is released (ignored) after this
@@ -55,7 +55,7 @@ class locks
     }
 
     /**
-     * Aquire lock for a given hash.
+     * Aquire lock for given hash.
      *
      * Payload is saved for easier debugging in case something goes wrong..
      *
@@ -88,7 +88,7 @@ class locks
     }
 
     /**
-     * Release the lock identified by the given hash if it expired before $time.
+     * Release lock for given hash if it expired before $time.
      *
      * @param string $hash
      * @param $time
@@ -102,7 +102,7 @@ class locks
     }
 
     /**
-     * Release the lock identified by the given hash.
+     * Release lock for given hash.
      *
      * @param string $hash
      */
