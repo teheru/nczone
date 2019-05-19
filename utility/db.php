@@ -104,7 +104,7 @@ class db
         int $offset = 0,
         $query = 'SELECT'
     ): array {
-        $queryString = \is_string($sql) ? rtrim(rtrim($sql), ';') : $this->db->sql_build_query($query, $sql);
+        $queryString = $this->build_query_string($query, $sql);
         $result = $limit > 0
             ? $this->db->sql_query_limit($queryString, $limit, $offset)
             : $this->db->sql_query($queryString);
@@ -134,6 +134,8 @@ class db
 
         if (!isset($data['SELECT'])) {
             $data['SELECT'] = '*';
+        } elseif (\is_array($data['SELECT'])) {
+            $data['SELECT'] = $this->build_select($data['SELECT']);
         }
 
         if (isset($data['WHERE']) && \is_array($data['WHERE'])) {
@@ -261,6 +263,15 @@ class db
             $format = self::FMT_MAP[$fmt];
         }
         return \sprintf($format, $key, $this->esc($val));
+    }
+
+    private function build_select(array $select): string
+    {
+        $selects = [];
+        foreach ($select as $key => $val) {
+            $selects[] = \is_int($key) ? $val : "{$key} AS {$val}";
+        }
+        return \implode(',', $selects);
     }
 
     private function build_where(array $where): string

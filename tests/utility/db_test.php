@@ -101,6 +101,19 @@ class db_test extends \phpbb_database_test_case
                 ],
                 'SELECT * FROM phpbb_civs_table x WHERE `civ_id` IN (1,5)'
             ],
+            [
+                'SELECT',
+                [
+                    'SELECT' => [
+                        'x.post_id',
+                        'x.post_text' => 'message',
+                        'x.bbcode_bitfield',
+                    ],
+                    'FROM' => ['phpbb_civs_table' => 'x'],
+                    'WHERE' => ['civ_id' => [1, 5]],
+                ],
+                'SELECT x.post_id,x.post_text AS message,x.bbcode_bitfield FROM phpbb_civs_table x WHERE `civ_id` IN (1,5)'
+            ],
         ];
     }
 
