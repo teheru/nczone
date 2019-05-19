@@ -79,7 +79,7 @@ class locks
             'hash' => $hash,
             'payload' => $payloadStr,
             'created' => $now,
-            'expires' => $timeout_sec,
+            'expires' => $timeout_sec ? $now + $timeout_sec : 0,
         ]);
         $this->db->sql_return_on_error(false);
         if (!$inserted) {
