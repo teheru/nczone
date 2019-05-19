@@ -207,17 +207,10 @@ class players
     }
 
     /**
-     * Logouts a player
+     * Logout players identified by the provided ids.
      *
-     * @param int $user_id Id of the user
-     *
-     * @return void
+     * @param int ...$user_ids
      */
-    public function logout_player(int $user_id): void
-    {
-        $this->edit_player($user_id, ['logged_in' => 0]);
-    }
-
     public function logout_players(int ...$user_ids): void
     {
         if ($user_ids) {

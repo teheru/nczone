@@ -166,7 +166,7 @@ class api
     public function me_logout(): JsonResponse
     {
         return $this->respond(function () {
-            zone_util::players()->logout_player($this->get_user_id());
+            zone_util::players()->logout_players($this->get_user_id());
             return [];
         }, [
             acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -231,7 +231,7 @@ class api
             if (!self::is_activated($args['player_id'])) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
-            zone_util::players()->logout_player($args['player_id']);
+            zone_util::players()->logout_players($args['player_id']);
 
             return [];
         }, [

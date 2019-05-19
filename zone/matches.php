@@ -91,7 +91,7 @@ class matches {
             $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
-                zone_util::players()->logout_player($player2_id);
+                zone_util::players()->logout_players($player2_id);
                 return ['match_id' => $match_id];
             }
             return [];
@@ -146,8 +146,7 @@ class matches {
             $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
-                zone_util::players()->logout_player($player1->get_id());
-                zone_util::players()->logout_player($player2->get_id());
+                zone_util::players()->logout_players($player1->get_id(), $player2->get_id());
                 return ['match_id' => $match_id];
             }
             return [];
