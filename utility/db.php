@@ -97,14 +97,6 @@ class db
         return $rows ?: [];
     }
 
-    public function get_num_rows(array $sqlArray, $num, $query = 'SELECT'): array
-    {
-        $result = $this->db->sql_query_limit($this->db->sql_build_query($query, $sqlArray), $num);
-        $rows = $this->db->sql_fetchrowset($result);
-        $this->db->sql_freeresult($result);
-        return $rows ?: [];
-    }
-
     // todo: build this without getting the whole rowset
     public function get_col(
         array $sqlArray,
@@ -112,11 +104,10 @@ class db
         int $offset = 0,
         $query = 'SELECT'
     ): array {
-        $col = [];
-        foreach ($this->get_rows($sqlArray, $limit, $offset, $query) as $row) {
-            $col[] = reset($row);
-        }
-        return $col;
+        return \array_map(
+            '\reset',
+            $this->get_rows($sqlArray, $limit, $offset, $query)
+        );
     }
 
     /**
@@ -126,7 +117,9 @@ class db
      */
     public function get_row($sql, $query = 'SELECT')
     {
-        $queryString = \is_string($sql) ? rtrim(rtrim($sql), ';') : $this->db->sql_build_query($query, $sql);
+        $queryString = \is_string($sql)
+            ? rtrim(rtrim($sql), ';')
+            : $this->db->sql_build_query($query, $sql);
         $result = $this->db->sql_query_limit($queryString, 1);
         $row = $this->db->sql_fetchrow($result);
         $this->db->sql_freeresult($result);
@@ -141,7 +134,7 @@ class db
     {
         // todo: build this without getting the whole row
         $row = $this->get_row($sql);
-        return $row ? reset($row) : null;
+        return $row ? \reset($row) : null;
     }
 
     public function insert(string $table, array $data): int
@@ -152,7 +145,7 @@ class db
         return (int)$this->db->sql_nextid();
     }
 
-    public function update(string $table, array $sqlArray, $where): void
+    public function update(string $table, array $data, $where): void
     {
         if (\is_array($where)) {
             $whereArray = [];
@@ -161,7 +154,7 @@ class db
             }
             $where = implode(' AND ', $whereArray);
         }
-        $this->db->sql_query('UPDATE ' . $table . ' SET ' . $this->db->sql_build_array('UPDATE', $sqlArray) .
+        $this->db->sql_query('UPDATE ' . $table . ' SET ' . $this->db->sql_build_array('UPDATE', $data) .
             (empty($where) ? '' : ' WHERE ' . $where));
     }
 

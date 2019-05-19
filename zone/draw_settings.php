@@ -165,7 +165,7 @@ class draw_settings {
         }
 
         // get additional civs
-        $draw_civs = $this->db->get_num_rows([
+        $draw_civs = $this->db->get_rows([
             'SELECT' => 'c.civ_id AS id, c.multiplier AS multiplier',
             'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
             'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids) . $sql_add,
