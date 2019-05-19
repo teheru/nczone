@@ -786,7 +786,7 @@ SQL;
             ['value' => $value],
             [
                 'user_id' => $user_id,
-                'setting' => '"' . $setting . '"'
+                'setting' => $setting
             ]
         );
     }
