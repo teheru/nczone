@@ -471,7 +471,7 @@
       "NCZONE_SETTINGS_VIEW_MCHAT": "view mChat",
       "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Configure if the mChat should be shown below the zone. If you deactive mChat here, you can still reach it in the menu above.",
       "NCZONE_SETTINGS_AUTO_LOGOUT": "Auto Logout",
-      "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Set the time without activity in the zone or the forum after which you want to be logged out automatically. A value of 0 deactivates this functionality.",
+      "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Set the time in minutes without activity in the zone or the forum after which you want to be logged out automatically. A value of 0 deactivates this functionality.",
       "NCZONE_SAVE_SETTINGS": "Save"
     },
     "common": {
