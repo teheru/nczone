@@ -79,7 +79,10 @@ class db
 
     /**
      * @param array|string $sql
+     * @param int $limit
+     * @param int $offset
      * @param string $query
+     *
      * @return array
      */
     public function get_rows(
