@@ -5,9 +5,8 @@ namespace eru\nczone\tests\zone\entity;
 use eru\nczone\zone\entity\draw_match;
 use eru\nczone\zone\entity\match_player;
 use eru\nczone\zone\entity\match_players_list;
-use PHPUnit\Framework\TestCase;
 
-class draw_match_test extends TestCase
+class draw_match_test extends \phpbb_test_case
 {
     /**
      * @dataProvider get_all_player_ids_data_provider

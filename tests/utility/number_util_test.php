@@ -3,9 +3,8 @@
 namespace eru\nczone\tests\utility;
 
 use eru\nczone\utility\number_util;
-use PHPUnit\Framework\TestCase;
 
-class number_util_test extends TestCase
+class number_util_test extends \phpbb_test_case
 {
     /**
      * @dataProvider cmp_data_provider

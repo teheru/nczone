@@ -3,9 +3,8 @@
 namespace eru\nczone\tests\zone;
 
 use eru\nczone\zone\players;
-use PHPUnit\Framework\TestCase;
 
-class players_test extends TestCase
+class players_test extends \phpbb_test_case
 {
     /**
      * @dataProvider calculate_new_streak_data_provider

@@ -6,9 +6,8 @@ use eru\nczone\zone\draw_teams;
 use eru\nczone\zone\entity\draw_match;
 use eru\nczone\zone\entity\match_player;
 use eru\nczone\zone\entity\match_players_list;
-use PHPUnit\Framework\TestCase;
 
-class draw_teams_test extends TestCase
+class draw_teams_test extends \phpbb_test_case
 {
     /**
      * @dataProvider make_matches_data_provider

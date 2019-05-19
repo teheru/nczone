@@ -3,9 +3,8 @@
 namespace eru\nczone\tests\config;
 
 use eru\nczone\config\acl;
-use PHPUnit\Framework\TestCase;
 
-class acl_test extends TestCase
+class acl_test extends \phpbb_test_case
 {
     /**
      * @dataProvider module_data_provider
