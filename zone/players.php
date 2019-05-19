@@ -220,7 +220,9 @@ class players
 
     public function logout_players(int ...$user_ids): void
     {
-        $this->db->update($this->db->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
+        if ($user_ids) {
+            $this->db->update($this->db->players_table, ['logged_in' => 0], $this->db->sql_in_set('user_id', $user_ids));
+        }
     }
 
     public function match_changes(int $user_id, int $team_id, int $match_points, bool $winner): void
@@ -312,6 +314,33 @@ class players
     public function get_logged_in(): array
     {
         return $this->get_players(['logged_in' => true], ['order_by' => 'logged_in', 'how' => 'ASC']);
+    }
+
+    /**
+     * Logs out all players which are logged in and have auto logout configured.
+     */
+    public function auto_logout()
+    {
+        $rows = $this->db->get_rows('
+            select
+                p.user_id,
+                s.value as auto_logout,
+                max(u.session_time) as last_activity
+            from ' . $this->db->players_table . ' p
+            join ' . $this->db->user_settings_table . ' s on p.user_id = s.user_id
+            join ' . $this->db->session_table . ' u on p.user_id = u.session_user_id
+            where p.logged_in > 0 and s.setting = "auto_logout" and s.value != "0"'
+        );
+
+        $logout_players = [];
+        foreach ($rows as $row) {
+            $last_activity = (int)$row['last_activity'];
+            $auto_logout_time = (int)$row['auto_logout'] * 60;
+            if ($last_activity < time() - $auto_logout_time) {
+                $logout_players[] = (int)$row['user_id'];
+            }
+        }
+        $this->logout_players(...$logout_players);
     }
 
     /**

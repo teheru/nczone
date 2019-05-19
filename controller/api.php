@@ -421,6 +421,7 @@ class api
     public function logged_in_players(): JsonResponse
     {
         return $this->respond(function () {
+            zone_util::players()->auto_logout();
             return zone_util::players()->get_logged_in();
         });
     }

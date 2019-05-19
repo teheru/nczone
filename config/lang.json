@@ -150,6 +150,8 @@
       "NCZONE_NO_BETTING_PLAYERS": "Keine Wetten.",
       "NCZONE_SETTINGS_VIEW_MCHAT": "mChat anzeigen",
       "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Hier kannst du einstellen ob der mChat unter der Zone angezeigt werden soll. Wenn du mChat hier ausstellst, kannst du ihn weiterhin über den mChat Menüpunkt (siehe oben) erreichen.",
+      "NCZONE_SETTINGS_AUTO_LOGOUT": "Automatischer Logout",
+      "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Setze hier eine Zeit in Minuten die du keine Inaktivität in der Zone oder im Forum gehabt haben musst, um automatisch ausgeloggt zu werden. 0 deaktiviert den automatischen Logout.",
       "NCZONE_SAVE_SETTINGS": "Speichern"
     },
     "common": {
@@ -468,6 +470,8 @@
       "NCZONE_NO_BETTING_PLAYERS": "No bets.",
       "NCZONE_SETTINGS_VIEW_MCHAT": "view mChat",
       "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Configure if the mChat should be shown below the zone. If you deactive mChat here, you can still reach it in the menu above.",
+      "NCZONE_SETTINGS_AUTO_LOGOUT": "Auto Logout",
+      "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Set the time without activity in the zone or the forum after which you want to be logged out automatically. A value of 0 deactivates this functionality.",
       "NCZONE_SAVE_SETTINGS": "Save"
     },
     "common": {

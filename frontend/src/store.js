@@ -186,7 +186,8 @@ export default () => {
       },
       setSettings (state, { settings }) {
         state.me.settings = {
-          view_mchat: settings.view_mchat === '1'
+          view_mchat: settings.view_mchat === '1',
+          auto_logout: parseInt(settings.auto_logout)
         }
       },
       setLang (state, payload) {
@@ -334,7 +335,8 @@ export default () => {
 
       async saveSettings ({ state, commit }, newSettings) {
         const settings = await api.actively.setMeSettings({
-          view_mchat: newSettings.view_mchat ? '1' : '0'
+          view_mchat: newSettings.view_mchat ? '1' : '0',
+          auto_logout: parseInt(newSettings.auto_logout)
         })
         commit('setSettings', { settings })
       },
