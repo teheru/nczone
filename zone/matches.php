@@ -214,7 +214,7 @@ class matches {
      */
     public function post(int $match_id, int $post_user_id, int $winner, bool $repost=false): void
     {
-        $this->db->run_txn(function () use ($match_id, $post_user_id, $winner, $repost) {
+        $fn = function () use ($match_id, $post_user_id, $winner, $repost) {
             $row = $this->db->get_row('
                 SELECT
                     t.map_id,
@@ -355,7 +355,13 @@ class matches {
             $this->db->update($this->db->matches_table, $update_sql, [
                 'match_id' => $match_id
             ]);
-        });
+        };
+
+        zone_util::locks()->runExclusive(
+            ['action' => 'post', 'match_id' => $match_id],
+            $this->db->txn_fn($fn),
+            120
+        );
     }
 
     protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner, int $forum_id): int
@@ -924,7 +930,7 @@ SQL;
      */
     public function draw(int $user_id): array
     {
-        return $this->db->run_txn(function () use ($user_id) {
+        $fn = function () use ($user_id) {
             $draw_id = $this->get_draw_id_by_user_id($user_id);
             if (!$draw_id) {
                 throw new InvalidDrawIdError();
@@ -954,7 +960,12 @@ SQL;
             }
             zone_util::players()->logout_players(...$user_ids);
             return $match_ids;
-        });
+        };
+        return zone_util::locks()->runExclusive(
+            ['action' => 'draw'],
+            $this->db->txn_fn($fn),
+            120
+        );
     }
 
     public function get_draw_user_id(int $match_id): int

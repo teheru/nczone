@@ -190,6 +190,18 @@ class install_db_create extends \phpbb\db\migration\migration
                     ],
                     'PRIMARY_KEY' => ['user_id', 'setting'],
                 ],
+                $this->table_prefix . 'zone_locks' => [
+                    'COLUMNS' => [
+                        'hash' => ['CHAR:32'],
+                        'payload' => ['TEXT', null],
+                        'created' => ['TIMESTAMP', 0],
+                        'expires' => ['TIMESTAMP', 0],
+                    ],
+                    'PRIMARY_KEY' => ['hash'],
+                    'KEYS' => [
+                        'created' => ['INDEX', 'created'],
+                    ],
+                ],
             ],
             'add_index' => [
                 $this->table_prefix . 'zone_match_players' => [

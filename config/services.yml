@@ -65,6 +65,11 @@ services:
         - '@user'
         - '@eru.nczone.db'
 
+    eru.nczone.zone.locks:
+      class: eru\nczone\zone\locks
+      arguments:
+        - '@eru.nczone.db'
+
     eru.nczone.zone.matches:
       class: eru\nczone\zone\matches
       arguments:
