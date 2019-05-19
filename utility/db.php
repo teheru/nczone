@@ -267,6 +267,11 @@ class db
     {
         $wheres = [];
         foreach ($where as $key => $val) {
+            if (\is_int($key)) {
+                $wheres[] = $val;
+                continue;
+            }
+
             $k = self::add_ticks($key);
 
             if (!\is_array($val)) {

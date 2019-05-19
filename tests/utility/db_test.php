@@ -59,6 +59,18 @@ class db_test extends \phpbb_database_test_case
             [
                 'SELECT',
                 [
+                    'SELECT' => 'b.user_id, b.team_id, b.time, u.username',
+                    'FROM' => ['phpbb_bets_table' => 'b', 'phpbb_users_table' => 'u'],
+                    'WHERE' => [
+                        'b.user_id = u.user_id',
+                        'b.team_id' =>  [4, 5],
+                    ],
+                ],
+                "SELECT b.user_id, b.team_id, b.time, u.username FROM phpbb_bets_table b CROSS JOIN phpbb_users_table u WHERE b.user_id = u.user_id AND `b`.`team_id` IN (4,5)"
+            ],
+            [
+                'SELECT',
+                [
                     'SELECT' => 'c.civ_id AS id, c.civ_name AS name',
                     'FROM' => ['phpbb_civs_table' => 'c'],
                     'WHERE' => ['c.civ_id' => ['$in' => [5, 1, 7, 'alpha']]],
