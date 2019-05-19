@@ -539,14 +539,7 @@ class api
                 (int) $data['winner']
             );
 
-            $draw_block_after_match = (int)config::get(config::draw_block_after_match);
-            if ($draw_block_after_match > 0) {
-                $draw_block_new_until = time() + $draw_block_after_match * 60;
-                $draw_block_old_until = (float)config::get(config::draw_blocked_until);
-                if ($draw_block_old_until < $draw_block_new_until) {
-                    config::set(config::draw_blocked_until, $draw_block_new_until);
-                }
-            }
+            zone_util::misc()->block_draw_after_match();
 
             return [];
         }, [
