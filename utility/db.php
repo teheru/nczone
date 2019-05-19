@@ -50,6 +50,19 @@ class db
     /** @var string */
     public $user_settings_table;
 
+    private const FMT_MAP = [
+        '$like' => '%s LIKE %s',
+        '$notlike' => '%s NOT LIKE %s',
+        '$eq' => ['%s = %s', '%s IS %s'],
+        '$ne' => ['%s != %s' , '%s IS NOT %s'],
+        '$gt' => '%s > %s',
+        '$lt' => '%s < %s',
+        '$gte' => '%s >= %s',
+        '$lte' => '%s <= %s',
+        '$in' => '%s IN (%s)',
+        '$nin' => '%s NOT IN (%s)',
+    ];
+
     public function __construct(driver_interface $db, string $table_prefix)
     {
         $this->db = $db;
@@ -113,6 +126,23 @@ class db
         );
     }
 
+    public function build_query_string(string $type, $data): string
+    {
+        if (\is_string($data)) {
+            return \rtrim(\rtrim($data), ';');
+        }
+
+        if (!isset($data['SELECT'])) {
+            $data['SELECT'] = '*';
+        }
+
+        if (isset($data['WHERE']) && \is_array($data['WHERE'])) {
+            $data['WHERE'] = $this->build_where($data['WHERE']);
+        }
+
+        return $this->db->sql_build_query($type, $data);
+    }
+
     /**
      * @param array|string $sql
      * @param string $query
@@ -120,9 +150,7 @@ class db
      */
     public function get_row($sql, $query = 'SELECT')
     {
-        $queryString = \is_string($sql)
-            ? rtrim(rtrim($sql), ';')
-            : $this->db->sql_build_query($query, $sql);
+        $queryString = $this->build_query_string($query, $sql);
         $result = $this->db->sql_query_limit($queryString, 1);
         $row = $this->db->sql_fetchrow($result);
         $this->db->sql_freeresult($result);
@@ -150,15 +178,12 @@ class db
 
     public function update(string $table, array $data, $where): void
     {
-        if (\is_array($where)) {
-            $whereArray = [];
-            foreach ($where as $key => $value) {
-                $whereArray[] = $key . ' = ' . $value;
-            }
-            $where = implode(' AND ', $whereArray);
-        }
-        $this->db->sql_query('UPDATE ' . $table . ' SET ' . $this->db->sql_build_array('UPDATE', $data) .
-            (empty($where) ? '' : ' WHERE ' . $where));
+        $whereSql = \is_array($where) ? $this->build_where($where) : $where;
+        $whereSql = $whereSql ? " WHERE {$whereSql}" : '';
+        $this->db->sql_query(
+            'UPDATE ' . $table
+            . ' SET ' . $this->db->sql_build_array('UPDATE', $data) .
+            $whereSql);
     }
 
     public function run_txn(callable $func)
@@ -196,5 +221,71 @@ class db
     public function sql_escape($msg)
     {
         return $this->db->sql_escape($msg);
+    }
+
+    private function esc($value)
+    {
+        if ($value === null) {
+            return 'NULL';
+        }
+        if (\is_string($value)) {
+            $v = $this->db->sql_escape($value);
+            return "'{$v}'";
+        }
+        if (\is_float($value) || \is_int($value)) {
+            return $value;
+        }
+        if (\is_bool($value)) {
+            return $value ? 1 : 0;
+        }
+        if (\is_array($value)) {
+            return \implode(',', \array_map(function ($v) {
+                return $this->esc($v);
+            }, $value));
+        }
+        return $value;
+    }
+
+    private static function add_ticks(string $str): string
+    {
+        return \implode('.', \array_map(function ($part) {
+            return \strpos($part, '`') === false ? "`{$part}`" : $part;
+        }, \explode('.', $str)));
+    }
+
+    private function fmt($fmt, $val, $key): string
+    {
+        if (\is_array(self::FMT_MAP[$fmt])) {
+            $format = self::FMT_MAP[$fmt][$val === null ? 1 : 0];
+        } else {
+            $format = self::FMT_MAP[$fmt];
+        }
+        return \sprintf($format, $key, $this->esc($val));
+    }
+
+    private function build_where(array $where): string
+    {
+        $wheres = [];
+        foreach ($where as $key => $val) {
+            $k = self::add_ticks($key);
+
+            if (!\is_array($val)) {
+                $wheres[] = $this->fmt('$eq', $val, $k);
+                continue;
+            }
+
+            $any = false;
+            foreach (self::FMT_MAP as $from => $tmpl) {
+                if (\array_key_exists($from, $val)) {
+                    $wheres[] = $this->fmt($from, $val[$from], $k);
+                    $any = true;
+                }
+            }
+
+            if (!$any) {
+                $wheres[] = $this->fmt('$in', $val, $k);
+            }
+        }
+        return \implode(' AND ', $wheres);
     }
 }
