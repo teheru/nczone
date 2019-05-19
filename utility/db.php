@@ -217,9 +217,11 @@ class db
             $whereSql);
     }
 
-    public function txn_fn(callable $func)
+    public function txn_fn(callable $func): callable
     {
-        return $this->run_txn($func);
+        return function () use ($func) {
+            return $this->run_txn($func);
+        };
     }
 
     public function run_txn(callable $func)
