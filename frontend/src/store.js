@@ -109,6 +109,7 @@ export default () => {
       bets: (s, g) => sort(g.betsEnriched, s.sort),
       betsEnriched: (s) => s.bets.map(bet => Object.assign({}, bet, { bet_skill: (bet.bets_won * 3 - bet.bets_loss * 2) })),
       me: (s) => s.me,
+      isGuest: (s) => s.me.id === 1,
       loggedInPlayers: (s) => s.players.filter(p => p.logged_in > 0).sort((a, b) => {
         if (a.logged_in === b.logged_in) {
           return a.rating > b.rating ? -1 : 1
