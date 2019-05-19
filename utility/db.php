@@ -113,16 +113,36 @@ class db
         return $rows ?: [];
     }
 
+    /**
+     * @param array|string $sql
+     * @param int $limit
+     * @param int $offset
+     * @param string $query
+     *
+     * @return int[]
+     */
+    public function get_int_col(
+        $sql,
+        int $limit = 0,
+        int $offset = 0,
+        $query = 'SELECT'
+    ): array {
+        return \array_map(
+            '\intval',
+            $this->get_col($sql, $limit, $offset, $query)
+        );
+    }
+
     // todo: build this without getting the whole rowset
     public function get_col(
-        array $sqlArray,
+        $sql,
         int $limit = 0,
         int $offset = 0,
         $query = 'SELECT'
     ): array {
         return \array_map(
             '\reset',
-            $this->get_rows($sqlArray, $limit, $offset, $query)
+            $this->get_rows($sql, $limit, $offset, $query)
         );
     }
 
