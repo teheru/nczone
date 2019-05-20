@@ -733,38 +733,43 @@ SQL;
 
     public function get_banned_civs(int $match_id, int $map_id): array
     {
-        $free_pick_civ_id = (string) config::get(config::free_pick_civ_id);
-        $banned_civs = zone_util::maps()->get_banned_civs($map_id);
+        $free_pick_civ_id = (int) config::get(config::free_pick_civ_id);
+        return $this->match_has_civ_id($match_id, $free_pick_civ_id)
+            ? zone_util::maps()->get_banned_civs($map_id)
+            : [];
+    }
 
-        //test if teams have freePickCiv
+    private function match_has_civ_id(int $match_id, int $civ_id): bool
+    {
+        //test if teams have civ_id
         $team_ids = $this->get_match_team_ids($match_id);
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
+        if (\in_array($civ_id, $this->db->get_int_col([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_team_civs_table => 'c'],
             'WHERE' => ['c.team_id' => ['$in' => $team_ids]],
-        ]))) {
-            return $banned_civs;
+        ]), true)) {
+            return true;
         }
 
-        //test if some player has freePickCiv
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
+        //test if some player has civ_id
+        if (\in_array($civ_id, $this->db->get_int_col([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_player_civs_table => 'c'],
             'WHERE' => 'c.match_id = ' . $match_id,
-        ]))) {
-            return $banned_civs;
+        ]), true)) {
+            return true;
         }
 
-        //test if some match has freePickCiv
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
+        //test if some match has civ_id
+        if (\in_array($civ_id, $this->db->get_int_col([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_civs_table => 'c'],
             'WHERE' => 'c.match_id = ' . $match_id,
-        ]))) {
-            return $banned_civs;
+        ]), true)) {
+            return true;
         }
 
-        return [];
+        return false;
     }
 
     public function is_over(int $match_id): bool
