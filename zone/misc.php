@@ -28,6 +28,14 @@ class misc
         $this->user = $user;
     }
 
+    public static function cut_to_same_length(array ...$arrays): array
+    {
+        $min = \min(\array_map('\count', $arrays));
+        return \array_map(static function ($array) use ($min) {
+            return \array_slice($array, 0, $min);
+        }, $arrays);
+    }
+
     public function get_rules_post(): string
     {
         return $this->get_post((int) config::get(config::rules_post_id));
