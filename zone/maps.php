@@ -108,7 +108,7 @@ class maps
 
     public function get_banned_civs(int $map_id): array
     {
-        return \array_map(function($row) {
+        return \array_map(static function($row) {
             return [
                 'id' => (int)$row['id'],
                 'title' => $row['title'],

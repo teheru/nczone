@@ -734,16 +734,7 @@ SQL;
     public function get_banned_civs(int $match_id, int $map_id): array
     {
         $free_pick_civ_id = (string) config::get(config::free_pick_civ_id);
-        $banned_civs = \array_map(function($row) {
-            return [
-                'id' => (int)$row['id'],
-                'title' => $row['title'],
-           ];   
-        }, $this->db->get_rows([
-            'SELECT' => 'c.civ_id AS id, c.civ_name AS title',
-            'FROM' => [$this->db->map_civs_table => 'mc', $this->db->civs_table => 'c'],
-            'WHERE' => 'mc.civ_id = c.civ_id AND mc.map_id = ' . $map_id . ' AND mc.prevent_draw',
-        ]));
+        $banned_civs = zone_util::maps()->get_banned_civs($map_id);
 
         //test if teams have freePickCiv
         $teams = $this->db->get_rows([
