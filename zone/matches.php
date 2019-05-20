@@ -737,22 +737,11 @@ SQL;
         $banned_civs = zone_util::maps()->get_banned_civs($map_id);
 
         //test if teams have freePickCiv
-        $teams = $this->db->get_rows([
-            'SELECT' => 'mt.team_id',
-            'FROM' => [$this->db->match_teams_table => 'mt'],
-            'WHERE' => 'mt.match_id = ' . $match_id,
-        ]);
+        $team_ids = $this->get_match_team_ids($match_id);
         if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_team_civs_table => 'c'],
-            'WHERE' => 'c.team_id = ' . $teams['0']['team_id'],
-        ]))) {
-            return $banned_civs;
-        }
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
-            'SELECT' => 'c.civ_id',
-            'FROM' => [$this->db->match_team_civs_table => 'c'],
-            'WHERE' => 'c.team_id = ' . $teams['1']['team_id'],
+            'WHERE' => ['c.team_id' => ['$in' => $team_ids]],
         ]))) {
             return $banned_civs;
         }
