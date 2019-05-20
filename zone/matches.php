@@ -455,13 +455,12 @@ class matches {
 
     public function get_match_team_ids(int $match_id): array
     {
-        $col = $this->db->get_col([
+        return $this->db->get_int_col([
             'SELECT' => 't.team_id',
             'FROM' => [$this->db->match_teams_table => 't'],
             'WHERE' => 't.match_id = ' . $match_id,
             'ORDER_BY' => 't.match_team ASC',
         ]);
-        return array_map('\intval', $col);
     }
 
     public function get_teams_players(int ...$team_ids): entity\match_players_list

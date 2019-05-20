@@ -232,7 +232,7 @@ class draw_settings {
         $team2_sum_rating = $team2_users->get_total_rating();
 
         // find out which civs have to be in both teams
-        $both_teams_civs = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
+        $both_teams_civ_ids = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
 
         // we use some extra civs to be able to draw fair civs for the teams
         [$team1_force_civ, $team1_civpool] = $this->draw_players_civs($map_id, $team1_users->get_ids(), $num_civs + $extra_civs, 0);
@@ -243,7 +243,7 @@ class draw_settings {
         {
             $num_civs--;
 
-            if(\in_array($team1_force_civ['id'], $both_teams_civs))
+            if(\in_array($team1_force_civ['id'], $both_teams_civ_ids))
             {
                 $ignore_force = True;
             }
@@ -261,7 +261,7 @@ class draw_settings {
         $both_civpool = [];
         foreach($team1_civpool as $key => $civ)
         {
-            if(\in_array($civ['id'], $both_teams_civs))
+            if(\in_array($civ['id'], $both_teams_civ_ids))
             {
                 $both_civpool[] = $civ;
                 unset($team1_civpool[$key]);
@@ -269,7 +269,7 @@ class draw_settings {
         }
         foreach($team2_civpool as $key => $civ)
         {
-            if(\in_array($civ['id'], $both_teams_civs))
+            if(\in_array($civ['id'], $both_teams_civ_ids))
             {
                 if (!\in_array($civ['id'], $both_civpool))
                 {
