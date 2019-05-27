@@ -128,10 +128,10 @@ class players
                 'SELECT "' . $user_id . '", civ_id, "' . time() . '" FROM `' . $this->db->civs_table . '`'
             );
 
-            foreach (user_settings::SETTINGS as $setting => $default_value) {
+            foreach (user_settings::SETTINGS as $setting => $value) {
                 $this->db->sql_query(
                     'INSERT INTO `' . $this->db->user_settings_table . '` (`user_id`, `setting`, `value`) ' .
-                    'VALUES (' . $user_id . ', "' . $setting . '", "' . $default_value . '")'
+                    'VALUES (' . $user_id . ', "' . $setting . '", "' . $value['default'] . '")'
                 );
             }
 
