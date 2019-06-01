@@ -23,7 +23,7 @@
 
         <div class="zone-menu-block">
           <ul class="zone-menu">
-            <li><router-link :to="{name: 'settings'}" v-t="'NCZONE_SETTINGS'" /></li>
+            <li v-if="!isGuest"><router-link :to="{name: 'settings'}" v-t="'NCZONE_SETTINGS'" /></li>
             <li><a @click="toggleLanguage" v-t="'NCZONE_SWITCH_LANG'"></a></li>
           </ul>
         </div>
@@ -42,6 +42,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'isGuest',
       'canViewMaps'
     ])
   }

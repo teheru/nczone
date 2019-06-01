@@ -97,6 +97,14 @@ class db_test extends \phpbb_database_test_case
                 'SELECT',
                 [
                     'FROM' => ['phpbb_civs_table' => 'x'],
+                    'WHERE' => ['civ_id' => ['$gt' => 5, '$lt' => 9]],
+                ],
+                'SELECT * FROM phpbb_civs_table x WHERE `civ_id` > 5 AND `civ_id` < 9'
+            ],
+            [
+                'SELECT',
+                [
+                    'FROM' => ['phpbb_civs_table' => 'x'],
                     'WHERE' => ['civ_id' => [1, 5]],
                 ],
                 'SELECT * FROM phpbb_civs_table x WHERE `civ_id` IN (1,5)'

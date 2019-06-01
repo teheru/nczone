@@ -4,6 +4,7 @@ namespace eru\nczone\utility;
 
 use eru\nczone\zone\civs;
 use eru\nczone\zone\bets;
+use eru\nczone\zone\locks;
 use eru\nczone\zone\maps;
 use eru\nczone\zone\players;
 use eru\nczone\zone\matches;
@@ -91,5 +92,15 @@ class zone_util
             $misc = phpbb_util::container()->get('eru.nczone.zone.misc');
         }
         return $misc;
+    }
+
+    public static function locks(): locks
+    {
+        static $locks;
+        if ($locks === null) {
+            /** @var locks $locks */
+            $locks = phpbb_util::container()->get('eru.nczone.zone.locks');
+        }
+        return $locks;
     }
 }

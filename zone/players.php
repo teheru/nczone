@@ -128,10 +128,10 @@ class players
                 'SELECT "' . $user_id . '", civ_id, "' . time() . '" FROM `' . $this->db->civs_table . '`'
             );
 
-            foreach (user_settings::SETTINGS as $setting => $default_value) {
+            foreach (user_settings::SETTINGS as $setting => $value) {
                 $this->db->sql_query(
                     'INSERT INTO `' . $this->db->user_settings_table . '` (`user_id`, `setting`, `value`) ' .
-                    'VALUES (' . $user_id . ', "' . $setting . '", "' . $default_value . '")'
+                    'VALUES (' . $user_id . ', "' . $setting . '", "' . $value['default'] . '")'
                 );
             }
 
@@ -312,28 +312,30 @@ class players
     /**
      * Logs out all players which are logged in and have auto logout configured.
      */
-    public function auto_logout()
+    public function auto_logout(): void
     {
-        $rows = $this->db->get_rows('
-            select
-                p.user_id,
-                s.value as auto_logout,
-                max(u.session_time) as last_activity
-            from ' . $this->db->players_table . ' p
-            join ' . $this->db->user_settings_table . ' s on p.user_id = s.user_id
-            join ' . $this->db->session_table . ' u on p.user_id = u.session_user_id
-            where p.logged_in > 0 and s.setting = "auto_logout" and s.value != "0"'
-        );
-
-        $logout_players = [];
-        foreach ($rows as $row) {
-            $last_activity = (int)$row['last_activity'];
-            $auto_logout_time = (int)$row['auto_logout'] * 60;
-            if ($last_activity < time() - $auto_logout_time) {
-                $logout_players[] = (int)$row['user_id'];
-            }
-        }
-        $this->logout_players(...$logout_players);
+        // we could use UNIX_TIMESTAMP(), but i don't know if
+        // db server + php are on the same time zone etc...
+        $now = time();
+        $user_ids = $this->db->get_int_col("
+            SELECT 
+                settings.user_id,
+                COALESCE(MAX(session.session_time), 0) AS max_session_time,
+                {$now} - (CAST(settings.value AS UNSIGNED) * 60) AS threshold
+            FROM
+                {$this->db->user_settings_table} settings
+                INNER JOIN {$this->db->players_table} players
+                ON players.user_id = settings.user_id AND players.logged_in
+                LEFT JOIN {$this->db->session_table} session 
+                ON session.session_user_id = settings.user_id
+            WHERE
+                settings.setting = 'auto_logout' AND settings.value != '0'
+            GROUP BY 
+                settings.user_id
+            HAVING 
+                max_session_time < threshold
+        ");
+        $this->logout_players(...$user_ids);
     }
 
     /**
@@ -784,7 +786,7 @@ SQL;
             ['value' => $value],
             [
                 'user_id' => $user_id,
-                'setting' => '"' . $setting . '"'
+                'setting' => $setting
             ]
         );
     }

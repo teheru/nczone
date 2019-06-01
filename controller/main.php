@@ -58,7 +58,13 @@ class main
 
         $user_id = (int) $this->user->data['user_id'];
         $user_view_mchat = zone_util::players()->get_setting($user_id, 'view_mchat');
-        if ($this->mchat && $user_view_mchat) {
+
+        // page_nczone function is a core hack in the mchat plugin added
+        if (
+            $user_view_mchat
+            && $this->mchat
+            && \method_exists($this->mchat, 'page_nczone')
+        ) {
             $this->mchat->page_nczone();
         }
         return $this->helper->render('zone.html');

@@ -99,16 +99,16 @@ class maps
 
     public function get_map_both_teams_civ_ids(int $map_id): array
     {
-        return array_map('\intval', $this->db->get_col([
+        return $this->db->get_int_col([
             'SELECT' => 'c.civ_id AS id',
             'FROM' => [$this->db->map_civs_table => 'c'],
             'WHERE' => 'c.map_id = ' . $map_id . ' AND c.both_teams',
-        ]));
+        ]);
     }
 
     public function get_banned_civs(int $map_id): array
     {
-        return \array_map(function($row) {
+        return \array_map(static function($row) {
             return [
                 'id' => (int)$row['id'],
                 'title' => $row['title'],

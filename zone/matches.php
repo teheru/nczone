@@ -214,7 +214,7 @@ class matches {
      */
     public function post(int $match_id, int $post_user_id, int $winner, bool $repost=false): void
     {
-        $this->db->run_txn(function () use ($match_id, $post_user_id, $winner, $repost) {
+        $fn = function () use ($match_id, $post_user_id, $winner, $repost) {
             $row = $this->db->get_row('
                 SELECT
                     t.map_id,
@@ -365,7 +365,13 @@ class matches {
             $this->db->update($this->db->matches_table, $update_sql, [
                 'match_id' => $match_id
             ]);
-        });
+        };
+
+        zone_util::locks()->runExclusive(
+            ['action' => 'post', 'match_id' => $match_id],
+            $this->db->txn_fn($fn),
+            120
+        );
     }
 
     /**
@@ -470,13 +476,12 @@ class matches {
 
     public function get_match_team_ids(int $match_id): array
     {
-        $col = $this->db->get_col([
+        return $this->db->get_int_col([
             'SELECT' => 't.team_id',
             'FROM' => [$this->db->match_teams_table => 't'],
             'WHERE' => 't.match_id = ' . $match_id,
             'ORDER_BY' => 't.match_team ASC',
         ]);
-        return array_map('\intval', $col);
     }
 
     public function get_teams_players(int ...$team_ids): entity\match_players_list
@@ -748,58 +753,43 @@ SQL;
 
     public function get_banned_civs(int $match_id, int $map_id): array
     {
-        $free_pick_civ_id = (string) config::get(config::free_pick_civ_id);
-        $banned_civs = \array_map(function($row) {
-            return [
-                'id' => (int)$row['id'],
-                'title' => $row['title'],
-           ];
-        }, $this->db->get_rows([
-            'SELECT' => 'c.civ_id AS id, c.civ_name AS title',
-            'FROM' => [$this->db->map_civs_table => 'mc', $this->db->civs_table => 'c'],
-            'WHERE' => 'mc.civ_id = c.civ_id AND mc.map_id = ' . $map_id . ' AND mc.prevent_draw',
-        ]));
+        $free_pick_civ_id = (int) config::get(config::free_pick_civ_id);
+        return $this->match_has_civ_id($match_id, $free_pick_civ_id)
+            ? zone_util::maps()->get_banned_civs($map_id)
+            : [];
+    }
 
-        //test if teams have freePickCiv
-        $teams = $this->db->get_rows([
-            'SELECT' => 'mt.team_id',
-            'FROM' => [$this->db->match_teams_table => 'mt'],
-            'WHERE' => 'mt.match_id = ' . $match_id,
-        ]);
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
+    private function match_has_civ_id(int $match_id, int $civ_id): bool
+    {
+        //test if teams have civ_id
+        $team_ids = $this->get_match_team_ids($match_id);
+        if (\in_array($civ_id, $this->db->get_int_col([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_team_civs_table => 'c'],
-            'WHERE' => 'c.team_id = ' . $teams['0']['team_id'],
-        ]))) {
-            return $banned_civs;
-        }
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
-            'SELECT' => 'c.civ_id',
-            'FROM' => [$this->db->match_team_civs_table => 'c'],
-            'WHERE' => 'c.team_id = ' . $teams['1']['team_id'],
-        ]))) {
-            return $banned_civs;
+            'WHERE' => ['c.team_id' => ['$in' => $team_ids]],
+        ]), true)) {
+            return true;
         }
 
-        //test if some player has freePickCiv
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
+        //test if some player has civ_id
+        if (\in_array($civ_id, $this->db->get_int_col([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_player_civs_table => 'c'],
             'WHERE' => 'c.match_id = ' . $match_id,
-        ]))) {
-            return $banned_civs;
+        ]), true)) {
+            return true;
         }
 
-        //test if some match has freePickCiv
-        if (in_array(['civ_id' => $free_pick_civ_id], $this->db->get_rows([
+        //test if some match has civ_id
+        if (\in_array($civ_id, $this->db->get_int_col([
             'SELECT' => 'c.civ_id',
             'FROM' => [$this->db->match_civs_table => 'c'],
             'WHERE' => 'c.match_id = ' . $match_id,
-        ]))) {
-            return $banned_civs;
+        ]), true)) {
+            return true;
         }
 
-        return [];
+        return false;
     }
 
     public function is_over(int $match_id): bool
@@ -939,7 +929,7 @@ SQL;
      */
     public function draw(int $user_id): array
     {
-        return $this->db->run_txn(function () use ($user_id) {
+        $fn = function () use ($user_id) {
             $draw_id = $this->get_draw_id_by_user_id($user_id);
             if (!$draw_id) {
                 throw new InvalidDrawIdError();
@@ -969,7 +959,12 @@ SQL;
             }
             zone_util::players()->logout_players(...$user_ids);
             return $match_ids;
-        });
+        };
+        return zone_util::locks()->runExclusive(
+            ['action' => 'draw'],
+            $this->db->txn_fn($fn),
+            120
+        );
     }
 
     public function get_draw_user_id(int $match_id): int

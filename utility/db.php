@@ -51,6 +51,8 @@ class db
     public $draw_players_table;
     /** @var string */
     public $user_settings_table;
+    /** @var string */
+    public $locks_table;
 
     private const FMT_MAP = [
         '$like' => '%s LIKE %s',
@@ -91,6 +93,7 @@ class db
         $this->draw_process_table = $table_prefix . 'zone_draw_process';
         $this->draw_players_table = $table_prefix . 'zone_draw_players';
         $this->user_settings_table = $table_prefix . 'zone_user_settings';
+        $this->locks_table = $table_prefix . 'zone_locks';
     }
 
     /**
@@ -193,9 +196,15 @@ class db
         return $row ? \reset($row) : null;
     }
 
+    public function insert_only(string $table, array $data)
+    {
+        $dataSql = $this->db->sql_build_array('INSERT', $data);
+        return $this->db->sql_query("INSERT INTO {$table} {$dataSql}");
+    }
+
     public function insert(string $table, array $data): int
     {
-        $this->db->sql_query('INSERT INTO ' . $table . ' ' . $this->db->sql_build_array('INSERT', $data));
+        $this->insert_only($table, $data);
         // we cast the insert id to int, ignoring the fact that driver_interface returns strings
         // the id should be a ctype int though, so cast should be alright
         return (int)$this->db->sql_nextid();
@@ -209,6 +218,13 @@ class db
             'UPDATE ' . $table
             . ' SET ' . $this->db->sql_build_array('UPDATE', $data) .
             $whereSql);
+    }
+
+    public function txn_fn(callable $func): callable
+    {
+        return function () use ($func) {
+            return $this->run_txn($func);
+        };
     }
 
     public function run_txn(callable $func)
@@ -326,5 +342,18 @@ class db
             }
         }
         return \implode(' AND ', $wheres);
+    }
+
+    public function delete(string $table, array $where): bool
+    {
+        $whereSql = $this->build_where($where);
+        $whereSql = $whereSql ? " WHERE {$whereSql}" : '';
+        $this->db->sql_query("DELETE FROM {$table}{$whereSql}");
+        return $this->db->sql_affectedrows() !== false;
+    }
+
+    public function sql_return_on_error(bool $fail)
+    {
+        return $this->db->sql_return_on_error($fail);
     }
 }
