@@ -753,7 +753,7 @@ SQL;
             return [
                 'id' => (int)$row['id'],
                 'title' => $row['title'],
-           ];   
+           ];
         }, $this->db->get_rows([
             'SELECT' => 'c.civ_id AS id, c.civ_name AS title',
             'FROM' => [$this->db->map_civs_table => 'mc', $this->db->civs_table => 'c'],
@@ -1016,6 +1016,6 @@ SQL;
 
     private function create_match_shortcode(int $match_id): string
     {
-        return '[match]' . $match_id . '[/match]';
+        return "[match]{$match_id}[/match]";
     }
 }
