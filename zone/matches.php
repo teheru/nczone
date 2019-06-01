@@ -221,6 +221,7 @@ class matches {
                     t.draw_time,
                     t.post_time,
                     t.post_user_id,
+                    t.forum_topic_id,
                     t1.team_id AS team1_id,
                     t2.team_id AS team2_id
                 FROM 
@@ -348,8 +349,17 @@ class matches {
 
             // we don't want to create duplicate topics for a match
             $forum_id = config::get(config::match_forum_id);
-            if (!$repost && $forum_id) {
-                $update_sql['forum_topic_id'] = $this->create_match_topic($match_id, $team1_id, $team2_id, $winner, $forum_id);
+            if ($forum_id) {
+                $forum_topic_id = (int) $row['forum_topic_id'];
+
+                $title = $this->create_match_topic_title($match_id, $team1_id, $team2_id, $winner);
+                $message = $this->create_match_shortcode($match_id);
+                $update_sql['forum_topic_id'] = $this->create_topic_and_post(
+                    $title,
+                    $message,
+                    $forum_id,
+                    $forum_topic_id
+                );
             }
 
             $this->db->update($this->db->matches_table, $update_sql, [
@@ -364,26 +374,31 @@ class matches {
         );
     }
 
-    protected function create_match_topic(int $match_id, int $team1_id, int $team2_id, int $winner, int $forum_id): int
-    {
-        $team_names = zone_util::players()->get_team_usernames($team1_id, $team2_id);
-        if ($winner === 1) {
-            $team1_str = ' (W)';
-            $team2_str = ' (L)';
-        } elseif ($winner === 2) {
-            $team1_str = ' (L)';
-            $team2_str = ' (W)';
-        } else {
-            $team1_str = '';
-            $team2_str = '';
-        }
-
-        $title = '[#' . $match_id . '] '
-            . implode(', ', $team_names[$team1_id]) . $team1_str
-            . ' vs. '
-            . implode(', ', $team_names[$team2_id]) . $team2_str;
-        $message = '[match]' . $match_id . '[/match]';
-        return zone_util::misc()->create_post($title, $message, $forum_id);
+    /**
+     * Create a topic and first post.
+     *
+     * Note: If topic already exists, this only updates title of
+     * topic and first post.
+     *
+     * @param string $title
+     * @param string $message
+     * @param int $forum_id
+     * @param int $forum_topic_id
+     *
+     * @return int
+     */
+    protected function create_topic_and_post(
+        string $title,
+        string $message,
+        int $forum_id,
+        int $forum_topic_id
+    ): int {
+        return zone_util::misc()->create_post(
+            $title,
+            $message,
+            $forum_id,
+            $forum_topic_id
+        );
     }
 
     public function post_undo(int $match_id): void // todo: test this xD // todo: dreamteams
@@ -960,5 +975,42 @@ SQL;
                 WHERE 
                     match_id = ' . $match_id;
          return (int)$this->db->get_var($sql);
+    }
+
+    /**
+     * @param int $match_id
+     * @param int $team1_id
+     * @param int $team2_id
+     * @param int $winner
+     *
+     * @return string
+     */
+    protected function create_match_topic_title(
+        int $match_id,
+        int $team1_id,
+        int $team2_id,
+        int $winner
+    ): string {
+        $team_names = zone_util::players()->get_team_usernames($team1_id, $team2_id);
+        if ($winner === 1) {
+            $t1_str = ' (W)';
+            $t2_str = ' (L)';
+        } elseif ($winner === 2) {
+            $t1_str = ' (L)';
+            $t2_str = ' (W)';
+        } else {
+            $t1_str = '';
+            $t2_str = '';
+        }
+
+        $t1_names = \implode(', ', $team_names[$team1_id]);
+        $t2_names = \implode(', ', $team_names[$team2_id]);
+
+        return "[#{$match_id}] {$t1_names}{$t1_str} vs. {$t2_names}{$t2_str}";
+}
+
+    private function create_match_shortcode(int $match_id): string
+    {
+        return "[match]{$match_id}[/match]";
     }
 }

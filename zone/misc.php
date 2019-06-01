@@ -80,8 +80,22 @@ class misc
         return $posts;
     }
 
-    public function create_post(string $title, string $message, int $forum_id): int
-    {
+    /**
+     * Create or update post
+     *
+     * @param string $title
+     * @param string $message
+     * @param int $forum_id
+     * @param int $forum_topic_id
+     *
+     * @return int
+     */
+    public function create_post(
+        string $title,
+        string $message,
+        int $forum_id,
+        int $forum_topic_id = 0
+    ): int {
         include_once phpbb_util::file_url('includes/functions_posting');
 
         $uid = $bitfield = $options = '';
@@ -104,10 +118,30 @@ class misc
             'bbcode_bitfield' => $bitfield,
             'bbcode_uid' => $uid,
         ];
-        $poll = [];
-        submit_post('post', $title, $this->user->data['username'], POST_NORMAL, $poll, $data);
 
-        return (int)$data['topic_id'];
+        if ($forum_topic_id) {
+            $row = $this->db->get_row([
+                'SELECT' => ['topic_first_post_id', 'topic_poster'],
+                'FROM' => [$this->db->topics_table => 't'],
+                'WHERE' => ['topic_id' => $forum_topic_id],
+            ]);
+            $data['topic_first_post_id'] = $row['topic_first_post_id'];
+            $data['post_id'] = $row['topic_first_post_id'];
+            $data['poster_id'] = $row['topic_poster'];
+            $data['topic_id'] = $forum_topic_id;
+        }
+
+        $poll = [];
+        submit_post(
+            $forum_topic_id ? 'edit' : 'post',
+            $title,
+            $this->user->data['username'],
+            POST_NORMAL,
+            $poll,
+            $data
+        );
+
+        return (int) $data['topic_id'];
     }
 
     public function block_draw(): void
