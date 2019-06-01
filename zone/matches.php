@@ -257,11 +257,7 @@ class matches {
                     $winner
                 );
 
-                $match_civ_ids = $this->db->get_col([
-                    'SELECT' => 't.civ_id',
-                    'FROM' => [$this->db->match_civs_table => 't'],
-                    'WHERE' => 't.match_id = ' . $match_id,
-                ]);
+                $match_civ_ids = $this->get_civ_ids_by_match($match_id);
 
                 $team1_civ_ids = [];
                 $team2_civ_ids = [];
@@ -779,15 +775,25 @@ SQL;
         }
 
         //test if some match has civ_id
-        if (\in_array($civ_id, $this->db->get_int_col([
-            'SELECT' => 'c.civ_id',
-            'FROM' => [$this->db->match_civs_table => 'c'],
-            'WHERE' => 'c.match_id = ' . $match_id,
-        ]), true)) {
+        if (\in_array($civ_id, $this->get_civ_ids_by_match($match_id), true)) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * @param int $match_id
+     *
+     * @return int[]
+     */
+    private function get_civ_ids_by_match(int $match_id): array
+    {
+        return $this->db->get_int_col([
+            'SELECT' => 'mc.civ_id',
+            'FROM' => [$this->db->match_civs_table => 'mc'],
+            'WHERE' => 'mc.match_id = ' . $match_id,
+        ]);
     }
 
     public function is_over(int $match_id): bool
