@@ -126,6 +126,7 @@ class misc
                 'WHERE' => ['topic_id' => $forum_topic_id],
             ]);
             $data['topic_first_post_id'] = $row['topic_first_post_id'];
+            $data['post_edit_reason'] = '';
             $data['post_id'] = $row['topic_first_post_id'];
             $data['poster_id'] = $row['topic_poster'];
             $data['topic_id'] = $forum_topic_id;
