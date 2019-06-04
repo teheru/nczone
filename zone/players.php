@@ -666,34 +666,26 @@ class players
     public function get_bets(): array
     {
         // todo: make limit dynamic
-        $sql = 'select
-                    u.user_id,
-                    u.username,
-                    b.bets_won,
-                    b.bets_loss,
-                    (b.bets_won + b.bets_loss) as bets_total,
-                    b.bets_won / (b.bets_won + b.bets_loss) * 100 as bet_quota
-                from '.$this->db->players_table.' b
-                left join '.$this->db->users_table.' u on u.user_id = b.user_id
-                join (
-                    select
-                        avg(bets_won) as avg_bets_won,
-                        avg(bets_loss) as avg_bets_loss
-                    from '.$this->db->players_table.'
-                ) a
-                where
-                    b.bets_won + b.bets_loss >= 10 and
-                    u.username is not null
-                order by (b.bets_won * b.bets_won + a.avg_bets_won * a.avg_bets_won) / (b.bets_loss * b.bets_loss + a.avg_bets_loss * a.avg_bets_loss) desc';
+        $sql = '
+            select
+                b.user_id,
+                b.bets_won,
+                b.bets_loss,
+                u.username
+            from 
+                '.$this->db->players_table.' b
+                inner join '.$this->db->users_table.' u on u.user_id = b.user_id
+            where
+                b.bets_won + b.bets_loss >= 10
+            ;
+        ';
 
         return \array_map(function ($row) {
             return [
                 'user_id' => (int) $row['user_id'],
-                'username' => $row['username'],
+                'username' => (string) $row['username'],
                 'bets_won' => (int) $row['bets_won'],
                 'bets_loss' => (int) $row['bets_loss'],
-                'bets_total' => (int) $row['bets_total'],
-                'bet_quota' => (float) $row['bet_quota'],
             ];
         }, $this->db->get_rows($sql));
     }
