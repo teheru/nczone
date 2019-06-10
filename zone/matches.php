@@ -262,9 +262,9 @@ class matches {
                 $team1_civ_ids = [];
                 $team2_civ_ids = [];
                 $team_civ_rows = $this->db->get_rows([
-                    'SELECT' => 't.civ_id, t.team_id',
+                    'SELECT' => 'civ_id, team_id',
                     'FROM' => [$this->db->match_team_civs_table => 't'],
-                    'WHERE' => 't.team_id = ' . $team1_id . ' OR t.team_id = ' . $team2_id,
+                    'WHERE' => ['team_id' => ['$in' => [$team1_id, $team2_id]]],
                 ]);
                 foreach ($team_civ_rows as $r) {
                     if ($r['team_id'] == $team1_id) {
@@ -691,7 +691,7 @@ SQL;
 
     public function get_pmatches_total_pages(): int
     {
-        $num_matches = (int)$this->db->get_var('SELECT COUNT(*) FROM ' . $this->db->matches_table . ' WHERE post_time > 0');
+        $num_matches = $this->get_pmatches_count();
         $page_size = $this->get_pmatches_page_size();
         return ceil($num_matches / $page_size);
     }
@@ -758,18 +758,18 @@ SQL;
         //test if teams have civ_id
         $team_ids = $this->get_match_team_ids($match_id);
         if (\in_array($civ_id, $this->db->get_int_col([
-            'SELECT' => 'c.civ_id',
-            'FROM' => [$this->db->match_team_civs_table => 'c'],
-            'WHERE' => ['c.team_id' => ['$in' => $team_ids]],
+            'SELECT' => 'civ_id',
+            'FROM' => [$this->db->match_team_civs_table => 't'],
+            'WHERE' => ['team_id' => ['$in' => $team_ids]],
         ]), true)) {
             return true;
         }
 
         //test if some player has civ_id
         if (\in_array($civ_id, $this->db->get_int_col([
-            'SELECT' => 'c.civ_id',
-            'FROM' => [$this->db->match_player_civs_table => 'c'],
-            'WHERE' => 'c.match_id = ' . $match_id,
+            'SELECT' => 'civ_id',
+            'FROM' => [$this->db->match_player_civs_table => 't'],
+            'WHERE' => ['match_id' => $match_id],
         ]), true)) {
             return true;
         }
@@ -790,26 +790,27 @@ SQL;
     private function get_civ_ids_by_match(int $match_id): array
     {
         return $this->db->get_int_col([
-            'SELECT' => 'mc.civ_id',
-            'FROM' => [$this->db->match_civs_table => 'mc'],
-            'WHERE' => 'mc.match_id = ' . $match_id,
+            'SELECT' => 'civ_id',
+            'FROM' => [$this->db->match_civs_table => 't'],
+            'WHERE' => ['match_id' => $match_id],
         ]);
     }
 
     public function is_over(int $match_id): bool
     {
-        $sql = '
-            SELECT 
-                COUNT(*) 
-            FROM 
-                ' . $this->db->matches_table . ' 
-            WHERE 
-                match_id = ' . $match_id . ' 
-                AND 
-                post_time > 0
-            ;
-        ';
-        return (int)$this->db->get_var($sql) > 0;
+        return $this->get_pmatches_count(['match_id' => $match_id]) > 0;
+    }
+
+    private function get_pmatches_count(array $where = []): int
+    {
+        return $this->db->get_int_var([
+            'SELECT' => 'COUNT(*)',
+            'FROM' => [$this->db->matches_table => 't'],
+            'WHERE' => \array_merge(
+                $where,
+                ['post_time' => ['$gt' => 0]]
+            ),
+        ]);
     }
 
     public function get_winner(int $match_id): int
@@ -821,7 +822,7 @@ SQL;
                     LEFT JOIN ' . $this->db->matches_table . ' m ON t.team_id = m.winner_team_id
                 WHERE
                     m.match_id = ' . $match_id;
-        return (int)$this->db->get_var($sql);
+        return $this->db->get_int_var($sql);
     }
 
     public function is_any_draw_process_active(): bool
@@ -832,9 +833,9 @@ SQL;
     public function get_draw_id_by_user_id(int $user_id = 0): int
     {
         $row = $this->db->get_row([
-            'SELECT' => 't.draw_id, t.time',
+            'SELECT' => 'draw_id, time',
             'FROM' => [$this->db->draw_process_table => 't'],
-            'WHERE' => $user_id ? ('t.user_id = ' . $user_id) : '1',
+            'WHERE' => $user_id ? ['user_id' => $user_id] : [],
         ]);
         if (!$row) {
             return 0;
@@ -922,8 +923,8 @@ SQL;
 
     private function clear_draw_tables(): void
     {
-        $this->db->sql_query('TRUNCATE `' . $this->db->draw_process_table . '`');
-        $this->db->sql_query('TRUNCATE `' . $this->db->draw_players_table . '`');
+        $this->db->truncate($this->db->draw_process_table);
+        $this->db->truncate($this->db->draw_players_table);
     }
 
     /**
@@ -973,12 +974,11 @@ SQL;
 
     public function get_draw_user_id(int $match_id): int
     {
-        $sql = 'SELECT
-                    draw_user_id
-                FROM ' . $this->db->matches_table . '
-                WHERE 
-                    match_id = ' . $match_id;
-         return (int)$this->db->get_var($sql);
+         return $this->db->get_int_var([
+             'SELECT' => 'draw_user_id',
+             'FROM' => [$this->db->matches_table => 't'],
+             'WHERE' => ['match_id' => $match_id],
+         ]);
     }
 
     /**

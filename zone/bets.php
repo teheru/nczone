@@ -36,7 +36,7 @@ class bets
                 b.user_id = ' . $user_id . '
             ;
         ';
-        return $this->db->get_var($sql) ? true : false;
+        return $this->db->get_int_var($sql) > 0;
     }
 
     public function place_bet(int $user_id, int $match_id, int $team): void

@@ -88,8 +88,8 @@ class players
     public function activate_player(int $user_id, int $rating): bool
     {
         return $this->db->run_txn(function () use ($user_id, $rating) {
-            $count = (int)$this->db->get_var([
-                'SELECT' => 'COUNT(*) AS n',
+            $count = $this->db->get_int_var([
+                'SELECT' => 'COUNT(*)',
                 'FROM' => [$this->db->players_table => 'u'],
                 'WHERE' => 'u.user_id = ' . $user_id,
             ]);
@@ -203,7 +203,7 @@ class players
                 user_id = ' . $user_id . '
             ;
         ';
-        return (bool)$this->db->get_var($sql);
+        return $this->db->get_int_var($sql) > 0;
     }
 
     /**
@@ -271,21 +271,21 @@ class players
 
     public function last_streak(int $user_id): int
     {
-        return (int)$this->db->get_var([
-            'SELECT' => 't.streak',
+        return $this->db->get_int_var([
+            'SELECT' => 'streak',
             'FROM' => [$this->db->match_players_table => 't'],
-            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id,
-            'ORDER_BY' => 't.team_id DESC',
+            'WHERE' => 'rating_change != 0 AND user_id = ' . $user_id,
+            'ORDER_BY' => 'team_id DESC',
         ]);
     }
 
     private function last_streak_before_in_team(int $user_id, int $team_id): int
     {
-        return (int)$this->db->get_var([
-            'SELECT' => 't.streak',
+        return $this->db->get_int_var([
+            'SELECT' => 'streak',
             'FROM' => [$this->db->match_players_table => 't'],
-            'WHERE' => 't.rating_change != 0 AND t.user_id = ' . $user_id . ' AND t.team_id < ' . $team_id,
-            'ORDER_BY' => 't.team_id DESC'
+            'WHERE' => 'rating_change != 0 AND user_id = ' . $user_id . ' AND team_id < ' . $team_id,
+            'ORDER_BY' => 'team_id DESC'
         ]);
     }
 
@@ -550,7 +550,7 @@ class players
                 user_id = ' . $user_id . '
             ;
         ';
-        return $this->db->get_var($sql);
+        return $this->db->get_int_var($sql);
     }
 
     public function get_player_rating_data(int $user_id): array
@@ -759,16 +759,12 @@ SQL;
 
     public function get_setting(int $user_id, string $setting): string
     {
-        $value = $this->db->get_var('
+        return $this->db->get_str_var('
             select
                 s.value
             from ' . $this->db->user_settings_table . ' s
             where s.user_id = ' . $user_id . ' and s.setting = "' . $setting . '"'
         );
-        if(!$value) {
-            return '';
-        }
-        return $value;
     }
 
     public function set_setting(int $user_id, string $setting, string $value)

@@ -77,7 +77,7 @@ class main_module
             // why is there no dependency injection for mcp?
             $db = new db($GLOBALS['db'], $GLOBALS['table_prefix']);
             $username = $request->variable('username', '', true);
-            $user_id = (int)$db->get_var([
+            $user_id = $db->get_int_var([
                 'SELECT' => 'user_id',
                 'FROM' => [USERS_TABLE => 'u'],
                 'WHERE' => 'username_clean = \'' . $db->sql_escape(utf8_clean_string($username)) . '\'',

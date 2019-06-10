@@ -187,9 +187,27 @@ class db
 
     /**
      * @param array|string $sql
+     * @return int
+     */
+    public function get_int_var($sql): int
+    {
+        return (int) $this->get_var($sql);
+    }
+
+    /**
+     * @param array|string $sql
+     * @return string
+     */
+    public function get_str_var($sql): string
+    {
+        return (string) $this->get_var($sql);
+    }
+
+    /**
+     * @param array|string $sql
      * @return mixed|null
      */
-    public function get_var($sql)
+    private function get_var($sql)
     {
         // todo: build this without getting the whole row
         $row = $this->get_row($sql);
@@ -350,6 +368,12 @@ class db
         $whereSql = $whereSql ? " WHERE {$whereSql}" : '';
         $this->db->sql_query("DELETE FROM {$table}{$whereSql}");
         return $this->db->sql_affectedrows() !== false;
+    }
+
+    public function truncate(string $table): void
+    {
+        $ticked = self::add_ticks($table);
+        $this->db->sql_query("TRUNCATE {$ticked}");
     }
 
     public function sql_return_on_error(bool $fail)
