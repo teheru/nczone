@@ -203,8 +203,8 @@ class main_module
             );
         } elseif ($request->variable('edit_map', '')) {
             zone_util::maps()->edit_map(map::create_by_row([
-                'id' => (int)$map_id,
-                'name' => $request->variable('map_name', ''),
+                'map_id' => (int)$map_id,
+                'map_name' => $request->variable('map_name', ''),
                 'weight' => (float)$request->variable('map_weight', 1.0),
                 'draw_1vs1' => $request->variable('map_match_sizes_1vs1', '') === 'on',
                 'draw_2vs2' => $request->variable('map_match_sizes_2vs2', '') === 'on',

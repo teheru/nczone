@@ -18,8 +18,8 @@ class map
     public static function create_by_row(array $row): map
     {
         $map = new self;
-        $map->id = (int)$row['id'];
-        $map->name = (string)$row['name'];
+        $map->id = (int)$row['map_id'];
+        $map->name = (string)$row['map_name'];
         $map->weight = (float)$row['weight'];
         $map->description = $row['description'];
         $map->match_sizes = [
@@ -29,6 +29,11 @@ class map
             4 => $row['draw_4vs4']
         ];
         return $map;
+    }
+
+    public static function create_many_by_rows(array $rows): array
+    {
+        return \array_map([__CLASS__, 'create_by_row'], $rows);
     }
 
     public function get_id(): int

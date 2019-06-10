@@ -46,19 +46,27 @@ class maps
     public function get_maps(): array
     {
         $rows = $this->db->get_rows([
-            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight, m.description,
-                         m.draw_1vs1, m.draw_2vs2, m.draw_3vs3, m.draw_4vs4',
-            'FROM' => [$this->db->maps_table => 'm'],
-            'ORDER_BY' => 'LOWER(name) ASC',
+            'SELECT' => [
+                'map_id',
+                'map_name',
+                'weight',
+                'description',
+                'draw_1vs1',
+                'draw_2vs2',
+                'draw_3vs3',
+                'draw_4vs4',
+            ],
+            'FROM' => [$this->db->maps_table => 't'],
+            'ORDER_BY' => 'LOWER(map_name) ASC',
         ]);
-        return array_map([entity\map::class, 'create_by_row'], $rows);
+        return entity\map::create_many_by_rows($rows);
     }
 
     public function get_map_ids(): array
     {
         return $this->db->get_col([
-            'SELECT' => 'm.map_id',
-            'FROM' => [$this->db->maps_table => 'm']
+            'SELECT' => 'map_id',
+            'FROM' => [$this->db->maps_table => 't']
         ]);
     }
 
@@ -72,10 +80,17 @@ class maps
     public function get_map(int $map_id): entity\map
     {
         $row = $this->db->get_row([
-            'SELECT' => 'm.map_id AS id, m.map_name AS name, m.weight,
-                         m.draw_1vs1, m.draw_2vs2, m.draw_3vs3, m.draw_4vs4',
-            'FROM' => [$this->db->maps_table => 'm'],
-            'WHERE' => 'm.map_id = ' . $map_id
+            'SELECT' => [
+                'map_id',
+                'map_name',
+                'weight',
+                'draw_1vs1',
+                'draw_2vs2',
+                'draw_3vs3',
+                'draw_4vs4'
+            ],
+            'FROM' => [$this->db->maps_table => 't'],
+            'WHERE' => ['map_id' => $map_id],
         ]);
         return entity\map::create_by_row($row);
     }
@@ -90,9 +105,16 @@ class maps
     public function get_map_civs(int $map_id): array
     {
         $rows = $this->db->get_rows([
-            'SELECT' => 'c.map_id, c.civ_id, c.multiplier, c.force_draw, c.prevent_draw, c.both_teams',
-            'FROM' => [$this->db->map_civs_table => 'c'],
-            'WHERE' => 'c.map_id = ' . $map_id
+            'SELECT' => [
+                'map_id',
+                'civ_id',
+                'multiplier',
+                'force_draw',
+                'prevent_draw',
+                'both_teams',
+            ],
+            'FROM' => [$this->db->map_civs_table => 't'],
+            'WHERE' => ['map_id' => $map_id]
         ]);
         return \array_map([entity\map_civ::class, 'create_by_row'], $rows);
     }
@@ -100,9 +122,9 @@ class maps
     public function get_map_both_teams_civ_ids(int $map_id): array
     {
         return $this->db->get_int_col([
-            'SELECT' => 'c.civ_id AS id',
-            'FROM' => [$this->db->map_civs_table => 'c'],
-            'WHERE' => 'c.map_id = ' . $map_id . ' AND c.both_teams',
+            'SELECT' => 'civ_id',
+            'FROM' => [$this->db->map_civs_table => 't'],
+            'WHERE' => ['map_id' => $map_id, 'both_teams'],
         ]);
     }
 
@@ -112,9 +134,9 @@ class maps
             return [
                 'id' => (int)$row['id'],
                 'title' => $row['title'],
-           ];   
+           ];
         }, $this->db->get_rows([
-            'SELECT' => 'c.civ_id AS id, c.civ_name AS title',
+            'SELECT' => ['c.civ_id' => 'id', 'c.civ_name' => 'title'],
             'FROM' => [$this->db->map_civs_table => 'mc', $this->db->civs_table => 'c'],
             'WHERE' => 'mc.civ_id = c.civ_id AND mc.map_id = ' . $map_id . ' AND mc.prevent_draw',
         ]));
@@ -122,28 +144,34 @@ class maps
 
     public function set_map_description(int $map_id, string $description): void
     {
-        $this->db->update($this->db->maps_table, ['description' => trim($description)], ['map_id' => $map_id]);
+        $this->db->update(
+            $this->db->maps_table,
+            ['description' => \trim($description)],
+            ['map_id' => $map_id]
+        );
     }
 
     public function set_map_image(int $map_id, string $image_raw): bool
     {
-        $image_raw = \base64_decode(\explode(',', $image_raw)[1]);
-        $image = @\imagecreatefromstring($image_raw);
-        if ($image) {
-            imagesavealpha($image, TRUE);
-            $width = \imagesx($image);
-            $height = \imagesy($image);
-            if ($width <= 200 && $height <= 500) {
-                \imagepng($image, $this->get_image_path($map_id));
-                return true;
-            }
+        $image_decoded = \base64_decode(\explode(',', $image_raw)[1]);
+        $image = @\imagecreatefromstring($image_decoded);
+        if (!$image) {
+            return false;
         }
-        return false;
+
+        \imagesavealpha($image, TRUE);
+        if (\imagesx($image) > 200 || \imagesy($image) > 500) {
+            return false;
+        }
+
+        return \imagepng($image, $this->get_image_path($map_id));
     }
 
     private function get_image_path(int $map_id): string
     {
-        return phpbb_util::nczone_path() . config::map_images_path . 'map_' . $map_id . '.png';
+        return phpbb_util::nczone_path()
+            . config::map_images_path
+            . "map_{$map_id}.png";
     }
 
     public function get_image_url(int $map_id): string
@@ -201,7 +229,7 @@ class maps
             $map_civ->set_map_id($to_map_id);
             $sql_array[] = $map_civ->as_sql_array();
         }
-        if (!empty($sql_array)) {
+        if ($sql_array) {
             $this->db->sql_multi_insert($this->db->map_civs_table, $sql_array);
         }
     }
@@ -216,7 +244,7 @@ class maps
                 'civ_id' => $civ->get_id(),
             ])->as_sql_array();
         }
-        if (!empty($sql_array)) {
+        if ($sql_array) {
             $this->db->sql_multi_insert($this->db->map_civs_table, $sql_array);
         }
     }
