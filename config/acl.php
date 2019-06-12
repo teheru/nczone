@@ -32,6 +32,7 @@ final class acl
         self::u_zone_draw,
         self::u_zone_login,
         self::u_zone_change_match,
+        self::u_zone_bet
     ];
 
     public const PERMISSIONS_ADMIN = [
