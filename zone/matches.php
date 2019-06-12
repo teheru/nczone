@@ -319,12 +319,25 @@ class matches {
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
                 $user_ids = array_merge($user1_ids, $user2_ids);
-                $this->db->update($this->db->player_map_table, ['counter' => 0], $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id);
-                $this->db->sql_query('
-                    UPDATE ' . $this->db->player_map_table . ' mp
-                    SET counter = counter + (SELECT weight FROM ' . $this->db->maps_table . ' m WHERE m.map_id = mp.map_id)
-                    WHERE mp.map_id != ' . $map_id . ' AND '. $this->db->sql_in_set('user_id', $user_ids)
-                );
+
+                if (!$repost) {
+                    // note: in post_undo, there is no undo of the player_maps
+                    // table so we dont do this on repost
+
+                    // set the just played map to 0
+                    $this->db->update(
+                        $this->db->player_map_table,
+                        ['counter' => 0],
+                        $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id
+                    );
+
+                    // increase all other maps by their weight
+                    $this->db->sql_query('
+                        UPDATE ' . $this->db->player_map_table . ' mp
+                        SET counter = counter + (SELECT weight FROM ' . $this->db->maps_table . ' m WHERE m.map_id = mp.map_id)
+                        WHERE mp.map_id != ' . $map_id . ' AND '. $this->db->sql_in_set('user_id', $user_ids)
+                    );
+                }
 
                 zone_util::bets()->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {

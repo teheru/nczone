@@ -88,55 +88,84 @@ class players
     public function activate_player(int $user_id, int $rating): bool
     {
         return $this->db->run_txn(function () use ($user_id, $rating) {
-            $count = $this->db->get_int_var([
-                'SELECT' => 'COUNT(*)',
-                'FROM' => [$this->db->players_table => 'u'],
-                'WHERE' => 'u.user_id = ' . $user_id,
-            ]);
-            if ($count > 0) {
+            if ($this->is_player($user_id)) {
                 return false;
             }
 
-            $this->db->insert($this->db->players_table, [
-                'user_id' => $user_id,
-                'rating' => $rating,
-                'logged_in' => 0,
-                'matches_won' => 0,
-                'matches_loss' => 0,
-                'bets_won' => 0,
-                'bets_loss' => 0,
-                'activity_matches' => 0,
-            ]);
+            $this->insert_player($user_id, $rating);
 
-            $this->db->sql_query(
-                'INSERT INTO `' . $this->db->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) ' .
-                'SELECT `user_id`, ' . $user_id . ', 0, 0 FROM `' . $this->db->players_table . '` WHERE `user_id` < ' . $user_id
-            );
+            $this->insert_dreamteam_entries($user_id);
 
-            $this->db->sql_query(
-                'INSERT INTO `' . $this->db->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) ' .
-                'SELECT ' . $user_id . ', `user_id`, 0, 0 FROM `' . $this->db->players_table . '` WHERE `user_id` > ' . $user_id
-            );
+            $this->insert_map_x_player_entries($user_id);
 
-            $this->db->sql_query(
-                'INSERT INTO `' . $this->db->player_map_table . '` (`user_id`, `map_id`, `counter`) ' .
-                'SELECT "' . $user_id . '", map_id, 0 FROM `' . $this->db->maps_table . '`'
-            );
+            $this->insert_player_civ_entries($user_id);
 
-            $this->db->sql_query(
-                'INSERT INTO `' . $this->db->player_civ_table . '` (`user_id`, `civ_id`, `time`) ' .
-                'SELECT "' . $user_id . '", civ_id, "' . time() . '" FROM `' . $this->db->civs_table . '`'
-            );
-
-            foreach (user_settings::SETTINGS as $setting => $value) {
-                $this->db->sql_query(
-                    'INSERT INTO `' . $this->db->user_settings_table . '` (`user_id`, `setting`, `value`) ' .
-                    'VALUES (' . $user_id . ', "' . $setting . '", "' . $value['default'] . '")'
-                );
-            }
+            $this->insert_setting_entries($user_id);
 
             return true;
         });
+    }
+
+    private function is_player(int $user_id): bool
+    {
+        return (bool) $this->db->get_int_var([
+            'SELECT' => 'user_id',
+            'FROM' => [$this->db->players_table => 't'],
+            'WHERE' => ['user_id' => $user_id],
+        ]);
+    }
+
+    private function insert_player(int $user_id, int $rating): void
+    {
+        $this->db->insert($this->db->players_table, [
+            'user_id' => $user_id,
+            'rating' => $rating,
+            'logged_in' => 0,
+            'matches_won' => 0,
+            'matches_loss' => 0,
+            'bets_won' => 0,
+            'bets_loss' => 0,
+            'activity_matches' => 0,
+        ]);
+    }
+
+    private function insert_dreamteam_entries(int $user_id): void
+    {
+        $this->db->sql_query(
+            'INSERT INTO `' . $this->db->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) ' .
+            'SELECT `user_id`, ' . $user_id . ', 0, 0 FROM `' . $this->db->players_table . '` WHERE `user_id` < ' . $user_id
+        );
+
+        $this->db->sql_query(
+            'INSERT INTO `' . $this->db->dreamteams_table . '` (`user1_id`, `user2_id`, `matches_won`, `matches_loss`) ' .
+            'SELECT ' . $user_id . ', `user_id`, 0, 0 FROM `' . $this->db->players_table . '` WHERE `user_id` > ' . $user_id
+        );
+    }
+
+    private function insert_map_x_player_entries(int $user_id): void
+    {
+        $this->db->sql_query(
+            'INSERT INTO `' . $this->db->player_map_table . '` (`user_id`, `map_id`, `counter`) ' .
+            'SELECT "' . $user_id . '", map_id, 0 FROM `' . $this->db->maps_table . '`'
+        );
+    }
+
+    private function insert_player_civ_entries(int $user_id): void
+    {
+        $this->db->sql_query(
+            'INSERT INTO `' . $this->db->player_civ_table . '` (`user_id`, `civ_id`, `time`) ' .
+            'SELECT "' . $user_id . '", civ_id, "' . \time() . '" FROM `' . $this->db->civs_table . '`'
+        );
+    }
+
+    private function insert_setting_entries($user_id): void
+    {
+        foreach (user_settings::SETTINGS as $setting => $value) {
+            $this->db->sql_query(
+                'INSERT INTO `' . $this->db->user_settings_table . '` (`user_id`, `setting`, `value`) ' .
+                'VALUES (' . $user_id . ', "' . $setting . '", "' . $value['default'] . '")'
+            );
+        }
     }
 
     /**
