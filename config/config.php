@@ -42,6 +42,8 @@ final class config
     public const draw_player_num_civs_3vs3 = 'nczone_draw_player_num_civs_3vs3';
     public const draw_player_num_civs_4vs4 = 'nczone_draw_player_num_civs_4vs4';
     public const draw_factor = 'nczone_draw_factor';
+    public const nczone_draw_switch_1_player = 'nczone_draw_switch_1_player';
+    public const nczone_draw_switch_0_players = 'nczone_draw_switch_0_players';
     public const free_pick_civ_id = 'nczone_free_pick_civ_id';
     public const draw_block_time = 'nczone_draw_block_time';
     public const draw_blocked_until = 'nczone_draw_blocked_until';
@@ -81,6 +83,8 @@ final class config
         self::draw_player_num_civs_3vs3,
         self::draw_player_num_civs_4vs4,
         self::draw_factor,
+        self::nczone_draw_switch_1_player,
+        self::nczone_draw_switch_0_players,
         self::free_pick_civ_id,
         self::draw_block_time,
         self::draw_blocked_until,
@@ -121,6 +125,8 @@ final class config
         self::draw_player_num_civs_3vs3 => 4,
         self::draw_player_num_civs_4vs4 => 3,
         self::draw_factor => 0.4,
+        self::nczone_draw_switch_1_player => 4,
+        self::nczone_draw_switch_0_players => 10,
         self::free_pick_civ_id => 0,
         self::draw_block_time => 10,
         self::draw_blocked_until => 0,

@@ -16,7 +16,7 @@ class draw_teams_test extends \phpbb_test_case
     public function test_make_matches($list, $factor, $expected_matches)
     {
         $dt = new draw_teams();
-        self::assertEquals($expected_matches, $dt->make_matches($list, $factor));
+        self::assertEquals($expected_matches, $dt->make_matches($list, $factor, 0, 0));
     }
 
     public function make_matches_data_provider()

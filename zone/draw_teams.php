@@ -280,11 +280,15 @@ class draw_teams
         entity\match_players_list $player_list,
         float $factor
     ): entity\draw_match {
-        [$match] = $this->make_matches($player_list, $factor);
+        [$match] = $this->make_matches($player_list, $factor, 0, 0);
         return $match;
     }
 
-    public function permute_player_lists(int $number_matches, array $match_players): array {
+    public function permute_player_lists(
+        int $number_matches,
+        array $match_players,
+        int $number_player_permutations
+    ): array {
         $matches_switch = self::switch_players_indices($number_matches);
 
         $final_player_lists = [];
@@ -300,7 +304,8 @@ class draw_teams
                     if (!$player_list_save) {
                         $player_list_save = $player_list;
                     } else {
-                        $permuted_player_lists = self::permute_edge_players($player_list_save, $player_list, 2);
+                        $permuted_player_lists = self::permute_edge_players($player_list_save, $player_list,
+                            $number_player_permutations);
                         $player_lists_block_lists[] = $permuted_player_lists;
 
                         $player_list_save = null;
@@ -330,17 +335,33 @@ class draw_teams
         return $final_player_lists;
     }
 
+    public function switch_player_number(int $number_matches, int $switch_0_players, int $switch_1_players): int {
+        if ($number_matches >= $switch_0_players) {
+            return 0;
+        }
+
+        if ($number_matches >= $switch_1_players) {
+            return 1;
+        }
+
+        return 2;
+    }
+
     /**
      * Divides players in usable groups to make teams and than calculate the optimal teams.
      *
      * @param entity\match_players_list $player_list List of the players (must have index 'rating') to be put in teams
      * @param $factor
+     * @param $switch_0_players Number of matches to stop switching players
+     * @param $switch_1_player Number of matches to switch only one player
      *
      * @return entity\draw_match[]
      */
     public function make_matches(
         entity\match_players_list $player_list,
-        float $factor
+        float $factor,
+        int $switch_0_players,
+        int $switch_1_player
     ): array {
         if ($player_list->length() % 2 === 1) {
             $player_list->pop();
@@ -350,6 +371,9 @@ class draw_teams
 
         $match_sizes = self::get_match_sizes($sorted_player_list->length());
         $match_permutes = self::permute_match_sizes($match_sizes);
+        $number_matches = array_sum($match_sizes);
+
+        $number_player_permutations = self::switch_player_number($number_matches, $switch_0_players, $switch_1_player);
 
         $best_value = -1;
         $best_draw_matches = [];
@@ -361,9 +385,9 @@ class draw_teams
                 $match_players[] = $sorted_player_list->slice($offset, $match_size * 2);
                 $offset += $match_size * 2;
             }
-            $number_matches = array_sum($match_sizes);
 
-            $permuted_player_lists = self::permute_player_lists($number_matches, $match_players);
+            $permuted_player_lists = self::permute_player_lists($number_matches, $match_players,
+                $number_player_permutations);
 
             foreach ($permuted_player_lists as $player_lists) {
                 $curr_rating_diff = 0;
