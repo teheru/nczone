@@ -19,9 +19,11 @@ class match_players_list
         return $list;
     }
 
-    public function add(match_player $p): void
+    public function add(match_player ...$players): void
     {
-        $this->items[] = $p;
+        foreach ($players as $p) {
+            $this->items[] = $p;
+        }
     }
 
     public function get_by_id(int $id): ?match_player
@@ -68,9 +70,9 @@ class match_players_list
         return \count($this->items);
     }
 
-    public function unshift(match_player $p): void
+    public function unshift(match_player ...$players): void
     {
-        \array_unshift($this->items, $p);
+        \array_unshift($this->items, ...$players);
     }
 
     public function pop(): ?match_player
