@@ -42,8 +42,8 @@ class matches {
 
     private static function get_draw_switch_player_numbers(): array {
         return [
-            0 => (int) config::get(config::nczone_draw_switch_0_players),
-            1 => (int) config::get(config::nczone_draw_switch_1_player)
+            0 => (int) config::get(config::draw_switch_0_players),
+            1 => (int) config::get(config::draw_switch_1_player)
         ];
     }
 
@@ -974,8 +974,12 @@ SQL;
             $user_ids = [];
             $factor = self::get_draw_factor();
             $switch_player_numbers = self::get_draw_switch_player_numbers();
-            $draw_matches = zone_util::draw_teams()->make_matches($players_list, $factor,
-                $switch_player_numbers[0], $switch_player_numbers[1]);
+            $draw_matches = zone_util::draw_teams()->make_matches(
+                $players_list,
+                $factor,
+                $switch_player_numbers[0],
+                $switch_player_numbers[1]
+            );
             foreach ($draw_matches as $draw_match) {
                 $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
                 $match_ids[] = $this->create_match($setting);

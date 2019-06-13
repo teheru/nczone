@@ -232,7 +232,7 @@ class draw_teams
 
             $upper_player = $upper_players->pop();
             $lower_player = $lower_players->shift();
-            $upper_players->add($lower_player);
+            $upper_players->push($lower_player);
             $lower_players->unshift($upper_player);
             $switched = [$upper_players, $lower_players];
 
@@ -258,7 +258,7 @@ class draw_teams
 
                 $upper_indices = $permutations[0];
                 $lower_indices = $permutations[1];
-                $temp_upper_players->add(
+                $temp_upper_players->push(
                     $players_in_question[$upper_indices[0]],
                     $players_in_question[$upper_indices[1]]
                 );
@@ -300,16 +300,17 @@ class draw_teams
                 $player_list = $match_players[$i];
                 if ($match_switch[$i] == 0) {
                     $player_lists_block_lists[] = [[$player_list]];
+                } elseif (!$player_list_save) {
+                    $player_list_save = $player_list;
                 } else {
-                    if (!$player_list_save) {
-                        $player_list_save = $player_list;
-                    } else {
-                        $permuted_player_lists = self::permute_edge_players($player_list_save, $player_list,
-                            $number_player_permutations);
-                        $player_lists_block_lists[] = $permuted_player_lists;
+                    $permuted_player_lists = self::permute_edge_players(
+                        $player_list_save,
+                        $player_list,
+                        $number_player_permutations
+                    );
+                    $player_lists_block_lists[] = $permuted_player_lists;
 
-                        $player_list_save = null;
-                    }
+                    $player_list_save = null;
                 }
             }
 
@@ -386,8 +387,11 @@ class draw_teams
                 $offset += $match_size * 2;
             }
 
-            $permuted_player_lists = self::permute_player_lists($number_matches, $match_players,
-                $number_player_permutations);
+            $permuted_player_lists = self::permute_player_lists(
+                $number_matches,
+                $match_players,
+                $number_player_permutations
+            );
 
             foreach ($permuted_player_lists as $player_lists) {
                 $curr_rating_diff = 0;

@@ -78,11 +78,11 @@ class main_module
                 config::set(config::draw_factor, $draw_factor);
             }
 
-            $nczone_draw_switch_1_player = (int)$request->variable('nczone_draw_switch_1_player', config::default(config::nczone_draw_switch_1_player));
-            $nczone_draw_switch_0_players = (int)$request->variable('nczone_draw_switch_0_players', config::default(config::nczone_draw_switch_0_players));
+            $nczone_draw_switch_1_player = (int)$request->variable('nczone_draw_switch_1_player', config::default(config::draw_switch_1_player));
+            $nczone_draw_switch_0_players = (int)$request->variable('nczone_draw_switch_0_players', config::default(config::draw_switch_0_players));
             if ($nczone_draw_switch_1_player >= 0 && $nczone_draw_switch_0_players >= 0) {
-                config::set(config::nczone_draw_switch_1_player, $nczone_draw_switch_1_player);
-                config::set(config::nczone_draw_switch_0_players, $nczone_draw_switch_0_players);
+                config::set(config::draw_switch_1_player, $nczone_draw_switch_1_player);
+                config::set(config::draw_switch_0_players, $nczone_draw_switch_0_players);
             }
 
             $draw_block_time = (int)$request->variable('nczone_draw_block_time', config::default(config::draw_block_time));
@@ -127,8 +127,8 @@ class main_module
             'nczone_draw_player_num_civs_3vs3' => config::get(config::draw_player_num_civs_3vs3),
             'nczone_draw_player_num_civs_4vs4' => config::get(config::draw_player_num_civs_4vs4),
             'nczone_draw_factor' => config::get(config::draw_factor),
-            'nczone_draw_switch_1_player' => config::get(config::nczone_draw_switch_1_player),
-            'nczone_draw_switch_0_players' => config::get(config::nczone_draw_switch_0_players),
+            'nczone_draw_switch_1_player' => config::get(config::draw_switch_1_player),
+            'nczone_draw_switch_0_players' => config::get(config::draw_switch_0_players),
             'nczone_draw_block_time' => config::get(config::draw_block_time),
             'nczone_draw_block_after_match' => config::get(config::draw_block_after_match),
         ));
