@@ -75,6 +75,17 @@ class draw_teams
         ],
     ];
 
+    // all possible permutations when switching lowest two players of one drawing with top two players of another
+    /** @var array */
+    private static $permute_players_def = [
+        [[0, 1], [2, 3]],
+        [[0, 2], [1, 3]],
+        [[0, 3], [1, 2]],
+        [[1, 2], [0, 3]],
+        [[1, 3], [0, 2]],
+        [[2, 3], [0, 1]],
+    ];
+
     /**
      * Calculates the best sizes of matches. We avoid 1vs1 and 2vs2 if possible and prefer 4vs4 over 3vs3.
      *
@@ -176,12 +187,170 @@ class draw_teams
         return $permutes;
     }
 
+    public function switch_players_indices(int $number_matches): array {
+        if ($number_matches == 1) {
+            return [[0]];
+        }
+
+        if ($number_matches == 2) {
+            return [[1, 1]];
+        }
+
+        $even_indices = array_fill(0, $number_matches, 0);
+        $odd_indices = array_fill(0, $number_matches, 0);
+
+        $j = 1;
+        for ($i = 0; $i < $number_matches - 1; $i += 2) {
+            $even_indices[$i] = $j;
+            $even_indices[$i + 1] = $j;
+            $j++;
+        }
+
+        $j = 1;
+        for ($i = 1; $i < $number_matches - 1; $i += 2) {
+            $odd_indices[$i] = $j;
+            $odd_indices[$i + 1] = $j;
+            $j++;
+        }
+
+        return [$even_indices, $odd_indices];
+    }
+
+    public function permute_edge_players(
+        entity\match_players_list $upper_players,
+        entity\match_players_list $lower_players,
+        int $number
+    ): array {
+        if ($number == 0) {
+            return [[$upper_players, $lower_players]];
+        }
+
+        if ($number == 1) {
+            $default = [$upper_players, $lower_players];
+            $upper_players = clone $upper_players;
+            $lower_players = clone $lower_players;
+
+            $upper_player = $upper_players->pop();
+            $lower_player = $lower_players->shift();
+            $upper_players->push($lower_player);
+            $lower_players->unshift($upper_player);
+            $switched = [$upper_players, $lower_players];
+
+            return [$default, $switched];
+        }
+
+        if ($number == 2) {
+            $switched_player_permutations = [];
+
+            $upper_players = clone $upper_players;
+            $lower_players = clone $lower_players;
+
+            $p2 = $upper_players->pop();
+            $p1 = $upper_players->pop();
+            $p3 = $lower_players->shift();
+            $p4 = $lower_players->shift();
+
+            $players_in_question = [
+                $p1,
+                $p2,
+                $p3,
+                $p4
+            ];
+
+            foreach (self::$permute_players_def as $permutations) {
+                $temp_upper_players = clone $upper_players;
+                $temp_lower_players = clone $lower_players;
+
+                $upper_indices = $permutations[0];
+                $lower_indices = $permutations[1];
+                $temp_upper_players->push(
+                    $players_in_question[$upper_indices[0]],
+                    $players_in_question[$upper_indices[1]]
+                );
+                $temp_lower_players->unshift(
+                    $players_in_question[$lower_indices[0]],
+                    $players_in_question[$lower_indices[1]]
+                );
+
+                $switched_player_permutations[] = [$temp_upper_players, $temp_lower_players];
+            }
+
+            return $switched_player_permutations;
+        }
+
+        throw new \InvalidArgumentException('$number may only be one of 0, 1 or 2');
+    }
+
     public function make_match(
         entity\match_players_list $player_list,
         float $factor
     ): entity\draw_match {
-        [$match] = $this->make_matches($player_list, $factor);
+        [$match] = $this->make_matches($player_list, $factor, 0, 0);
         return $match;
+    }
+
+    public function permute_player_lists(
+        int $number_matches,
+        array $match_players,
+        int $number_player_permutations
+    ): array {
+        $matches_switch = self::switch_players_indices($number_matches);
+
+        $final_player_lists = [];
+
+        foreach ($matches_switch as $match_switch) {
+            $player_lists_block_lists = [];
+            $player_list_save = null;
+            for ($i = 0; $i < $number_matches; $i++) {
+                $player_list = $match_players[$i];
+                if ($match_switch[$i] == 0) {
+                    $player_lists_block_lists[] = [[$player_list]];
+                } elseif (!$player_list_save) {
+                    $player_list_save = $player_list;
+                } else {
+                    $permuted_player_lists = self::permute_edge_players(
+                        $player_list_save,
+                        $player_list,
+                        $number_player_permutations
+                    );
+                    $player_lists_block_lists[] = $permuted_player_lists;
+
+                    $player_list_save = null;
+                }
+            }
+
+            $build_player_lists = [];
+            foreach ($player_lists_block_lists as $player_lists_block) {
+                if (!$build_player_lists) {
+                    $build_player_lists = $player_lists_block;
+                    continue;
+                }
+
+                $temp_build_player_lists = $build_player_lists;
+                $build_player_lists = [];
+                foreach ($temp_build_player_lists as $temp_build_player_list) {
+                    foreach ($player_lists_block as $player_lists) {
+                        $single_player_list = array_merge($temp_build_player_list, $player_lists);
+                        $build_player_lists[] = $single_player_list;
+                    }
+                }
+            }
+            $final_player_lists = array_merge($final_player_lists, $build_player_lists);
+        }
+
+        return $final_player_lists;
+    }
+
+    public function switch_player_number(int $number_matches, int $switch_0_players, int $switch_1_players): int {
+        if ($number_matches >= $switch_0_players) {
+            return 0;
+        }
+
+        if ($number_matches >= $switch_1_players) {
+            return 1;
+        }
+
+        return 2;
     }
 
     /**
@@ -189,12 +358,16 @@ class draw_teams
      *
      * @param entity\match_players_list $player_list List of the players (must have index 'rating') to be put in teams
      * @param $factor
+     * @param $switch_0_players Number of matches to stop switching players
+     * @param $switch_1_player Number of matches to switch only one player
      *
      * @return entity\draw_match[]
      */
     public function make_matches(
         entity\match_players_list $player_list,
-        float $factor
+        float $factor,
+        int $switch_0_players,
+        int $switch_1_player
     ): array {
         if ($player_list->length() % 2 === 1) {
             $player_list->pop();
@@ -203,31 +376,52 @@ class draw_teams
         $sorted_player_list = $player_list->sorted_by_rating();
 
         $match_sizes = self::get_match_sizes($sorted_player_list->length());
-        $permutes = self::permute_match_sizes($match_sizes);
+        $match_permutes = self::permute_match_sizes($match_sizes);
+        $number_matches = array_sum($match_sizes);
+
+        $number_player_permutations = self::switch_player_number(
+            $number_matches,
+            $switch_0_players,
+            $switch_1_player
+        );
+
         $best_value = -1;
         $best_draw_matches = [];
 
-        foreach ($permutes as $permute) {
-            $curr_rating_diff = 0;
-            $curr_variance = 0;
-            $curr_draw_matches = [];
-
+        foreach ($match_permutes as $match_permute) {
             $offset = 0;
-            foreach ($permute as $match_size) {
-                $draw_match = $this->_make_match($sorted_player_list->slice($offset, $match_size * 2));
-                $curr_rating_diff += $draw_match->get_abs_rating_difference();
-                $curr_draw_matches[] = $draw_match;
-                $curr_variance += entity\match_players_list::get_abs_rating_variance($sorted_player_list->slice($offset, $match_size * 2));
+            $match_players = [];
+            foreach ($match_permute as $match_size) {
+                $match_players[] = $sorted_player_list->slice($offset, $match_size * 2);
                 $offset += $match_size * 2;
             }
 
-            if ($factor < 0.0 || $factor > 1.0) {
-                $factor = 0.0;
-            }
-            $curr_value = $factor * $curr_variance + (1.0 - $factor) * $curr_rating_diff;
-            if ($best_value < 0.0 || $curr_value < $best_value) {
-                $best_value = $curr_value;
-                $best_draw_matches = $curr_draw_matches;
+            $permuted_player_lists = self::permute_player_lists(
+                $number_matches,
+                $match_players,
+                $number_player_permutations
+            );
+
+            foreach ($permuted_player_lists as $player_lists) {
+                $curr_rating_diff = 0;
+                $curr_variance = 0;
+                $curr_draw_matches = [];
+
+                foreach ($player_lists as $player_list) {
+                    $draw_match = $this->_make_match($player_list);
+                    $curr_rating_diff += $draw_match->get_abs_rating_difference();
+                    $curr_draw_matches[] = $draw_match;
+                    $curr_variance += entity\match_players_list::get_abs_rating_variance($player_list);
+                }
+
+                if ($factor < 0.0 || $factor > 1.0) {
+                    $factor = 0.0;
+                }
+                $curr_value = $factor * $curr_variance + (1.0 - $factor) * $curr_rating_diff;
+                if ($best_value < 0.0 || $curr_value < $best_value) {
+                    $best_value = $curr_value;
+                    $best_draw_matches = $curr_draw_matches;
+                }
             }
         }
         return $best_draw_matches;

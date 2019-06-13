@@ -72,15 +72,26 @@ class main_module
             config::set(config::draw_team_extra_civs_2vs2, (int)$request->variable('nczone_draw_team_extra_civs_2vs2', config::default(config::draw_team_extra_civs_2vs2)));
             config::set(config::draw_team_extra_civs_3vs3, (int)$request->variable('nczone_draw_team_extra_civs_3vs3', config::default(config::draw_team_extra_civs_3vs3)));
             config::set(config::draw_team_extra_civs_4vs4, (int)$request->variable('nczone_draw_team_extra_civs_4vs4', config::default(config::draw_team_extra_civs_4vs4)));
-            config::set(config::draw_factor, $request->variable('nczone_draw_factor', (float)config::default(config::draw_factor)));
 
-            $draw_block_time = (int)config::default(config::draw_block_time);
-            if ($draw_block_time >= 0 && $draw_block_time <= 1440) {
-                config::set(config::draw_block_time, $request->variable('nczone_draw_block_time', $draw_block_time));
+            $draw_factor = (float)$request->variable('nczone_draw_factor', config::default(config::draw_factor));
+            if ($draw_factor >= 0 and $draw_factor <= 1) {
+                config::set(config::draw_factor, $draw_factor);
             }
-            $draw_block_after_match = (int)config::default(config::draw_block_after_match);
+
+            $nczone_draw_switch_1_player = (int)$request->variable('nczone_draw_switch_1_player', config::default(config::draw_switch_1_player));
+            $nczone_draw_switch_0_players = (int)$request->variable('nczone_draw_switch_0_players', config::default(config::draw_switch_0_players));
+            if ($nczone_draw_switch_1_player >= 0 && $nczone_draw_switch_0_players >= 0) {
+                config::set(config::draw_switch_1_player, $nczone_draw_switch_1_player);
+                config::set(config::draw_switch_0_players, $nczone_draw_switch_0_players);
+            }
+
+            $draw_block_time = (int)$request->variable('nczone_draw_block_time', config::default(config::draw_block_time));
+            if ($draw_block_time >= 0 && $draw_block_time <= 1440) {
+                config::set(config::draw_block_time, $draw_block_time);
+            }
+            $draw_block_after_match = $request->variable('nczone_draw_block_after_match', (int)config::default(config::draw_block_after_match));
             if ($draw_block_after_match >= 0 && $draw_block_after_match <= 10) {
-                config::set(config::draw_block_after_match, $request->variable('nczone_draw_block_after_match', $draw_block_after_match));
+                config::set(config::draw_block_after_match, $draw_block_after_match);
             }
             $player_num_civs_1vs1 = (int)$request->variable('nczone_draw_player_num_civs_1vs1', config::default(config::draw_player_num_civs_1vs1));
             $player_num_civs_2vs2 = (int)$request->variable('nczone_draw_player_num_civs_2vs2', config::default(config::draw_player_num_civs_2vs2));
@@ -116,6 +127,8 @@ class main_module
             'nczone_draw_player_num_civs_3vs3' => config::get(config::draw_player_num_civs_3vs3),
             'nczone_draw_player_num_civs_4vs4' => config::get(config::draw_player_num_civs_4vs4),
             'nczone_draw_factor' => config::get(config::draw_factor),
+            'nczone_draw_switch_1_player' => config::get(config::draw_switch_1_player),
+            'nczone_draw_switch_0_players' => config::get(config::draw_switch_0_players),
             'nczone_draw_block_time' => config::get(config::draw_block_time),
             'nczone_draw_block_after_match' => config::get(config::draw_block_after_match),
         ));

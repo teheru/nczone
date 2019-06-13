@@ -14,14 +14,9 @@ class match_players_list
     ): match_players_list {
         $list = new self();
         foreach ($players as $p) {
-            $list->add($p);
+            $list->push($p);
         }
         return $list;
-    }
-
-    public function add(match_player $p): void
-    {
-        $this->items[] = $p;
     }
 
     public function get_by_id(int $id): ?match_player
@@ -68,14 +63,19 @@ class match_players_list
         return \count($this->items);
     }
 
-    public function unshift(match_player $p): void
+    public function push(match_player ...$players): void
     {
-        \array_unshift($this->items, $p);
+        array_push($this->items, ...$players);
     }
 
     public function pop(): ?match_player
     {
         return \array_pop($this->items);
+    }
+
+    public function unshift(match_player ...$players): void
+    {
+        \array_unshift($this->items, ...$players);
     }
 
     public function shift(): ?match_player
@@ -87,7 +87,7 @@ class match_players_list
     {
         $list = new self;
         foreach ($indexes as $index) {
-            $list->add($this->items[$index]);
+            $list->push($this->items[$index]);
         }
         return $list;
     }
@@ -96,7 +96,7 @@ class match_players_list
     {
         $list = new self;
         foreach (\array_slice($this->items, $offset, $size) as $p) {
-            $list->add($p);
+            $list->push($p);
         }
         return $list;
     }
@@ -109,7 +109,7 @@ class match_players_list
             return number_util::cmp($p1->get_rating(), $p2->get_rating());
         });
         foreach ($items as $item) {
-            $list->add($item);
+            $list->push($item);
         }
         return $list;
     }
