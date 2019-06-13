@@ -826,4 +826,43 @@ class draw_teams_test extends \phpbb_test_case
             ],
         ];
     }
+
+    /**
+     * @dataProvider switch_player_number_data_provider
+     * @throws \Exception
+     */
+    public function test_switch_player_number(
+        int $number_matches,
+        int $switch_0_players,
+        int $switch_1_players,
+        int $expected_value
+    ) {
+        $dt = new draw_teams();
+        self::assertEquals($expected_value, $dt->switch_player_number(
+            $number_matches,
+            $switch_0_players,
+            $switch_1_players
+        ));
+    }
+
+    public function switch_player_number_data_provider() {
+        return [
+            [1, 0, 0, 0],
+            [2, 0, 0, 0],
+            [3, 0, 0, 0],
+            [5, 0, 0, 0],
+
+            [1, 0, 3, 0],
+            [3, 0, 3, 0],
+            [5, 0, 3, 0],
+
+            [1, 5, 3, 2],
+            [3, 5, 3, 1],
+            [5, 5, 3, 0],
+            [7, 5, 3, 0],
+
+            [2, 3, 5, 2],
+            [3, 3, 5, 0]
+        ];
+    }
 }
