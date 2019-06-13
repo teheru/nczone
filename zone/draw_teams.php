@@ -374,7 +374,11 @@ class draw_teams
         $match_permutes = self::permute_match_sizes($match_sizes);
         $number_matches = array_sum($match_sizes);
 
-        $number_player_permutations = self::switch_player_number($number_matches, $switch_0_players, $switch_1_player);
+        $number_player_permutations = self::switch_player_number(
+            $number_matches,
+            $switch_0_players,
+            $switch_1_player
+        );
 
         $best_value = -1;
         $best_draw_matches = [];
