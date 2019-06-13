@@ -413,4 +413,417 @@ class draw_teams_test extends \phpbb_test_case
         }
         return $data_set;
     }
+
+    /**
+     * @dataProvider switch_players_indices_data_provider
+     * @throws \Exception
+     */
+    public function test_switch_players_indices(int $number_matches, array $expected_values) {
+        $dt = new draw_teams();
+        self::assertEquals($expected_values, $dt->switch_players_indices($number_matches));
+    }
+
+    public function switch_players_indices_data_provider() {
+        return [
+            'single_match' => [
+                1, [[0]]
+            ],
+
+            'two_matches' => [
+                2, [[1, 1]]
+            ],
+
+            'three_matches' => [
+                3, [[1, 1, 0], [0, 1, 1]]
+            ],
+
+            'four_matches' => [
+                4, [[1, 1, 2, 2], [0, 1, 1, 0]]
+            ],
+
+            'five_matches' => [
+                5, [[1, 1, 2, 2, 0], [0, 1, 1, 2, 2]]
+            ]
+        ];
+    }
+
+
+    /**
+     * @dataProvider permute_edge_players_data_provider
+     * @throws \Exception
+     */
+    public function test_permute_edge_players(
+        $upper_players,
+        $lower_players,
+        int $number,
+        array $expected_values
+    ) {
+        $dt = new draw_teams();
+        self::assertEquals($expected_values, $dt->permute_edge_players(
+            $upper_players,
+            $lower_players,
+            $number
+        ));
+    }
+
+    public function permute_edge_players_data_provider() {
+        $test_players = [];
+
+        $test_players['p11'] = new match_player(100, 1700);
+        $test_players['p12'] = new match_player(101, 1600);
+        $test_players['p13'] = new match_player(102, 1500);
+        $test_players['p14'] = new match_player(103, 1400);
+        $test_players['p15'] = new match_player(104, 1300);
+        $test_players['p16'] = new match_player(105, 1200);
+        $test_players['p17'] = new match_player(106, 1100);
+        $test_players['p18'] = new match_player(107, 1000);
+
+        $test_players['p21'] = new match_player(200, 2700);
+        $test_players['p22'] = new match_player(201, 2600);
+        $test_players['p23'] = new match_player(202, 2500);
+        $test_players['p24'] = new match_player(203, 2400);
+        $test_players['p25'] = new match_player(204, 2300);
+        $test_players['p26'] = new match_player(205, 2200);
+        $test_players['p27'] = new match_player(206, 2100);
+        $test_players['p28'] = new match_player(207, 2000);
+
+        $match_2vs2 = [
+            match_players_list::from_match_players([
+                $test_players['p21'],
+                $test_players['p22'],
+                $test_players['p23'],
+                $test_players['p24']
+            ]),
+            match_players_list::from_match_players([
+                $test_players['p11'],
+                $test_players['p12'],
+                $test_players['p13'],
+                $test_players['p14']
+            ])
+        ];
+
+        $match_3vs3 = [
+            match_players_list::from_match_players([
+                $test_players['p21'],
+                $test_players['p22'],
+                $test_players['p23'],
+                $test_players['p24'],
+                $test_players['p25'],
+                $test_players['p26']
+            ]),
+            match_players_list::from_match_players([
+                $test_players['p11'],
+                $test_players['p12'],
+                $test_players['p13'],
+                $test_players['p14'],
+                $test_players['p15'],
+                $test_players['p16']
+            ])
+        ];
+
+        $match_4vs4 = [
+            match_players_list::from_match_players([
+                $test_players['p21'],
+                $test_players['p22'],
+                $test_players['p23'],
+                $test_players['p24'],
+                $test_players['p25'],
+                $test_players['p26'],
+                $test_players['p27'],
+                $test_players['p28']
+            ]),
+            match_players_list::from_match_players([
+                $test_players['p11'],
+                $test_players['p12'],
+                $test_players['p13'],
+                $test_players['p14'],
+                $test_players['p15'],
+                $test_players['p16'],
+                $test_players['p17'],
+                $test_players['p18']
+            ])
+        ];
+
+        return [
+            '2vs2_w_0' => [
+                $match_2vs2[0],
+                $match_2vs2[1],
+                0,
+                [$match_2vs2]
+            ],
+
+            '3vs3_w_0' => [
+                $match_3vs3[0],
+                $match_3vs3[1],
+                0,
+                [$match_3vs3]
+            ],
+
+            '4vs4_w_0' => [
+                $match_4vs4[0],
+                $match_4vs4[1],
+                0,
+                [$match_4vs4]
+            ],
+
+            '2vs2_w_1' => [
+                $match_2vs2[0],
+                $match_2vs2[1],
+                1,
+                [
+                    $match_2vs2,
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p11']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p24'],
+                            $test_players['p12'],
+                            $test_players['p13'],
+                            $test_players['p14']
+                        ])
+                    ]
+                ]
+            ],
+
+            '3vs3_w_1' => [
+                $match_3vs3[0],
+                $match_3vs3[1],
+                1,
+                [
+                    $match_3vs3,
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p25'],
+                            $test_players['p11']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p26'],
+                            $test_players['p12'],
+                            $test_players['p13'],
+                            $test_players['p14'],
+                            $test_players['p15'],
+                            $test_players['p16']
+                        ])
+                    ]
+                ]
+            ],
+
+            '4vs4_w_1' => [
+                $match_4vs4[0],
+                $match_4vs4[1],
+                1,
+                [
+                    $match_4vs4,
+                    [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p25'],
+                            $test_players['p26'],
+                            $test_players['p27'],
+                            $test_players['p11']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p28'],
+                            $test_players['p12'],
+                            $test_players['p13'],
+                            $test_players['p14'],
+                            $test_players['p15'],
+                            $test_players['p16'],
+                            $test_players['p17'],
+                            $test_players['p18']
+                        ])
+                    ]
+                ]
+            ],
+
+            '2vs2_w_2' => [
+                $match_2vs2[0],
+                $match_2vs2[1],
+                2,
+                [
+                    0 => $match_2vs2,
+                    1 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p11']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p24'],
+                            $test_players['p12'],
+                            $test_players['p13'],
+                            $test_players['p14']
+                        ])
+                    ],
+                    2 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p12']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p24'],
+                            $test_players['p11'],
+                            $test_players['p13'],
+                            $test_players['p14']
+                        ])
+                    ],
+                    3 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p24'],
+                            $test_players['p11']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p23'],
+                            $test_players['p12'],
+                            $test_players['p13'],
+                            $test_players['p14']
+                        ])
+                    ],
+                    4 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p24'],
+                            $test_players['p12']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p23'],
+                            $test_players['p11'],
+                            $test_players['p13'],
+                            $test_players['p14']
+                        ])
+                    ],
+                    5 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p11'],
+                            $test_players['p12']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p13'],
+                            $test_players['p14']
+                        ])
+                    ]
+                ]
+            ],
+
+            '3vs3_w_2' => [
+                $match_3vs3[0],
+                $match_3vs3[1],
+                2,
+                [
+                    0 => $match_3vs3,
+                    1 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p25'],
+                            $test_players['p11']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p26'],
+                            $test_players['p12'],
+                            $test_players['p13'],
+                            $test_players['p14'],
+                            $test_players['p15'],
+                            $test_players['p16']
+                        ])
+                    ],
+                    2 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p25'],
+                            $test_players['p12']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p26'],
+                            $test_players['p11'],
+                            $test_players['p13'],
+                            $test_players['p14'],
+                            $test_players['p15'],
+                            $test_players['p16']
+                        ])
+                    ],
+                    3 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p26'],
+                            $test_players['p11']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p25'],
+                            $test_players['p12'],
+                            $test_players['p13'],
+                            $test_players['p14'],
+                            $test_players['p15'],
+                            $test_players['p16']
+                        ])
+                    ],
+                    4 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p26'],
+                            $test_players['p12']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p25'],
+                            $test_players['p11'],
+                            $test_players['p13'],
+                            $test_players['p14'],
+                            $test_players['p15'],
+                            $test_players['p16']
+                        ])
+                    ],
+                    5 => [
+                        match_players_list::from_match_players([
+                            $test_players['p21'],
+                            $test_players['p22'],
+                            $test_players['p23'],
+                            $test_players['p24'],
+                            $test_players['p11'],
+                            $test_players['p12']
+                        ]),
+                        match_players_list::from_match_players([
+                            $test_players['p25'],
+                            $test_players['p26'],
+                            $test_players['p13'],
+                            $test_players['p14'],
+                            $test_players['p15'],
+                            $test_players['p16']
+                        ])
+                    ]
+                ]
+            ],
+        ];
+    }
 }

@@ -245,11 +245,16 @@ class draw_teams
             $upper_players = clone $upper_players;
             $lower_players = clone $lower_players;
 
+            $p2 = $upper_players->pop();
+            $p1 = $upper_players->pop();
+            $p3 = $lower_players->shift();
+            $p4 = $lower_players->shift();
+
             $players_in_question = [
-                $upper_players->pop(),
-                $upper_players->pop(),
-                $lower_players->shift(),
-                $lower_players->shift()
+                $p1,
+                $p2,
+                $p3,
+                $p4
             ];
 
             foreach (self::$permute_players_def as $permutations) {
