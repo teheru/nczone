@@ -38,7 +38,10 @@ class draw_settings
         $team1_civ_ids = [];
         $team2_civ_ids = [];
         $player_civ_ids = [];
-        $map_id = $this->get_players_map_id($draw_match->get_all_player_ids());
+
+        $map_id = self::determine_map_id_by_players_maps_data(
+            $this->get_player_maps_data($draw_match)
+        );
 
         $match_size = $draw_match->get_match_size();
 
@@ -88,44 +91,6 @@ class draw_settings
         $draw_setting->set_team1($draw_match->get_team1());
         $draw_setting->set_team2($draw_match->get_team2());
         return $draw_setting;
-    }
-
-    /**
-     * Calculates the next map (id) to be drawn for a group of players
-     *
-     * @param array $user_ids
-     *
-     * @return int
-     */
-    private function get_players_map_id(array $user_ids): int
-    {
-        $match_size = (int) (\count($user_ids) / 2);
-        $draw_for_name = 'draw_' . $match_size . 'vs' . $match_size;
-
-        $players_maps = $this->db->get_rows([
-            'SELECT' => 'm.map_id, pm.counter',
-            'FROM' => [
-                $this->db->maps_table => 'm',
-                $this->db->player_map_table => 'pm',
-            ],
-            'WHERE' => 'm.map_id = pm.map_id AND m.' . $draw_for_name . ' = true AND ' . $this->db->sql_in_set('pm.user_id', $user_ids),
-        ]);
-
-        $maps_counter = [];
-
-        foreach ($players_maps as $player_map) {
-            $map_id = (int) $player_map['map_id'];
-            $counter = (float) $player_map['counter'];
-
-            if (!\array_key_exists($map_id, $maps_counter)) {
-                $maps_counter[$map_id] = 0.0;
-            }
-            $maps_counter[$map_id] += $counter;
-        }
-
-        \asort($maps_counter);
-        \end($maps_counter);
-        return \key($maps_counter);
     }
 
     private function decide_draw_civs_kind(
@@ -598,5 +563,52 @@ class draw_settings
         array $team2_civpool
     ): array {
         return zone_util::misc()::cut_to_same_length($team1_civpool, $team2_civpool);
+    }
+
+    /**
+     * @param entity\draw_match $m
+     *
+     * @return array
+     */
+    private function get_player_maps_data(entity\draw_match $m): array
+    {
+        $match_size = $m->get_match_size();
+        return $this->db->get_rows([
+            'SELECT' => 'm.map_id, pm.counter',
+            'FROM' => [
+                $this->db->maps_table => 'm',
+                $this->db->player_map_table => 'pm',
+            ],
+            'WHERE' => [
+                'm.map_id = pm.map_id',
+                "m.draw_{$match_size}vs{$match_size} = true",
+                $this->db->sql_in_set('pm.user_id', $m->get_all_player_ids())
+            ],
+        ]);
+    }
+
+    /**
+     * @param array $players_maps [['map_id' => int, ['counter' => int]]
+     *
+     * @return int|string|null
+     */
+    public static function determine_map_id_by_players_maps_data(
+        array $players_maps
+    ) {
+        // select he map id with the biggest sum(counter)
+        $maps_counter = [];
+        foreach ($players_maps as $player_map) {
+            $map_id = (int) $player_map['map_id'];
+            $counter = (float) $player_map['counter'];
+
+            if (!\array_key_exists($map_id, $maps_counter)) {
+                $maps_counter[$map_id] = 0.0;
+            }
+            $maps_counter[$map_id] += $counter;
+        }
+
+        \asort($maps_counter);
+        \end($maps_counter);
+        return \key($maps_counter);
     }
 }
