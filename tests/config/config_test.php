@@ -74,7 +74,7 @@ class config_test extends \phpbb_test_case
     public function test_draw_match_extra_civs(
         int $match_size,
         config $config,
-        ?int $expected
+        int $expected
     ): void {
         self::assertSame($expected, $config->draw_match_extra_civs($match_size));
     }
