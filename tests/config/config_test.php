@@ -9,12 +9,12 @@ class config_test extends \phpbb_test_case
     /**
      * @dataProvider module_data_provider
      */
-    public function test_module_data($settings, $expected)
+    public function test_module_data(array $settings, array $expected): void
     {
         $this->assertSame($expected, config::module_data($settings));
     }
 
-    public function module_data_provider()
+    public function module_data_provider(): array
     {
         return [
             [['some', 'settings', 'lul'], [
@@ -65,6 +65,37 @@ class config_test extends \phpbb_test_case
             [config::CRON_CONFIG_KEYS, [
                 ['config.add', ['nczone_activity_cron', config::default('nczone_activity_cron')]],
             ]],
+        ];
+    }
+
+    /**
+     * @dataProvider draw_match_extra_civs_data_provider
+     */
+    public function test_draw_match_extra_civs(
+        int $match_size,
+        config $config,
+        ?int $expected
+    ): void {
+        self::assertSame($expected, $config->draw_match_extra_civs($match_size));
+    }
+
+    public function draw_match_extra_civs_data_provider(): array
+    {
+        $config = new config(new \phpbb\config\config([
+            config::draw_match_extra_civs_1vs1 => 10,
+            config::draw_match_extra_civs_2vs2 => 20,
+            config::draw_match_extra_civs_3vs3 => 30,
+            config::draw_match_extra_civs_4vs4 => 40,
+        ]));
+        return [
+            [-1, $config, 0],
+            [0, $config, 0],
+            [1, $config, 10],
+            [2, $config, 20],
+            [3, $config, 30],
+            [4, $config, 40],
+            [5, $config, 0],
+            [12, $config, 0],
         ];
     }
 }
