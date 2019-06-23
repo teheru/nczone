@@ -2,6 +2,7 @@
 
 namespace eru\nczone\utility;
 
+use eru\nczone\config\config;
 use eru\nczone\zone\civs;
 use eru\nczone\zone\bets;
 use eru\nczone\zone\locks;
@@ -14,6 +15,15 @@ use eru\nczone\zone\misc;
 
 class zone_util
 {
+    public static function config(): config
+    {
+        static $config;
+        if ($config === null) {
+            $config = new config(phpbb_util::config());
+        }
+        return $config;
+    }
+
     public static function players(): players
     {
         static $players;

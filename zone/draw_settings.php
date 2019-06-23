@@ -25,9 +25,22 @@ class draw_settings
     /** @var db */
     private $db;
 
+    /** @var config */
+    private $config;
+
+    /** @var maps */
+    private $maps;
+
+    /** @var civs */
+    private $civs;
+
     public function __construct(db $db)
     {
         $this->db = $db;
+        // TODO: provide via dependency injection
+        $this->config = zone_util::config();
+        $this->maps = zone_util::maps();
+        $this->civs = zone_util::civs();
     }
 
     public function draw_settings(
@@ -47,7 +60,7 @@ class draw_settings
 
         $civ_kind = $this->decide_draw_civs_kind($draw_match);
         if ($civ_kind === self::MATCH_CIVS) {
-            $extra_civs = config::draw_match_extra_civs($match_size);
+            $extra_civs = $this->config->draw_match_extra_civs($match_size);
             $match_civs = $this->draw_match_civs(
                 $map_id,
                 $draw_match,
@@ -57,7 +70,7 @@ class draw_settings
                 $match_civ_ids[] = (int) $civ['id'];
             }
         } elseif ($civ_kind === self::TEAM_CIVS) {
-            $extra_civs = config::draw_team_extra_civs($match_size);
+            $extra_civs = $this->config->draw_team_extra_civs($match_size);
             [$team1_civs, $team2_civs] = $this->draw_teams_civs(
                 $map_id,
                 $draw_match,
@@ -70,7 +83,7 @@ class draw_settings
                 $team2_civ_ids[] = (int) $civ['id'];
             }
         } else {
-            $num_civs = config::draw_player_num_civs($match_size);
+            $num_civs = $this->config->draw_player_num_civs($match_size);
             $player_civs = $this->draw_player_civs(
                 $map_id,
                 $draw_match,
@@ -96,11 +109,11 @@ class draw_settings
     private function decide_draw_civs_kind(
         entity\draw_match $draw_match
     ): string {
-        if ($draw_match->get_min_max_diff() >= config::get(config::draw_player_civs)) {
+        if ($draw_match->get_min_max_diff() >= $this->config->get(config::draw_player_civs)) {
             return self::PLAYER_CIVS;
         }
 
-        if ($draw_match->get_abs_rating_difference() >= config::get(config::draw_team_civs)) {
+        if ($draw_match->get_abs_rating_difference() >= $this->config->get(config::draw_team_civs)) {
             return self::TEAM_CIVS;
         }
 
@@ -202,7 +215,7 @@ class draw_settings
         $team2_sum_rating = $team2_users->get_total_rating();
 
         // find out which civs have to be in both teams
-        $both_teams_civ_ids = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
+        $both_teams_civ_ids = $this->maps->get_map_both_teams_civ_ids($map_id);
 
         // we use some extra civs to be able to draw fair civs for the teams
         [$team1_force_civ, $team1_civpool] = $this->draw_players_civs(
@@ -348,10 +361,8 @@ class draw_settings
         $team1 = $draw_match->get_team1();
         $team2 = $draw_match->get_team2();
 
-        $civs_module = zone_util::civs();
-
         // find out which civs have to be in both teams
-        $both_teams_civ_ids = zone_util::maps()->get_map_both_teams_civ_ids($map_id);
+        $both_teams_civ_ids = $this->maps->get_map_both_teams_civ_ids($map_id);
 
         $user_civpools = [];
 
@@ -366,23 +377,23 @@ class draw_settings
         // get civs which are forced for the map
         $force_civ_ids = [];
 
-        $team1_force_civ = $civs_module->get_map_players_single_civ($map_id, $team1->get_ids(), [], false, true);
+        $team1_force_civ = $this->civs->get_map_players_single_civ($map_id, $team1->get_ids(), [], false, true);
         if ($team1_force_civ) {
             // check if the civ has to be in both teams anyways
             if (\in_array($team1_force_civ['civ_id'], $both_teams_civ_ids)) {
-                $team2_force_civ = $civs_module->get_map_players_single_civ($map_id, $team2->get_ids(), [$team1_force_civ['civ_id']], false, true);
+                $team2_force_civ = $this->civs->get_map_players_single_civ($map_id, $team2->get_ids(), [$team1_force_civ['civ_id']], false, true);
             } else {
                 // check force civ for the other team except the one drawed before
-                $team2_force_civ = $civs_module->get_map_players_single_civ($map_id, $team2->get_ids(), [$team1_force_civ['civ_id']], true, true);
+                $team2_force_civ = $this->civs->get_map_players_single_civ($map_id, $team2->get_ids(), [$team1_force_civ['civ_id']], true, true);
                 if ($team2_force_civ) {
                     // check again if THIS civ has to be in both teams
                     if (\in_array($team2_force_civ['civ_id'], $both_teams_civ_ids)) {
-                        $team1_force_civ = $civs_module->get_map_players_single_civ($map_id, $team1->get_ids(), [$team2_force_civ['civ_id']], false, true);
+                        $team1_force_civ = $this->civs->get_map_players_single_civ($map_id, $team1->get_ids(), [$team2_force_civ['civ_id']], false, true);
                     }
                 } else {
                     // if this didn't work, we only have one forced
                     // civ and it has to be in both teams nevertheless
-                    $team2_force_civ = $civs_module->get_map_players_single_civ($map_id, $team2->get_ids(), [$team1_force_civ['civ_id']], false, true);
+                    $team2_force_civ = $this->civs->get_map_players_single_civ($map_id, $team2->get_ids(), [$team1_force_civ['civ_id']], false, true);
                 }
             }
 
@@ -402,7 +413,7 @@ class draw_settings
             ];
         }
 
-        $user_civs = $civs_module->get_map_players_multiple_civs(
+        $user_civs = $this->civs->get_map_players_multiple_civs(
             $map_id,
             $draw_match->get_all_player_ids(),
             $force_civ_ids
@@ -436,7 +447,7 @@ class draw_settings
             if (\in_array($pc['civ_id'], $both_teams_civ_ids)) {
                 // if the drawed civ should be in both teams, get the player
                 // from the other team who should get that civ
-                $other_team = $civs_module->get_map_players_single_civ(
+                $other_team = $this->civs->get_map_players_single_civ(
                     $map_id,
                     $team1->contains_id($pc['user_id']) ? $team2->get_ids() : $team1->get_ids(),
                     [$pc['civ_id']],
@@ -562,7 +573,7 @@ class draw_settings
         array $team1_civpool,
         array $team2_civpool
     ): array {
-        return zone_util::misc()::cut_to_same_length($team1_civpool, $team2_civpool);
+        return misc::cut_to_same_length($team1_civpool, $team2_civpool);
     }
 
     /**

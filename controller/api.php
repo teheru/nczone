@@ -23,6 +23,9 @@ class api
     /** @var auth */
     protected $auth;
 
+    /** @var config */
+    protected $config;
+
     private const CODE_FORBIDDEN = 403;
     private const CODE_OK = 200;
     private const CODE_BAD_REQUEST = 400;
@@ -32,6 +35,8 @@ class api
     {
         $this->user = $user;
         $this->auth = $auth;
+        // TODO: dependency injection
+        $this->config = zone_util::config();
     }
 
     private function respond(
@@ -244,7 +249,7 @@ class api
     public function draw_blocked_until(): JsonResponse
     {
         return $this->respond(function () {
-            return ['draw_blocked_until' => (int)config::get(config::draw_blocked_until)];
+            return ['draw_blocked_until' => (int) $this->config->get(config::draw_blocked_until)];
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -273,7 +278,7 @@ class api
     public function draw_preview(): JsonResponse
     {
         return $this->respond(function () {
-            if ((int) config::get(config::draw_blocked_until) >= time()) {
+            if ((int) $this->config->get(config::draw_blocked_until) >= time()) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
 
@@ -296,7 +301,7 @@ class api
     public function draw_confirm(): JsonResponse
     {
         return $this->respond(function () {
-            if ((int) config::get(config::draw_blocked_until) >= time()) {
+            if ((int) $this->config->get(config::draw_blocked_until) >= time()) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
 
@@ -498,19 +503,20 @@ class api
                 throw new BadRequestError('team is not set');
             }
 
-            if (zone_util::bets()->has_bet($this->get_user_id(), $args['match_id'])) {
+            $bets = zone_util::bets();
+            $matches = zone_util::matches();
+
+            if ($bets->has_bet($this->get_user_id(), $args['match_id'])) {
                 throw new BadRequestError('already bet');
             }
 
-            if (zone_util::matches()->is_over($args['match_id'])) {
+            if ($matches->is_over($args['match_id'])) {
                 throw new BadRequestError('match is over');
             }
 
-            zone_util::bets()->place_bet(
-                $this->get_user_id(),
-                $args['match_id'],
-                (int) $data['team']
-            );
+            $team_ids = $matches->get_match_team_ids((int) $data['team']);
+            $team_id = $team_ids[(int) $data['team'] - 1];
+            $bets->place_bet($this->get_user_id(), $team_id);
             return [];
         }, [
             acl::u_zone_bet => 'NCZONE_REASON_NOT_ALLOWED_TO_BET',

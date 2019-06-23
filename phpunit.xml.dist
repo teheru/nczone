@@ -25,12 +25,16 @@
     <blacklist>
       <directory>./tests/</directory>
     </blacklist>
-    <whitelist processUncoveredFilesFromWhitelist="true">
+    <whitelist>
       <directory suffix=".php">./</directory>
       <exclude>
         <directory suffix=".php">./language/</directory>
         <directory suffix=".php">./migrations/</directory>
         <directory suffix=".php">./tests/</directory>
+        <directory suffix=".php">./vendor/</directory>
+        <directory suffix=".php">./acp/</directory>
+        <directory suffix=".php">./ucp/</directory>
+        <directory suffix=".php">./mcp/</directory>
       </exclude>
     </whitelist>
   </filter>

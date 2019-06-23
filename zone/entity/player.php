@@ -2,7 +2,7 @@
 
 namespace eru\nczone\zone\entity;
 
-use eru\nczone\config\config;
+use eru\nczone\utility\zone_util;
 
 class player implements \JsonSerializable
 {
@@ -48,7 +48,7 @@ class player implements \JsonSerializable
         $p->bets_won = (int)$row['bets_won'];
         $p->bets_loss = (int)$row['bets_loss'];
         $p->activity_matches = (int)$row['activity_matches'];
-        $p->activity = config::activity_by_match_count($p->activity_matches);
+        $p->activity = zone_util::config()->activity_by_match_count($p->activity_matches);
         return $p;
     }
 

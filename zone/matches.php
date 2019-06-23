@@ -25,6 +25,30 @@ class matches {
     /** @var db */
     private $db;
 
+    /** @var config */
+    private $config;
+
+    /** @var players */
+    private $players;
+
+    /** @var draw_teams */
+    private $draw_teams;
+
+    /** @var draw_settings */
+    private $draw_settings;
+
+    /** @var bets */
+    private $bets;
+
+    /** @var locks */
+    private $locks;
+
+    /** @var misc */
+    private $misc;
+
+    /** @var maps */
+    private $maps;
+
     /**
      * Constructor
      *
@@ -33,17 +57,26 @@ class matches {
     public function __construct(db $db)
     {
         $this->db = $db;
+        // TODO: provide via dependency injection
+        $this->config = zone_util::config();
+        $this->players = zone_util::players();
+        $this->draw_teams = zone_util::draw_teams();
+        $this->draw_settings = zone_util::draw_settings();
+        $this->bets = zone_util::bets();
+        $this->locks = zone_util::locks();
+        $this->misc = zone_util::misc();
+        $this->maps = zone_util::maps();
     }
 
-    private static function get_draw_factor()
+    private function get_draw_factor()
     {
-        return config::get(config::draw_factor);
+        return $this->config->get(config::draw_factor);
     }
 
-    private static function get_draw_switch_player_numbers(): array {
+    private function get_draw_switch_player_numbers(): array {
         return [
-            0 => (int) config::get(config::draw_switch_0_players),
-            1 => (int) config::get(config::draw_switch_1_player)
+            0 => (int) $this->config->get(config::draw_switch_0_players),
+            1 => (int) $this->config->get(config::draw_switch_1_player)
         ];
     }
 
@@ -85,7 +118,7 @@ class matches {
 
             $match_players->remove_by_id($replace_player_id);
 
-            $p = zone_util::players()->get_player($player2_id);
+            $p = $this->players->get_player($player2_id);
 
             $match_players->unshift(entity\match_player::create_by_player($p));
 
@@ -93,12 +126,12 @@ class matches {
 
             $this->clean_match($match_id);
 
-            $factor = self::get_draw_factor();
-            $draw_match = zone_util::draw_teams()->make_match($match_players, $factor);
-            $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
+            $factor = $this->get_draw_factor();
+            $draw_match = $this->draw_teams->make_match($match_players, $factor);
+            $setting = $this->draw_settings->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
-                zone_util::players()->logout_players($player2_id);
+                $this->players->logout_players($player2_id);
                 return ['match_id' => $match_id];
             }
             return [];
@@ -148,12 +181,12 @@ class matches {
 
             $this->clean_match($match_id);
 
-            $factor = self::get_draw_factor();
-            $draw_match = zone_util::draw_teams()->make_match($match_players, $factor);
-            $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
+            $factor = $this->get_draw_factor();
+            $draw_match = $this->draw_teams->make_match($match_players, $factor);
+            $setting = $this->draw_settings->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
-                zone_util::players()->logout_players($player1->get_id(), $player2->get_id());
+                $this->players->logout_players($player1->get_id(), $player2->get_id());
                 return ['match_id' => $match_id];
             }
             return [];
@@ -181,12 +214,12 @@ class matches {
 
             $this->clean_match($match_id);
 
-            $factor = self::get_draw_factor();
-            $draw_match = zone_util::draw_teams()->make_match($match_players, $factor);
-            $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
+            $factor = $this->get_draw_factor();
+            $draw_match = $this->draw_teams->make_match($match_players, $factor);
+            $setting = $this->draw_settings->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
-                zone_util::players()->logout_players($player1_id, $player2_id);
+                $this->players->logout_players($player1_id, $player2_id);
 
                 return $match_id;
             }
@@ -245,11 +278,12 @@ class matches {
                 $post_user_id = (int)$row['post_user_id'];
             }
 
-            $players = zone_util::players();
             $draw_time = (int)$row['draw_time'];
             $end_time = $repost ? (int)$row['post_time'] : time();
             $team1_id = (int)$row['team1_id'];
             $team2_id = (int)$row['team2_id'];
+
+            $min_team_id = (int) \min($team1_id, $team2_id);
 
             if ($winner === 1 || $winner === 2) {
                 $map_id = (int)$row['map_id'];
@@ -312,8 +346,9 @@ class matches {
                         if (!empty($civ_ids)) {
                             $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $mp->get_id() . ' AND `time` < ' . $draw_time);
                         }
-                        $players->match_changes($mp->get_id(), $team_id, $match_points, $team_id === $winner_team_id);
-                        $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                        $this->players->match_changes($mp->get_id(), $team_id, $match_points, $team_id === $winner_team_id);
+
+                        $this->players->fix_streaks($mp->get_id(), $min_team_id); // note: this isn't needed for normal game posting, but for fixing matches
                     }
                 }
 
@@ -346,10 +381,10 @@ class matches {
                     );
                 }
 
-                zone_util::bets()->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
+                $this->bets->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
             } else {
                 foreach($this->get_teams_players($team1_id, $team2_id)->items() as $mp) {
-                    $players->fix_streaks($mp->get_id(), $match_id); // note: this isn't needed for normal game posting, but for fixing matches
+                    $this->players->fix_streaks($mp->get_id(), $min_team_id); // note: this isn't needed for normal game posting, but for fixing matches
                 }
 
                 $winner_team_id = 0;
@@ -362,7 +397,7 @@ class matches {
             ];
 
             // we don't want to create duplicate topics for a match
-            $forum_id = config::get(config::match_forum_id);
+            $forum_id = $this->config->get(config::match_forum_id);
             if ($forum_id) {
                 $forum_topic_id = (int) $row['forum_topic_id'];
 
@@ -381,7 +416,7 @@ class matches {
             ]);
         };
 
-        zone_util::locks()->runExclusive(
+        $this->locks->runExclusive(
             ['action' => 'post', 'match_id' => $match_id],
             $this->db->txn_fn($fn),
             120
@@ -407,7 +442,7 @@ class matches {
         int $forum_id,
         int $forum_topic_id
     ): int {
-        return zone_util::misc()->create_post(
+        return $this->misc->create_post(
             $title,
             $message,
             $forum_id,
@@ -441,7 +476,7 @@ class matches {
         );
 
         foreach ($team1_list->items() as $mp) {
-            zone_util::players()->match_changes_undo(
+            $this->players->match_changes_undo(
                 $mp->get_id(),
                 $team1_id,
                 $match_points,
@@ -449,7 +484,7 @@ class matches {
             );
         }
         foreach ($team2_list->items() as $mp) {
-            zone_util::players()->match_changes_undo(
+            $this->players->match_changes_undo(
                 $mp->get_id(),
                 $team2_id,
                 $match_points,
@@ -465,7 +500,7 @@ class matches {
         $col2 = $winner_team_id == $team2_id ? 'matches_won' : 'matches_loss';
         $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` - 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
-        zone_util::bets()->evaluate_bets_undo(
+        $this->bets->evaluate_bets_undo(
             $winner_team_id == $team1_id ? $team1_id : $team2_id,
             $winner_team_id == $team1_id ? $team2_id : $team1_id,
             $end_time
@@ -518,14 +553,14 @@ class matches {
         int $rating_diff,
         int $winner
     ): int {
-        $base_points = config::base_points_by_match_size($match_size);
+        $base_points = $this->config->base_points_by_match_size($match_size);
         if ($base_points < 0) {
             return 0;
         }
 
         $is_outsider_win = ($rating_diff > 0 xor $winner === 1) ? true : false;
         $factor = $is_outsider_win ? 1 : -1;
-        $extra_points = (int)floor(abs($rating_diff) / (float)config::get(config::extra_points));
+        $extra_points = (int)floor(abs($rating_diff) / (float)$this->config->get(config::extra_points));
         return \max(0, $base_points + $factor * $extra_points);
     }
 
@@ -718,7 +753,7 @@ SQL;
 
     private function get_pmatches_page_size(): int
     {
-        return (int) config::get(config::pmatches_page_size);
+        return (int) $this->config->get(config::pmatches_page_size);
     }
 
     public function get_match_civs(int $match_id, int $map_id): array
@@ -767,9 +802,9 @@ SQL;
 
     public function get_banned_civs(int $match_id, int $map_id): array
     {
-        $free_pick_civ_id = (int) config::get(config::free_pick_civ_id);
+        $free_pick_civ_id = (int) $this->config->get(config::free_pick_civ_id);
         return $this->match_has_civ_id($match_id, $free_pick_civ_id)
-            ? zone_util::maps()->get_banned_civs($map_id)
+            ? $this->maps->get_banned_civs($map_id)
             : [];
     }
 
@@ -862,7 +897,7 @@ SQL;
         }
 
         $draw_process_time = (int)$row['time'];
-        if ($draw_process_time && ((time() - $draw_process_time) > config::get(config::draw_time))) {
+        if ($draw_process_time && ((time() - $draw_process_time) > $this->config->get(config::draw_time))) {
             $this->clear_draw_tables();
             return 0;
         }
@@ -894,7 +929,7 @@ SQL;
                 return [];
             }
 
-            $players = zone_util::players()->get_logged_in();
+            $players = $this->players->get_logged_in();
             if (\count($players) < 1) {
                 return [];
             }
@@ -972,26 +1007,26 @@ SQL;
 
             $match_ids = [];
             $user_ids = [];
-            $factor = self::get_draw_factor();
-            $switch_player_numbers = self::get_draw_switch_player_numbers();
-            $draw_matches = zone_util::draw_teams()->make_matches(
+            $factor = $this->get_draw_factor();
+            $switch_player_numbers = $this->get_draw_switch_player_numbers();
+            $draw_matches = $this->draw_teams->make_matches(
                 $players_list,
                 $factor,
                 $switch_player_numbers[0],
                 $switch_player_numbers[1]
             );
             foreach ($draw_matches as $draw_match) {
-                $setting = zone_util::draw_settings()->draw_settings($user_id, $draw_match);
+                $setting = $this->draw_settings->draw_settings($user_id, $draw_match);
                 $match_ids[] = $this->create_match($setting);
 
                 foreach ($draw_match->get_all_player_ids() as $player_id) {
                     $user_ids[] = $player_id;
                 }
             }
-            zone_util::players()->logout_players(...$user_ids);
+            $this->players->logout_players(...$user_ids);
             return $match_ids;
         };
-        return zone_util::locks()->runExclusive(
+        return $this->locks->runExclusive(
             ['action' => 'draw'],
             $this->db->txn_fn($fn),
             120
@@ -1021,7 +1056,7 @@ SQL;
         int $team2_id,
         int $winner
     ): string {
-        $team_names = zone_util::players()->get_team_usernames($team1_id, $team2_id);
+        $team_names = $this->players->get_team_usernames($team1_id, $team2_id);
         if ($winner === 1) {
             $t1_str = ' (W)';
             $t2_str = ' (L)';
