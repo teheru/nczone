@@ -514,7 +514,7 @@ class api
                 throw new BadRequestError('match is over');
             }
 
-            $team_ids = $matches->get_match_team_ids((int) $data['team']);
+            $team_ids = $matches->get_match_team_ids((int) $args['match_id']);
             $team_id = $team_ids[(int) $data['team'] - 1];
             $bets->place_bet($this->get_user_id(), $team_id);
             return [];
