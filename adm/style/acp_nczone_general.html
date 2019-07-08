@@ -85,6 +85,26 @@
 	</dl>
 	<dl>
 		<dt>
+			<label for="nczone_free_points">{{ lang('NCZONE_FREE_POINTS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_FREE_POINTS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" name="nczone_free_points" value="{{ nczone_free_points }}" />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
+			<label for="nczone_free_points_condition">{{ lang('NCZONE_FREE_POINTS_CONDITION') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_FREE_POINTS_CONDITION_DESCR') }}</span>
+		</dt>
+		<dd>
+			<label for="nczone_free_points_regular">{{ lang('NCZONE_FREE_POINTS_REGULAR_DESCR') }}</label> <input type="checkbox" name="nczone_free_points_regular" id="nczone_free_points_regular" {% if nczone_free_points_regular %}checked="checked"{% endif %}/><br />
+			<label for="nczone_free_points_unrated">{{ lang('NCZONE_FREE_POINTS_UNRATED_DESCR') }}</label> <input type="checkbox" name="nczone_free_points_unrated" id="nczone_free_points_unrated" {% if nczone_free_points_unrated %}checked="checked"{% endif %} /><br />
+			<label for="nczone_free_points_difference">{{ lang('NCZONE_FREE_POINTS_DIFFERENCE_DESCR') }}</label> <input type="checkbox" name="nczone_free_points_difference" id="nczone_free_points_difference" {% if nczone_free_points_difference %}checked="checked"{% endif %} />
+		</dd>
+	</dl>
+	<dl>
+		<dt>
 			<label for="nczone_info_posts">{{ lang('NCZONE_INFO_POSTS') }}{{ lang('COLON') }}</label><br />
 			<span>{{ lang('NCZONE_INFO_POSTS_DESCR') }}</span>
 		</dt>

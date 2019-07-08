@@ -26,6 +26,10 @@ final class config
     public const points_3vs3 = 'nczone_points_3vs3';
     public const points_4vs4 = 'nczone_points_4vs4';
     public const extra_points = 'nczone_extra_points';
+    public const free_points = 'nczone_free_points';
+    public const free_points_regular = 'nczone_free_points_regular';
+    public const free_points_unrated = 'nczone_free_points_unrated';
+    public const free_points_difference = 'nczone_free_points_difference';
     public const info_posts = 'nczone_info_posts';
     public const draw_player_civs = 'nczone_draw_player_civs';
     public const draw_team_civs = 'nczone_draw_team_civs';
@@ -67,6 +71,10 @@ final class config
         self::points_3vs3,
         self::points_4vs4,
         self::extra_points,
+        self::free_points,
+        self::free_points_regular,
+        self::free_points_unrated,
+        self::free_points_difference,
         self::info_posts,
         self::draw_player_civs,
         self::draw_team_civs,
@@ -109,6 +117,10 @@ final class config
         self::points_3vs3 => 12,
         self::points_4vs4 => 9,
         self::extra_points => 30,
+        self::free_points => 1,
+        self::free_points_regular => true,
+        self::free_points_unrated => false,
+        self::free_points_difference => false,
         self::info_posts => '',
         self::draw_player_civs => 600,
         self::draw_team_civs => 120,

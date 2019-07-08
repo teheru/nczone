@@ -297,6 +297,8 @@ class matches {
                     $team1_list->get_rating_difference($team2_list),
                     $winner
                 );
+                $match_points_team1 = $match_points[1];
+                $match_points_team2 = $match_points[2];
 
                 $match_civ_ids = $this->get_civ_ids_by_match($match_id);
 
@@ -346,7 +348,7 @@ class matches {
                         if (!empty($civ_ids)) {
                             $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $mp->get_id() . ' AND `time` < ' . $draw_time);
                         }
-                        $this->players->match_changes($mp->get_id(), $team_id, $match_points, $team_id === $winner_team_id);
+                        $this->players->match_changes($mp->get_id(), $team_id, $is_team1 ? $match_points_team1 : $match_points_team2, $team_id === $winner_team_id);
 
                         $this->players->fix_streaks($mp->get_id(), $min_team_id); // note: this isn't needed for normal game posting, but for fixing matches
                     }
@@ -474,12 +476,14 @@ class matches {
             $team1_list->get_rating_difference($team2_list),
             $winner_team_id == $team1_id ? 1 : 2
         );
+        $match_points_team1 = $match_points[1];
+        $match_points_team2 = $match_points[2];
 
         foreach ($team1_list->items() as $mp) {
             $this->players->match_changes_undo(
                 $mp->get_id(),
                 $team1_id,
-                $match_points,
+                $match_points_team1,
                 $team1_id === $winner_team_id
             );
         }
@@ -487,7 +491,7 @@ class matches {
             $this->players->match_changes_undo(
                 $mp->get_id(),
                 $team2_id,
-                $match_points,
+                $match_points_team2,
                 $team2_id === $winner_team_id
             );
         }
@@ -552,16 +556,53 @@ class matches {
         int $match_size,
         int $rating_diff,
         int $winner
-    ): int {
+    ): array {
+        $free_points = (int)$this->config->get(config::free_points);
+        $free_points_team_1 = $winner === 1 ? $free_points : 0;
+        $free_points_team_2 = $winner === 2 ? $free_points : 0;
+
         $base_points = $this->config->base_points_by_match_size($match_size);
         if ($base_points < 0) {
-            return 0;
+            if ((bool)$this->config->get(config::free_points_unrated)) {
+                return [
+                    1 => max($free_points_team_1, 0),
+                    2 => max($free_points_team_2, 0)
+                ];
+            } else {
+                return [1 => 0, 2 => 0];
+            }
         }
 
         $is_outsider_win = ($rating_diff > 0 xor $winner === 1) ? true : false;
         $factor = $is_outsider_win ? 1 : -1;
         $extra_points = (int)floor(abs($rating_diff) / (float)$this->config->get(config::extra_points));
-        return \max(0, $base_points + $factor * $extra_points);
+
+        $regular_match_points = max(0, $base_points + $factor * $extra_points);
+
+        if ($regular_match_points === 0 and (bool)$this->config->get(config::free_points_difference)) {
+            return [
+                1 => max($free_points_team_1, 0),
+                2 => max($free_points_team_2, 0)
+            ];
+        }
+        if ($regular_match_points === 0) {
+            return [
+                1 => 0,
+                2 => 0
+            ];
+        }
+
+        if ((bool)$this->config->get(config::free_points_regular)) {
+            return [
+                1 => max($regular_match_points + $free_points_team_1, 0),
+                2 => max($regular_match_points + $free_points_team_2, 0)
+            ];
+        } else {
+            return [
+                1 => $regular_match_points,
+                2 => $regular_match_points
+            ];
+        }
     }
 
     /**

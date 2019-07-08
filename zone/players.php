@@ -379,7 +379,31 @@ class players
      */
     public function get_all(int $min_activity_matches = 0): array
     {
-        return $this->get_players(['min_activity_matches' => $min_activity_matches]);
+        $rows = $this->db->get_rows('
+            select
+                p.user_id AS id,
+                u.username,
+                p.rating,
+                p.logged_in,
+                p.matches_won,
+                p.matches_loss,
+                p.activity_matches,
+                MAX(s.session_time) AS last_activity,
+                COALESCE(t.rating_change, 0) AS rating_change,
+                COALESCE(t.streak, 0) AS streak,
+                p.bets_won AS bets_won,
+                p.bets_loss AS bets_loss,
+                p.activity_matches
+            from (select * from ' . $this->db->matches_table . ' where winner_team_id != 0 order by post_time desc) m
+            left join ' . $this->db->match_teams_table . ' mt on mt.match_id = m.match_id
+            left join ' . $this->db->match_players_table . ' t on t.team_id = mt.team_id
+            left join ' . $this->db->players_table . ' p on p.user_id = t.user_id
+            inner join ' . $this->db->users_table . ' u on u.user_id = t.user_id
+            left join ' . $this->db->session_table . ' s on s.session_user_id = t.user_id
+            where p.activity_matches >= ' . $min_activity_matches . '
+            group by p.user_id
+        ');
+        return array_map([entity\player::class, 'create_by_row'], $rows);
     }
 
     private function get_players(array $filter, array $order_by = []): array
