@@ -381,25 +381,34 @@ class players
     {
         $rows = $this->db->get_rows('
             select
-                p.user_id AS id,
+                p.user_id as id,
                 u.username,
                 p.rating,
                 p.logged_in,
                 p.matches_won,
                 p.matches_loss,
                 p.activity_matches,
-                MAX(s.session_time) AS last_activity,
-                COALESCE(t.rating_change, 0) AS rating_change,
-                COALESCE(t.streak, 0) AS streak,
-                p.bets_won AS bets_won,
-                p.bets_loss AS bets_loss,
+                MAX(s.session_time) as last_activity,
+                COALESCE(mp.rating_change, 0) as rating_change,
+                COALESCE(mp.streak, 0) as streak,
+                p.bets_won as bets_won,
+                p.bets_loss as bets_loss,
                 p.activity_matches
-            from (select * from ' . $this->db->matches_table . ' where winner_team_id != 0 order by post_time desc) m
-            left join ' . $this->db->match_teams_table . ' mt on mt.match_id = m.match_id
-            left join ' . $this->db->match_players_table . ' t on t.team_id = mt.team_id
-            left join ' . $this->db->players_table . ' p on p.user_id = t.user_id
-            inner join ' . $this->db->users_table . ' u on u.user_id = t.user_id
-            left join ' . $this->db->session_table . ' s on s.session_user_id = t.user_id
+            from (
+                    select
+                        max(mm.match_id) as match_id,
+                        max(mt.team_id) as team_id,
+                        t.user_id
+                    from ' . $this->db->matches_table . ' mm
+                    left join ' . $this->db->match_teams_table . ' mt on mt.match_id = mm.match_id
+                    left join ' . $this->db->match_players_table . ' t on t.team_id = mt.team_id
+                    where mm.winner_team_id != 0
+                    group by t.user_id
+            ) m
+            left join ' . $this->db->players_table . ' p on p.user_id = m.user_id
+            left join ' . $this->db->match_players_table . ' mp on mp.user_id = m.user_id and mp.team_id = m.team_id
+            inner join ' . $this->db->users_table . ' u on u.user_id = m.user_id
+            left join ' . $this->db->session_table . ' s on s.session_user_id = m.user_id
             where p.activity_matches >= ' . $min_activity_matches . '
             group by p.user_id
         ');
