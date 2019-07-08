@@ -20,8 +20,12 @@ class players
 {
     /** @var \phpbb\user */
     private $user;
+
     /** @var db */
     private $db;
+
+    /** @var config */
+    private $config;
 
     /**
      * nC Zone players management class.
@@ -33,6 +37,8 @@ class players
     {
         $this->user = $user;
         $this->db = $db;
+        // TODO: provide via dependency injection
+        $this->config = zone_util::config();
     }
 
     /**
@@ -276,10 +282,8 @@ class players
         ]);
     }
 
-    public function fix_streaks(int $user_id, int $match_id): void
+    public function fix_streaks(int $user_id, int $team_id): void
     {
-        $team_id = (int) min(zone_util::matches()->get_match_team_ids($match_id));
-
         $last_streak = $this->last_streak_before_in_team($user_id, $team_id);
 
         $changes = $this->rating_changes_since_in_team($user_id, $team_id);
@@ -541,7 +545,7 @@ class players
 
     public function calculate_all_activities(): void
     {
-        $min_time = time() - (int)config::get(config::activity_time) * 60 * 60 * 24;
+        $min_time = time() - (int) $this->config->get(config::activity_time) * 60 * 60 * 24;
         $sql = '
             SELECT p.user_id, COALESCE(t.match_count, 0) AS match_count FROM ' . $this->db->players_table . ' p
             LEFT JOIN (

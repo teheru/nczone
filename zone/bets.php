@@ -11,6 +11,9 @@ class bets
     /** @var db */
     private $db;
 
+    /** @var config */
+    private $config;
+
     /**
      * Constructor
      *
@@ -19,6 +22,8 @@ class bets
     public function __construct(db $db)
     {
         $this->db = $db;
+        // TODO: provide via dependency injection
+        $this->config = zone_util::config();
     }
 
     public function has_bet(int $user_id, int $match_id): bool
@@ -39,13 +44,12 @@ class bets
         return $this->db->get_int_var($sql) > 0;
     }
 
-    public function place_bet(int $user_id, int $match_id, int $team): void
+    public function place_bet(int $user_id, int $team_id): void
     {
-        $team_ids = zone_util::matches()->get_match_team_ids($match_id);
         $this->db->insert($this->db->bets_table, [
             'user_id' => $user_id,
             'time' => time(),
-            'team_id' => $team_ids[$team - 1],
+            'team_id' => $team_id,
             'counted' => 0,
         ]);
     }
@@ -82,7 +86,7 @@ class bets
 
     public function evaluate_bets(int $winner_team, int $loser_team, int $end_time): void
     {
-        $until = $end_time - ((int)config::get(config::bet_time));
+        $until = $end_time - ((int) $this->config->get(config::bet_time));
 
         $correct_user_ids = $this->get_open_bet_user_ids_until($winner_team, $until);
         $wrong_user_ids = $this->get_open_bet_user_ids_until($loser_team, $until);

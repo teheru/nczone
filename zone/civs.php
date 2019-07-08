@@ -13,7 +13,6 @@ namespace eru\nczone\zone;
 
 use eru\nczone\utility\db;
 use eru\nczone\utility\number_util;
-use eru\nczone\utility\zone_util;
 
 class civs
 {
@@ -91,15 +90,16 @@ class civs
      * Creates a new civ and civ map entries in the database, returns the id of the new civ
      *
      * @param string $civ_name Name of the civ
+     * @param int[] $map_ids
      *
      * @return int
      * @throws \Throwable
      */
-    public function create_civ(string $civ_name): int
+    public function create_civ(string $civ_name, array $map_ids): int
     {
-        return $this->db->run_txn(function() use ($civ_name) {
+        return $this->db->run_txn(function() use ($civ_name, $map_ids) {
             $civ_id = $this->insert_civ($civ_name);
-            $this->insert_civ_x_map_entries($civ_id);
+            $this->insert_civ_x_map_entries($civ_id, $map_ids);
             $this->insert_civ_x_player_entries($civ_id);
             return $civ_id;
         });
@@ -121,18 +121,18 @@ class civs
         ]);
     }
 
-
     /**
      * Create entries for the civ x map table.
      *
-     * @param int  $civ_id  The id of the civ
+     * @param int $civ_id The id of the civ
+     * @param int[] $map_ids
      *
      * @return void
      */
-    private function insert_civ_x_map_entries(int $civ_id): void
+    private function insert_civ_x_map_entries(int $civ_id, array $map_ids): void
     {
         // todo: replace this by a subquery like above?
-        foreach (zone_util::maps()->get_map_ids() as $map_id) {
+        foreach ($map_ids as $map_id) {
             $this->db->insert($this->db->map_civs_table, [
                 'map_id' => (int)$map_id,
                 'civ_id' => $civ_id,

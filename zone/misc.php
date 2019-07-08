@@ -14,18 +14,25 @@ namespace eru\nczone\zone;
 use eru\nczone\config\config;
 use eru\nczone\utility\db;
 use eru\nczone\utility\phpbb_util;
+use eru\nczone\utility\zone_util;
 
 class misc
 {
     /** @var db */
     private $db;
+
     /** @var \phpbb\user */
     private $user;
+
+    /** @var config */
+    private $config;
 
     public function __construct(\phpbb\user $user, db $db)
     {
         $this->db = $db;
         $this->user = $user;
+        // TODO: provide via dependency injection
+        $this->config = zone_util::config();
     }
 
     public static function cut_to_same_length(array ...$arrays): array
@@ -38,7 +45,7 @@ class misc
 
     public function get_rules_post(): string
     {
-        return $this->get_post((int) config::get(config::rules_post_id));
+        return $this->get_post((int) $this->config->get(config::rules_post_id));
     }
 
     public function get_information_posts(): array
@@ -49,7 +56,7 @@ class misc
 
     public function get_information_post_ids(): array
     {
-        return array_map('\intval', explode(',', config::get(config::info_posts)));
+        return array_map('\intval', explode(',', $this->config->get(config::info_posts)));
     }
 
     public function get_post(int $post_id): string
@@ -147,7 +154,7 @@ class misc
 
     public function block_draw(): void
     {
-        $minutes = (int) config::get(config::draw_block_time);
+        $minutes = (int) $this->config->get(config::draw_block_time);
         if ($minutes === 0) {
             $minutes = 60 * 24 * 365 * 10;
         }
@@ -161,13 +168,13 @@ class misc
 
     public function block_draw_after_match(): void
     {
-        $minutes = (int) config::get(config::draw_block_after_match);
+        $minutes = (int) $this->config->get(config::draw_block_after_match);
         if ($minutes <= 0) {
             return;
         }
 
         $time = time() + $minutes * 60;
-        $old_time = (float) config::get(config::draw_blocked_until);
+        $old_time = (float) $this->config->get(config::draw_blocked_until);
         if ($old_time < $time) {
             $this->set_draw_blocked_until($time);
         }
@@ -175,6 +182,6 @@ class misc
 
     private function set_draw_blocked_until(int $time): void
     {
-        config::set(config::draw_blocked_until, $time);
+        $this->config->set(config::draw_blocked_until, $time);
     }
 }

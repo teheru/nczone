@@ -11,6 +11,11 @@ class phpbb_util
         return $GLOBALS['phpbb_container'];
     }
 
+    public static function config(): \phpbb\config\config
+    {
+        return $GLOBALS['config'];
+    }
+
     public static function request(): \phpbb\request\request
     {
         return $GLOBALS['request'];

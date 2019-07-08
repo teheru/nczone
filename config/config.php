@@ -133,14 +133,22 @@ final class config
         self::draw_block_after_match => 3,
     ];
 
-    public static function get(string $key, $default = null)
+    /** @var \phpbb\config\config */
+    private $config;
+
+    public function __construct(\phpbb\config\config $config)
     {
-        return self::_config()[$key] ?? self::default($key, $default);
+        $this->config = $config;
     }
 
-    public static function set(string $key, $value, $use_cache = true)
+    public function get(string $key, $default = null)
     {
-        return self::_config()->set($key, $value, $use_cache);
+        return $this->config[$key] ?? self::default($key, $default);
+    }
+
+    public function set(string $key, $value, $use_cache = true)
+    {
+        return $this->config->set($key, $value, $use_cache);
     }
 
     public static function default(string $key, $default = null)
@@ -148,82 +156,76 @@ final class config
         return self::$defaults[$key] ?? $default;
     }
 
-    # todo: try to solve this with dependency injection instead
-    private static function _config(): \phpbb\config\config
-    {
-        return $GLOBALS['config'];
-    }
-
     public static function module_data(array $keys): array
     {
-        return \array_map(function ($key) {
+        return \array_map(static function ($key) {
             return ['config.add', [$key, self::default($key)]];
         }, $keys);
     }
 
-    public static function draw_match_extra_civs(int $match_size)
+    public function draw_match_extra_civs(int $match_size): int
     {
         switch ($match_size) {
-            case 1: return self::get(self::draw_match_extra_civs_1vs1);
-            case 2: return self::get(self::draw_match_extra_civs_2vs2);
-            case 3: return self::get(self::draw_match_extra_civs_3vs3);
-            case 4: return self::get(self::draw_match_extra_civs_4vs4);
+            case 1: return (int) $this->get(self::draw_match_extra_civs_1vs1);
+            case 2: return (int) $this->get(self::draw_match_extra_civs_2vs2);
+            case 3: return (int) $this->get(self::draw_match_extra_civs_3vs3);
+            case 4: return (int) $this->get(self::draw_match_extra_civs_4vs4);
         }
-        return null;
+        return 0;
     }
 
-    public static function draw_team_extra_civs(int $match_size)
+    public function draw_team_extra_civs(int $match_size): int
     {
         switch ($match_size) {
-            case 1: return self::get(self::draw_team_extra_civs_1vs1);
-            case 2: return self::get(self::draw_team_extra_civs_2vs2);
-            case 3: return self::get(self::draw_team_extra_civs_3vs3);
-            case 4: return self::get(self::draw_team_extra_civs_4vs4);
+            case 1: return (int) $this->get(self::draw_team_extra_civs_1vs1);
+            case 2: return (int) $this->get(self::draw_team_extra_civs_2vs2);
+            case 3: return (int) $this->get(self::draw_team_extra_civs_3vs3);
+            case 4: return (int) $this->get(self::draw_team_extra_civs_4vs4);
         }
-        return null;
+        return 0;
     }
 
-    public static function draw_player_num_civs(int $match_size)
+    public function draw_player_num_civs(int $match_size): int
     {
         switch ($match_size) {
-            case 1: return self::get(self::draw_player_num_civs_1vs1);
-            case 2: return self::get(self::draw_player_num_civs_2vs2);
-            case 3: return self::get(self::draw_player_num_civs_3vs3);
-            case 4: return self::get(self::draw_player_num_civs_4vs4);
+            case 1: return (int) $this->get(self::draw_player_num_civs_1vs1);
+            case 2: return (int) $this->get(self::draw_player_num_civs_2vs2);
+            case 3: return (int) $this->get(self::draw_player_num_civs_3vs3);
+            case 4: return (int) $this->get(self::draw_player_num_civs_4vs4);
         }
-        return null;
+        return 0;
     }
 
-    public static function base_points_by_match_size(int $match_size): int
+    public function base_points_by_match_size(int $match_size): int
     {
         switch ($match_size) {
-            case 1: return (int) self::get(self::points_1vs1);
-            case 2: return (int) self::get(self::points_2vs2);
-            case 3: return (int) self::get(self::points_3vs3);
-            case 4: return (int) self::get(self::points_4vs4);
+            case 1: return (int) $this->get(self::points_1vs1);
+            case 2: return (int) $this->get(self::points_2vs2);
+            case 3: return (int) $this->get(self::points_3vs3);
+            case 4: return (int) $this->get(self::points_4vs4);
         }
         return -1;
     }
 
-    public static function activity_by_match_count(int $match_count): int
+    public function activity_by_match_count(int $match_count): int
     {
-        if ($match_count >= (int) self::get(self::activity_5)) {
+        if ($match_count >= (int) $this->get(self::activity_5)) {
             return 5;
         }
 
-        if ($match_count >= (int) self::get(self::activity_4)) {
+        if ($match_count >= (int) $this->get(self::activity_4)) {
             return 4;
         }
 
-        if ($match_count >= (int) self::get(self::activity_3)) {
+        if ($match_count >= (int) $this->get(self::activity_3)) {
             return 3;
         }
 
-        if ($match_count >= (int) self::get(self::activity_2)) {
+        if ($match_count >= (int) $this->get(self::activity_2)) {
             return 2;
         }
 
-        if($match_count >= (int) self::get(self::activity_1)) {
+        if($match_count >= (int) $this->get(self::activity_1)) {
             return 1;
         }
 
