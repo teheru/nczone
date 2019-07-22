@@ -33,7 +33,7 @@ Find your `ext` directory in the root path of your phpBB3 installation. In this 
 ```
 
 Skip the next chapter explaining how to perform these steps using a ZIP file and go on reading
-[Installing the extensions](#Installing the extensions).
+[Installing the extensions](#Installing-the-extensions).
 
 #### Using a ZIP file
 
@@ -120,9 +120,9 @@ Look for `Rules post ID` on the right and fill the number you just copied in the
 
 The Zone was primarily designed for Age of Empires II, but it should work for most RTS games. In order to not limit
 ourselves to a single game, we decided to not ship civilisations (in short: civs) by default. For drawing matches, it's
-is however required to have civs. You can either [create them by hand](#Creating your own civilisations), or, if you're
+is however required to have civs. You can either [create them by hand](#Creating-your-own-civilisations), or, if you're
 playing the most recent version of Age of Empires II,
-[take the ones we already prepared](#Apply our prepared civilisations for Age of Empires II).
+[take the ones we already prepared](#Apply-our-prepared-civilisations-for-Age-of-Empires-II).
 
 ##### Creating your own civilisations
 
@@ -187,13 +187,13 @@ free to add more language by adjusting [lang.json](https://github.com/teheru/ncz
 
 #### Setting up maps
 
-Setting up maps works pretty much the same like [setting up civilisations](#Setting up Civilisations). We don't have
+Setting up maps works pretty much the same like [setting up civilisations](#Setting-up-Civilisations). We don't have
 prepared maps for you, though, because they change pretty often. However, feel free to contact @mcepok if you still want
 the maps we currently use.
 
 #### Activating players
 
-To activate players, again, look at [Setting up Civilisations](#Setting up Civilisations) to give yourself the needed
+To activate players, again, look at [Setting up Civilisations](#Setting-up-Civilisations) to give yourself the needed
 privileges and to find the MCP. In the MCP menu, this time, stay on `Player` in the left menu, and enter a name (e. g.
 your own) in the field and click `Submit`
 
