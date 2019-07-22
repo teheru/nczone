@@ -207,8 +207,8 @@ class main_module
             $maps->create_map(
                 $request->variable('map_name', ''),
                 (float)$request->variable('map_weight', 1.0),
-                (int)$request->variable('copy_map_id', 0),
-                $match_sizes
+                $match_sizes,
+                (int)$request->variable('copy_map_id', 0)
             );
         } elseif ($request->variable('edit_map', '')) {
             $maps->edit_map(map::create_by_row([
