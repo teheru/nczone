@@ -23,7 +23,7 @@ class install_db_create extends \phpbb\db\migration\migration
             'add_tables' => [
                 $this->table_prefix . 'zone_players' => [
                     'COLUMNS' => [
-                        'user_id' => ['UINT', null],
+                        'user_id' => ['UINT', 1],
                         'rating' => ['UINT:8', 0],
                         'logged_in' => ['TIMESTAMP', 0],
                         'matches_won' => ['UINT', 0],
@@ -184,15 +184,15 @@ class install_db_create extends \phpbb\db\migration\migration
                 ],
                 $this->table_prefix . 'zone_user_settings' => [
                     'COLUMNS' => [
-                        'user_id' => ['UINT', 0],
-                        'setting' => ['VARCHAR:256', ''],
-                        'value' => ['VARCHAR:256', ''],
+                        'user_id' => ['UINT', 1],
+                        'setting' => ['VCHAR:256', ''],
+                        'value' => ['VCHAR:256', ''],
                     ],
                     'PRIMARY_KEY' => ['user_id', 'setting'],
                 ],
                 $this->table_prefix . 'zone_locks' => [
                     'COLUMNS' => [
-                        'hash' => ['CHAR:32'],
+                        'hash' => ['CHAR:32', ''],
                         'payload' => ['TEXT', null],
                         'created' => ['TIMESTAMP', 0],
                         'expires' => ['TIMESTAMP', 0],
