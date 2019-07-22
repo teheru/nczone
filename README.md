@@ -33,7 +33,7 @@ Find your `ext` directory in the root path of your phpBB3 installation. In this 
 ```
 
 Skip the next chapter explaining how to perform these steps using a ZIP file and go on reading
-[Installing the extensions](#Installing-the-extensions).
+[Installing the extensions](#Installing-the-extension).
 
 #### Using a ZIP file
 
