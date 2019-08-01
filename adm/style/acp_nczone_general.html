@@ -6,13 +6,22 @@
 	<legend>{{ lang('ACP_NCZONE_GENERAL_TITLE') }}</legend>
 	<dl>
 		<dt>
-			<label for="nczone_rules_post_id">{{ lang('NCZONE_RULES_POST_ID') }}{{ lang('COLON') }}</label><br />
-			<span>{{ lang('NCZONE_RULES_POST_ID_DESCR') }}</span>
+			<label for="nczone_title">{{ lang('NCZONE_SET_TITLE') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_SET_TITLE_DESCR') }}</span>
 		</dt>
 		<dd>
-			<input type="number" name="nczone_rules_post_id" value="{{ nczone_rules_post_id }}" />
+			<input type="text" name="nczone_title" value="{{ nczone_title }}" />
 		</dd>
 	</dl>
+  <dl>
+    <dt>
+      <label for="nczone_rules_post_id">{{ lang('NCZONE_RULES_POST_ID') }}{{ lang('COLON') }}</label><br />
+      <span>{{ lang('NCZONE_RULES_POST_ID_DESCR') }}</span>
+    </dt>
+    <dd>
+      <input type="number" name="nczone_rules_post_id" value="{{ nczone_rules_post_id }}" />
+    </dd>
+  </dl>
 	<dl>
 		<dt>
 			<label for="nczone_match_forum_id">{{ lang('NCZONE_MATCH_FORUM_ID') }}{{ lang('COLON') }}</label><br />

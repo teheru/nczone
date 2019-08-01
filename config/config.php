@@ -10,6 +10,7 @@ final class config
         self::activity_cron,
     ];
 
+    public const title = 'nczone_title';
     public const rules_post_id = 'nczone_rules_post_id';
     public const match_forum_id = 'nczone_match_forum_id';
     public const pmatches_page_size = 'nczone_pmatches_page_size';
@@ -55,6 +56,7 @@ final class config
     public const map_images_path = 'maps/';
 
     public const ACL_CONFIG_KEYS = [
+        self::title,
         self::rules_post_id,
         self::match_forum_id,
         self::pmatches_page_size,
@@ -100,6 +102,7 @@ final class config
     ];
 
     private static $defaults = [
+        self::title => 'Zone',
         self::activity_cron => 0,
         self::rules_post_id => 0,
         self::match_forum_id => 0,

@@ -15,6 +15,7 @@ namespace eru\nczone\event;
  */
 
 use eru\nczone\config\acl;
+use eru\nczone\utility\zone_util;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -86,8 +87,11 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_page_header_link()
 	{
+	    $config = zone_util::config();
+
 		$this->template->assign_vars(array(
 			'U_NCZONE'	=> $this->helper->route('eru_nczone_controller_zone'),
+            'NCZONE_TITLE' => $config->get($config::title)
 		));
 	}
 
@@ -100,7 +104,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($event['on_page'][1] === 'app' && strrpos($event['row']['session_page'], 'app.' . $this->php_ext . '/nczone') === 0)
 		{
-			$event['location'] = $this->user->lang('NCZONE_RMATCHES');
+			$event['location'] = $this->user->lang('NCZONE');
 			$event['location_url'] = $this->helper->route('eru_nczone_controller_zone', array('name' => 'world'));
 		}
 	}

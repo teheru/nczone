@@ -4,7 +4,7 @@
       <div class="zone-title" v-t="'NCZONE_LINKS'"></div>
       <div class="zone-content zone-menu">
         <div class="zone-menu-block">
-          <div class="zone-menu-title" v-t="'NCZONE'"></div>
+          <div class="zone-menu-title">{{ me.title }}</div>
           <ul class="zone-menu">
             <li><router-link :to="{name: 'rmatches'}" v-t="'NCZONE_RMATCHES'" /></li>
             <li><router-link :to="{name: 'pmatches'}" v-t="'NCZONE_PMATCHES'" /></li>
@@ -43,7 +43,8 @@ export default {
   computed: {
     ...mapGetters([
       'isGuest',
-      'canViewMaps'
+      'canViewMaps',
+      'me'
     ])
   }
 }

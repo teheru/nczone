@@ -199,6 +199,8 @@
     },
     "info_acp": {
       "ACP_NCZONE_SAVED": "Gespeichert!",
+      "NCZONE_SET_TITLE": "Zone Titel",
+      "NCZONE_SET_TITLE_DESCR": "Setze hier den Namen der Zone.",
       "NCZONE_RULES_POST_ID": "Regeln Post ID",
       "NCZONE_RULES_POST_ID_DESCR": "Die ID des Posts welcher auf der Regeln Seite angezeigt werden soll.",
       "NCZONE_MATCH_FORUM_ID": "Post Forum ID",
@@ -530,6 +532,8 @@
     },
     "info_acp": {
       "ACP_NCZONE_SAVED": "Saved!",
+      "NCZONE_SET_TITLE": "Zone Title",
+      "NCZONE_SET_TITLE_DESCR": "Set the title of the zone.",
       "NCZONE_RULES_POST_ID": "Rules post ID",
       "NCZONE_RULES_POST_ID_DESCR": "The ID of the post which should be displayed on the rules page.",
       "NCZONE_MATCH_FORUM_ID": "Post forum ID",

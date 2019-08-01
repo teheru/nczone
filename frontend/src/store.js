@@ -60,6 +60,7 @@ export default () => {
     state: {
       me: {
         id: 0,
+        title: '',
         sid: '',
         permissions: [],
         settings: []
@@ -181,6 +182,7 @@ export default () => {
     mutations: {
       init (state, { me, i18n }) {
         state.me.id = me.id || 0
+        state.me.title = me.title || 'Zone'
         state.me.sid = me.sid || ''
         state.me.permissions = me.permissions
 

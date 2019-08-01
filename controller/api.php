@@ -98,6 +98,7 @@ class api
             $user_id = $this->get_user_id();
             return [
                 'id' => $user_id,
+                'title' => $this->config->get($this->config::title),
                 'sid' => $this->user->session_id,
                 'lang' => $this->user->data['user_lang'],
                 'permissions' => acl::all_user_permissions(

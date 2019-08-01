@@ -143,6 +143,7 @@ class main_module
 
         if($submit)
         {
+            $config->set(config::title, $request->variable('nczone_title', config::default(config::title)));
             $config->set(config::rules_post_id, (int)$request->variable('nczone_rules_post_id', config::default(config::rules_post_id)));
             $config->set(config::match_forum_id, (int)$request->variable('nczone_match_forum_id', config::default(config::match_forum_id)));
             $config->set(config::pmatches_page_size, (int)$request->variable('nczone_pmatches_page_size', config::default(config::pmatches_page_size)));
@@ -170,6 +171,7 @@ class main_module
 
         phpbb_util::template()->assign_vars(array(
             'U_ACTION' => $this->u_action,
+            'nczone_title' => $config->get(config::title),
             'nczone_rules_post_id' => $config->get(config::rules_post_id),
             'nczone_match_forum_id' => $config->get(config::match_forum_id),
             'nczone_pmatches_page_size' => $config->get(config::pmatches_page_size),
