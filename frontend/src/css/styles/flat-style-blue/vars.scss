@@ -1,0 +1,28 @@
+$base_color: #333;
+$base_light_color: lighten($base_color, 85);
+$base_light_bg: #eee;
+$light_font_color: #fff;
+
+$border_light_color: $base_color;
+
+$input_bg: $base_color;
+$input_bg_disabled: rgba(0, 0, 0, 0);
+$input_fg: $base_light_color;
+$input_fg_disabled: #000;
+$overlay_bg: rgba(255, 255, 255, .8);
+
+$block_bg: $base_color;
+
+$negative_color: #bc2a4d;
+$positive_color: #229621;
+$neutral_color: #d67900;
+
+$activity_color_worst: $negative_color;
+$activity_color_best: $positive_color;
+
+$block_border_radius: 0;
+
+$active_link_color: #239aff;
+$menu_separator_color: $active_link_color;
+
+$base_dark_bg: darken($base_light_bg, 8);
