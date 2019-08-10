@@ -55,7 +55,7 @@ SQL;
                     'MCP_ZONE_TITLE',
                     [
                         'module_basename' => '\eru\nczone\mcp\main_module',
-                        'modes' => ['players', 'civs', 'maps'],
+                        'modes' => ['players', 'civs', 'maps', 'matches'],
                     ],
                 ],
             ],
