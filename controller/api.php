@@ -430,8 +430,8 @@ class api
             zone_util::players()->auto_logout();
             return zone_util::players()->get_logged_in();
         }, [
-            acl::u_zone_view_login => 'NOT_ALLOWED_TO_VIEW_LOGGED_IN_PLAYERS']
-        );
+            acl::u_zone_view_login => 'NOT_ALLOWED_TO_VIEW_LOGGED_IN_PLAYERS'
+        ]);
     }
 
     /**
@@ -459,7 +459,9 @@ class api
     {
         return $this->respond(function () {
             return zone_util::matches()->get_all_rmatches($this->can_view_bets(), $this->can_view_maps());
-        });
+        }, [
+            acl::u_zone_view_matches => 'NOT_ALLOWED_TO_VIEW_MATCHES'
+        ]);
     }
 
     /**
@@ -482,7 +484,9 @@ class api
                 ),
                 'total_pages' => zone_util::matches()->get_pmatches_total_pages()
             ];
-        }, [], [
+        }, [
+            acl::u_zone_view_matches => 'NOT_ALLOWED_TO_VIEW_MATCHES'
+        ], [
             'page' => $page
         ]);
     }
@@ -495,7 +499,9 @@ class api
                 $this->can_view_bets(),
                 $this->can_view_maps()
             );
-        }, [], [
+        }, [
+            acl::u_zone_view_matches => 'NOT_ALLOWED_TO_VIEW_MATCHES'
+        ], [
             'match_id' => $match_id,
         ]);
     }
@@ -636,7 +642,9 @@ class api
     {
         return $this->respond(function () {
             return zone_util::players()->get_bets();
-        });
+        }, [
+            acl::u_zone_view_bets => 'NOT_ALLOWED_TO_VIEW_BETS'
+        ]);
     }
 
     public function maps(): JsonResponse

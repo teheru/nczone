@@ -6,11 +6,11 @@
         <div class="zone-menu-block">
           <div class="zone-menu-title">{{ me.title }}</div>
           <ul class="zone-menu">
-            <li><router-link :to="{name: 'rmatches'}" v-t="'NCZONE_RMATCHES'" /></li>
-            <li><router-link :to="{name: 'pmatches'}" v-t="'NCZONE_PMATCHES'" /></li>
+            <li v-if="canViewMatches"><router-link :to="{name: 'rmatches'}" v-t="'NCZONE_RMATCHES'" /></li>
+            <li v-if="canViewMatches"><router-link :to="{name: 'pmatches'}" v-t="'NCZONE_PMATCHES'" /></li>
             <li><router-link :to="{name: 'players'}" v-t="'NCZONE_PLAYERS_TABLE'" /></li>
             <li v-if="canViewMaps"><router-link :to="{name: 'maps'}" v-t="'NCZONE_MAPS'" /></li>
-            <li><router-link :to="{name: 'bets'}" v-t="'NCZONE_BETS'" /></li>
+            <li v-if="canViewBets"><router-link :to="{name: 'bets'}" v-t="'NCZONE_BETS'" /></li>
             <!-- <li><router-link :to="{name: 'statistics'}" v-t="'NCZONE_STATISTICS'"></router-link></li> -->
           </ul>
         </div>
@@ -43,7 +43,9 @@ export default {
   computed: {
     ...mapGetters([
       'isGuest',
+      'canViewMatches',
       'canViewMaps',
+      'canViewBets',
       'me'
     ])
   }

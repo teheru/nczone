@@ -164,6 +164,7 @@ export default () => {
       canModLogin: (s, g) => g.can(acl.permissions.m_zone_login_players),
       canViewLogin: (s, g) => g.can(acl.permissions.u_zone_view_login),
       canLogin: (s, g) => g.can(acl.permissions.u_zone_view_login) && g.can(acl.permissions.u_zone_login) && !g.isLoggedIn && !g.isPlaying,
+      canViewMatches: (s, g) => g.can(acl.permissions.u_zone_view_matches),
       canViewMaps: (s, g) => g.can(acl.permissions.u_zone_view_maps),
       canViewBets: (s, g) => g.can(acl.permissions.u_zone_view_bets),
       canEditMapDescription: (s, g) => g.can(acl.permissions.u_zone_view_maps) && g.can(acl.permissions.m_zone_manage_maps),

@@ -1,5 +1,5 @@
 <template>
-  <div class="zone-running-matches">
+  <div v-if="canViewMatches" class="zone-running-matches">
     <div class="zone-title" v-t="'NCZONE_RMATCHES'"></div>
     <div class="zone-content">
       <div class="loading" v-if="loading" v-t="'NCZONE_LOADING'"></div>
@@ -18,6 +18,7 @@ export default {
   name: 'nczone-running-matches',
   computed: {
     ...mapGetters({
+      canViewMatches: 'canViewMatches',
       matches: 'runningMatches'
     })
   },

@@ -1,5 +1,5 @@
 <template>
-  <div class="zone-bets-table">
+  <div v-if="canViewBets" class="zone-bets-table">
     <div class="zone-title" v-t="'NCZONE_BETS_TABLE'"></div>
     <div class="zone-content">
       <div class="loading" v-if="loading"><span v-t="'NCZONE_LOADING'"></span></div>
@@ -62,6 +62,7 @@ export default {
       return this.avgField('bet_quota')
     },
     ...mapGetters([
+      'canViewBets',
       'bets'
     ])
   },
