@@ -162,6 +162,7 @@ export default () => {
       },
       canModPost: (s, g) => g.can(acl.permissions.m_zone_draw_match),
       canModLogin: (s, g) => g.can(acl.permissions.m_zone_login_players),
+      canViewLogin: (s, g) => g.can(acl.permissions.u_zone_view_login),
       canLogin: (s, g) => g.can(acl.permissions.u_zone_view_login) && g.can(acl.permissions.u_zone_login) && !g.isLoggedIn && !g.isPlaying,
       canViewMaps: (s, g) => g.can(acl.permissions.u_zone_view_maps),
       canViewBets: (s, g) => g.can(acl.permissions.u_zone_view_bets),

@@ -429,7 +429,9 @@ class api
         return $this->respond(function () {
             zone_util::players()->auto_logout();
             return zone_util::players()->get_logged_in();
-        });
+        }, [
+            acl::u_zone_view_login => 'NOT_ALLOWED_TO_VIEW_LOGGED_IN_PLAYERS']
+        );
     }
 
     /**

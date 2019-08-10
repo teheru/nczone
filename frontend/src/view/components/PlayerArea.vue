@@ -1,8 +1,8 @@
 <template>
-  <div id="zone-player-area">
+  <div v-if="canViewLogin || havePossibleActions" id="zone-player-area">
     <div class="zone-block">
       <div class="zone-title" v-t="'NCZONE_LOGGEDIN'"></div>
-      <div class="zone-content">
+      <div v-if="canViewLogin" class="zone-content">
         <div v-if="players.length === 0" class="zone-user-table-no-login">
           <span v-t="'NCZONE_NO_LOGIN'"></span>
         </div>
@@ -35,6 +35,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'canViewLogin',
       'canLogin',
       'drawBlockedTime',
       'canBlockDraw',
