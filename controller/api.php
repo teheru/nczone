@@ -456,7 +456,7 @@ class api
     public function rmatches(): JsonResponse
     {
         return $this->respond(function () {
-            return zone_util::matches()->get_all_rmatches($this->can_view_maps());
+            return zone_util::matches()->get_all_rmatches($this->can_view_bets(), $this->can_view_maps());
         });
     }
 
@@ -475,6 +475,7 @@ class api
             return [
                 'items' => zone_util::matches()->get_pmatches(
                     $args['page'],
+                    $this->can_view_bets(),
                     $this->can_view_maps()
                 ),
                 'total_pages' => zone_util::matches()->get_pmatches_total_pages()
@@ -489,6 +490,7 @@ class api
         return $this->respond(function ($args) {
             return zone_util::matches()->get_match(
                 $args['match_id'],
+                $this->can_view_bets(),
                 $this->can_view_maps()
             );
         }, [], [
@@ -764,6 +766,16 @@ class api
         }
 
         return false;
+    }
+
+    /**
+     * Determine if the user is allowed to view map details.
+     *
+     * @return bool
+     */
+    private function can_view_bets(): bool
+    {
+        return $this->has_permission(acl::u_zone_view_bets);
     }
 
     /**

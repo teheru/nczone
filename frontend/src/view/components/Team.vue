@@ -1,6 +1,6 @@
 <template>
   <div :class="classes">
-    <div class="zone-match-bets">
+    <div v-if="canViewBets" class="zone-match-bets">
       <div class="zone-match-bets-percentage">
         <a v-if="canBet" @click="doBet" class="zone-match-bets-bet-button"></a>
         <div class="zone-match-bets-percentage-number">{{ perc }}%</div>
@@ -98,7 +98,7 @@ export default {
       return this.match.winner && this.team !== this.match.winner
     },
     canBet () {
-      return !this.isFinished &&
+      return this.canViewBets && !this.isFinished &&
         !this.match.bets.team1.map(p => p.user.id).includes(this.me.id) &&
         !this.match.bets.team2.map(p => p.user.id).includes(this.me.id)
     },
@@ -106,6 +106,10 @@ export default {
       return (this.canReplaceMod || (this.canReplaceUser && (this.match.drawer.id === this.me.id))) && !this.isFinished
     },
     perc () {
+      if (!this.canViewBets) {
+        return 0
+      }
+
       const betCount = this.match.bets.team1.length + this.match.bets.team2.length
       const perc1 = betCount === 0 ? 50 : Math.round(this.match.bets.team1.length * 100 / betCount)
       const perc2 = 100 - perc1
@@ -115,6 +119,10 @@ export default {
       return this.team === 1 ? this.match.players.team1 : this.match.players.team2
     },
     bets () {
+      if (!this.canViewBets) {
+        return []
+      }
+
       return this.team === 1 ? this.match.bets.team1 : this.match.bets.team2
     },
     title () {
@@ -129,7 +137,8 @@ export default {
     ...mapGetters([
       'me',
       'canReplaceMod',
-      'canReplaceUser'
+      'canReplaceUser',
+      'canViewBets'
     ])
   }
 }

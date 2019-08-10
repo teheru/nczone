@@ -20,41 +20,43 @@ class match implements \JsonSerializable
 
     /**
      * @param array $rows
+     * @param bool $with_bets
      * @param bool $with_description
      *
      * @return match[]
      */
-    public static function array_by_rows_unfinished(array $rows, bool $with_description): array
+    public static function array_by_rows_unfinished(array $rows, bool $with_bets, bool $with_description): array
     {
-        return \array_map(static function(array $row) use ($with_description) {
-            return self::create_by_row_unfinished($row, $with_description);
+        return \array_map(static function(array $row) use ($with_bets, $with_description) {
+            return self::create_by_row_unfinished($row, $with_bets, $with_description);
         }, $rows);
     }
 
     /**
      * @param array $rows
+     * @param bool $with_bets
      * @param bool $with_description
      *
      * @return match[]
      */
-    public static function array_by_rows_finished(array $rows, bool $with_description): array
+    public static function array_by_rows_finished(array $rows, bool $with_bets, bool $with_description): array
     {
-        return \array_map(static function(array $row) use ($with_description) {
-            return self::create_by_row_finished($row, $with_description);
+        return \array_map(static function(array $row) use ($with_bets, $with_description) {
+            return self::create_by_row_finished($row, $with_bets, $with_description);
         }, $rows);
     }
 
-    public static function create_by_row_finished(array $row, bool $with_description): match
+    public static function create_by_row_finished(array $row, bool $with_bets, bool $with_description): match
     {
-        return self::_create_by_row($row, true, $with_description);
+        return self::_create_by_row($row, true, $with_bets, $with_description);
     }
 
-    public static function create_by_row_unfinished(array $row, bool $with_description): match
+    public static function create_by_row_unfinished(array $row, bool $with_bets, bool $with_description): match
     {
-        return self::_create_by_row($row, false, $with_description);
+        return self::_create_by_row($row, false, $with_bets, $with_description);
     }
 
-    private static function _create_by_row(array $row, bool $finished, bool $with_description): match
+    private static function _create_by_row(array $row, bool $finished, bool $with_bets, bool $with_description): match
     {
         $match_id = (int)$row['match_id'];
         $map_id = (int)$row['map_id'];
@@ -93,7 +95,9 @@ class match implements \JsonSerializable
             ],
             zone_util::matches()->get_team_civs($team1_id, $team2_id, $map_id)
         );
-        $entity->bets = zone_util::bets()->get_bets($team1_id, $team2_id, $finished ? true : false);
+        if ($with_bets) {
+            $entity->bets = zone_util::bets()->get_bets($team1_id, $team2_id, $finished ? true : false);
+        }
         $entity->players = zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id);
         $entity->forum_topic_id = $forum_topic_id;
         return $entity;
