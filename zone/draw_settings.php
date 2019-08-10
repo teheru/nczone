@@ -593,7 +593,8 @@ class draw_settings
             'WHERE' => [
                 'm.map_id = pm.map_id',
                 "m.draw_{$match_size}vs{$match_size} = true",
-                $this->db->sql_in_set('pm.user_id', $m->get_all_player_ids())
+                $this->db->sql_in_set('pm.user_id', $m->get_all_player_ids()),
+                'm.weight > 0'
             ],
         ]);
     }
