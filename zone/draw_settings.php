@@ -422,7 +422,7 @@ class draw_settings
         // civs we don't want to drop
         $keep_civ_ids = \array_merge($force_civ_ids, $both_teams_civ_ids);
 
-        // remember civs that were already drawed so we don't draw them twice
+        // remember civs that were already drawn so we don't draw them twice
         $civpool_civs = [];
         foreach ($user_civs as $pc) {
             if (\in_array($pc['civ_id'], $civpool_civs)) {
@@ -446,14 +446,34 @@ class draw_settings
 
             if (\in_array($pc['civ_id'], $both_teams_civ_ids)) {
                 // if the drawed civ should be in both teams, get the player
-                // from the other team who should get that civ
-                $other_team = $this->civs->get_map_players_single_civ(
+                // from the other team who should get that civ, if any
+
+                $players_civ_position = $this->civs->get_map_players_civ_position(
                     $map_id,
                     $team1->contains_id($pc['user_id']) ? $team2->get_ids() : $team1->get_ids(),
+                    $pc['civ_id']
+                );
+                $possible_players = [];
+                foreach ($players_civ_position as $player_id => $position) {
+                    if ($position <= $num_civs) {
+                        $possible_players[] = $player_id;
+                    }
+                }
+                if (!$possible_players) {
+                    continue;
+                }
+
+                $other_team = $this->civs->get_map_players_single_civ(
+                    $map_id,
+                    $possible_players,
                     [$pc['civ_id']],
                     false,
                     false
                 );
+                if (!$other_team) {
+                    continue;
+                }
+
                 if (\count($user_civpools[$other_team['user_id']]) > 0) {
                     foreach ($user_civpools[$other_team['user_id']] as $civ) {
                         // if he already has a forced civ or a civ for both

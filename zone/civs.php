@@ -97,7 +97,7 @@ class civs
      */
     public function create_civ(string $civ_name, array $map_ids): int
     {
-        return $this->db->run_txn(function() use ($civ_name, $map_ids) {
+        return $this->db->run_txn(function () use ($civ_name, $map_ids) {
             $civ_id = $this->insert_civ($civ_name);
             $this->insert_civ_x_map_entries($civ_id, $map_ids);
             $this->insert_civ_x_player_entries($civ_id);
@@ -147,8 +147,8 @@ class civs
     private function insert_civ_x_player_entries(int $civ_id): void
     {
         $this->db->sql_query(
-            'INSERT INTO `'. $this->db->player_civ_table .'` (`user_id`, `civ_id`, `time`) '.
-            'SELECT user_id, "'. $civ_id .'", "'. time() .'" FROM `'. $this->db->players_table .'`'
+            'INSERT INTO `' . $this->db->player_civ_table . '` (`user_id`, `civ_id`, `time`) ' .
+            'SELECT user_id, "' . $civ_id . '", "' . time() . '" FROM `' . $this->db->players_table . '`'
         );
     }
 
@@ -156,7 +156,8 @@ class civs
         int $map_id,
         array $user_ids,
         array $civ_ids = []
-    ): array {
+    ): array
+    {
         return $this->db->get_rows($this->get_map_players_civs_build_sql_array(
             $map_id,
             $user_ids,
@@ -172,7 +173,8 @@ class civs
         array $civ_ids = [],
         bool $neg_civ_ids = false,
         bool $force = false
-    ) {
+    )
+    {
         return $this->db->get_row($this->get_map_players_civs_build_sql_array(
             $map_id,
             $user_ids,
@@ -188,11 +190,12 @@ class civs
         array $civ_ids = [],
         bool $neg_civ_ids = false,
         bool $force = false
-    ): array {
+    ): array
+    {
         $sql_array = [
             'SELECT' => 'p.user_id AS user_id, c.civ_id AS civ_id, c.multiplier AS multiplier, c.both_teams AS both_teams',
             'FROM' => array($this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'),
-            'WHERE' => 'c.map_id = ' . (int)$map_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
+            'WHERE' => 'c.map_id = ' . $map_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
             'GROUP_BY' => 'p.user_id, c.civ_id',
             'ORDER_BY' => 'SUM(' . \time() . ' - p.time) DESC',
         ];
@@ -205,5 +208,41 @@ class civs
         }
 
         return $sql_array;
+    }
+
+    public function get_map_players_civ_position(
+        int $map_id,
+        array $user_ids,
+        int $civ_id
+    ): array
+    {
+        $sql_array = [
+            'SELECT' => 'p.user_id, c.civ_id AS civ_id',
+            'FROM' => array($this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'),
+            'WHERE' => 'c.map_id = ' . $map_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
+            'ORDER_BY' => \time() . ' - p.time DESC',
+        ];
+        $players_civs_in_order = $this->db->get_rows($sql_array);
+
+        $positions = [];
+        $position_found = [];
+        foreach ($user_ids as $player_id) {
+            $positions[$player_id] = 0;
+            $position_found[$player_id] = false;
+        }
+        foreach ($players_civs_in_order as $player_civ) {
+            $player_id = (int)$player_civ['user_id'];
+            $check_civ_id = (int)$player_civ['civ_id'];
+
+            if ($position_found[$player_id]) {
+                continue;
+            }
+            if ($check_civ_id === $civ_id) {
+                $position_found[$player_id] = true;
+                continue;
+            }
+            $positions[$player_id]++;
+        }
+        return $positions;
     }
 }
