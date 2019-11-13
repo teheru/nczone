@@ -21,7 +21,7 @@
         <nczone-table-header-col label="NCZONE_PREVENT_DRAW" />
         <nczone-table-header-col label="NCZONE_BOTH_TEAMS" />
       </div>
-      <div class="zone-table-row" v-for="(civ, idx) in map.civInfo" :key="`row-${idx}`">
+      <div class="zone-table-row" v-for="(civ, idx) in currentCivInfos" :key="`row-${idx}`">
         <div>{{ $t(civ.civ_name) }}</div>
         <div>{{ civ.multiplier }}</div>
         <div class="fa" :class="{'fa-check': civ.force_draw, 'fa-times': !civ.force_draw}"></div>
@@ -82,6 +82,10 @@ export default {
     ])
   },
   computed: {
+    currentCivInfos () {
+      return this.map.civInfo.filter(c => c.multiplier > 0).sort((c1, c2) => c1.civ_name > c2.civ_name)
+    },
+
     ...mapGetters([
       'canEditMapDescription'
     ])
