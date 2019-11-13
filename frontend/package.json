@@ -6,8 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build && npm run build-css",
     "lint": "vue-cli-service lint",
-    "build-css": "node-sass src/css/styles/flat-style/zone.scss dist/styles/flat-style/zone.css --output-style compressed && node-sass src/css/styles/flat-style-blue/zone.scss dist/styles/flat-style-blue/zone.css --output-style compressed && node-sass src/css/styles/prosilver/zone.scss dist/styles/prosilver/zone.css --output-style compressed",
-    "copy-dist": "cp dist/nczone.js ../styles/all/theme/nczone.js && cp dist/styles/flat-style/zone.css ../styles/flat-style/theme/zone.css && cp dist/styles/flat-style-blue/zone.css ../styles/flat-style-blue/theme/zone.css && cp dist/styles/prosilver/zone.css ../styles/prosilver/theme/zone.css",
+    "build-css": "node-sass src/css/styles/flat-style/zone.scss dist/styles/flat-style/zone.css --output-style compressed && node-sass src/css/styles/flat-style-blue/zone.scss dist/styles/flat-style-blue/zone.css --output-style compressed && node-sass src/css/styles/flat-style-green/zone.scss dist/styles/flat-style-green/zone.css --output-style compressed && node-sass src/css/styles/prosilver/zone.scss dist/styles/prosilver/zone.css --output-style compressed",
+    "copy-dist": "cp dist/nczone.js ../styles/all/theme/nczone.js && cp dist/styles/flat-style/zone.css ../styles/flat-style/theme/zone.css && cp dist/styles/flat-style-blue/zone.css ../styles/flat-style-blue/theme/zone.css && cp dist/styles/flat-style-green/zone.css ../styles/flat-style-green/theme/zone.css && cp dist/styles/prosilver/zone.css ../styles/prosilver/theme/zone.css",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
