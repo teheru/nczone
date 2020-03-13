@@ -6,7 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class phpbb_util
 {
-    public static function container(): ContainerBuilder
+    public static function container()
     {
         return $GLOBALS['phpbb_container'];
     }
