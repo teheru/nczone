@@ -161,11 +161,14 @@ class draw_settings
         if ($extra_civs === 0) {
             $best_civs = $draw_civs;
         } else {
+            // if there is already a civ forced to be drawn, we can reduce the number of drawn civs by one
+            $reduce_draw = $force_civ ? 1 : 0;
+
             // we drawed some extra civs and now we drop some to reduce the difference of multipliers
             $best_civs = [];
             $best_value = -1;
             for ($i = 0; $i < $extra_civs; $i++) {
-                $test_civs = \array_slice($draw_civs, $i, $num_civs - 1);
+                $test_civs = \array_slice($draw_civs, $i, $num_civs - $reduce_draw);
                 $test_civs_calc = $force_civ
                     ? \array_merge([$force_civ], $test_civs)
                     : $test_civs;
