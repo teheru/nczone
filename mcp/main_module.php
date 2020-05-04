@@ -248,6 +248,7 @@ class main_module
             foreach ($maps->get_maps() as $map) {
                 $template->assign_block_vars('maps', [
                     'ID' => $map->get_id(),
+                    'ACTIVE' => $map->get_weight() > 0,
                     'NAME' => $map->get_name(),
                 ]);
             }
