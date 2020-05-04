@@ -3,7 +3,13 @@ table.mcp_nczone td {
   border-width: 1px;
   border-color: #B4BAC0;
   border-style: solid;
-  text-align: center; }
+  text-align: center;
+}
 
 #mcp .half-inputbox {
-  width: calc(85% / 2 - 6px); }
+  width: calc(85% / 2 - 6px);
+}
+
+.mcp_map_active {
+  font-weight: bold;
+}

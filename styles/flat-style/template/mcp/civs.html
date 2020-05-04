@@ -2,6 +2,7 @@
 
 {% block content %}
     {% if S_SELECT_CIV %}
+
         <fieldset>
             <dl>
                 <dt>
@@ -33,12 +34,59 @@
                 </dd>
             </dl>
         </fieldset>
-        {% if S_EDIT_CIV %}
-            <input id="civ_id" name="civ_id" type="hidden" value="{{ S_CIV_ID }}"/>
-            <input id="edit_civ" name="edit_civ" type="hidden" value="1"/>
-        {% else %}
-            <input id="create_civ" name="create_civ" type="hidden" value="1"/>
-        {% endif %}
 
+        {% if S_EDIT_CIV %}
+
+        <fieldset>
+            <dl>
+                <dt>
+                    <label for="map_civs">{{ lang('MCP_MAP_CIVS') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_MAP_CIVS_HINT') }}</span>
+                </dt>
+                <dd>
+                    <table class="mcp_nczone">
+                        <tr>
+                            <th>{{ lang('MCP_MAP_NAME') }}</th>
+                            <th>{{ lang('MCP_MULTIPLIER') }}</th>
+                            <th>{{ lang('MCP_FORCE_DRAW') }}</th>
+                            <th>{{ lang('MCP_PREVENT_DRAW') }}</th>
+                            <th>{{ lang('MCP_BOTH_TEAMS') }}</th>
+                        </tr>
+
+                        {% for map in map_civs %}
+
+                        <tr>
+                            <td {% if map.MAP_ACTIVE %}class="mcp_map_active"{% endif %}>{{ lang(map.MAP_NAME) }}</td>
+                            <td><input id="multiplier_{{ map.MAP_ID }}"
+                                    name="multiplier_{{ map.MAP_ID }}" type="text"
+                                    class="inputbox" value="{{ map.MULTIPLIER }}"/></td>
+                            <td><input id="force_draw_{{ map.MAP_ID }}"
+                                    name="force_draw_{{ map.MAP_ID }}"
+                                    type="checkbox"
+                                    {{ map.FORCE_DRAW }}/></td>
+                            <td><input id="prevent_draw_{{ map.MAP_ID }}"
+                                    name="prevent_draw_{{ map.MAP_ID }}"
+                                    type="checkbox" {{ map.PREVENT_DRAW }}/></td>
+                            <td><input id="both_teams_{{ map.MAP_ID }}"
+                                    name="both_teams_{{ map.MAP_ID }}"
+                                    type="checkbox"
+                                    {{ map.BOTH_TEAMS }}/></td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </table>
+                </dd>
+            </dl>
+        </fieldset>
+
+        <input id="civ_id" name="civ_id" type="hidden" value="{{ S_CIV_ID }}"/>
+        <input id="edit_civ" name="edit_civ" type="hidden" value="1"/>
+
+        {% else %}
+
+        <input id="create_civ" name="create_civ" type="hidden" value="1"/>
+
+        {% endif %}
     {% endif %}
 {% endblock %}

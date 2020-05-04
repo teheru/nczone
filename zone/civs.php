@@ -151,6 +151,30 @@ class civs
             'SELECT user_id, "' . $civ_id . '", "' . time() . '" FROM `' . $this->db->players_table . '`'
         );
     }
+    
+    /**
+    * Returns the information of all civs for a certain map.
+    *
+    * @param int    $civ_id    Id of the map.
+    *
+    * @return entity\map_civ[]
+    */
+   public function get_map_civs(int $civ_id): array
+   {
+       $rows = $this->db->get_rows([
+           'SELECT' => [
+               'map_id',
+               'civ_id',
+               'multiplier',
+               'force_draw',
+               'prevent_draw',
+               'both_teams',
+           ],
+           'FROM' => [$this->db->map_civs_table => 't'],
+           'WHERE' => ['civ_id' => $civ_id]
+       ]);
+       return \array_map([entity\map_civ::class, 'create_by_row'], $rows);
+   }
 
     public function get_map_players_multiple_civs(
         int $map_id,

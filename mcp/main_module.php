@@ -159,6 +159,21 @@ class main_module
                 'id' => (int)$civ_id,
                 'name' => $request->variable('civ_name', ''),
             ]));
+
+            $map_civs = [];
+            foreach ($maps->get_maps() as $map) {
+                $map_id = $map->get_id();
+                $map_civs[] = map_civ::create_by_row([
+                    'map_id' => $map_id,
+                    'civ_id' => (int)$civ_id,
+                    'multiplier' => $request->variable('multiplier_' . $map_id, 0.0),
+                    'force_draw' => $request->variable('force_draw_' . $map_id, '') === 'on',
+                    'prevent_draw' => $request->variable('prevent_draw_' . $map_id, '') === 'on',
+                    'both_teams' => $request->variable('both_teams_' . $map_id, '') === 'on'
+                ]);
+            }
+            $maps->edit_map_civs($map_civs);
+
             $civ_id = ''; // back to selection page
         }
 
@@ -181,9 +196,26 @@ class main_module
         {
             $template->assign_var('S_EDIT_CIV', true);
 
-            $civ = $civs->get_civ((int)$civ_id);
+            $civ_id = (int)$civ_id;
+
+            $civ = $civs->get_civ($civ_id);
             $template->assign_var('S_CIV_ID', $civ->get_id());
             $template->assign_var('S_CIV_NAME', $civ->get_name());
+
+            foreach ($civs->get_map_civs($civ_id) as $map_civ) {
+                # todo: dont fetch maps one by one in a loop.
+                $map = $maps->get_map($map_civ->get_map_id());
+
+                $template->assign_block_vars('map_civs', [
+                    'MAP_ID' => $map->get_id(),
+                    'MAP_NAME' => $map->get_name(),
+                    'MAP_ACTIVE' => $map->get_weight() > 0,
+                    'MULTIPLIER' => $map_civ->get_multiplier(),
+                    'FORCE_DRAW' => $map_civ->get_force_draw() ? 'checked' : '',
+                    'PREVENT_DRAW' => $map_civ->get_prevent_draw() ? 'checked' : '',
+                    'BOTH_TEAMS' => $map_civ->get_both_teams() ? 'checked' : ''
+                ]);
+            }
         }
     }
 
@@ -223,14 +255,14 @@ class main_module
 
             $map_civs = [];
             foreach ($civs->get_civs() as $civ) {
-                $civId = $civ->get_id();
+                $civ_id = $civ->get_id();
                 $map_civs[] = map_civ::create_by_row([
                     'map_id' => (int)$map_id,
-                    'civ_id' => $civId,
-                    'multiplier' => $request->variable('multiplier_' . $civId, 0.0),
-                    'force_draw' => $request->variable('force_draw_' . $civId, '') === 'on',
-                    'prevent_draw' => $request->variable('prevent_draw_' . $civId, '') === 'on',
-                    'both_teams' => $request->variable('both_teams_' . $civId, '') === 'on'
+                    'civ_id' => $civ_id,
+                    'multiplier' => $request->variable('multiplier_' . $civ_id, 0.0),
+                    'force_draw' => $request->variable('force_draw_' . $civ_id, '') === 'on',
+                    'prevent_draw' => $request->variable('prevent_draw_' . $civ_id, '') === 'on',
+                    'both_teams' => $request->variable('both_teams_' . $civ_id, '') === 'on'
                 ]);
             }
             $maps->edit_map_civs($map_civs);
@@ -264,8 +296,10 @@ class main_module
         } else {
             $template->assign_var('S_EDIT_MAP', true);
 
+            $map_id = (int)$map_id;
+
             $map = $maps->get_map($map_id);
-            $template->assign_var('S_MAP_ID', $map->get_id());
+            $template->assign_var('S_MAP_ID', $map_id);
             $template->assign_var('S_MAP_NAME', $map->get_name());
             $template->assign_var('S_MAP_WEIGHT', $map->get_weight());
             $match_sizes = $map->get_match_sizes();
@@ -274,12 +308,12 @@ class main_module
             $template->assign_var('S_DRAW_FOR_3VS3', $match_sizes[3]);
             $template->assign_var('S_DRAW_FOR_4VS4', $match_sizes[4]);
 
-            foreach ($maps->get_map_civs($map->get_id()) as $map_civ) {
+            foreach ($maps->get_map_civs($map_id) as $map_civ) {
                 # todo: dont fetch civs one by one in a loop.
                 $civ = $civs->get_civ($map_civ->get_civ_id());
 
                 $template->assign_block_vars('map_civs', [
-                    'CIV_ID' => $map_civ->get_civ_id(),
+                    'CIV_ID' => $civ->get_id(),
                     'CIV_NAME' => $civ->get_name(),
                     'MULTIPLIER' => $map_civ->get_multiplier(),
                     'FORCE_DRAW' => $map_civ->get_force_draw() ? 'checked' : '',
