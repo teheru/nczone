@@ -95,18 +95,18 @@
                                     <td>{{ lang(civ.CIV_NAME) }}</td>
                                     <td><input id="multiplier_{{ civ.CIV_ID }}"
                                                name="multiplier_{{ civ.CIV_ID }}" type="text"
-                                               class="inputbox" value="{{ civ.MULTIPLIER }}"/></td>
+                                               class="inputbox" value="{{ civ.MULTIPLIER }}" tabindex="{{ loop.index }}"/></td>
                                     <td><input id="force_draw_{{ civ.CIV_ID }}"
                                                name="force_draw_{{ civ.CIV_ID }}"
                                                type="checkbox"
-                                            {{ civ.FORCE_DRAW }}/></td>
+                                            {{ civ.FORCE_DRAW }} tabindex="{{ loop.index + loop.length }}"/></td>
                                     <td><input id="prevent_draw_{{ civ.CIV_ID }}"
                                                name="prevent_draw_{{ civ.CIV_ID }}"
-                                               type="checkbox" {{ civ.PREVENT_DRAW }}/></td>
+                                               type="checkbox" {{ civ.PREVENT_DRAW }} tabindex="{{ loop.index + 2 * loop.length }}"/></td>
                                     <td><input id="both_teams_{{ civ.CIV_ID }}"
                                                name="both_teams_{{ civ.CIV_ID }}"
                                                type="checkbox"
-                                            {{ civ.BOTH_TEAMS }}/></td>
+                                            {{ civ.BOTH_TEAMS }} tabindex="{{ loop.index + 3 * loop.length }}"/></td>
                                 </tr>
                             {% endfor %}
                         </table>

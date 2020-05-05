@@ -59,18 +59,18 @@
                             <td {% if map.MAP_ACTIVE %}class="mcp_map_active"{% endif %}>{{ lang(map.MAP_NAME) }}</td>
                             <td><input id="multiplier_{{ map.MAP_ID }}"
                                     name="multiplier_{{ map.MAP_ID }}" type="text"
-                                    class="inputbox" value="{{ map.MULTIPLIER }}"/></td>
+                                    class="inputbox" value="{{ map.MULTIPLIER }}" tabindex="{{ loop.index }}"/></td>
                             <td><input id="force_draw_{{ map.MAP_ID }}"
                                     name="force_draw_{{ map.MAP_ID }}"
                                     type="checkbox"
-                                    {{ map.FORCE_DRAW }}/></td>
+                                    {{ map.FORCE_DRAW }} tabindex="{{ loop.index + loop.length }}"/></td>
                             <td><input id="prevent_draw_{{ map.MAP_ID }}"
                                     name="prevent_draw_{{ map.MAP_ID }}"
-                                    type="checkbox" {{ map.PREVENT_DRAW }}/></td>
+                                    type="checkbox" {{ map.PREVENT_DRAW }} tabindex="{{ loop.index + 2 * loop.length }}"/></td>
                             <td><input id="both_teams_{{ map.MAP_ID }}"
                                     name="both_teams_{{ map.MAP_ID }}"
                                     type="checkbox"
-                                    {{ map.BOTH_TEAMS }}/></td>
+                                    {{ map.BOTH_TEAMS }} tabindex="{{ loop.index + 3 * loop.length }}"/></td>
                         </tr>
 
                         {% endfor %}
