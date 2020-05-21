@@ -173,10 +173,6 @@ class api
     {
         return $this->respond(function () {
             zone_util::players()->logout_players($this->get_user_id());
-
-            $logs = zone_util::logs();
-            $logs->log_user_action($logs::LOGGED_OUT);
-
             return [];
         }, [
             acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -197,10 +193,6 @@ class api
                 throw new BadRequestError('NCZONE_ALREADY_IN_A_MATCH');
             }
             zone_util::players()->login_player($this->get_user_id());
-
-            $logs = zone_util::logs();
-            $logs->log_user_action($logs::LOGGED_IN);
-
             return [];
         }, [
             acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -276,6 +268,10 @@ class api
     {
         return $this->respond(function () {
             zone_util::misc()->block_draw();
+
+            $logs = zone_util::logs();
+            $logs->log_mod_action($logs::LOCKED);
+
             return [];
         }, [
             acl::m_zone_block_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_BLOCK_DRAW',
@@ -286,6 +282,10 @@ class api
     {
         return $this->respond(function () {
             zone_util::misc()->unblock_draw();
+
+            $logs = zone_util::logs();
+            $logs->log_mod_action($logs::UNLOCKED);
+
             return [];
         }, [
             acl::m_zone_block_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_BLOCK_DRAW',
@@ -299,7 +299,12 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
 
-            return zone_util::matches()->start_draw_process($this->get_user_id());
+            $player_list = zone_util::matches()->start_draw_process($this->get_user_id());
+
+            $logs = zone_util::logs();
+            $logs->log_user_action($logs::DRAW_PREVIEW);
+
+            return $player_list;
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -309,6 +314,10 @@ class api
     {
         return $this->respond(function () {
             zone_util::matches()->deny_draw_process($this->get_user_id());
+
+            $logs = zone_util::logs();
+            $logs->log_user_action($logs::DRAW_ABORTED);
+
             return [];
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
@@ -322,7 +331,12 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_DRAW');
             }
 
-            return zone_util::matches()->draw($this->get_user_id());
+            $match_ids = zone_util::matches()->draw($this->get_user_id());
+
+            $logs = zone_util::logs();
+            $logs->log_user_action($logs::DRAW_CONFIRMED);
+
+            return $match_ids;
         }, [
             acl::u_zone_draw => 'NCZONE_REASON_NOT_ALLOWED_TO_DRAW',
         ]);
@@ -375,11 +389,22 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
 
-            return zone_util::matches()->replace_player(
+            $res = zone_util::matches()->replace_player(
                 $this->get_user_id(),
                 $match_id,
                 $args['replace_user_id']
             );
+
+            $players = zone_util::players();
+            
+            $new_match_id = $res['match_id'];
+            $replaced_player = $players->get_player($res['replace_player_id']);
+            $new_player = $players->get_player($res['new_player_id']);
+
+            $logs = zone_util::logs();
+            $logs->log_mod_action($logs::REPLACE_PLAYER, [$replaced_player->get_username(), $new_player->get_username(), $match_id, $new_match_id]);
+
+            return $res;
         }, [], ['replace_user_id' => $replace_user_id]);
     }
 
@@ -429,7 +454,18 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_MATCH_FULL');
             }
 
-            return zone_util::matches()->add_pair($this->get_user_id(), $args['match_id']);
+            $res = zone_util::matches()->add_pair($this->get_user_id(), $args['match_id']);
+
+            $players = zone_util::players();
+
+            $new_match_id = $res['match_id'];
+            $player1 = $players->get_player($res['player1_id']);
+            $player2 = $players->get_player($res['player2_id']);
+
+            $logs = zone_util::logs();
+            $logs->log_mod_action($logs::ADD_PAIR, [$player1->get_username(), $player2->get_username(), $args['match_id'], $new_match_id]);
+
+            return $res;
         }, [], ['match_id' => $match_id]);
     }
 
@@ -566,13 +602,18 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT');
             }
 
+            $winner = (int)$data['winner'];
+
             zone_util::matches()->post(
                 $args['match_id'],
                 $this->get_user_id(),
-                (int) $data['winner']
+                $winner
             );
 
             zone_util::misc()->block_draw_after_match();
+
+            $logs = zone_util::logs();
+            $logs->log_user_action($logs::POSTED_MATCH, [$args['match_id'], $winner]);
 
             return [];
         }, [

@@ -132,7 +132,7 @@ class matches {
             $match_id = $this->create_match($setting);
             if ($match_id) {
                 $this->players->logout_players($player2_id);
-                return ['match_id' => $match_id];
+                return ['match_id' => $match_id, 'replace_player_id' => $replace_player_id, 'new_player_id' => $player2_id];
             }
             return [];
         });
@@ -186,8 +186,11 @@ class matches {
             $setting = $this->draw_settings->draw_settings($user_id, $draw_match);
             $match_id = $this->create_match($setting);
             if ($match_id) {
-                $this->players->logout_players($player1->get_id(), $player2->get_id());
-                return ['match_id' => $match_id];
+                $player1_id = $player1->get_id();
+                $player2_id = $player2->get_id();
+
+                $this->players->logout_players($player1_id, $player2_id);
+                return ['match_id' => $match_id, 'player1_id' => $player1_id, 'player2_id' => $player2_id];
             }
             return [];
         });

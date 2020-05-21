@@ -21,10 +21,16 @@ class logs
 
     public const PLAYER_ACTIVATED = 'NCZONE_LOG_PLAYER_ACTIVATED';
     public const PLAYER_RATING_CHANGED = 'NCZONE_LOG_RATING_CHANGED';
-    public const LOGGED_IN = 'NCZONE_LOG_LOGGED_IN';
-    public const LOGGED_OUT = 'NCZONE_LOG_LOGGED_OUT';
     public const LOGGED_IN_PLAYER = 'NCZONE_LOG_LOGGED_IN_PLAYER';
     public const LOGGED_OUT_PLAYER = 'NCZONE_LOG_LOGGED_OUT_PLAYER';
+    public const DRAW_PREVIEW = 'NCZONE_LOG_DRAW_PREVIEW';
+    public const DRAW_CONFIRMED = 'NCZONE_LOG_DRAW_CONFIRMED';
+    public const DRAW_ABORTED = 'NCZONE_LOG_DRAW_ABORTED';
+    public const POSTED_MATCH = 'NCZONE_LOG_POSTED_MATCH';
+    public const LOCKED = 'NCZONE_LOG_LOCKED';
+    public const UNLOCKED = 'NCZONE_LOG_UNLOCKED';
+    public const REPLACE_PLAYER = 'NCZONE_LOG_REPLACED_PLAYER';
+    public const ADD_PAIR = 'NCZONE_LOG_ADD_PAIR';
 
     public function __construct(\phpbb\log\log_interface $log, \phpbb\user $user)
     {

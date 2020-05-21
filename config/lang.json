@@ -264,10 +264,16 @@
     "info_logs": {
       "NCZONE_LOG_PLAYER_ACTIVATED": "<strong>%1$s</strong> aktivierte <strong>%2$s</strong> mit einem Rating von <strong>%3$s</strong>.",
       "NCZONE_LOG_RATING_CHANGED": "<strong>%1$s</strong> änderte das Rating von <strong>%2$s</strong> von <strong>%3%s</strong> auf <strong>%4%s</strong>.",
-      "NCZONE_LOG_LOGGED_IN": "<strong>%1$s</strong> hat sich eingeloggt.",
-      "NCZONE_LOG_LOGGED_OUT": "<strong>%1$s</strong> hat sich ausgeloggt.",
       "NCZONE_LOG_LOGGED_IN_PLAYER": "<strong>%1$s</strong> hat <strong>%2$s</strong> eingeloggt.",
-      "NCZONE_LOG_LOGGED_OUT_PLAYER": "<strong>%1$s</strong> hat <strong>%2$s</strong> ausgeloggt."
+      "NCZONE_LOG_LOGGED_OUT_PLAYER": "<strong>%1$s</strong> hat <strong>%2$s</strong> ausgeloggt.",
+      "NCZONE_LOG_DRAW_PREVIEW": "<strong>%1$s</strong> hat einen Losprozess gestartet.",
+      "NCZONE_LOG_DRAW_CONFIRMED": "<strong>%1$s</strong> gelost.",
+      "NCZONE_LOG_DRAW_ABORTED": "<strong>%1$s</strong> hat den Losprozess abgebrochen.",
+      "NCZONE_LOG_POSTED_MATCH": "<strong>%1$s</strong> hat das Spiel <strong>%2$s</strong> gepostet mit dem Siegerteam: <strong>%3$s</strong>.",
+      "NCZONE_LOG_LOCKED": "<strong>%1$s</strong> hat losen blockiert.",
+      "NCZONE_LOG_UNLOCKED": "<strong>%1$s</strong> hat die Losungsblockade aufgehoben.",
+      "NCZONE_LOG_REPLACED_PLAYER": "<strong>%1$s</strong> hat im Spiel <strong>%4$s</strong> <strong>%2$s</strong> durch <strong>%3$s</strong> ersetzt. Neues Spiel: <strong>%5$s</strong>.",
+      "NCZONE_LOG_ADD_PAIR": "<strong>%1$s</strong> hat <strong>%2$s</strong> und <strong>%3$s</strong> zum Spiel <strong>%4$s</strong> hinzugefügt. Neues Spiel: <strong>%5$s</strong>."
     },
     "info_mcp": {
       "MCP_SELECT_USER": "Benutzer auswählen",
@@ -613,10 +619,16 @@
     "info_logs": {
       "NCZONE_LOG_PLAYER_ACTIVATED": "<strong>%1$s</strong> activated <strong>%2$s</strong> with a rating of <strong>%3$s</strong>.",
       "NCZONE_LOG_RATING_CHANGED": "<strong>%1$s</strong> changed the rating of <strong>%2$s</strong> to from <strong>%3$s</strong> to <strong>%4$s</strong>.",
-      "NCZONE_LOG_LOGGED_IN": "<strong>%1$s</strong> logged in.",
-      "NCZONE_LOG_LOGGED_OUT": "<strong>%1$s</strong> logged out.",
       "NCZONE_LOG_LOGGED_IN_PLAYER": "<strong>%1$s</strong> logged <strong>%2$s</strong> in.",
-      "NCZONE_LOG_LOGGED_OUT_PLAYER": "<strong>%1$s</strong> logged <strong>%2$s</strong> out."
+      "NCZONE_LOG_LOGGED_OUT_PLAYER": "<strong>%1$s</strong> logged <strong>%2$s</strong> out.",
+      "NCZONE_LOG_DRAW_PREVIEW": "<strong>%1$s</strong> started a draw process.",
+      "NCZONE_LOG_DRAW_CONFIRMED": "<strong>%1$s</strong> has drawn.",
+      "NCZONE_LOG_DRAW_ABORTED": "<strong>%1$s</strong> aborted the draw process.",
+      "NCZONE_LOG_POSTED_MATCH": "<strong>%1$s</strong> has posted match <strong>%2$s</strong> with the winning team: <strong>%3$s</strong>.",
+      "NCZONE_LOG_LOCKED": "<strong>%1$s</strong> has locked drawings.",
+      "NCZONE_LOG_UNLOCKED": "<strong>%1$s</strong> has unlocked drawings.",
+      "NCZONE_LOG_REPLACED_PLAYER": "<strong>%1$s</strong> has replaced <strong>%2$s</strong> by <strong>%3$s</strong> in match <strong>%4$s</strong>. New match id: <strong>%5$s</strong>.",
+      "NCZONE_LOG_ADD_PAIR": "<strong>%1$s</strong> has added <strong>%2$s</strong> and <strong>%3$s</strong> to match <strong>%4$s</strong>. New match id: <strong>%5$s</strong>."
     },
     "info_mcp": {
       "MCP_SELECT_USER": "Select user",
