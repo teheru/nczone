@@ -173,6 +173,10 @@ class api
     {
         return $this->respond(function () {
             zone_util::players()->logout_players($this->get_user_id());
+
+            $logs = zone_util::logs();
+            $logs->log_user_action($logs::LOGGED_OUT);
+
             return [];
         }, [
             acl::u_zone_login => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -193,6 +197,9 @@ class api
                 throw new BadRequestError('NCZONE_ALREADY_IN_A_MATCH');
             }
             zone_util::players()->login_player($this->get_user_id());
+
+            $logs = zone_util::logs();
+            $logs->log_user_action($logs::LOGGED_IN);
 
             return [];
         }, [
@@ -215,6 +222,11 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
             zone_util::players()->login_player($args['player_id']);
+
+            $player = zone_util::players()->get_player((int)$args['player_id']);
+            $logs = zone_util::logs();
+            $logs->log_mod_action($logs::LOGGED_IN_PLAYER, [$player->get_username()]);
+
             return [];
         }, [
             acl::m_zone_login_players => 'NCZONE_REASON_NOT_ALLOWED_TO_LOGIN',
@@ -238,6 +250,10 @@ class api
                 throw new ForbiddenError('NCZONE_REASON_NOT_AN_ACTIVATED_PLAYER');
             }
             zone_util::players()->logout_players($args['player_id']);
+
+            $player = zone_util::players()->get_player((int)$args['player_id']);
+            $logs = zone_util::logs();
+            $logs->log_mod_action($logs::LOGGED_OUT_PLAYER, [$player->get_username()]);
 
             return [];
         }, [

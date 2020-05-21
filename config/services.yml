@@ -31,6 +31,13 @@ services:
         tags:
             - { name: event.listener }
 
+    eru.nczone.acp.listener:
+        class: eru\nczone\event\acp_listener
+        arguments:
+            - '@language'
+        tags:
+            - { name: event.listener }
+
     eru.nczone.cron.task.activity:
         class: eru\nczone\cron\task\activity
         arguments:
@@ -105,3 +112,9 @@ services:
       arguments:
         - '@user'
         - '@eru.nczone.db'
+    
+    eru.nczone.zone.logs:
+      class: eru\nczone\zone\logs
+      arguments:
+        - '@log'
+        - '@user'

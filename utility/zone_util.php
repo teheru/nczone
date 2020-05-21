@@ -12,6 +12,7 @@ use eru\nczone\zone\matches;
 use eru\nczone\zone\draw_teams;
 use eru\nczone\zone\draw_settings;
 use eru\nczone\zone\misc;
+use eru\nczone\zone\logs;
 
 class zone_util
 {
@@ -112,5 +113,15 @@ class zone_util
             $locks = phpbb_util::container()->get('eru.nczone.zone.locks');
         }
         return $locks;
+    }
+
+    public static function logs(): logs
+    {
+        static $logs;
+        if ($logs === null) {
+            /** @var locks $locks */
+            $logs = phpbb_util::container()->get('eru.nczone.zone.logs');
+        }
+        return $logs;
     }
 }

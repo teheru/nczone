@@ -104,8 +104,22 @@ class main_module
             }
 
             $activate = $request->variable('activate', '') === 'on';
-            if ($activate && !$players->activate_player((int)$user_id, $rating)) {
-                $players->edit_player((int)$user_id, ['rating' => $rating, 'logged_in' => $logged_in_timestamp ?: 0]);
+            if ($activate) {
+                if ($players->activate_player((int)$user_id, $rating)) {
+                    $player = $players->get_player((int)$user_id);
+                    $logs = zone_util::logs();
+                    $logs->log_mod_action($logs::PLAYER_ACTIVATED, [$player->get_username(), $rating]);
+                } else {
+                    $player = $players->get_player((int)$user_id);
+                    $old_rating = $player->get_rating();
+        
+                    $players->edit_player((int)$user_id, ['rating' => $rating, 'logged_in' => $logged_in_timestamp ?: 0]);
+
+                    if ($rating !== $old_rating) {
+                        $logs = zone_util::logs();
+                        $logs->log_mod_action($logs::PLAYER_RATING_CHANGED, [$player->get_username(), $old_rating, $rating]);
+                    }
+                }
             }
         } elseif ($request->variable('edit_player', '0') == '1') {
             if ($rating < 1) {
@@ -115,7 +129,15 @@ class main_module
                 return;
             }
 
+            $player = $players->get_player((int)$user_id);
+            $old_rating = $player->get_rating();
+
             $players->edit_player((int)$user_id, ['rating' => $rating, 'logged_in' => $logged_in_timestamp ?: 0]);
+
+            if ($rating !== $old_rating) {
+                $logs = zone_util::logs();
+                $logs->log_mod_action($logs::PLAYER_RATING_CHANGED, [$player->get_username(), $old_rating, $rating]);
+            }
         } elseif ($user_id) {
             $template->assign_var('USER_ID', $user_id);
 
