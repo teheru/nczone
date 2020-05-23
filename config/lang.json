@@ -263,11 +263,11 @@
     },
     "info_logs": {
       "NCZONE_LOG_PLAYER_ACTIVATED": "<strong>%1$s</strong> aktivierte <strong>%2$s</strong> mit einem Rating von <strong>%3$s</strong>.",
-      "NCZONE_LOG_RATING_CHANGED": "<strong>%1$s</strong> änderte das Rating von <strong>%2$s</strong> von <strong>%3%s</strong> auf <strong>%4%s</strong>.",
+      "NCZONE_LOG_RATING_CHANGED": "<strong>%1$s</strong> änderte das Rating von <strong>%2$s</strong> von <strong>%3$s</strong> auf <strong>%4$s</strong>.",
       "NCZONE_LOG_LOGGED_IN_PLAYER": "<strong>%1$s</strong> hat <strong>%2$s</strong> eingeloggt.",
       "NCZONE_LOG_LOGGED_OUT_PLAYER": "<strong>%1$s</strong> hat <strong>%2$s</strong> ausgeloggt.",
       "NCZONE_LOG_DRAW_PREVIEW": "<strong>%1$s</strong> hat einen Losprozess gestartet.",
-      "NCZONE_LOG_DRAW_CONFIRMED": "<strong>%1$s</strong> gelost.",
+      "NCZONE_LOG_DRAW_CONFIRMED": "<strong>%1$s</strong> hat gelost.",
       "NCZONE_LOG_DRAW_ABORTED": "<strong>%1$s</strong> hat den Losprozess abgebrochen.",
       "NCZONE_LOG_POSTED_MATCH": "<strong>%1$s</strong> hat das Spiel <strong>%2$s</strong> gepostet mit dem Siegerteam: <strong>%3$s</strong>.",
       "NCZONE_LOG_LOCKED": "<strong>%1$s</strong> hat losen blockiert.",
