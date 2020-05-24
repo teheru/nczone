@@ -15,7 +15,7 @@
                             <option value="0">{{ lang('MCP_CREATE_MAP') }}</option>
                         {% endif %}
                         {% for map in maps %}
-                            <option value="{{ map.ID }}">{{ map.NAME }}</option>
+                            <option value="{{ map.ID }}">{% if map.ACTIVE %}(A) {% endif %}{{ map.NAME }}</option>
                         {% endfor %}
                     </select>
                 </dd>
