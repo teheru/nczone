@@ -687,13 +687,16 @@ class players
         return $this->get_player_teams_stats($user_id, 'desc', $limit);
     }
 
-    private function get_player_teams_stats(int $user_id, string $order, int $limit): array
+    private function get_player_teams_stats(int $user_id, string $order, int $limit, bool $active_only = True): array
     {
         $limit = (int) \abs($limit);
 
         $where = '';
         if($user_id) {
-            $where = 'and (dt.user1_id = '.$user_id.' or dt.user2_id = '.$user_id.')';
+            $where .= ' and (dt.user1_id = '.$user_id.' or dt.user2_id = '.$user_id.')';
+        }
+        if($active_only) {
+            $where .= ' and (p1.activity_matches > 0 and p2.activity_matches > 0)';
         }
 
         $sql = 'select
@@ -704,16 +707,20 @@ class players
                     dt.matches_won, 
                     dt.matches_loss
                 from '.$this->db->dreamteams_table.' dt
-                left join '.$this->db->users_table.' u1
+                inner join '.$this->db->users_table.' u1
                     on dt.user1_id = u1.user_id
-                left join '.$this->db->users_table.' u2
+                inner join '.$this->db->users_table.' u2
                     on dt.user2_id = u2.user_id
+                inner join '.$this->db->players_table.' p1
+                    on dt.user1_id = p1.user_id
+                inner join '.$this->db->players_table.' p2
+                    on dt.user2_id = p2.user_id
                 where
-                    matches_won + matches_loss > 0
+                    dt.matches_won + dt.matches_loss > 0
                     '.$where.'
                 order by
-                    (matches_won + 1)/(matches_loss + 1) '.$order.',
-                    matches_won + matches_loss desc
+                    (dt.matches_won + 1)/(dt.matches_loss + 1) '.$order.',
+                    dt.matches_won + dt.matches_loss desc
                 limit '.$limit;
 
         return \array_map(function ($row) {
