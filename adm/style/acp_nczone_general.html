@@ -19,7 +19,7 @@
       <span>{{ lang('NCZONE_RULES_POST_ID_DESCR') }}</span>
     </dt>
     <dd>
-      <input type="number" name="nczone_rules_post_id" value="{{ nczone_rules_post_id }}" />
+      <input type="number" min="0" name="nczone_rules_post_id" value="{{ nczone_rules_post_id }}" />
     </dd>
   </dl>
 	<dl>
@@ -28,7 +28,7 @@
 			<span>{{ lang('NCZONE_MATCH_FORUM_ID_DESCR') }}</span>
 		</dt>
 		<dd>
-			<input type="number" name="nczone_match_forum_id" value="{{ nczone_match_forum_id }}" />
+			<input type="number" min="0" name="nczone_match_forum_id" value="{{ nczone_match_forum_id }}" />
 		</dd>
 	</dl>
 	<dl>
@@ -37,7 +37,7 @@
 			<span>{{ lang('NCZONE_PMATCHES_PAGE_SIZE_DESCR') }}</span>
 		</dt>
 		<dd>
-			<input type="number" name="nczone_pmatches_page_size" value="{{ nczone_pmatches_page_size }}" />
+			<input type="number" min="0" name="nczone_pmatches_page_size" value="{{ nczone_pmatches_page_size }}" />
 		</dd>
 	</dl>
 	<dl>
@@ -46,7 +46,7 @@
 			<span>{{ lang('NCZONE_ACTIVITY_TIME_DESCR') }}</span>
 		</dt>
 		<dd>
-			<input type="number" name="nczone_activity_time" value="{{ nczone_activity_time }}" />
+			<input type="number" min="0" name="nczone_activity_time" value="{{ nczone_activity_time }}" />
 		</dd>
 	</dl>
 	<dl>
@@ -68,7 +68,7 @@
 			<span>{{ lang('NCZONE_BET_TIME_DESCR') }}</span>
 		</dt>
 		<dd>
-			<input type="number" name="nczone_bet_time" value="{{ nczone_bet_time }}" />
+			<input type="number" min="0" name="nczone_bet_time" value="{{ nczone_bet_time }}" />
 		</dd>
 	</dl>
 	<dl>
@@ -127,12 +127,21 @@
 			<span>{{ lang('NCZONE_FREE_PICK_CIV_ID_DESCR') }}</span>
 		</dt>
 		<dd>
-            <select name="nczone_free_pick_civ_id">
-                <option value="0">{{ lang('NCZONE_NO_FREE_PICK_CIV') }}</option>
-                {% for civ in civs %}
-                    <option value="{{ civ.ID }}" {% if civ.ID == nczone_free_pick_civ_id %}selected="selected"{% endif %}>{{ lang(civ.NAME) }}</option>
-                {% endfor %}
-            </select>
+      <select name="nczone_free_pick_civ_id">
+          <option value="0">{{ lang('NCZONE_NO_FREE_PICK_CIV') }}</option>
+          {% for civ in civs %}
+              <option value="{{ civ.ID }}" {% if civ.ID == nczone_free_pick_civ_id %}selected="selected"{% endif %}>{{ lang(civ.NAME) }}</option>
+          {% endfor %}
+      </select>
+		</dd>
+	</dl>
+	<dl>
+		<dt>
+			<label for="nczone_number_map_vetos">{{ lang('NCZONE_NUMBER_MAP_VETOS') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_NUMBER_MAP_VETOS_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" min="0" name="nczone_number_map_vetos" value="{{ nczone_number_map_vetos }}" />
 		</dd>
 	</dl>
 </fieldset>

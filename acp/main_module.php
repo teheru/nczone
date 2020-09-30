@@ -165,6 +165,7 @@ class main_module
             $config->set(config::free_points_difference, $request->variable('nczone_free_points_difference', 'off') === 'on');
             $config->set(config::info_posts, implode(',', array_map('\intval', preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
             $config->set(config::free_pick_civ_id, (int)$request->variable('nczone_free_pick_civ_id', config::default(config::free_pick_civ_id)));
+            $config->set(config::number_map_vetos, (int)$request->variable('nczone_number_map_vetos', config::default(config::number_map_vetos)));
 
             trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
         }
@@ -193,6 +194,7 @@ class main_module
             'nczone_free_points_difference' => $config->get(config::free_points_difference),
             'nczone_info_posts' => str_replace(',', "\n", $config->get(config::info_posts)),
             'nczone_free_pick_civ_id' => $config->get(config::free_pick_civ_id),
+            'nczone_number_map_vetos' => $config->get(config::number_map_vetos),
         ));
 
         foreach (zone_util::civs()->get_civs() as $civ) {
