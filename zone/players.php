@@ -66,14 +66,14 @@ class players
                 p.activity_matches
             FROM
                 ' . $this->db->users_table . ' u
-                LEFT JOIN ' . $this->db->players_table . ' p  
+                LEFT JOIN ' . $this->db->players_table . ' p
                 ON u.user_id = p.user_id
-                
-                LEFT JOIN ' . $this->db->session_table . ' s 
+
+                LEFT JOIN ' . $this->db->session_table . ' s
                 ON s.session_user_id = p.user_id
-                
-                LEFT JOIN ' . $this->db->match_players_table . ' t 
-                ON t.user_id = p.user_id 
+
+                LEFT JOIN ' . $this->db->match_players_table . ' t
+                ON t.user_id = p.user_id
                 AND t.team_id = (SELECT MAX(team_id) FROM ' . $this->db->match_players_table . ' WHERE user_id = p.user_id AND rating_change != 0)
             WHERE
                 u.user_id = ' . $user_id.'
@@ -151,8 +151,8 @@ class players
     private function insert_map_x_player_entries(int $user_id): void
     {
         $this->db->sql_query(
-            'INSERT INTO `' . $this->db->player_map_table . '` (`user_id`, `map_id`, `counter`) ' .
-            'SELECT "' . $user_id . '", map_id, 0 FROM `' . $this->db->maps_table . '`'
+            'INSERT INTO `' . $this->db->player_map_table . '` (`user_id`, `map_id`, `counter`, `veto`) ' .
+            'SELECT "' . $user_id . '", map_id, 0, 0 FROM `' . $this->db->maps_table . '`'
         );
     }
 
@@ -351,7 +351,7 @@ class players
         // db server + php are on the same time zone etc...
         $now = time();
         $user_ids = $this->db->get_int_col("
-            SELECT 
+            SELECT
                 settings.user_id,
                 COALESCE(MAX(session.session_time), 0) AS max_session_time,
                 {$now} - (CAST(settings.value AS UNSIGNED) * 60) AS threshold
@@ -359,13 +359,13 @@ class players
                 {$this->db->user_settings_table} settings
                 INNER JOIN {$this->db->players_table} players
                 ON players.user_id = settings.user_id AND players.logged_in
-                LEFT JOIN {$this->db->session_table} session 
+                LEFT JOIN {$this->db->session_table} session
                 ON session.session_user_id = settings.user_id
             WHERE
                 settings.setting = 'auto_logout' AND settings.value != '0'
-            GROUP BY 
+            GROUP BY
                 settings.user_id
-            HAVING 
+            HAVING
                 max_session_time < threshold
         ");
         $this->logout_players(...$user_ids);
@@ -440,13 +440,13 @@ class players
 
         $rows = $this->db->get_rows('
             SELECT
-                p.user_id AS id, 
-                u.username, 
-                p.rating, 
-                p.logged_in, 
-                p.matches_won, 
-                p.matches_loss, 
-                p.activity_matches, 
+                p.user_id AS id,
+                u.username,
+                p.rating,
+                p.logged_in,
+                p.matches_won,
+                p.matches_loss,
+                p.activity_matches,
                 MAX(s.session_time) AS last_activity,
                 COALESCE(t.rating_change, 0) AS rating_change,
                 COALESCE(t.streak, 0) AS streak,
@@ -455,14 +455,14 @@ class players
                 p.activity_matches
             FROM
                 ' . $this->db->players_table . ' p
-                INNER JOIN ' . $this->db->users_table . ' u 
+                INNER JOIN ' . $this->db->users_table . ' u
                 ON u.user_id = p.user_id
-                
-                LEFT JOIN ' . $this->db->session_table . ' s 
+
+                LEFT JOIN ' . $this->db->session_table . ' s
                 ON s.session_user_id = p.user_id
-                
-                LEFT JOIN ' . $this->db->match_players_table . ' t 
-                ON t.user_id = p.user_id 
+
+                LEFT JOIN ' . $this->db->match_players_table . ' t
+                ON t.user_id = p.user_id
                 AND t.team_id = (SELECT MAX(team_id) FROM ' . $this->db->match_players_table . ' WHERE user_id = p.user_id AND rating_change != 0)
             WHERE
                 '.(empty($where) ? '1=1' : implode(' AND ', $where)).'
@@ -477,22 +477,22 @@ class players
     public function get_match_players(int $match_id, int $team1_id, int $team2_id, int $map_id): array
     {
         $player_rows = $this->db->get_rows('
-            SELECT 
-                mp.user_id as id, 
+            SELECT
+                mp.user_id as id,
                 mp.team_id,
-                u.username AS username, 
-                mp.draw_rating AS rating, 
-                mp.rating_change, 
-                pc.civ_id, 
+                u.username AS username,
+                mp.draw_rating AS rating,
+                mp.rating_change,
+                pc.civ_id,
                 c.civ_name,
                 mc.multiplier
-            FROM 
+            FROM
                 ' . $this->db->match_players_table . ' mp
                 INNER JOIN ' . $this->db->users_table . ' u ON u.user_id = mp.user_id
                 LEFT JOIN ' . $this->db->match_player_civs_table . ' pc ON pc.user_id = mp.user_id AND pc.match_id = ' . $match_id . '
                 LEFT JOIN ' . $this->db->civs_table . ' c ON c.civ_id = pc.civ_id
                 LEFT JOIN ' . $this->db->map_civs_table . ' mc ON mc.map_id = ' . $map_id . ' AND mc.civ_id = c.civ_id
-            WHERE 
+            WHERE
                 mp.team_id IN (' . $team1_id . ', ' . $team2_id . ')
             ORDER BY
                 rating DESC
@@ -590,7 +590,7 @@ class players
                     INNER JOIN ' . $this->db->match_teams_table . ' t ON mp.team_id = t.team_id
                     INNER JOIN ' . $this->db->matches_table . ' m ON m.match_id = t.match_id
                     AND m.post_time > '.$min_time.' AND m.winner_team_id != 0
-                GROUP BY 
+                GROUP BY
                     mp.user_id
             ) t ON p.user_id = t.user_id
             ;
@@ -702,9 +702,9 @@ class players
         $sql = 'select
                     dt.user1_id,
                     dt.user2_id,
-                    u1.username as user1_name, 
+                    u1.username as user1_name,
                     u2.username as user2_name,
-                    dt.matches_won, 
+                    dt.matches_won,
                     dt.matches_loss
                 from '.$this->db->dreamteams_table.' dt
                 inner join '.$this->db->users_table.' u1
@@ -745,7 +745,7 @@ class players
                 b.bets_won,
                 b.bets_loss,
                 u.username
-            from 
+            from
                 '.$this->db->players_table.' b
                 inner join '.$this->db->users_table.' u on u.user_id = b.user_id
             where
@@ -791,15 +791,15 @@ class players
         $order = $agg === 'max' ? 'desc' : 'asc';
         $sql = <<<SQL
 select
-  u.user_id, 
-  u.username, 
+  u.user_id,
+  u.username,
   {$agg}(s.{$field}) as `value`
 from {$this->db->match_players_table} s
 left join {$this->db->users_table} u on u.user_id = s.user_id
 group by user_id
-order by 
-  `value` {$order}, 
-  user_id asc 
+order by
+  `value` {$order},
+  user_id asc
 limit
   0, {$limit}
 ;
