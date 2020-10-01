@@ -851,4 +851,10 @@ SQL;
             ]
         );
     }
+
+    public function get_vetos(int $user_id): array
+    {
+        $rows = $this->db->get_rows('SELECT map_id FROM ' . $this->db->player_map_table . ' WHERE veto = 1 AND user_id = ' . $user_id);
+        return \array_map('intval', $rows);
+    }
 }

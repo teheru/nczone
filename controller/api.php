@@ -96,7 +96,7 @@ class api
             $user_id = $this->get_user_id();
             return [
                 'id' => $user_id,
-                'title' => $this->config->get($this->config::title),
+                'title' => $this->config->get(config::title),
                 'sid' => $this->user->session_id,
                 'lang' => $this->user->data['user_lang'],
                 'permissions' => $this->acl->all_user_permissions(
@@ -724,6 +724,27 @@ class api
         }, [
             acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
         ]);
+    }
+
+    public function vetos(): JsonResponse
+    {
+        return $this->respond(function () {
+            $can_veto = $this->has_permission(acl::u_zone_veto_maps);
+            if (!$can_veto)
+            {
+                return [
+                    'available_vetos' => 0,
+                    'vetos' => [],
+                ];
+            }
+            else
+            {
+                return [
+                    'available_vetos' => (int) $this->config->get(config::number_map_vetos),
+                    'vetos' => zone_util::players()->get_vetos($this->get_user_id()),
+                ];
+            }
+        });
     }
 
     public function map_civs(int $map_id): JsonResponse

@@ -44,11 +44,11 @@ eru_nczone_controller__api__me:
 
 eru_nczone_controller__api__me_get_settings:
     path: /nczone/api/me/get/settings
-    defaults: { _controller: eru.nczone.controller.api:me_get_settings}
+    defaults: { _controller: eru.nczone.controller.api:me_get_settings }
 
 eru_nczone_controller__api__me_set_settings:
     path: /nczone/api/me/set/settings
-    defaults: { _controller: eru.nczone.controller.api:me_set_settings}
+    defaults: { _controller: eru.nczone.controller.api:me_set_settings }
 
 eru_nczone_controller__api__me_set_language:
     path: /nczone/api/me/set_language
@@ -171,23 +171,27 @@ eru_nczone_controller__api__bets:
 
 eru_nczone_controller__api__maps:
     path: /nczone/api/maps
-    defaults: { _controller: eru.nczone.controller.api:maps}
+    defaults: { _controller: eru.nczone.controller.api:maps }
+
+eru_nczone_controller__api__vetos:
+    path: /nczone/api/maps/vetos
+    defaults: { _controller: eru.nczone.controller.api:vetos }
 
 eru_nczone_controller__api__map_civs:
     path: /nczone/api/map/{map_id}/civs
-    defaults: { _controller: eru.nczone.controller.api:map_civs}
+    defaults: { _controller: eru.nczone.controller.api:map_civs }
     requirements:
         map_id: \d+
 
 eru_nczone_controller__api__save_map_description:
     path: /nczone/api/map/{map_id}/description
-    defaults: { _controller: eru.nczone.controller.api:save_map_description}
+    defaults: { _controller: eru.nczone.controller.api:save_map_description }
     requirements:
         map_id: \d+
 
 eru_nczone_controller__api__save_map_image:
     path: /nczone/api/map/{map_id}/image
-    defaults: { _controller: eru.nczone.controller.api:save_map_image}
+    defaults: { _controller: eru.nczone.controller.api:save_map_image }
     requirements:
         map_id: \d+
 
