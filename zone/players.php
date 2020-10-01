@@ -847,7 +847,7 @@ SQL;
             ['value' => $value],
             [
                 'user_id' => $user_id,
-                'setting' => $setting
+                'setting' => $setting,
             ]
         );
     }
@@ -855,6 +855,17 @@ SQL;
     public function get_vetos(int $user_id): array
     {
         $rows = $this->db->get_rows('SELECT map_id FROM ' . $this->db->player_map_table . ' WHERE veto = 1 AND user_id = ' . $user_id);
-        return \array_map('intval', $rows);
+        return \array_map(function ($r) { return (int) $r['map_id']; }, $rows);
+    }
+
+    public function set_veto(int $user_id, int $map_id, bool $value) {
+        $this->db->update(
+            $this->db->player_map_table,
+            ['veto' => $value ? 1 : 0],
+            [
+                'user_id' => $user_id,
+                'map_id' => $map_id,
+            ]
+        );
     }
 }

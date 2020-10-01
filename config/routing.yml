@@ -177,6 +177,18 @@ eru_nczone_controller__api__vetos:
     path: /nczone/api/maps/vetos
     defaults: { _controller: eru.nczone.controller.api:vetos }
 
+eru_nczone_controller__api__set_veto:
+    path: /nczone/api/maps/veto/set/{map_id}
+    defaults: { _controller: eru.nczone.controller.api:set_veto }
+    requirements:
+        map_id: \d+
+
+eru_nczone_controller__api__remove_veto:
+    path: /nczone/api/maps/veto/remove/{map_id}
+    defaults: { _controller: eru.nczone.controller.api:remove_veto }
+    requirements:
+        map_id: \d+
+
 eru_nczone_controller__api__map_civs:
     path: /nczone/api/map/{map_id}/civs
     defaults: { _controller: eru.nczone.controller.api:map_civs }
