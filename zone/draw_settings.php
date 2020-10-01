@@ -608,7 +608,7 @@ class draw_settings
     {
         $match_size = $m->get_match_size();
         return $this->db->get_rows([
-            'SELECT' => 'm.map_id, pm.counter',
+            'SELECT' => 'm.map_id, pm.counter, pm.veto',
             'FROM' => [
                 $this->db->maps_table => 'm',
                 $this->db->player_map_table => 'pm',
@@ -630,16 +630,19 @@ class draw_settings
     public static function determine_map_id_by_players_maps_data(
         array $players_maps
     ) {
-        // select he map id with the biggest sum(counter)
+        // select the map id with the biggest sum(counter)
         $maps_counter = [];
         foreach ($players_maps as $player_map) {
             $map_id = (int) $player_map['map_id'];
             $counter = (float) $player_map['counter'];
+            $veto = (bool) $player_map['veto'];
 
             if (!\array_key_exists($map_id, $maps_counter)) {
                 $maps_counter[$map_id] = 0.0;
             }
-            $maps_counter[$map_id] += $counter;
+            if (!$veto) {
+                $maps_counter[$map_id] += $counter;
+            }
         }
 
         \asort($maps_counter);
