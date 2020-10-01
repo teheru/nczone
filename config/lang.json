@@ -353,7 +353,8 @@
       "ACL_U_ZONE_BET": "Kann Wetten",
       "ACL_U_ZONE_VIEW_MAPS": "Kann Karten einsehen",
       "ACL_A_ZONE_MANAGE_GENERAL": "Kann allgemeine Einstellungen verändern",
-      "ACL_A_ZONE_MANAGE_DRAW": "Kann Loseinstellungen verändern"
+      "ACL_A_ZONE_MANAGE_DRAW": "Kann Loseinstellungen verändern",
+      "ACL_U_ZONE_VETO_MAPS": "Kann ein Veto gegen Karten einlegen"
     }
   },
   "en": {
@@ -710,7 +711,8 @@
       "ACL_U_ZONE_BET": "can bet on matches",
       "ACL_U_ZONE_VIEW_MAPS": "can view maps",
       "ACL_A_ZONE_MANAGE_GENERAL": "can manage general settings",
-      "ACL_A_ZONE_MANAGE_DRAW": "can manage draw settings"
+      "ACL_A_ZONE_MANAGE_DRAW": "can manage draw settings",
+      "ACL_U_ZONE_VETO_MAPS": "can place a veto against maps"
     }
   }
 }

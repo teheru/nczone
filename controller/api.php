@@ -10,7 +10,6 @@ use eru\nczone\utility\zone_util;
 use eru\nczone\zone\entity\map;
 use eru\nczone\zone\error\BadRequestError;
 use eru\nczone\zone\error\ForbiddenError;
-use phpbb\auth\auth;
 use phpbb\request\request_interface;
 use phpbb\user;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,23 +19,22 @@ class api
     /** @var user */
     protected $user;
 
-    /** @var auth */
-    protected $auth;
-
     /** @var config */
     protected $config;
+
+    /** @var acl */
+    protected $acl;
 
     private const CODE_FORBIDDEN = 403;
     private const CODE_OK = 200;
     private const CODE_BAD_REQUEST = 400;
     private const CODE_INTERNAL_SERVER_ERROR = 500;
 
-    public function __construct(user $user, auth $auth)
+    public function __construct(user $user, config $config, acl $acl)
     {
         $this->user = $user;
-        $this->auth = $auth;
-        // TODO: dependency injection
-        $this->config = zone_util::config();
+        $this->config = $config;
+        $this->acl = $acl;
     }
 
     private function respond(
@@ -101,8 +99,7 @@ class api
                 'title' => $this->config->get($this->config::title),
                 'sid' => $this->user->session_id,
                 'lang' => $this->user->data['user_lang'],
-                'permissions' => acl::all_user_permissions(
-                    $this->auth,
+                'permissions' => $this->acl->all_user_permissions(
                     self::is_activated($user_id)
                 ),
                 'settings' => zone_util::players()->get_settings($user_id)
@@ -396,7 +393,7 @@ class api
             );
 
             $players = zone_util::players();
-            
+
             $new_match_id = $res['match_id'];
             $replaced_player = $players->get_player($res['replace_player_id']);
             $new_player = $players->get_player($res['new_player_id']);
@@ -596,7 +593,7 @@ class api
                 throw new BadRequestError('winner is not set');
             }
 
-            if (!$this->auth->acl_get(acl::m_zone_draw_match) &&
+            if (!$this->has_permission(acl::m_zone_draw_match) &&
                 !zone_util::matches()->is_player_in_match($this->get_user_id(), $args['match_id'])
             ) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT');
@@ -864,8 +861,7 @@ class api
      */
     private function has_permission(string $permission): bool
     {
-        return acl::has_permission(
-            $this->auth,
+        return $this->acl->has_permission(
             self::is_activated($this->get_user_id()),
             $permission
         );

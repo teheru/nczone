@@ -6,6 +6,9 @@ use phpbb\auth\auth;
 
 final class acl
 {
+    /** @var auth */
+    protected $auth;
+
     public const u_zone_view_info = 'u_zone_view_info';
     public const u_zone_login = 'u_zone_login';
     public const u_zone_view_login = 'u_zone_view_login';
@@ -15,6 +18,7 @@ final class acl
     public const u_zone_view_bets = 'u_zone_view_bets';
     public const u_zone_bet = 'u_zone_bet';
     public const u_zone_view_maps = 'u_zone_view_maps';
+    public const u_zone_veto_maps = 'u_zone_veto_maps';
 
     public const a_zone_manage_general = 'a_zone_manage_general';
     public const a_zone_manage_draw = 'a_zone_manage_draw';
@@ -32,7 +36,7 @@ final class acl
         self::u_zone_draw,
         self::u_zone_login,
         self::u_zone_change_match,
-        self::u_zone_bet
+        self::u_zone_bet,
     ];
 
     public const PERMISSIONS_ADMIN = [
@@ -61,6 +65,7 @@ final class acl
         self::u_zone_view_bets,
         self::u_zone_bet,
         self::u_zone_view_maps,
+        self::u_zone_veto_maps,
     ];
 
     public const ROLE_ADMIN = [
@@ -111,6 +116,7 @@ final class acl
             self::u_zone_bet => ['lang' => 'ACL_U_ZONE_BET', 'cat' => 'zone'],
             self::u_zone_view_maps => ['lang' => 'ACL_U_ZONE_VIEW_MAPS', 'cat' => 'zone'],
             self::u_zone_change_match => ['lang' => 'ACL_U_ZONE_CHANGE_MATCH', 'cat' => 'zone'],
+            self::u_zone_veto_maps => ['lang' => 'ACL_U_ZONE_VETO_MAPS', 'cat' => 'zone'],
 
             self::m_zone_manage_players => ['lang' => 'ACL_M_ZONE_MANAGE_PLAYERS', 'cat' => 'zone'],
             self::m_zone_manage_civs => ['lang' => 'ACL_M_ZONE_MANAGE_CIVS', 'cat' => 'zone'],
@@ -126,42 +132,43 @@ final class acl
         ]);
     }
 
-    public static function has_any_permission(
-        auth $auth,
+    public function __construct(auth $auth) {
+        $this->auth = $auth;
+    }
+
+    public function has_any_permission(
         array $permissions
     ): bool {
         foreach ($permissions as $permission) {
-            if ($auth->acl_get($permission)) {
+            if ($this->auth->acl_get($permission)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static function has_permission(
-        auth $auth,
+    public function has_permission(
         bool $activated,
         string $perm
     ): bool {
         if (!$activated && \in_array($perm, self::activation_required, true)) {
             return false;
         }
-        return (bool) $auth->acl_get($perm);
+        return (bool) $this->auth->acl_get($perm);
     }
 
-    public static function all_user_permissions(
-        auth $auth,
+    public function all_user_permissions(
         bool $activated
     ): array {
         return \array_values(\array_filter(
-            self::all_permissions(),
-            function ($permission) use ($auth, $activated) {
-                return self::has_permission($auth, $activated, $permission);
+            $this->all_permissions(),
+            function ($permission) use ($activated) {
+                return $this->has_permission($activated, $permission);
             }
         ));
     }
 
-    public static function module_data(array $permissions, array $role): array
+    public function module_data(array $permissions, array $role): array
     {
         return \array_merge(
             \array_map(function ($permission) {
@@ -172,5 +179,15 @@ final class acl
                 return ['permission.permission_set', [$role[0], $permission]];
             }, $permissions)
         );
+    }
+
+    public function get_users_permission(array $user_ids, string $perm): array
+    {
+        $allowed_users = $this->auth->acl_get_list($user_ids, $perm);
+        if (\count($allowed_users) === 0)
+        {
+            return [];
+        }
+        return $allowed_users[0][$perm];
     }
 }

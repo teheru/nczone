@@ -28,6 +28,9 @@ class main
     /* @var helper */
     protected $helper;
 
+    /* @var acl */
+    protected $acl;
+
     /* @var mchat */
     protected $mchat;
 
@@ -36,23 +39,24 @@ class main
      *
      * @param user $user
      * @param helper $helper
+     * @param acl $acl
      * @param mchat|null $mchat
      */
-    public function __construct(user $user, helper $helper, mchat $mchat = null)
+    public function __construct(user $user, helper $helper, acl $acl, mchat $mchat = null)
     {
         $this->user = $user;
         $this->helper = $helper;
+        $this->acl = $acl;
         $this->mchat = $mchat;
     }
 
     public function zone()
     {
-        $auth = phpbb_util::auth();
-        if (acl::has_any_permission($auth, acl::PERMISSIONS_MOD)) {
+        if ($this->acl->has_any_permission(acl::PERMISSIONS_MOD)) {
             phpbb_util::template()->assign_var('U_MCP', append_sid(phpbb_util::file_url('mcp'), 'i=-eru-nczone-mcp-main_module'));
         }
 
-        if (acl::has_any_permission($auth, acl::PERMISSIONS_ADMIN)) {
+        if ($this->acl->has_any_permission(acl::PERMISSIONS_ADMIN)) {
             phpbb_util::template()->assign_var('U_ACP', append_sid(phpbb_util::file_url('adm/index.php'), 'i=-eru-nczone-acp-main_module'));
         }
 

@@ -13,6 +13,7 @@ namespace eru\nczone\zone;
 
 use eru\nczone\config\config;
 use eru\nczone\utility\db;
+use eru\nczone\config\acl;
 use eru\nczone\utility\number_util;
 use eru\nczone\utility\zone_util;
 
@@ -34,13 +35,17 @@ class draw_settings
     /** @var civs */
     private $civs;
 
-    public function __construct(db $db)
+    /** @var acl */
+    private $acl;
+
+    public function __construct(db $db, acl $acl)
     {
         $this->db = $db;
         // TODO: provide via dependency injection
         $this->config = zone_util::config();
         $this->maps = zone_util::maps();
         $this->civs = zone_util::civs();
+        $this->acl = $acl;
     }
 
     public function draw_settings(
@@ -52,7 +57,7 @@ class draw_settings
         $team2_civ_ids = [];
         $player_civ_ids = [];
 
-        $map_id = self::determine_map_id_by_players_maps_data(
+        $map_id = $this->determine_map_id_by_players_maps_data(
             $this->get_player_maps_data($draw_match)
         );
 
@@ -608,7 +613,7 @@ class draw_settings
     {
         $match_size = $m->get_match_size();
         return $this->db->get_rows([
-            'SELECT' => 'm.map_id, pm.counter, pm.veto',
+            'SELECT' => 'pm.user_id, m.map_id, pm.counter, pm.veto',
             'FROM' => [
                 $this->db->maps_table => 'm',
                 $this->db->player_map_table => 'pm',
@@ -627,12 +632,17 @@ class draw_settings
      *
      * @return int|string|null
      */
-    public static function determine_map_id_by_players_maps_data(
+    public function determine_map_id_by_players_maps_data(
         array $players_maps
     ) {
+        // get the users which are allowed to veto maps
+        $user_ids = array_map(function ($pm) { return (int) $pm['user_id']; }, $players_maps);
+        $users_allowed_to_veto = $this->acl->get_users_permission($user_ids, acl::u_zone_veto_maps);
+
         // select the map id with the biggest sum(counter)
         $maps_counter = [];
         foreach ($players_maps as $player_map) {
+            $user_id = (int) $player_map['user_id'];
             $map_id = (int) $player_map['map_id'];
             $counter = (float) $player_map['counter'];
             $veto = (bool) $player_map['veto'];
@@ -640,7 +650,7 @@ class draw_settings
             if (!\array_key_exists($map_id, $maps_counter)) {
                 $maps_counter[$map_id] = 0.0;
             }
-            if (!$veto) {
+            if (!($veto && in_array($user_id, $users_allowed_to_veto))) {
                 $maps_counter[$map_id] += $counter;
             }
         }
