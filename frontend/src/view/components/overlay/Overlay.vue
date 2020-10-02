@@ -4,7 +4,9 @@
       <div class="zone-block">
         <div class="zone-title-bar">
           <div class="zone-title" v-t="title"></div>
-          <div class="zone-close-button" @click="close">x</div>
+          <div class="zone-close-button" @click="close">
+            <span class="fa fa-times"></span>
+          </div>
         </div>
         <div class="zone-content">
           <slot name="content" />

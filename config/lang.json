@@ -116,6 +116,8 @@
       "NCZONE_DREAMTEAMS_PLAYER2": "Spieler 2",
       "NCZONE_DREAMTEAMS_WINSLOSS": "Siege / Verluste",
       "NCZONE_MAPS": "Karten",
+      "NCZONE_VETO": "Veto",
+      "NCZONE_NO_VETO": "kein Veto",
       "NCZONE_CIV": "Kultur",
       "NCZONE_MULTIPLIER": "Multiplikator",
       "NCZONE_FORCE_DRAW": "Losen erzwingen",
@@ -156,7 +158,10 @@
       "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Hier kannst du einstellen ob der mChat unter der Zone angezeigt werden soll. Wenn du mChat hier ausstellst, kannst du ihn weiterhin über den mChat Menüpunkt (siehe oben) erreichen.",
       "NCZONE_SETTINGS_AUTO_LOGOUT": "Automatischer Logout",
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Setze hier eine Zeit in Minuten die du keine Inaktivität in der Zone oder im Forum gehabt haben musst, um automatisch ausgeloggt zu werden. 0 deaktiviert den automatischen Logout.",
-      "NCZONE_SAVE_SETTINGS": "Speichern"
+      "NCZONE_SAVE_SETTINGS": "Speichern",
+      "NCZONE_ERROR_OVERLAY": "Fehler",
+      "ERROR_TOO_MANY_VETOS": "Du kannst nicht noch mehr Vetos setzen. Entferne zunächst ein anderes Veto bevor du ein neues setzt.",
+      "ERROR_NO_VETO_FOR_MAP": "Für diese Karte hast du kein Veto gesetzt. Probier mal die Seite neu zu laden."
     },
     "common": {
       "NCZONE": "nC Zone",
@@ -416,6 +421,8 @@
       "NCZONE_PMATCHES": "Past matches",
       "NCZONE_PLAYERS_TABLE": "Player list",
       "NCZONE_MAPS": "Maps",
+      "NCZONE_VETO": "Veto",
+      "NCZONE_NO_VETO": "No Veto",
       "NCZONE_CIV": "Civ",
       "NCZONE_MULTIPLIER": "Multiplicator",
       "NCZONE_FORCE_DRAW": "Force draw",
@@ -514,7 +521,10 @@
       "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Configure if the mChat should be shown below the zone. If you deactive mChat here, you can still reach it in the menu above.",
       "NCZONE_SETTINGS_AUTO_LOGOUT": "Auto Logout",
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Set the time in minutes without activity in the zone or the forum after which you want to be logged out automatically. A value of 0 deactivates this functionality.",
-      "NCZONE_SAVE_SETTINGS": "Save"
+      "NCZONE_SAVE_SETTINGS": "Save",
+      "NCZONE_ERROR_OVERLAY": "Error",
+      "ERROR_TOO_MANY_VETOS": "You cannot place more vetos. Remove another veto before placing a new one.",
+      "ERROR_NO_VETO_FOR_MAP": "You have no veto placed for this map. Try to refresh the site."
     },
     "common": {
       "NCZONE": "nC Zone",

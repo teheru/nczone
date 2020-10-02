@@ -13,6 +13,7 @@ import Team from './Team'
 import MapDescription from './MapDescription'
 
 // Overlays
+import Error from './overlay/Error'
 import AddPairPreview from './overlay/AddPairPreview'
 import DrawPreview from './overlay/DrawPreview'
 import Overlay from './overlay/Overlay'
@@ -36,6 +37,7 @@ export default {
   Team,
   MapDescription,
 
+  Error,
   AddPairPreview,
   DrawPreview,
   Overlay,
