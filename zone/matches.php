@@ -13,6 +13,7 @@ namespace eru\nczone\zone;
 
 use eru\nczone\config\config;
 use eru\nczone\utility\db;
+use eru\nczone\config\acl;
 use eru\nczone\utility\zone_util;
 use eru\nczone\zone\error\InvalidDrawIdError;
 use eru\nczone\zone\error\NoDrawPlayersError;
@@ -24,6 +25,9 @@ class matches {
 
     /** @var db */
     private $db;
+
+    /** @var acl */
+    private $acl;
 
     /** @var config */
     private $config;
@@ -54,9 +58,10 @@ class matches {
      *
      * @param db $db Database object
      */
-    public function __construct(db $db)
+    public function __construct(db $db, acl $acl)
     {
         $this->db = $db;
+        $this->acl = $acl;
         // TODO: provide via dependency injection
         $this->config = zone_util::config();
         $this->players = zone_util::players();
@@ -265,12 +270,12 @@ class matches {
                     t.forum_topic_id,
                     t1.team_id AS team1_id,
                     t2.team_id AS team2_id
-                FROM 
+                FROM
                     ' . $this->db->matches_table . ' t
                     INNER JOIN '.$this->db->match_teams_table.' t1 ON t1.match_id = t.match_id AND t1.match_team = 1
                     INNER JOIN '.$this->db->match_teams_table.' t2 ON t2.match_id = t.match_id AND t2.match_team = 2
                 WHERE
-                    t.match_id = ' . $match_id . ' 
+                    t.match_id = ' . $match_id . '
                 ;
             ');
             $already_posted = (int)$row['post_user_id'];
@@ -365,25 +370,12 @@ class matches {
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col1 . '` = `' . $col1 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user1_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user1_ids));
                 $this->db->sql_query('UPDATE `' . $this->db->dreamteams_table . '` SET `' . $col2 . '` = `' . $col2 . '` + 1 WHERE `user1_id` < `user2_id` AND ' . $this->db->sql_in_set('user1_id', $user2_ids) . ' AND ' . $this->db->sql_in_set('user2_id', $user2_ids));
 
-                $user_ids = array_merge($user1_ids, $user2_ids);
+                $user_ids = \array_merge($user1_ids, $user2_ids);
 
                 if (!$repost) {
                     // note: in post_undo, there is no undo of the player_maps
                     // table so we dont do this on repost
-
-                    // set the just played map to 0
-                    $this->db->update(
-                        $this->db->player_map_table,
-                        ['counter' => 0],
-                        $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id
-                    );
-
-                    // increase all other maps by their weight
-                    $this->db->sql_query('
-                        UPDATE ' . $this->db->player_map_table . ' mp
-                        SET counter = counter + (SELECT weight FROM ' . $this->db->maps_table . ' m WHERE m.map_id = mp.map_id)
-                        WHERE mp.map_id != ' . $map_id . ' AND '. $this->db->sql_in_set('user_id', $user_ids)
-                    );
+                    $this->update_user_map_counter($map_id, $user_ids);
                 }
 
                 $this->bets->evaluate_bets($winner === 1 ? $team1_id : $team2_id, $winner === 1 ? $team2_id : $team1_id, $end_time);
@@ -426,6 +418,37 @@ class matches {
             $this->db->txn_fn($fn),
             120
         );
+    }
+
+    protected function update_user_map_counter(int $map_id, array $user_ids) {
+        // set the just played map to 0
+        $this->db->update(
+            $this->db->player_map_table,
+            ['counter' => 0],
+            $this->db->sql_in_set('user_id', $user_ids) . ' AND `map_id` = ' . $map_id
+        );
+
+        $users_allowed_to_veto = $this->acl->get_users_permission($user_ids, acl::u_zone_veto_maps);
+
+        // increase all other maps by their weight
+        foreach($user_ids as $user_id) {
+            $do_not_update_map_ids = [$map_id];
+
+            if (\in_array($user_id, $users_allowed_to_veto)) {
+                $veto_map_ids = $this->db->get_col([
+                    'SELECT' => 't.map_id',
+                    'FROM' => [$this->db->player_map_table => 't'],
+                    'WHERE' => 't.veto = 1 AND t.user_id = ' . $user_id,
+                ]);
+                $do_not_update_map_ids = \array_merge($do_not_update_map_ids, $veto_map_ids);
+            }
+
+            $this->db->sql_query('
+                UPDATE ' . $this->db->player_map_table . ' mp
+                SET counter = counter + (SELECT weight FROM ' . $this->db->maps_table . ' m WHERE m.map_id = mp.map_id)
+                WHERE ' . $this->db->sql_in_set('mp.map_id', $do_not_update_map_ids, true) . ' AND user_id = '. $user_id
+            );
+        }
     }
 
     /**
@@ -732,16 +755,16 @@ class matches {
         $whereSql = empty($where) ? '' : ' WHERE ' . \implode(' AND ', $where);
         $orderBySql = empty($order) ? '' : ' ORDER BY ' . \implode(',', $order);
         $sql = <<<SQL
-SELECT 
-    t.match_id, 
-    t.map_id, 
+SELECT
+    t.match_id,
+    t.map_id,
     m.map_name,
     m.description as map_description,
-    t.draw_user_id, 
-    t.post_user_id, 
+    t.draw_user_id,
+    t.post_user_id,
     t.winner_team_id,
-    u.username AS draw_username, 
-    u2.username AS post_username, 
+    u.username AS draw_username,
+    u2.username AS post_username,
     t.draw_time,
     t.post_time,
     t1.team_id AS team1_id,

@@ -93,6 +93,7 @@ services:
       class: eru\nczone\zone\matches
       arguments:
         - '@eru.nczone.db'
+        - '@eru.nczone.config.acl'
 
     eru.nczone.zone.civs:
       class: eru\nczone\zone\civs

@@ -12,7 +12,7 @@
           <div class="zone-map-name zone-clickable" v-html="map.name" @click="toggleMap(map.id)"></div>
           <div class="zone-map-weight">{{ map.weight }}</div>
           <div class="zone-map-percent">{{ Math.round(map.proportion * 10000) / 100 }}%</div>
-          <div class="zone-map-veto">
+          <div class="zone-map-veto" v-if="mapVetos.available_vetos > 0">
             <span v-if="mapVetos.vetos.includes(map.id)" class="zone-map-veto-enabled zone-clickable" v-t="'NCZONE_VETO'" @click="removeVeto(map.id)"></span>
             <span v-else class="zone-map-veto-disabled zone-clickable" v-t="'NCZONE_NO_VETO'" @click="setVeto(map.id)"></span>
           </div>
