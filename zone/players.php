@@ -840,7 +840,7 @@ SQL;
         );
     }
 
-    public function set_setting(int $user_id, string $setting, string $value)
+    public function set_setting(int $user_id, string $setting, string $value): void
     {
         $this->db->update(
             $this->db->user_settings_table,
@@ -858,7 +858,8 @@ SQL;
         return \array_map(function ($r) { return (int) $r['map_id']; }, $rows);
     }
 
-    public function set_veto(int $user_id, int $map_id, bool $value) {
+    public function set_veto(int $user_id, int $map_id, bool $value): void
+    {
         $this->db->update(
             $this->db->player_map_table,
             ['veto' => $value ? 1 : 0],
@@ -867,5 +868,27 @@ SQL;
                 'map_id' => $map_id,
             ]
         );
+    }
+
+    public function reduce_player_vetos(int $number): void
+    {
+        $users_with_too_many_vetos = $this->db->get_col('
+            SELECT user_id, COUNT(1) as number_vetos
+            FROM ' . $this->db->player_map_table . '
+            WHERE veto = 1
+            GROUP BY user_id
+            HAVING number_vetos > ' . $number
+        );
+
+        foreach($users_with_too_many_vetos as $user_id) {
+            $veto_map_ids = $this->db->get_col([
+                'SELECT' => 't.map_id',
+                'FROM' => [$this->db->player_map_table => 't'],
+                'WHERE' => 't.veto = 1 AND t.user_id = ' . $user_id,
+            ]);
+
+            $remove_veto_map_ids = \array_slice($veto_map_ids, $number);
+            $this->db->sql_query('UPDATE ' . $this->db->player_map_table . ' SET veto = 0 WHERE user_id = ' . $user_id . ' AND ' . $this->db->sql_in_set('map_id', $remove_veto_map_ids));
+        }
     }
 }
