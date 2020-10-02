@@ -116,6 +116,8 @@
       "NCZONE_DREAMTEAMS_PLAYER2": "Spieler 2",
       "NCZONE_DREAMTEAMS_WINSLOSS": "Siege / Verluste",
       "NCZONE_MAPS": "Karten",
+      "NCZONE_VETO": "Veto",
+      "NCZONE_NO_VETO": "kein Veto",
       "NCZONE_CIV": "Kultur",
       "NCZONE_MULTIPLIER": "Multiplikator",
       "NCZONE_FORCE_DRAW": "Losen erzwingen",
@@ -156,7 +158,10 @@
       "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Hier kannst du einstellen ob der mChat unter der Zone angezeigt werden soll. Wenn du mChat hier ausstellst, kannst du ihn weiterhin über den mChat Menüpunkt (siehe oben) erreichen.",
       "NCZONE_SETTINGS_AUTO_LOGOUT": "Automatischer Logout",
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Setze hier eine Zeit in Minuten die du keine Inaktivität in der Zone oder im Forum gehabt haben musst, um automatisch ausgeloggt zu werden. 0 deaktiviert den automatischen Logout.",
-      "NCZONE_SAVE_SETTINGS": "Speichern"
+      "NCZONE_SAVE_SETTINGS": "Speichern",
+      "NCZONE_ERROR_OVERLAY": "Fehler",
+      "ERROR_TOO_MANY_VETOS": "Du kannst nicht noch mehr Vetos setzen. Entferne zunächst ein anderes Veto bevor du ein neues setzt.",
+      "ERROR_NO_VETO_FOR_MAP": "Für diese Karte hast du kein Veto gesetzt. Probier mal die Seite neu zu laden."
     },
     "common": {
       "NCZONE": "nC Zone",
@@ -238,6 +243,8 @@
       "NCZONE_INFO_POSTS_DESCR": "IDs der Posts welche in 'Max wichtige Informationen' angezeigt werden sollen.",
       "NCZONE_FREE_PICK_CIV_ID": "Freie Wahl Kultur",
       "NCZONE_FREE_PICK_CIV_ID_DESCR": "Wähle hier die Kultur welche für freie Wahl steht um in Spielen gebannte Kulturen anzuzeigen, sollte freie Wahl gelost sein.",
+      "NCZONE_NUMBER_MAP_VETOS": "Anzahl an Karten-Vetos",
+      "NCZONE_NUMBER_MAP_VETOS_DESCR": "Anzahl an Karten gegen die ein Spieler Veto einlegen kann. Die Gewichtung einer Karte mit Veto wird für den Spieler nicht gezählt oder erhöht.",
       "NCZONE_NO_FREE_PICK_CIV": "Keine Kultur",
       "NCZONE_DRAW_SETTINGS": "Loseinstellungen",
       "NCZONE_DRAW_PLAYER_CIVS": "Differenz für Spielercivs",
@@ -351,7 +358,8 @@
       "ACL_U_ZONE_BET": "Kann Wetten",
       "ACL_U_ZONE_VIEW_MAPS": "Kann Karten einsehen",
       "ACL_A_ZONE_MANAGE_GENERAL": "Kann allgemeine Einstellungen verändern",
-      "ACL_A_ZONE_MANAGE_DRAW": "Kann Loseinstellungen verändern"
+      "ACL_A_ZONE_MANAGE_DRAW": "Kann Loseinstellungen verändern",
+      "ACL_U_ZONE_VETO_MAPS": "Kann ein Veto gegen Karten einlegen"
     }
   },
   "en": {
@@ -413,6 +421,8 @@
       "NCZONE_PMATCHES": "Past matches",
       "NCZONE_PLAYERS_TABLE": "Player list",
       "NCZONE_MAPS": "Maps",
+      "NCZONE_VETO": "Veto",
+      "NCZONE_NO_VETO": "No Veto",
       "NCZONE_CIV": "Civ",
       "NCZONE_MULTIPLIER": "Multiplicator",
       "NCZONE_FORCE_DRAW": "Force draw",
@@ -511,7 +521,10 @@
       "NCZONE_SETTINGS_VIEW_MCHAT_DESCR": "Configure if the mChat should be shown below the zone. If you deactive mChat here, you can still reach it in the menu above.",
       "NCZONE_SETTINGS_AUTO_LOGOUT": "Auto Logout",
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Set the time in minutes without activity in the zone or the forum after which you want to be logged out automatically. A value of 0 deactivates this functionality.",
-      "NCZONE_SAVE_SETTINGS": "Save"
+      "NCZONE_SAVE_SETTINGS": "Save",
+      "NCZONE_ERROR_OVERLAY": "Error",
+      "ERROR_TOO_MANY_VETOS": "You cannot place more vetos. Remove another veto before placing a new one.",
+      "ERROR_NO_VETO_FOR_MAP": "You have no veto placed for this map. Try to refresh the site."
     },
     "common": {
       "NCZONE": "nC Zone",
@@ -593,6 +606,8 @@
       "NCZONE_INFO_POSTS_DESCR": "IDs of the posts which will be displayed as 'Max important information'.",
       "NCZONE_FREE_PICK_CIV_ID": "The free pick civilization",
       "NCZONE_FREE_PICK_CIV_ID_DESCR": "Select here which civlization is the free pick civilization to show banned civilizations in matches along with it.",
+      "NCZONE_NUMBER_MAP_VETOS": "Number of Map Vetos",
+      "NCZONE_NUMBER_MAP_VETOS_DESCR": "Number of maps a player can place a veto against. The counter of a map with veto wont be counted or increased for the player.",
       "NCZONE_NO_FREE_PICK_CIV": "No civilization",
       "NCZONE_DRAW_SETTINGS": "Draw settings",
       "NCZONE_DRAW_PLAYER_CIVS": "Difference for player civs",
@@ -706,7 +721,8 @@
       "ACL_U_ZONE_BET": "can bet on matches",
       "ACL_U_ZONE_VIEW_MAPS": "can view maps",
       "ACL_A_ZONE_MANAGE_GENERAL": "can manage general settings",
-      "ACL_A_ZONE_MANAGE_DRAW": "can manage draw settings"
+      "ACL_A_ZONE_MANAGE_DRAW": "can manage draw settings",
+      "ACL_U_ZONE_VETO_MAPS": "can place a veto against maps"
     }
   }
 }

@@ -13,12 +13,24 @@ services:
         arguments:
             - '@user'
             - '@controller.helper'
+            - '@eru.nczone.config.acl'
             - '@?dmzx.mchat.core'
+
+    eru.nczone.config.config:
+        class: eru\nczone\config\config
+        arguments:
+            - '@config'
 
     eru.nczone.controller.api:
         class: eru\nczone\controller\api
         arguments:
             - '@user'
+            - '@eru.nczone.config.config'
+            - '@eru.nczone.config.acl'
+
+    eru.nczone.config.acl:
+        class: eru\nczone\config\acl
+        arguments:
             - '@auth'
 
     eru.nczone.listener:
@@ -81,6 +93,7 @@ services:
       class: eru\nczone\zone\matches
       arguments:
         - '@eru.nczone.db'
+        - '@eru.nczone.config.acl'
 
     eru.nczone.zone.civs:
       class: eru\nczone\zone\civs
@@ -106,13 +119,14 @@ services:
       class: eru\nczone\zone\draw_settings
       arguments:
         - '@eru.nczone.db'
+        - '@eru.nczone.config.acl'
 
     eru.nczone.zone.misc:
       class: eru\nczone\zone\misc
       arguments:
         - '@user'
         - '@eru.nczone.db'
-    
+
     eru.nczone.zone.logs:
       class: eru\nczone\zone\logs
       arguments:

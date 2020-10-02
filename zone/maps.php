@@ -296,8 +296,13 @@ class maps
     private function insert_map_x_player_entries(int $map_id): void
     {
         $this->db->sql_query(
-            'INSERT INTO `'. $this->db->player_map_table .'` (`user_id`, `map_id`, `counter`) '.
-            'SELECT user_id, "'. $map_id .'", 0 FROM `'. $this->db->players_table .'`'
+            'INSERT INTO `'. $this->db->player_map_table .'` (`user_id`, `map_id`, `counter`, `veto`) '.
+            'SELECT user_id, "'. $map_id .'", 0, 0 FROM `'. $this->db->players_table .'`'
         );
+    }
+
+    public function remove_all_vetos_for_map_id(int $map_id): void
+    {
+        $this->db->sql_query('UPDATE ' . $this->db->player_map_table . ' SET veto = 0 WHERE map_id = ' . $map_id);
     }
 }

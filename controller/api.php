@@ -10,7 +10,6 @@ use eru\nczone\utility\zone_util;
 use eru\nczone\zone\entity\map;
 use eru\nczone\zone\error\BadRequestError;
 use eru\nczone\zone\error\ForbiddenError;
-use phpbb\auth\auth;
 use phpbb\request\request_interface;
 use phpbb\user;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,23 +19,22 @@ class api
     /** @var user */
     protected $user;
 
-    /** @var auth */
-    protected $auth;
-
     /** @var config */
     protected $config;
+
+    /** @var acl */
+    protected $acl;
 
     private const CODE_FORBIDDEN = 403;
     private const CODE_OK = 200;
     private const CODE_BAD_REQUEST = 400;
     private const CODE_INTERNAL_SERVER_ERROR = 500;
 
-    public function __construct(user $user, auth $auth)
+    public function __construct(user $user, config $config, acl $acl)
     {
         $this->user = $user;
-        $this->auth = $auth;
-        // TODO: dependency injection
-        $this->config = zone_util::config();
+        $this->config = $config;
+        $this->acl = $acl;
     }
 
     private function respond(
@@ -98,11 +96,10 @@ class api
             $user_id = $this->get_user_id();
             return [
                 'id' => $user_id,
-                'title' => $this->config->get($this->config::title),
+                'title' => $this->config->get(config::title),
                 'sid' => $this->user->session_id,
                 'lang' => $this->user->data['user_lang'],
-                'permissions' => acl::all_user_permissions(
-                    $this->auth,
+                'permissions' => $this->acl->all_user_permissions(
                     self::is_activated($user_id)
                 ),
                 'settings' => zone_util::players()->get_settings($user_id)
@@ -396,7 +393,7 @@ class api
             );
 
             $players = zone_util::players();
-            
+
             $new_match_id = $res['match_id'];
             $replaced_player = $players->get_player($res['replace_player_id']);
             $new_player = $players->get_player($res['new_player_id']);
@@ -596,7 +593,7 @@ class api
                 throw new BadRequestError('winner is not set');
             }
 
-            if (!$this->auth->acl_get(acl::m_zone_draw_match) &&
+            if (!$this->has_permission(acl::m_zone_draw_match) &&
                 !zone_util::matches()->is_player_in_match($this->get_user_id(), $args['match_id'])
             ) {
                 throw new ForbiddenError('NCZONE_REASON_NOT_ALLOWED_TO_POST_OTHER_RESULT');
@@ -726,6 +723,72 @@ class api
             }, $maps);
         }, [
             acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',
+        ]);
+    }
+
+    public function vetos(): JsonResponse
+    {
+        return $this->respond(function () {
+            $can_veto = $this->has_permission(acl::u_zone_veto_maps);
+            if (!$can_veto)
+            {
+                return [
+                    'available_vetos' => 0,
+                    'vetos' => [],
+                ];
+            }
+            else
+            {
+                return [
+                    'available_vetos' => (int) $this->config->get(config::number_map_vetos),
+                    'vetos' => zone_util::players()->get_vetos($this->get_user_id()),
+                ];
+            }
+        });
+    }
+
+    public function set_veto(int $map_id): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            $players = zone_util::players();
+
+            $map_id = $args['map_id'];
+
+            $available_vetos = (int) $this->config->get(config::number_map_vetos);
+            $placed_vetos = $players->get_vetos($this->get_user_id());
+            $number_placed_vetos = \count($placed_vetos);
+
+            if ($number_placed_vetos >= $available_vetos) {
+                throw new ForbiddenError('NCZONE_REASON_TOO_MANY_VETOS');
+            }
+
+            $players->set_veto($this->get_user_id(), $map_id, true);
+        }, [
+            acl::u_zone_veto_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VETO',
+        ], [
+            'map_id' => $map_id
+        ]);
+    }
+
+    public function remove_veto(int $map_id): JsonResponse
+    {
+        return $this->respond(function ($args) {
+            $players = zone_util::players();
+
+            $map_id = $args['map_id'];
+
+            $available_vetos = (int) $this->config->get(config::number_map_vetos);
+            $placed_vetos = $players->get_vetos($this->get_user_id());
+
+            if (!in_array($map_id, $placed_vetos)) {
+                throw new ForbiddenError('NCZONE_REASON_NO_VETO_FOR_MAP');
+            }
+
+            $players->set_veto($this->get_user_id(), $map_id, false);
+        }, [
+            acl::u_zone_veto_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VETO',
+        ], [
+            'map_id' => $map_id
         ]);
     }
 
@@ -864,8 +927,7 @@ class api
      */
     private function has_permission(string $permission): bool
     {
-        return acl::has_permission(
-            $this->auth,
+        return $this->acl->has_permission(
             self::is_activated($this->get_user_id()),
             $permission
         );

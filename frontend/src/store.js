@@ -9,6 +9,13 @@ import * as routes from './routes'
 import { assign, sort } from '@/functions'
 
 const overlayRouting = {
+  ERROR: {
+    name: 'ERROR',
+    component: View.Components.Error,
+    props: {
+      message: 'Oh Hi'
+    }
+  },
   ADD_PAIR_PREVIEW: {
     name: 'ADD_PAIR_PREVIEW',
     component: View.Components.AddPairPreview,
@@ -85,6 +92,7 @@ export default () => {
       statistics: [],
       bets: [],
       maps: [],
+      mapVetos: [],
       mapCivInfo: {},
       runningMatches: [],
       pastMatches: {
@@ -106,6 +114,7 @@ export default () => {
       overlayPayload: s => s.overlay.payload[s.overlay.name],
       players: (s) => sort(s.players, s.sort),
       maps: (s, g) => sort(g.mapsWithCivInfo, s.sort),
+      mapVetos: (s) => s.mapVetos,
       mapsWithCivInfo: (s) => s.maps.map(map => Object.assign({}, map, { civInfo: s.mapCivInfo[map.id] })),
       bets: (s, g) => sort(g.betsEnriched, s.sort),
       betsEnriched: (s) => s.bets.map(bet => Object.assign({}, bet, {
@@ -254,6 +263,9 @@ export default () => {
       },
       setMaps (state, payload) {
         state.maps = payload
+      },
+      setMapVetos (state, payload) {
+        state.mapVetos = payload
       },
       setMapCivInfo (state, { mapId, civInfo }) {
         state.mapCivInfo = Object.assign({}, state.mapCivInfo, { [mapId]: civInfo })
@@ -432,23 +444,41 @@ export default () => {
         commit('setMaps', await api.actively.getMaps())
       },
 
+      async getMapVetos ({ commit }) {
+        commit('setMapVetos', await api.actively.getMapVetos())
+      },
+
+      async setMapVeto ({ state, commit }, { mapId }) {
+        if (mapId > 0 && !state.mapVetos.vetos.includes(mapId)) {
+          await api.actively.setMapVeto(mapId)
+          commit('setMapVetos', await api.actively.getMapVetos())
+        }
+      },
+
+      async removeMapVeto ({ state, commit }, { mapId }) {
+        if (mapId > 0 && state.mapVetos.vetos.includes(mapId)) {
+          await api.actively.removeMapVeto(mapId)
+          commit('setMapVetos', await api.actively.getMapVetos())
+        }
+      },
+
       async getMapInfo ({ state, commit }, { mapId }) {
         if (mapId > 0 && typeof state.mapCivInfo[mapId] === 'undefined') {
           commit('setMapCivInfo', { mapId, civInfo: await api.actively.getMapCivs(mapId) })
         }
       },
 
-      async saveMapDescription ({ commit }, { id, description }) {
-        await api.actively.setMapDescription(id, description)
+      async saveMapDescription ({ commit }, { mapId, description }) {
+        await api.actively.setMapDescription(mapId, description)
         commit('setMaps', await api.actively.getMaps())
       },
 
-      async saveMapImage ({ commit }, { id, image }) {
-        await api.actively.setMapImage(id, image)
+      async saveMapImage ({ commit }, { mapId, image }) {
+        await api.actively.setMapImage(mapId, image)
         commit('setMaps', await api.actively.getMaps())
       },
 
-      async getRunningMatches ({ commit, dispatch }, { passive }) {
+      async getRunningMatches ({ commit }, { passive }) {
         if (passive) {
           commit('setRunningMatches', await api.passively.getRunningMatches())
         } else {
@@ -457,7 +487,7 @@ export default () => {
         }
       },
 
-      async getPastMatches ({ commit, dispatch }, { passive, page }) {
+      async getPastMatches ({ commit }, { passive, page }) {
         if (passive) {
           commit('setPastMatches', await api.passively.getPastMatches(page))
         } else {
@@ -545,6 +575,17 @@ export default () => {
           name: route.name,
           payload: assign(route.props, {
             map: map
+          })
+        })
+        commit('setMeActive')
+      },
+
+      async openErrorOverlay ({ state, commit }, message) {
+        const route = overlayRouting.ERROR
+        commit('setOverlay', {
+          name: route.name,
+          payload: assign(route.props, {
+            message: message
           })
         })
         commit('setMeActive')

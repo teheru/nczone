@@ -8,7 +8,7 @@
         </ol>
         <span v-t="'NCZONE_DRAW_DO_YOU_WANT_TO_DRAW'"></span>
       </div>
-      <div v-else="">
+      <div v-else>
         <span v-t="'NCZONE_DRAW_PREVIEW_NOT_POSSIBLE'"></span>
       </div>
     </template>

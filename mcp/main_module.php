@@ -112,7 +112,7 @@ class main_module
                 } else {
                     $player = $players->get_player((int)$user_id);
                     $old_rating = $player->get_rating();
-        
+
                     $players->edit_player((int)$user_id, ['rating' => $rating, 'logged_in' => $logged_in_timestamp ?: 0]);
 
                     if ($rating !== $old_rating) {
@@ -265,10 +265,20 @@ class main_module
                 (int)$request->variable('copy_map_id', 0)
             );
         } elseif ($request->variable('edit_map', '')) {
+            $map_id = (int)$map_id;
+
+            $new_weight = (float)$request->variable('map_weight', 1.0);
+            if ($new_weight < 0.0) {
+                $new_weight = 0.0;
+            }
+            if ($new_weight == 0.0) {
+                $maps->remove_all_vetos_for_map_id($map_id);
+            }
+
             $maps->edit_map(map::create_by_row([
-                'map_id' => (int)$map_id,
+                'map_id' => $map_id,
                 'map_name' => $request->variable('map_name', ''),
-                'weight' => (float)$request->variable('map_weight', 1.0),
+                'weight' => $new_weight,
                 'draw_1vs1' => $request->variable('map_match_sizes_1vs1', '') === 'on',
                 'draw_2vs2' => $request->variable('map_match_sizes_2vs2', '') === 'on',
                 'draw_3vs3' => $request->variable('map_match_sizes_3vs3', '') === 'on',
@@ -279,7 +289,7 @@ class main_module
             foreach ($civs->get_civs() as $civ) {
                 $civ_id = $civ->get_id();
                 $map_civs[] = map_civ::create_by_row([
-                    'map_id' => (int)$map_id,
+                    'map_id' => $map_id,
                     'civ_id' => $civ_id,
                     'multiplier' => $request->variable('multiplier_' . $civ_id, 0.0),
                     'force_draw' => $request->variable('force_draw_' . $civ_id, '') === 'on',
