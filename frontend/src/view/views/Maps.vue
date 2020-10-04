@@ -62,14 +62,14 @@ export default {
       if (numberVetos < this.mapVetos.available_vetos) {
         await this.setMapVeto({ mapId })
       } else {
-        this.openErrorOverlay('ERROR_TOO_MANY_VETOS')
+        this.openErrorOverlay('NCZONE_ERROR_TOO_MANY_VETOS')
       }
     },
     async removeVeto (mapId) {
       if (this.mapVetos.vetos.includes(mapId)) {
         await this.removeMapVeto({ mapId })
       } else {
-        this.openErrorOverlay('ERROR_NO_VETO_FOR_MAP')
+        this.openErrorOverlay('NCZONE_ERROR_NO_VETO_FOR_MAP')
       }
     },
     ...mapActions([
@@ -87,6 +87,7 @@ export default {
       return this.maps.filter(m => m.weight > 0)
     },
     ...mapGetters([
+      'isPlaying',
       'maps',
       'mapVetos'
     ])

@@ -13,7 +13,7 @@ const overlayRouting = {
     name: 'ERROR',
     component: View.Components.Error,
     props: {
-      message: 'Oh Hi'
+      message: ''
     }
   },
   ADD_PAIR_PREVIEW: {

@@ -160,8 +160,8 @@
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Setze hier eine Zeit in Minuten die du keine Inaktivität in der Zone oder im Forum gehabt haben musst, um automatisch ausgeloggt zu werden. 0 deaktiviert den automatischen Logout.",
       "NCZONE_SAVE_SETTINGS": "Speichern",
       "NCZONE_ERROR_OVERLAY": "Fehler",
-      "ERROR_TOO_MANY_VETOS": "Du kannst nicht noch mehr Vetos setzen. Entferne zunächst ein anderes Veto bevor du ein neues setzt.",
-      "ERROR_NO_VETO_FOR_MAP": "Für diese Karte hast du kein Veto gesetzt. Probier mal die Seite neu zu laden."
+      "NCZONE_ERROR_TOO_MANY_VETOS": "Du kannst nicht noch mehr Vetos setzen. Entferne zunächst ein anderes Veto bevor du ein neues setzt.",
+      "NCZONE_ERROR_NO_VETO_FOR_MAP": "Für diese Karte hast du kein Veto gesetzt. Probier mal die Seite neu zu laden."
     },
     "common": {
       "NCZONE": "nC Zone",
@@ -523,8 +523,8 @@
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Set the time in minutes without activity in the zone or the forum after which you want to be logged out automatically. A value of 0 deactivates this functionality.",
       "NCZONE_SAVE_SETTINGS": "Save",
       "NCZONE_ERROR_OVERLAY": "Error",
-      "ERROR_TOO_MANY_VETOS": "You cannot place more vetos. Remove another veto before placing a new one.",
-      "ERROR_NO_VETO_FOR_MAP": "You have no veto placed for this map. Try to refresh the site."
+      "NCZONE_ERROR_TOO_MANY_VETOS": "You cannot place more vetos. Remove another veto before placing a new one.",
+      "NCZONE_ERROR_NO_VETO_FOR_MAP": "You have no veto placed for this map. Try to refresh the site."
     },
     "common": {
       "NCZONE": "nC Zone",

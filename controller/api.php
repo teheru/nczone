@@ -752,17 +752,18 @@ class api
         return $this->respond(function ($args) {
             $players = zone_util::players();
 
+            $user_id = $this->get_user_id();
             $map_id = $args['map_id'];
 
             $available_vetos = (int) $this->config->get(config::number_map_vetos);
-            $placed_vetos = $players->get_vetos($this->get_user_id());
+            $placed_vetos = $players->get_vetos($user_id);
             $number_placed_vetos = \count($placed_vetos);
 
             if ($number_placed_vetos >= $available_vetos) {
                 throw new ForbiddenError('NCZONE_REASON_TOO_MANY_VETOS');
             }
 
-            $players->set_veto($this->get_user_id(), $map_id, true);
+            $players->set_veto($user_id, $map_id, true);
         }, [
             acl::u_zone_veto_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VETO',
         ], [
@@ -775,16 +776,17 @@ class api
         return $this->respond(function ($args) {
             $players = zone_util::players();
 
+            $user_id = $this->get_user_id();
             $map_id = $args['map_id'];
 
             $available_vetos = (int) $this->config->get(config::number_map_vetos);
-            $placed_vetos = $players->get_vetos($this->get_user_id());
+            $placed_vetos = $players->get_vetos($user_id);
 
             if (!in_array($map_id, $placed_vetos)) {
                 throw new ForbiddenError('NCZONE_REASON_NO_VETO_FOR_MAP');
             }
 
-            $players->set_veto($this->get_user_id(), $map_id, false);
+            $players->set_veto($user_id, $map_id, false);
         }, [
             acl::u_zone_veto_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VETO',
         ], [
