@@ -101,19 +101,15 @@ class draw_teams
             return self::$special_match_sizes[$even_num_players];
         }
 
-        if (($even_num_players % 8) === 0) {
-            return [4 => $even_num_players / 8];
+        if (($even_num_players % 6) === 0) {
+            return [3 => $even_num_players / 6];
         }
 
-        if ((($even_num_players - 6) % 8) === 0) {
-            return [3 => 1, 4 => ($even_num_players - 6) / 8];
+        if ((($even_num_players - 4) % 6) === 0) {
+            return [2 => 1, 3 => ($even_num_players - 4) / 6];
         }
 
-        if ((($even_num_players - 12) % 8) === 0) {
-            return [3 => 2, 4 => ($even_num_players - 12) / 8];
-        }
-
-        return [3 => 3, 4 => ($even_num_players - 18) / 8];
+        return [2 => 2, 3 => ($even_num_players - 8) / 6];
     }
 
     /**
