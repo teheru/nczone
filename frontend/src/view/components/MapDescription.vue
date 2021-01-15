@@ -58,7 +58,7 @@ export default {
 
     async saveDescription () {
       this.loading = true
-      await this.saveMapDescription({ id: this.map.id, description: this.tempDescription })
+      await this.saveMapDescription({ mapId: this.map.id, description: this.tempDescription })
       this.editDescr = false
       this.loading = false
     },
@@ -71,7 +71,7 @@ export default {
       }
       const reader = new FileReader()
       reader.onload = async (p) => {
-        await this.saveMapImage({ id: this.map.id, image: p.target.result })
+        await this.saveMapImage({ mapId: this.map.id, image: p.target.result })
         this.loading = false
       }
       reader.readAsDataURL(files[0])
