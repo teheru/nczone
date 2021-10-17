@@ -1,0 +1,69 @@
+@charset "UTF-8";
+
+@import "vars";
+@import "../../base.scss";
+
+/* Overwrites not handled by changed vars
+===================================================================*/
+
+.zone-block {
+  background-image: -webkit-linear-gradient(top, lighten($block_bg, 40) 0%, lighten($block_bg, 20) 2px, $block_bg 92px, $block_bg 100%);
+  background-image: linear-gradient(to bottom, lighten($block_bg, 40) 0%, lighten($block_bg, 20) 2px, $block_bg 92px, $block_bg 100%);
+  background-repeat: repeat-x;
+}
+
+.zone-content {
+  background-color: $block_bg;
+}
+
+.zone-match-title {
+  &:first-child {
+    background-color: $border_light_color;
+  }
+}
+
+.zone-button, .zone-mini-button, .zone-close-button {
+  padding-top: 2px;
+}
+
+.zone-activity {
+  .zone-activity-bar {
+    border-color: $border_light_color;
+  }
+}
+
+.zone-match-civ-tooltip{
+  padding-top: 2px;
+  background-color: $tooltip_background_color;
+  border: solid 1px lighten($input_bg, 25);
+}
+
+.zone-match-bets {
+  .zone-match-bets-overlay {
+    background-color: $tooltip_background_color;
+    border-color: lighten($input_bg, 25);
+  }
+}
+
+.zone-map-container {
+  border-color: $base_dark_bg;
+  .zone-map-header {
+    background-color: $base_dark_bg;
+  }
+  .zone-map-description {
+    padding: 1em;
+    padding-bottom: 0;
+  }
+}
+
+.zone-match-bets {
+  .zone-match-bets-percentage {
+    background-color: $border_light_color;
+  }
+  .zone-match-bets-percentage-bar {
+    background-color: $bet_color;
+  }
+  .zone-match-bets-percentage-number {
+    color: #fff;
+  }
+}

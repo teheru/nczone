@@ -18,6 +18,11 @@
 @import "partial/map-description.scss";
 @import "partial/settings.scss";
 
+textarea {
+  background-color: $input_bg;
+  color: $input_fg;
+}
+
 .zone-clickable {
   cursor: pointer;
 }
@@ -50,7 +55,7 @@
     cursor: pointer;
     text-decoration: none;
   }
-  
+
   a:hover,
   a:focus,
   a:active {

@@ -1,0 +1,32 @@
+$base_color: #838b98;
+$base_light_color: $base_color;
+
+$block_bg: #242a36;
+$base_dark_bg: darken($block_bg, 2);
+$base_light_bg: $block_bg;
+
+$light_font_color: #838b98;
+$border_light_color: darken($block_bg, 10);
+$menu_separator_color: $border_light_color;
+
+$tooltip_background_color: darken($block_bg, 10);
+
+$overlay_bg: rgba(0, 0, 0, .8);
+
+$input_bg: #171b24;
+$input_fg: #f69600;
+$input_bg_disabled: #3a404a;
+$input_fg_disabled: #cccccc;
+
+$active_link_color: #f69600;
+
+$block_border_radius: 7px;
+
+$positive_color: #28af27;
+$negative_color: #d53057;
+$neutral_color: #ef8700;
+
+$activity_color_worst: $negative_color;
+$activity_color_best: $positive_color;
+
+$bet_color: darken($active_link_color, 15);
