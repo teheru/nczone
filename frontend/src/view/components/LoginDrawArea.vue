@@ -2,11 +2,11 @@
   <div class="zone-actions" v-if="havePossibleActions">
     <button class="zone-button" v-if="canLogin" @click="doLogin" v-t="'NCZONE_LOGIN'"></button>
     <button class="zone-button" v-if="isLoggedIn" @click="doLogout" v-t="'NCZONE_LOGOUT'"></button>
-
-    <button class="zone-button" v-if="canDraw && !(canBlockDraw && drawBlocked)" @click="doDraw" v-t="'NCZONE_DRAW'" :disabled="drawBlocked">
+    <button class="zone-button" v-if="canDraw && !(canBlockDraw && drawBlocked)" @click="doDraw" :disabled="drawBlocked">
+      <span v-t="'NCZONE_DRAW'"></span>
       <span v-if="drawBlocked">
         &nbsp;<div class="fa fa-lock"></div>
-        &nbsp;<nczone-lock-timer v-if="drawBlocked" :lockLengthSeconds="blockSeconds" />
+        &nbsp;<nczone-lock-timer :lockLengthSeconds="blockSeconds" />
       </span>
     </button>
     <button class="fa fa-unlock zone-button" v-if="canBlockDraw && drawBlocked" @click="doDrawUnblock"></button>
@@ -22,7 +22,8 @@ export default {
   name: 'nczone-login-draw-area',
   data () {
     return {
-      'blockSeconds': 0
+      blockSeconds: 0,
+      drawButtonKey: 0
     }
   },
   computed: {
@@ -71,7 +72,6 @@ export default {
     ]),
     cb (now) {
       this.blockSeconds = this.drawBlockedTime - now / 1000
-      console.log(this.drawBlocked)
     },
     start () {
       this.timer.every(0.25, this.cb)
