@@ -35,7 +35,7 @@
           <span v-t="'NCZONE_MATCH_CIVS_TEAM1'"></span>: <nczone-civ-list :list="match.civs.team1" />
         </div>
         <div v-if="match.civs.team2.length > 0">
-          <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>:  <nczone-civ-list :list="match.civs.team2" />
+          <span v-t="'NCZONE_MATCH_CIVS_TEAM2'"></span>: <nczone-civ-list :list="match.civs.team2" />
         </div>
       </div>
     </template>
