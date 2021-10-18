@@ -3,7 +3,7 @@
     <button class="zone-button" v-if="canLogin" @click="doLogin" v-t="'NCZONE_LOGIN'"></button>
     <button class="zone-button" v-if="isLoggedIn" @click="doLogout" v-t="'NCZONE_LOGOUT'"></button>
 
-    <button class="zone-button" v-if="canDraw && !(canBlockDraw && drawBlocked)" @click="doDraw" v-t="'NCZONE_DRAW'" :disabled="drawBlocked > 0">
+    <button class="zone-button" v-if="canDraw && !(canBlockDraw && drawBlocked)" @click="doDraw" v-t="'NCZONE_DRAW'" :disabled="drawBlocked">
       <span v-if="drawBlocked">
         &nbsp;<div class="fa fa-lock"></div>
         &nbsp;<nczone-lock-timer v-if="drawBlocked" :lockLengthSeconds="blockSeconds" />
@@ -71,6 +71,7 @@ export default {
     ]),
     cb (now) {
       this.blockSeconds = this.drawBlockedTime - now / 1000
+      console.log(this.drawBlocked)
     },
     start () {
       this.timer.every(0.25, this.cb)
