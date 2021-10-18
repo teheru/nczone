@@ -1,5 +1,7 @@
 deploy.sh
+npm-debug.log
 composer.phar
 unittest
 .idea
 vendor
+maps/

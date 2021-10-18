@@ -21,3 +21,16 @@ export const sort = (arr, sort) => {
     return (a[sort.field] > b[sort.field] ? 1 : -1) * sort.order
   })
 }
+
+export const renderTime = (seconds, withHours) => {
+  if (withHours) {
+    const hours = parseInt(seconds / 3600, 10)
+    const min = parseInt(seconds % 3600 / 60, 10)
+    const sec = parseInt(seconds % 3600 % 60, 10)
+    return pad(hours) + ':' + pad(min) + ':' + pad(sec)
+  } else {
+    const min = parseInt(seconds / 60, 10)
+    const sec = parseInt(seconds % 3600 % 60, 10)
+    return pad(min) + ':' + pad(sec)
+  }
+}

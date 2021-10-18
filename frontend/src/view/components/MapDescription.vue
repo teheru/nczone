@@ -3,13 +3,13 @@
     <div v-if="map.description || map.image || canEditMapDescription" class="zone-map-description" @dblclick="editDescription()">
       <label v-if="map.image || canEditMapDescription" for="upload-map-image" class="zone-map-upload-image-label">
         <img v-if="map.image" class="zone-map-upload-image" :src="map.image" />
-        <div v-else-if="canEditMapDescription" class="zone-map-upload-image">{{ $t('NCZONE_UPLOAD_IMAGE') }}</div>
-        <div v-if="canEditMapDescription" class="zone-map-upload-image-description">{{ $t('NCZONE_UPLOAD_IMAGE_HINT') }}</div>
+        <div v-else-if="canEditMapDescription" class="zone-map-upload-image" v-t="'NCZONE_UPLOAD_IMAGE'"></div>
+        <div v-if="canEditMapDescription" class="zone-map-upload-image-description" v-t="'NCZONE_UPLOAD_IMAGE_HINT'"></div>
       </label>
       <input id="upload-map-image" v-if="canEditMapDescription" type="file" accept="image/*" @change="uploadImage" />
       <template v-if="editDescr && canEditMapDescription">
         <textarea v-model="tempDescription" rows="10"></textarea><br />
-        <button @click="saveDescription()">{{ $t('NCZONE_SAVE') }}</button>
+        <button @click="saveDescription()" v-t="'NCZONE_SAVE'"></button>
       </template>
       <vue-markdown v-else-if="map.description || canEditMapDescription" class="zone-map-description-text">{{ map.description ? map.description : '*' + $t('NCZONE_EMPTY_DESCRIPTION') + '*' }}</vue-markdown>
     </div>

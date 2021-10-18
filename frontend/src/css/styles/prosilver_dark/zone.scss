@@ -45,14 +45,16 @@
   }
 }
 
-.zone-map-container {
-  border-color: $base_dark_bg;
-  .zone-map-header {
-    background-color: $base_dark_bg;
-  }
-  .zone-map-description {
-    padding: 1em;
-    padding-bottom: 0;
+.zone-maps {
+  .zone-map-container {
+    border-color: $base_dark_bg;
+    .zone-map-header {
+      background-color: $base_dark_bg;
+    }
+    .zone-map-description {
+      padding: 1em;
+      padding-bottom: 0;
+    }
   }
 }
 

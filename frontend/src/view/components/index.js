@@ -5,6 +5,8 @@ import Information from './Information'
 import Match from './Match'
 import Navigation from './Navigation'
 import PlayerArea from './PlayerArea'
+import LoginDrawArea from './LoginDrawArea'
+import LockTimer from './LockTimer'
 import PlayerGraph from './PlayerGraph'
 import PlayerLoginRow from './PlayerLoginRow'
 import SortIndicator from './SortIndicator'
@@ -30,6 +32,8 @@ export default {
   Match,
   Navigation,
   PlayerArea,
+  LoginDrawArea,
+  LockTimer,
   PlayerGraph,
   PlayerLoginRow,
   SortIndicator,

@@ -8,7 +8,7 @@
     <template v-if="match.post_time">
       <div v-t="'NCZONE_MATCH_WINNER'"></div>
       <div v-if="match.winner"><span v-t="'NCZONE_MATCH_TEAM'"></span> {{ match.winner }}</div>
-      <div v-else="" v-t="'NCZONE_MATCH_WINNER_NO_RESULT'"></div>
+      <div v-else v-t="'NCZONE_MATCH_WINNER_NO_RESULT'"></div>
     </template>
 
     <div v-t="'NCZONE_MATCH_DRAWER'"></div>
@@ -80,7 +80,7 @@
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import { pad } from '@/functions'
+import { pad, renderTime } from '@/functions'
 
 export default {
   name: 'nczone-match',
@@ -128,10 +128,7 @@ export default {
         pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds())
     },
     matchLength () {
-      const hours = parseInt(this.gameSeconds / 3600, 10)
-      const min = parseInt(this.gameSeconds % 3600 / 60, 10)
-      const sec = parseInt(this.gameSeconds % 3600 % 60, 10)
-      return pad(hours) + ':' + pad(min) + ':' + pad(sec)
+      return renderTime(this.gameSeconds, true)
     },
     haveGlobalCivs () {
       return this.match.civs.both.length > 0 ||
