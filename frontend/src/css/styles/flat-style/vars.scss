@@ -6,9 +6,9 @@ $light_font_color: #fff;
 $border_light_color: $base_color;
 
 $input_bg: $base_color;
-$input_bg_disabled: rgba(0, 0, 0, 0);
+$input_bg_disabled: $base_light_bg;
 $input_fg: $base_light_color;
-$input_fg_disabled: #000;
+$input_fg_disabled: $base_color;
 $overlay_bg: rgba(255, 255, 255, .8);
 
 $block_bg: $base_color;

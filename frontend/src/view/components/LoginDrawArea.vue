@@ -3,11 +3,11 @@
     <button class="zone-button" v-if="canLogin" @click="doLogin" v-t="'NCZONE_LOGIN'"></button>
     <button class="zone-button" v-if="isLoggedIn" @click="doLogout" v-t="'NCZONE_LOGOUT'"></button>
 
-    <button class="zone-button" v-if="canDraw && !(canBlockDraw && drawBlocked)" @click="doDraw" v-t="'NCZONE_DRAW'">
-      <template v-if="drawBlocked">
+    <button class="zone-button" v-if="canDraw && !(canBlockDraw && drawBlocked)" @click="doDraw" v-t="'NCZONE_DRAW'" :disabled="drawBlocked > 0">
+      <span v-if="drawBlocked">
         &nbsp;<div class="fa fa-lock"></div>
         &nbsp;<nczone-lock-timer v-if="drawBlocked" :lockLengthSeconds="blockSeconds" />
-      </template>
+      </span>
     </button>
     <button class="fa fa-unlock zone-button" v-if="canBlockDraw && drawBlocked" @click="doDrawUnblock"></button>
     <button class="fa fa-lock zone-button" v-if="canBlockDraw" @click="doDrawBlock">
