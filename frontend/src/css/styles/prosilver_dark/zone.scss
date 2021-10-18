@@ -32,7 +32,7 @@
   }
 }
 
-.zone-match-civ-tooltip{
+.zone-match-civ-tooltip {
   padding-top: 2px;
   background-color: $tooltip_background_color;
   border: solid 1px lighten($input_bg, 25);
@@ -67,5 +67,24 @@
   }
   .zone-match-bets-percentage-number {
     color: #fff;
+  }
+}
+
+.zone-table-row {
+  height: calc(12pt + 8px);
+  margin: 0;
+  padding-bottom: 2px;
+  align-items: center;
+
+  div {
+    padding-top: 5px;
+  }
+
+  .zone-mini-button {
+    height: 12pt;
+  }
+
+  .zone-activity-bar {
+    margin-top: .2em;
   }
 }
