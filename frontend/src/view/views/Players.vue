@@ -23,7 +23,7 @@
         <div class="zone-table-row" v-for="(player, idx) in players" :key="`row-${idx}`">
           <div>{{ idx+1 }}</div>
           <div v-if="canModLogin">
-            <button class="zone-mini-button" v-if="player.logged_in === 0" @click="modLogin(player.id)">L</button>
+            <button class="zone-mini-button fa fa-sign-in" v-show="(player.logged_in === 0) && canModLogin" @click="modLogin(player.id)"></button>
           </div>
           <div class="zone-clickable" v-html="player.username" @click="openPlayerDetailsOverlay(player.id)"></div>
           <div>{{ player.games || 0 }}</div>

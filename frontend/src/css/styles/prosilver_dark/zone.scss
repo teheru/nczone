@@ -22,10 +22,6 @@
   }
 }
 
-.zone-button, .zone-mini-button, .zone-close-button {
-  padding-top: 2px;
-}
-
 .zone-activity {
   .zone-activity-bar {
     border-color: $border_light_color;
@@ -67,24 +63,5 @@
   }
   .zone-match-bets-percentage-number {
     color: #fff;
-  }
-}
-
-.zone-table-row {
-  height: calc(12pt + 8px);
-  margin: 0;
-  padding-bottom: 2px;
-  align-items: center;
-
-  div {
-    padding-top: 5px;
-  }
-
-  .zone-mini-button {
-    height: 12pt;
-  }
-
-  .zone-activity-bar {
-    margin-top: .2em;
   }
 }

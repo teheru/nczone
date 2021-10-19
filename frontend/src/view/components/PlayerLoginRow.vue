@@ -2,7 +2,7 @@
   <div class="zone-player-login-row" :class="activityClass" :title="idleSince">
     <div class="zone-player-table-idx">{{ idx + 1 }}.</div>
     <div class="zone-player-table-kick" v-if="canModLogin">
-      <button class="zone-mini-button" @click="modLogout(player.id)">x</button>
+      <button class="zone-mini-button fa fa-times" @click="modLogout(player.id)"></button>
     </div>
     <div class="zone-player-table-username" v-html="player.username"></div>
     <div class="zone-player-table-rating">{{ player.rating }}</div>

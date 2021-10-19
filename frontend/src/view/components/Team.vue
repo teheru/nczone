@@ -22,9 +22,9 @@
 
       <template v-for="(player, idx) in players">
         <div v-if="canReplacePlayer" class="zone-match-player-replace" :key="`replace-${idx}`">
-          <button class="zone-mini-button" @click="playerReplace(player.id)">K</button>
+          <button class="zone-mini-button fa fa-times" @click="playerReplace(player.id)"></button>
         </div>
-        <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span v-if="match.winner">({{ player.rating_change }})</span></div>
+        <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span class="zone-match-player-rating-change" v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
         <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`">
           <span class="zone-match-civ" v-if="player.civ">
