@@ -31,6 +31,11 @@ export default {
       scales: {
         xAxes: [{
           display: false
+        }],
+        yAxes: [{
+          ticks: {
+            fontColor: getComputedStyle(document.getElementsByClassName('zone-container')[0]).color
+          }
         }]
       }
     })
