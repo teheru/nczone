@@ -18,6 +18,8 @@ export default {
     this.renderChart({
       labels: this.matchNumbers,
       datasets: [{
+        borderColor: getComputedStyle(document.getElementsByClassName('zone-container')[0]).color,
+        backgroundColor: 'rgba(0.0, 0.0, 0.0, 0.0)',
         data: this.ratings,
         pointRadius: 1
       }]
