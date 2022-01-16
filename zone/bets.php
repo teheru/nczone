@@ -93,7 +93,11 @@ class bets
 
         $correct_bets_count = \count($correct_user_ids);
         $total_bets_count = $correct_bets_count + \count($wrong_user_ids);
-        $bet_points_pro_player = ($total_bets_count + 1.0) / $correct_bets_count - 1.0;
+        $bet_points_pro_player = 0.;
+        if($correct_bets_count > 0)
+        {
+            $bet_points_pro_player = ($total_bets_count + 1.0) / $correct_bets_count - 1.0;
+        }
 
         $this->set_bets_counted_until([$winner_team, $loser_team], $until);
 
