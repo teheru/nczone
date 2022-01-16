@@ -118,7 +118,6 @@ export default () => {
       mapsWithCivInfo: (s) => s.maps.map(map => Object.assign({}, map, { civInfo: s.mapCivInfo[map.id] })),
       bets: (s, g) => sort(g.betsEnriched, s.sort),
       betsEnriched: (s) => s.bets.map(bet => Object.assign({}, bet, {
-        bet_skill: (bet.bets_won * 3 - bet.bets_loss * 2),
         bets_total: bet.bets_won + bet.bets_loss,
         bet_quota: bet.bets_won / (bet.bets_won + bet.bets_loss) * 100
       })),

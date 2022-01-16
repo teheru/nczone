@@ -142,7 +142,7 @@ class install_db_create extends \phpbb\db\migration\migration
                     'COLUMNS' => [
                         'user_id' => ['UINT', 0],
                         'map_id' => ['UINT', 0],
-                        'counter' => ['DECIMAL', 0],
+                        'counter' => ['DECIMAL', 0.0],
                     ],
                     'PRIMARY_KEY' => ['user_id', 'map_id'],
                 ],

@@ -91,15 +91,19 @@ class bets
         $correct_user_ids = $this->get_open_bet_user_ids_until($winner_team, $until);
         $wrong_user_ids = $this->get_open_bet_user_ids_until($loser_team, $until);
 
+        $correct_bets_count = \count($correct_user_ids);
+        $total_bets_count = $correct_bets_count + \count($wrong_user_ids);
+        $bet_points_pro_player = ($total_bets_count + 1.0) / $correct_bets_count - 1.0;
+
         $this->set_bets_counted_until([$winner_team, $loser_team], $until);
 
         if($correct_user_ids)
         {
-            $this->change_won_bets($correct_user_ids, 1);
+            $this->change_won_bets($correct_user_ids, 1, $bet_points_pro_player);
         }
         if($wrong_user_ids)
         {
-            $this->change_lost_bets($wrong_user_ids, 1);
+            $this->change_lost_bets($wrong_user_ids, 1, 1);
         }
     }
 
@@ -119,15 +123,19 @@ class bets
         $correct_user_ids = $this->get_counted_bet_user_ids($winner_team);
         $wrong_user_ids = $this->get_counted_bet_user_ids($loser_team);
 
+        $correct_bets_count = \count($correct_user_ids);
+        $total_bets_count = $correct_bets_count + \count($wrong_user_ids);
+        $bet_points_pro_player = ($total_bets_count + 1.0) / $correct_bets_count - 1.0;
+
         $this->set_bets_uncounted([$winner_team, $loser_team]);
 
         if($correct_user_ids)
         {
-            $this->change_won_bets($correct_user_ids, -1);
+            $this->change_won_bets($correct_user_ids, -1, -$bet_points_pro_player);
         }
         if($wrong_user_ids)
         {
-            $this->change_lost_bets($wrong_user_ids, -1);
+            $this->change_lost_bets($wrong_user_ids, -1, -1);
         }
     }
 
@@ -144,20 +152,20 @@ class bets
         ]);
     }
 
-    private function change_won_bets(array $user_ids, int $step): void
+    private function change_won_bets(array $user_ids, int $step, float $bet_points): void
     {
         $this->db->sql_query('
             UPDATE ' . $this->db->players_table . '
-            SET `bets_won` = `bets_won` + ' . $step .' 
+            SET `bets_won` = `bets_won` + ' . $step .', `bet_points` = `bet_points` + '. $bet_points .'
             WHERE ' . $this->db->sql_in_set('user_id', $user_ids)
         );
     }
 
-    private function change_lost_bets(array $user_ids, int $step): void
+    private function change_lost_bets(array $user_ids, int $step, float $bet_points): void
     {
         $this->db->sql_query('
             UPDATE ' . $this->db->players_table . ' 
-            SET `bets_loss` = `bets_loss` + ' . $step . ' 
+            SET `bets_loss` = `bets_loss` + ' . $step . ', `bet_points` = `bet_points` - '. $bet_points .'
             WHERE ' . $this->db->sql_in_set('user_id', $user_ids));
     }
 

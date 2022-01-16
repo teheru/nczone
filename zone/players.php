@@ -63,6 +63,7 @@ class players
                 COALESCE(t.streak, 0) AS streak,
                 p.bets_won AS bets_won,
                 p.bets_loss AS bets_loss,
+                p.bet_points AS bet_points,
                 p.activity_matches
             FROM
                 ' . $this->db->users_table . ' u
@@ -131,6 +132,7 @@ class players
             'matches_loss' => 0,
             'bets_won' => 0,
             'bets_loss' => 0,
+            'bet_points' => 0.0,
             'activity_matches' => 0,
         ]);
     }
@@ -202,6 +204,9 @@ class players
         }
         if (array_key_exists('bets_loss', $player_info)) {
             $sql_array['bets_loss'] = (int)$player_info['bets_loss'];
+        }
+        if (array_key_exists('bet_points', $player_info)) {
+            $sql_array['bet_points'] = (double)$player_info['bet_points'];
         }
         if (array_key_exists('activity_matches', $player_info)) {
             $sql_array['activity_matches'] = (int)$player_info['activity_matches'];
@@ -393,6 +398,7 @@ class players
                 COALESCE(mp.streak, 0) as streak,
                 p.bets_won as bets_won,
                 p.bets_loss as bets_loss,
+                p.bet_points as bet_points,
                 p.activity_matches
             from (
                     select
@@ -452,6 +458,7 @@ class players
                 COALESCE(t.streak, 0) AS streak,
                 p.bets_won AS bets_won,
                 p.bets_loss AS bets_loss,
+                p.bet_points AS bet_points,
                 p.activity_matches
             FROM
                 ' . $this->db->players_table . ' p
@@ -744,6 +751,7 @@ class players
                 b.user_id,
                 b.bets_won,
                 b.bets_loss,
+                b.bet_points,
                 u.username
             from
                 '.$this->db->players_table.' b
@@ -759,6 +767,7 @@ class players
                 'username' => (string) $row['username'],
                 'bets_won' => (int) $row['bets_won'],
                 'bets_loss' => (int) $row['bets_loss'],
+                'bet_points' => (double) $row['bet_points'],
             ];
         }, $this->db->get_rows($sql));
     }

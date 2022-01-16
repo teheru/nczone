@@ -12,7 +12,7 @@
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_TOTAL" sort-field="bets_total" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_WON" sort-field="bets_won" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_LOSS" sort-field="bets_loss" />
-          <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_SKILL" sort-field="bet_skill" title="NCZONE_TABLE_HEADER_BETS_SKILL_TOOLTIP" />
+          <nczone-table-header-col label="NCZONE_TABLE_HEADER_BET_POINTS" sort-field="bet_points" />
           <nczone-table-header-col label="NCZONE_TABLE_HEADER_BETS_QUOTA" sort-field="bet_quota" />
         </div>
 
@@ -22,7 +22,7 @@
           <div>{{ player.bets_total || 0 }}</div>
           <div>{{ player.bets_won || 0 }}</div>
           <div>{{ player.bets_loss || 0 }}</div>
-          <div>{{ player.bet_skill || 0 }}</div>
+          <div>{{ player.bet_points || 0.0 }}</div>
           <div :class="{'color-positive': (Math.round(player.bet_quota) || 0) > 50, 'color-negative': (Math.round(player.bet_quota) || 0) < 50}">{{ Math.round(player.bet_quota) || 0 }}%</div>
         </div>
 
@@ -32,7 +32,7 @@
           <div>{{ avgBetsTotal }}</div>
           <div>{{ avgBetsWon }}</div>
           <div>{{ avgBetsLoss }}</div>
-          <div>{{ avgBetSkill }}</div>
+          <div>{{ avgBetPoints }}</div>
           <div>{{ avgBetQuota }}%</div>
         </div>
       </div>
@@ -55,8 +55,8 @@ export default {
     avgBetsLoss () {
       return this.avgField('bets_loss')
     },
-    avgBetSkill () {
-      return this.avgField('bet_skill')
+    avgBetPoints () {
+      return this.avgField('bet_points')
     },
     avgBetQuota () {
       return this.avgField('bet_quota')
@@ -68,7 +68,7 @@ export default {
   },
   created () {
     this.fetchData()
-    this.setSort({ field: 'bet_skill', order: -1 })
+    this.setSort({ field: 'bet_points', order: -1 })
   },
   watch: {
     '$route': 'fetchData'
