@@ -172,6 +172,10 @@ class main_module
                 $players->reduce_player_vetos($new_number_of_vetos);
                 $config->set(config::number_map_vetos, $new_number_of_vetos);
             }
+            $map_veto_power = (float)$request->variable('nczone_map_veto_power', config::default(config::map_veto_power));
+            if(($map_veto_power >= 1.0) && ($map_veto_power <= 10.0)) {
+                $config->set(config::map_veto_power, $map_veto_power);
+            }
 
             trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
         }
@@ -201,6 +205,7 @@ class main_module
             'nczone_info_posts' => str_replace(',', "\n", $config->get(config::info_posts)),
             'nczone_free_pick_civ_id' => $config->get(config::free_pick_civ_id),
             'nczone_number_map_vetos' => $config->get(config::number_map_vetos),
+            'nczone_map_veto_power' => $config->get(config::map_veto_power),
         ));
 
         foreach (zone_util::civs()->get_civs() as $civ) {

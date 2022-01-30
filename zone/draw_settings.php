@@ -641,6 +641,7 @@ class draw_settings
 
         // select the map id with the biggest sum(counter)
         $maps_counter = [];
+        $veto_counter = [];
         foreach ($players_maps as $player_map) {
             $user_id = (int) $player_map['user_id'];
             $map_id = (int) $player_map['map_id'];
@@ -653,6 +654,17 @@ class draw_settings
             if (!($veto && in_array($user_id, $users_allowed_to_veto))) {
                 $maps_counter[$map_id] += $counter;
             }
+
+            if (!\array_key_exists($map_id, $veto_counter)) {
+                $veto_counter[$map_id] = 0;
+            }
+            if ($veto && in_array($user_id, $users_allowed_to_veto)) {
+                $veto_counter[$map_id]++;
+            }
+        }
+
+        foreach($veto_counter as $map_id => $counter) {
+            $maps_counter[$map_id] /= \pow(2.0, $counter);
         }
 
         \asort($maps_counter);

@@ -144,6 +144,15 @@
 			<input type="number" min="0" name="nczone_number_map_vetos" value="{{ nczone_number_map_vetos }}" />
 		</dd>
 	</dl>
+	<dl>
+		<dt>
+			<label for="nczone_map_veto_power">{{ lang('NCZONE_MAP_VETO_POWER') }}{{ lang('COLON') }}</label><br />
+			<span>{{ lang('NCZONE_MAP_VETO_POWER_DESCR') }}</span>
+		</dt>
+		<dd>
+			<input type="number" min="1" max="10" step="0.1" name="nczone_map_veto_power" value="{{ nczone_map_veto_power }}" />
+		</dd>
+	</dl>
 </fieldset>
 
 {% endblock %}

@@ -51,6 +51,7 @@ final class config
     public const draw_switch_0_players = 'nczone_draw_switch_0_players';
     public const free_pick_civ_id = 'nczone_free_pick_civ_id';
     public const number_map_vetos = 'nczone_number_map_vetos';
+    public const map_veto_power = 'nczone_map_veto_power';
     public const draw_block_time = 'nczone_draw_block_time';
     public const draw_blocked_until = 'nczone_draw_blocked_until';
     public const draw_block_after_match = 'nczone_draw_block_after_match';
@@ -98,6 +99,7 @@ final class config
         self::draw_switch_0_players,
         self::free_pick_civ_id,
         self::number_map_vetos,
+        self::map_veto_power,
         self::draw_block_time,
         self::draw_blocked_until,
         self::draw_block_after_match,
@@ -146,6 +148,7 @@ final class config
         self::draw_switch_0_players => 10,
         self::free_pick_civ_id => 0,
         self::number_map_vetos => 0,
+        self::map_veto_power => 2.0,
         self::draw_block_time => 10,
         self::draw_blocked_until => 0,
         self::draw_block_after_match => 3,
