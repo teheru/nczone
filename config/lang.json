@@ -621,7 +621,7 @@
       "NCZONE_NUMBER_MAP_VETOS": "Number of Map Vetos",
       "NCZONE_NUMBER_MAP_VETOS_DESCR": "Number of maps a player can place a veto against. The counter of a map with veto wont be counted or increased for the player.",
       "NCZONE_MAP_VETO_POWER": "Power of map veto",
-      "NCZONE_MAP_VETO_POWER_DESCR": "Additionally divides the weight of a map with a veto by <i>Value</i><sup>#number vetos</sup>.",
+      "NCZONE_MAP_VETO_POWER_DESCR": "Additionally divides the weight of a map with a veto by <i>Value</i><sup>#vetos</sup>.",
       "NCZONE_NO_FREE_PICK_CIV": "No civilization",
       "NCZONE_DRAW_SETTINGS": "Draw settings",
       "NCZONE_DRAW_PLAYER_CIVS": "Difference for player civs",
