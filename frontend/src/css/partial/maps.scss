@@ -34,9 +34,10 @@
         font-weight: bold;
       }
 
-      .zone-map-percent {
+      .zone-map-weighted-veto {
         grid-column: 4;
         font-weight: bold;
+        color: $negative_color;
       }
 
       .zone-map-veto {

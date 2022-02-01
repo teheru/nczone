@@ -704,22 +704,31 @@ class api
     public function maps(): JsonResponse
     {
         return $this->respond(function () {
-            $maps = zone_util::maps()->get_maps();
+            $maps = zone_util::maps()->get_maps(true);
 
-            $total_weights = 0.0;
-            foreach ($maps as $map) {
-                $total_weights += $map->get_weight();
+            $can_manage_maps = $this->has_permission(acl::m_zone_manage_maps);
+            $weighted_veto = null;
+            if($can_manage_maps) {
+                $wv_raw = zone_util::maps()->get_weighted_veto();
+                $weighted_veto = [];
+                foreach($wv_raw as $row) {
+                    $weighted_veto[$row['map_id']] = $row['weighted_veto'];
+                }
             }
 
-            return \array_map(static function (map $map) use ($total_weights) {
-                return [
-                    'id' => $map->get_id(),
+            return \array_map(static function (map $map) use ($total_weights, $weighted_veto) {
+                $map_id = $map->get_id();
+                $res = [
+                    'id' => $map_id,
                     'name' => $map->get_name(),
                     'weight' => $map->get_weight(),
-                    'proportion' => $map->get_weight() / $total_weights,
                     'description' => $map->get_description(),
                     'image' => zone_util::maps()->get_image_url($map->get_id()),
                 ];
+                if($weighted_veto) {
+                    $res['weighted_veto'] = $weighted_veto[$map_id];
+                }
+                return $res;
             }, $maps);
         }, [
             acl::u_zone_view_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VIEW_MAPS',

@@ -41,9 +41,11 @@ class maps
     /**
      * Returns all maps (id, name, weight)
      *
+     * @param actvity_only Gives only maps with weight > 0
+     * 
      * @return entity\map[]
      */
-    public function get_maps(): array
+    public function get_maps(bool $active_only): array
     {
         $rows = $this->db->get_rows([
             'SELECT' => [
@@ -57,6 +59,7 @@ class maps
                 'draw_4vs4',
             ],
             'FROM' => [$this->db->maps_table => 't'],
+            'WHERE' => $active_only ? 'weight > 0' : '',
             'ORDER_BY' => 'LOWER(map_name) ASC',
         ]);
         return entity\map::create_many_by_rows($rows);
@@ -180,6 +183,27 @@ class maps
         return \file_exists($map_image_path)
             ? generate_board_url() . \substr($map_image_path, 1)
             : '';
+    }
+
+    public function get_weighted_veto(): array
+    {
+        $sql = <<<SQL
+SELECT
+    pm.map_id,
+    sum(pm.veto * p.activity_matches) / (select sum(activity_matches) from phpbb_zone_players) AS weighted_veto
+FROM phpbb_zone_player_map pm
+LEFT JOIN phpbb_zone_players p ON pm.user_id = p.user_id
+LEFT JOIN phpbb_zone_maps m ON pm.map_id = m.map_id
+WHERE m.weight > 0
+GROUP BY pm.map_id
+SQL;
+
+        return \array_map(function ($row) {
+            return [
+                'map_id' => (int)$row['map_id'],
+                'weighted_veto' => (float)$row['weighted_veto'],
+            ];
+        }, $this->db->get_rows($sql));
     }
 
     /**
