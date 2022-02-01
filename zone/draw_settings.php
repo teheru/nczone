@@ -144,7 +144,7 @@ class draw_settings
                 ],
                 'WHERE' => 'c.civ_id = p.civ_id AND c.force_draw AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
                 'GROUP_BY' => 'c.civ_id',
-                'ORDER_BY' => "SUM({$now} - p.time) DESC",
+                'ORDER_BY' => "MIN({$now} - p.time) DESC",
             ]);
         } else {
             $force_civ = [];
@@ -160,7 +160,7 @@ class draw_settings
             ],
             'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids) . $sql_add,
             'GROUP_BY' => 'c.civ_id',
-            'ORDER_BY' => "SUM({$now} - p.time) DESC",
+            'ORDER_BY' => "MIN({$now} - p.time) DESC",
         ], $num_civs + $extra_civs);
 
         if ($extra_civs === 0) {
