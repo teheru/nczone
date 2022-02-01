@@ -4,7 +4,6 @@
   }
 
   .zone-map-container {
-    margin: 0 1em 0 1em;
     border: 2px solid $base_color;
 
     .zone-map-header {
@@ -17,7 +16,6 @@
       color: $input_fg;
 
       .zone-map-arrow {
-        margin-top: -0.2rem;
         font-size: 1rem;
         text-align: center;
         color: $active_link_color;
@@ -27,17 +25,20 @@
       .zone-map-name {
         grid-column: 2;
         font-weight: bold;
+        margin: auto 0;
       }
 
       .zone-map-weight {
         grid-column: 3;
         font-weight: bold;
+        margin: auto 0;
       }
 
       .zone-map-weighted-veto {
         grid-column: 4;
         font-weight: bold;
         color: $negative_color;
+        margin: auto 0;
       }
 
       .zone-map-veto {
