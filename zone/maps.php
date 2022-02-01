@@ -190,7 +190,7 @@ class maps
         $sql = <<<SQL
 SELECT
     pm.map_id,
-    sum(pm.veto * p.activity_matches) / (select sum(activity_matches) from phpbb_zone_players) AS weighted_veto
+    SUM(pm.veto * p.activity_matches) / (SELECT SUM(activity_matches) FROM phpbb_zone_players) AS weighted_veto
 FROM phpbb_zone_player_map pm
 LEFT JOIN phpbb_zone_players p ON pm.user_id = p.user_id
 LEFT JOIN phpbb_zone_maps m ON pm.map_id = m.map_id
