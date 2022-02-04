@@ -4,9 +4,9 @@
     <div class="zone-content">
       <div class="loading" v-if="loading" v-t="'NCZONE_LOADING'"></div>
       <div class="error" v-else-if="error" v-t="'NCZONE_ERROR_LOADING'"></div>
-      <template v-else="">
+      <template v-else>
         <div v-if="matches.length === 0" v-t="'NCZONE_NO_PMATCHES'"></div>
-        <nczone-match v-else="" v-for="match in matches.items" :key="match.id" :match="match" />
+        <nczone-match v-else v-for="match in matches.items" :key="match.id" :match="match" />
         <div class="zone-pagination">
           <span class="zone-button" v-if="matches.page > 0" @click="decrPage">&lt;</span>
           <span class="zone-button" v-if="matches.page > 0" @click="setPage(0)">1</span>

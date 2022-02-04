@@ -92,22 +92,18 @@ class bets
         $wrong_user_ids = $this->get_open_bet_user_ids_until($loser_team, $until);
 
         $correct_bets_count = \count($correct_user_ids);
-        $total_bets_count = $correct_bets_count + \count($wrong_user_ids);
-        $bet_points_pro_player = 0.;
-        if($correct_bets_count > 0)
-        {
-            $bet_points_pro_player = ($total_bets_count + 1.0) / $correct_bets_count - 1.0;
-        }
+        $wrong_bets_count = \count($wrong_user_ids);
+        [$bet_points_per_correct_player, $bet_points_per_wrong_player] = $this->calculate_bet_points($correct_bets_count, $wrong_bets_count);
 
         $this->set_bets_counted_until([$winner_team, $loser_team], $until);
 
         if($correct_user_ids)
         {
-            $this->change_won_bets($correct_user_ids, 1, $bet_points_pro_player);
+            $this->change_won_bets($correct_user_ids, 1, $bet_points_per_correct_player);
         }
         if($wrong_user_ids)
         {
-            $this->change_lost_bets($wrong_user_ids, 1, 1);
+            $this->change_lost_bets($wrong_user_ids, 1, -$bet_points_per_wrong_player);
         }
     }
 
@@ -128,19 +124,35 @@ class bets
         $wrong_user_ids = $this->get_counted_bet_user_ids($loser_team);
 
         $correct_bets_count = \count($correct_user_ids);
-        $total_bets_count = $correct_bets_count + \count($wrong_user_ids);
-        $bet_points_pro_player = ($total_bets_count + 1.0) / $correct_bets_count - 1.0;
+        $wrong_bets_count = \count($wrong_user_ids);
+        [$bet_points_per_correct_player, $bet_points_per_wrong_player] = $this->calculate_bet_points($correct_bets_count, $wrong_bets_count);
 
         $this->set_bets_uncounted([$winner_team, $loser_team]);
 
         if($correct_user_ids)
         {
-            $this->change_won_bets($correct_user_ids, -1, -$bet_points_pro_player);
+            $this->change_won_bets($correct_user_ids, -1, -$bet_points_per_correct_player);
         }
         if($wrong_user_ids)
         {
-            $this->change_lost_bets($wrong_user_ids, -1, -1);
+            $this->change_lost_bets($wrong_user_ids, -1, $bet_points_per_wrong_player);
         }
+    }
+
+
+    /**
+     * @param int $correct_bets
+     * @param int $wrong_bets
+     * @return array
+     */
+    public function calculate_bet_points(int $correct_bets_count, int $wrong_bets_count): array
+    {
+        if ($correct_bets_count == 0) {
+            return [0, -1];
+        }
+        $total_bets_count = $correct_bets_count + $wrong_bets_count;
+        $bet_points_pro_correct_player = \round(($total_bets_count + 1.0) / $correct_bets_count - 1.0, 3);
+        return [$bet_points_pro_correct_player, -1];
     }
 
     /**

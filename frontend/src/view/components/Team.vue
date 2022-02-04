@@ -7,7 +7,10 @@
         <div class="zone-match-bets-percentage-bar" :style="`height: ${perc}%`"></div>
       </div>
       <div class="zone-match-bets-overlay">
-        <div class="zone-match-bets-title" v-t="bets.length > 0 ? 'NCZONE_MATCH_HAVE_BET' : 'NCZONE_MATCH_NO_BETS'"></div>
+        <div class="zone-match-bets-title">
+          <span v-t="bets.length > 0 ? 'NCZONE_MATCH_HAVE_BET' : 'NCZONE_MATCH_NO_BETS'"></span>&nbsp;
+          <span v-if="(bets.length > 0) && (betPoints)" class="zone-highlight-color">({{ betPoints }})</span>
+        </div>
         <ul class="zone-match-betters">
           <li v-for="(bet, idx) in bets" :key="idx"><span v-html="bet.user.username"></span> ({{ renderBetTime(bet.timestamp) }})</li>
         </ul>
@@ -124,6 +127,18 @@ export default {
       }
 
       return this.team === 1 ? this.match.bets.team1 : this.match.bets.team2
+    },
+    betPoints () {
+      if (!this.canViewBets) {
+        return []
+      }
+
+      if (!this.match.bet_points) {
+        return null;
+      }
+
+      const value = this.team === 1 ? this.match.bet_points.team1 : this.match.bet_points.team2;
+      return value >= 0 ? ('+' + value) : value;
     },
     title () {
       return this.team === 1 ? 'NCZONE_MATCH_TEAM1' : 'NCZONE_MATCH_TEAM2'

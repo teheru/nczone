@@ -756,8 +756,6 @@ class players
             from
                 '.$this->db->players_table.' b
                 inner join '.$this->db->users_table.' u on u.user_id = b.user_id
-            where
-                b.bets_won + b.bets_loss >= 10
             ;
         ';
 

@@ -15,6 +15,7 @@ class match implements \JsonSerializable
     private $map;
     private $civs;
     private $bets;
+    private $bet_points;
     private $players;
     private $forum_topic_id;
 
@@ -97,6 +98,18 @@ class match implements \JsonSerializable
         );
         if ($with_bets) {
             $entity->bets = zone_util::bets()->get_bets($team1_id, $team2_id, $finished ? true : false);
+            if ($finished) {
+                $entity->bet_points = ['team1' => 0, 'team2' => 0];
+
+                $team1_bets_count = \count($entity->bets['team1']);
+                $team2_bets_count = \count($entity->bets['team2']);
+
+                if ($entity->winner == 1) {
+                    [$entity->bet_points['team1'], $entity->bet_points['team2']] = zone_util::bets()->calculate_bet_points($team1_bets_count, $team2_bets_count);
+                } else {
+                    [$entity->bet_points['team2'], $entity->bet_points['team1']] = zone_util::bets()->calculate_bet_points($team2_bets_count, $team1_bets_count);
+                }
+            }
         }
         $entity->players = zone_util::players()->get_match_players($match_id, $team1_id, $team2_id, $map_id);
         $entity->forum_topic_id = $forum_topic_id;
@@ -135,6 +148,7 @@ class match implements \JsonSerializable
             'map' => $this->map,
             'civs' => $this->civs,
             'bets' => $this->bets,
+            'bet_points' => $this->bet_points,
             'players' => $this->players,
         ];
     }
