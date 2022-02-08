@@ -183,7 +183,7 @@ class main_module
             ]));
 
             $map_civs = [];
-            foreach ($maps->get_maps() as $map) {
+            foreach ($maps->get_maps(false) as $map) {
                 $map_id = $map->get_id();
                 $map_civs[] = map_civ::create_by_row([
                     'map_id' => $map_id,
@@ -309,7 +309,7 @@ class main_module
         if ($map_id == '') {
             $template->assign_var('S_SELECT_MAP', true);
 
-            foreach ($maps->get_maps() as $map) {
+            foreach ($maps->get_maps(false) as $map) {
                 $template->assign_block_vars('maps', [
                     'ID' => $map->get_id(),
                     'ACTIVE' => $map->get_weight() > 0,
@@ -319,7 +319,7 @@ class main_module
         } elseif ($map_id == 0) {
             $template->assign_var('S_NEW_MAP', true);
 
-            foreach ($maps->get_maps() as $map) {
+            foreach ($maps->get_maps(false) as $map) {
                 $template->assign_block_vars('maps', [
                     'ID' => $map->get_id(),
                     'NAME' => $map->get_name(),
