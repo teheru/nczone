@@ -352,20 +352,17 @@ SQL;
 
     public function edit_map_variants(int $map_id, array $variant_map_ids): void
     {
-        $where = '';
+        $this->db->sql_query('delete from '.$this->db->map_variants_table.' where map_id = '.$map_id.' or variant_map_id = '.$map_id);
+
         $sql_array = [];
         foreach ($variant_map_ids as $variant_map_id) {
             if ($variant_map_id != $map_id) {
-                $where .= ' or (map_id = '.$variant_map_id.' and variant_map_id = '.$map_id.')';
-
                 $sql_array[] = [
                     'map_id' => $map_id,
                     'variant_map_id' => $variant_map_id
                 ];
             }
         }
-
-        $this->db->sql_query('delete from '.$this->db->map_variants_table.' where map_id = '.$map_id . $where);
         $this->db->sql_multi_insert($this->db->map_variants_table, $sql_array);
     }
 
@@ -398,5 +395,10 @@ SQL;
             }
         }
         return true;
+    }
+
+    public function delete_all_vetos(): void
+    {
+        $this->db->sql_query('update '. $this->db->player_map_table .' set veto = 0');
     }
 }

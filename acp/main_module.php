@@ -141,7 +141,14 @@ class main_module
         $request = phpbb_util::request();
         $language = phpbb_util::language();
 
-        if($submit)
+        if($request->variable('nczone_delete_all_vetos', ''))
+        {
+            if((bool) $request->variable('nczone_delete_all_vetos_yes', '0'))
+            {
+                zone_util::maps()->delete_all_vetos();
+            }
+        }
+        elseif($submit)
         {
             $config->set(config::title, $request->variable('nczone_title', config::default(config::title)));
             $config->set(config::rules_post_id, (int)$request->variable('nczone_rules_post_id', config::default(config::rules_post_id)));
@@ -167,11 +174,9 @@ class main_module
             $config->set(config::free_pick_civ_id, (int)$request->variable('nczone_free_pick_civ_id', config::default(config::free_pick_civ_id)));
 
             $new_number_of_vetos = (int)$request->variable('nczone_number_map_vetos', config::default(config::number_map_vetos));
-            if ($new_number_of_vetos >= 0) {
-                $players = zone_util::players();
-                $players->reduce_player_vetos($new_number_of_vetos);
-                $config->set(config::number_map_vetos, $new_number_of_vetos);
-            }
+            $players = zone_util::players();
+            $config->set(config::number_map_vetos, $new_number_of_vetos);
+
             $map_veto_power = (float)$request->variable('nczone_map_veto_power', config::default(config::map_veto_power));
             if(($map_veto_power >= 1.0) && ($map_veto_power <= 10.0)) {
                 $config->set(config::map_veto_power, $map_veto_power);
