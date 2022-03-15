@@ -275,6 +275,9 @@ class main_module
                 $maps->remove_all_vetos_for_map_id($map_id);
             }
 
+            $variant_map_ids = \array_map('\intval', $request->variable('map_variants', array('')));
+            $maps->edit_map_variants($map_id, $variant_map_ids);
+
             $maps->edit_map(map::create_by_row([
                 'map_id' => $map_id,
                 'map_name' => $request->variable('map_name', ''),
@@ -339,6 +342,17 @@ class main_module
             $template->assign_var('S_DRAW_FOR_2VS2', $match_sizes[2]);
             $template->assign_var('S_DRAW_FOR_3VS3', $match_sizes[3]);
             $template->assign_var('S_DRAW_FOR_4VS4', $match_sizes[4]);
+
+            $variant_map_ids = $maps->get_map_variants($map_id);
+
+            foreach ($maps->get_maps(false) as $map) {
+                $variant_map_id = $map->get_id();
+                $template->assign_block_vars('maps', [
+                    'ID' => $variant_map_id,
+                    'VARIANT' => \in_array($variant_map_id, $variant_map_ids),
+                    'NAME' => $map->get_name(),
+                ]);
+            }
 
             foreach ($maps->get_map_civs($map_id) as $map_civ) {
                 # todo: dont fetch civs one by one in a loop.

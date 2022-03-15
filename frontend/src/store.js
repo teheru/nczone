@@ -448,17 +448,13 @@ export default () => {
       },
 
       async setMapVeto ({ state, commit }, { mapId }) {
-        if (mapId > 0 && !state.mapVetos.vetos.includes(mapId)) {
-          await api.actively.setMapVeto(mapId)
-          commit('setMapVetos', await api.actively.getMapVetos())
-        }
+        await api.actively.setMapVeto(mapId)
+        commit('setMapVetos', await api.actively.getMapVetos())
       },
 
       async removeMapVeto ({ state, commit }, { mapId }) {
-        if (mapId > 0 && state.mapVetos.vetos.includes(mapId)) {
-          await api.actively.removeMapVeto(mapId)
-          commit('setMapVetos', await api.actively.getMapVetos())
-        }
+        await api.actively.removeMapVeto(mapId)
+        commit('setMapVetos', await api.actively.getMapVetos())
       },
 
       async getMapInfo ({ state, commit }, { mapId }) {

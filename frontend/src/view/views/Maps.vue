@@ -58,19 +58,10 @@ export default {
       }
     },
     async setVeto (mapId) {
-      const numberVetos = this.mapVetos.vetos.length
-      if (numberVetos < this.mapVetos.available_vetos) {
-        await this.setMapVeto({ mapId })
-      } else {
-        this.openErrorOverlay('NCZONE_ERROR_TOO_MANY_VETOS')
-      }
+      await this.setMapVeto({ mapId })
     },
     async removeVeto (mapId) {
-      if (this.mapVetos.vetos.includes(mapId)) {
-        await this.removeMapVeto({ mapId })
-      } else {
-        this.openErrorOverlay('NCZONE_ERROR_NO_VETO_FOR_MAP')
-      }
+      await this.removeMapVeto({ mapId })
     },
     ...mapActions([
       'getMaps',

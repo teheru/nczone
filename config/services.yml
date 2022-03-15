@@ -110,6 +110,7 @@ services:
       arguments:
         - '@eru.nczone.db'
         - '@eru.nczone.zone.civs'
+        - '@eru.nczone.config.config'
 
     eru.nczone.zone.draw_teams:
       class: eru\nczone\zone\draw_teams

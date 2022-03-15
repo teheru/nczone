@@ -160,9 +160,7 @@
       "NCZONE_SETTINGS_AUTO_LOGOUT": "Automatischer Logout",
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Setze hier eine Zeit in Minuten die du keine Inaktivität in der Zone oder im Forum gehabt haben musst, um automatisch ausgeloggt zu werden. 0 deaktiviert den automatischen Logout.",
       "NCZONE_SAVE_SETTINGS": "Speichern",
-      "NCZONE_ERROR_OVERLAY": "Fehler",
-      "NCZONE_ERROR_TOO_MANY_VETOS": "Du kannst nicht noch mehr Vetos setzen. Entferne zunächst ein anderes Veto bevor du ein neues setzt.",
-      "NCZONE_ERROR_NO_VETO_FOR_MAP": "Für diese Karte hast du kein Veto gesetzt. Probier mal die Seite neu zu laden."
+      "NCZONE_ERROR_OVERLAY": "Fehler"
     },
     "common": {
       "NCZONE": "nC Zone",
@@ -313,6 +311,8 @@
       "MCP_MAP_WEIGHT_HINT": "Eine Karte mit höherer Gewichtung wird häufiger gelost.",
       "MCP_MAP_MATCH_SIZES": "Spielgrößen",
       "MCP_MAP_MATCH_SIZES_HINT": "Lege hier fest für welche Spielgrößen die Karte gelost werden darf.",
+      "MCP_MAP_VARIANTS": "Kartenvarianten",
+      "MCP_MAP_VARIANTS_HINT": "Lege hier fest, welche Karten als Variante dieser Karte gewertet werden soll. Wenn ein Veto auf eine Karte gesetzt wurde, kann zusätzlich ein Veto auf Varianten dieser Karte gesetzt werden ohne ein weiteren Veto zu gebrauchen.",
       "MCP_MAP_MATCH_1VS1": "1vs1",
       "MCP_MAP_MATCH_2VS2": "2vs2",
       "MCP_MAP_MATCH_3VS3": "3vs3",
@@ -530,9 +530,7 @@
       "NCZONE_SETTINGS_AUTO_LOGOUT": "Auto Logout",
       "NCZONE_SETTINGS_AUTO_LOGOUT_DESCR": "Set the time in minutes without activity in the zone or the forum after which you want to be logged out automatically. A value of 0 deactivates this functionality.",
       "NCZONE_SAVE_SETTINGS": "Save",
-      "NCZONE_ERROR_OVERLAY": "Error",
-      "NCZONE_ERROR_TOO_MANY_VETOS": "You cannot place more vetos. Remove another veto before placing a new one.",
-      "NCZONE_ERROR_NO_VETO_FOR_MAP": "You have no veto placed for this map. Try to refresh the site."
+      "NCZONE_ERROR_OVERLAY": "Error"
     },
     "common": {
       "NCZONE": "nC Zone",
@@ -683,6 +681,8 @@
       "MCP_MAP_WEIGHT_HINT": "A map with a higher weight will be drawn more often.",
       "MCP_MAP_MATCH_SIZES": "Match sizes",
       "MCP_MAP_MATCH_SIZES_HINT": "Set here for which match sizes the map should be drawn.",
+      "MCP_MAP_VARIANTS": "Map Variants",
+      "MCP_MAP_VARIANTS_HINT": "Set here for which map this map should be considered a variant. If a map is vetoed, a variant of this map can be vetoed without using another veto.",
       "MCP_MAP_MATCH_1VS1": "1vs1",
       "MCP_MAP_MATCH_2VS2": "2vs2",
       "MCP_MAP_MATCH_3VS3": "3vs3",

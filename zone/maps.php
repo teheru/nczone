@@ -25,6 +25,8 @@ class maps
     private $db;
     /** @var civs */
     private $zone_civs;
+    /** @var config */
+    private $config;
 
     /**
      * Constructor.
@@ -32,10 +34,11 @@ class maps
      * @param db $db Database object
      * @param civs $zone_civs Civs object
      */
-    public function __construct(db $db, civs $zone_civs)
+    public function __construct(db $db, civs $zone_civs, config $config)
     {
         $this->db = $db;
         $this->zone_civs = $zone_civs;
+        $this->config = $config;
     }
 
     /**
@@ -71,6 +74,18 @@ class maps
             'SELECT' => 'map_id',
             'FROM' => [$this->db->maps_table => 't']
         ]);
+    }
+
+    public function check_if_map_is_active(int $map_id): bool
+        {
+        $map_active = $this->db->get_int_col([
+            'SELECT' => [
+                'count(1)',
+            ],
+            'FROM' => [$this->db->maps_table => 't'],
+            'WHERE' => 'map_id = '.$map_id.' and weight > 0'
+        ]);
+        return $map_active > 0;
     }
 
     /**
@@ -120,6 +135,22 @@ class maps
             'WHERE' => ['map_id' => $map_id]
         ]);
         return \array_map([entity\map_civ::class, 'create_by_row'], $rows);
+    }
+
+    public function get_map_variants(int $map_id): array
+    {
+        $variant_map_ids_1 = $this->db->get_col([
+            'SELECT' => ['variant_map_id'],
+            'FROM' => [$this->db->map_variants_table => 't'],
+            'WHERE' => ['map_id' => $map_id]
+        ]);
+        $variant_map_ids_2 = $this->db->get_col([
+            'SELECT' => ['map_id'],
+            'FROM' => [$this->db->map_variants_table => 't'],
+            'WHERE' => ['variant_map_id' => $map_id]
+        ]);
+
+        return \array_map('\intval', \array_merge($variant_map_ids_1, $variant_map_ids_2));
     }
 
     public function get_map_both_teams_civ_ids(int $map_id): array
@@ -173,7 +204,7 @@ class maps
     private function get_image_path(int $map_id): string
     {
         return phpbb_util::nczone_path()
-            . config::map_images_path
+            . $this->config->map_images_path
             . "map_{$map_id}.png";
     }
 
@@ -319,6 +350,25 @@ SQL;
         }
     }
 
+    public function edit_map_variants(int $map_id, array $variant_map_ids): void
+    {
+        $where = '';
+        $sql_array = [];
+        foreach ($variant_map_ids as $variant_map_id) {
+            if ($variant_map_id != $map_id) {
+                $where .= ' or (map_id = '.$variant_map_id.' and variant_map_id = '.$map_id.')';
+
+                $sql_array[] = [
+                    'map_id' => $map_id,
+                    'variant_map_id' => $variant_map_id
+                ];
+            }
+        }
+
+        $this->db->sql_query('delete from '.$this->db->map_variants_table.' where map_id = '.$map_id . $where);
+        $this->db->sql_multi_insert($this->db->map_variants_table, $sql_array);
+    }
+
     private function insert_map_x_player_entries(int $map_id): void
     {
         $this->db->sql_query(
@@ -330,5 +380,23 @@ SQL;
     public function remove_all_vetos_for_map_id(int $map_id): void
     {
         $this->db->sql_query('UPDATE ' . $this->db->player_map_table . ' SET veto = 0 WHERE map_id = ' . $map_id);
+    }
+
+    public function check_vetos_allowed(array $map_ids): bool
+    {
+        $available_vetos = (int) $this->config->get(config::number_map_vetos);
+
+        $free_veto_pool = [];
+        $counted_vetos = 0;
+        foreach ($map_ids as $map_id) {
+            if (!\in_array($map_id, $free_veto_pool)) {
+                $counted_vetos++;
+                if ($counted_vetos > $available_vetos) {
+                    return false;
+                }
+                $free_veto_pool = \array_merge($free_veto_pool, $this->get_map_variants($map_id));
+            }
+        }
+        return true;
     }
 }

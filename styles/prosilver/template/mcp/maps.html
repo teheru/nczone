@@ -37,7 +37,7 @@
             </dl>
             <dl>
                 <dt>
-                    <label for="map_name">{{ lang('MCP_MAP_WEIGHT') }}{{ lang('COLON') }}</label><br/>
+                    <label for="map_weight">{{ lang('MCP_MAP_WEIGHT') }}{{ lang('COLON') }}</label><br/>
                     <span>{{ lang('MCP_MAP_WEIGHT_HINT') }}</span>
                 </dt>
                 <dd>
@@ -55,6 +55,21 @@
                     {{ lang('MCP_MAP_MATCH_2VS2') }} <input id="map_match_sizes_2vs2" name="map_match_sizes_2vs2" type="checkbox" {% if S_DRAW_FOR_2VS2 %}checked="" {% endif %}/>
                     {{ lang('MCP_MAP_MATCH_3VS3') }} <input id="map_match_sizes_3vs3" name="map_match_sizes_3vs3" type="checkbox" {% if S_DRAW_FOR_3VS3 %}checked="" {% endif %}/>
                     {{ lang('MCP_MAP_MATCH_4VS4') }} <input id="map_match_sizes_4vs4" name="map_match_sizes_4vs4" type="checkbox" {% if S_DRAW_FOR_4VS4 %}checked="" {% endif %}/>
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    <label for="map_variants">{{ lang('MCP_MAP_VARIANTS') }}{{ lang('COLON') }}</label><br/>
+                    <span>{{ lang('MCP_MAP_VARIANTS_HINT') }}</span>
+                </dt>
+                <dd>
+                   <select id="map_variants" name="map_variants[]" multiple="">
+                    {% for map in maps %}
+                    {% if map.ID != S_MAP_ID %}
+                        <option value="{{ map.ID }}"{% if map.VARIANT %} selected="selected"{% endif %}>{{ map.NAME }}</option>
+                    {% endif %}
+                    {% endfor %}
+                    </select>
                 </dd>
             </dl>
 

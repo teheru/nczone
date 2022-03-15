@@ -30,6 +30,8 @@ class db
     /** @var string */
     public $maps_table;
     /** @var string */
+    public $map_variants_table;
+    /** @var string */
     public $civs_table;
     /** @var string */
     public $map_civs_table;
@@ -82,6 +84,7 @@ class db
         $this->match_players_table = $table_prefix . 'zone_match_players';
         $this->match_player_civs_table = $table_prefix . 'zone_match_player_civs';
         $this->maps_table = $table_prefix . 'zone_maps';
+        $this->map_variants_table = $table_prefix . 'zone_map_variants';
         $this->civs_table = $table_prefix . 'zone_civs';
         $this->map_civs_table = $table_prefix . 'zone_map_civs';
         $this->player_map_table = $table_prefix . 'zone_player_map';
