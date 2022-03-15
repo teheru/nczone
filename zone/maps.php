@@ -137,17 +137,17 @@ class maps
         return \array_map([entity\map_civ::class, 'create_by_row'], $rows);
     }
 
-    public function get_map_variants(int $map_id): array
+    public function get_maps_variants(int ...$map_ids): array
     {
         $variant_map_ids_1 = $this->db->get_col([
             'SELECT' => ['variant_map_id'],
             'FROM' => [$this->db->map_variants_table => 't'],
-            'WHERE' => ['map_id' => $map_id]
+            'WHERE' => $this->db->sql_in_set('map_id', $map_ids, false, true),
         ]);
         $variant_map_ids_2 = $this->db->get_col([
             'SELECT' => ['map_id'],
             'FROM' => [$this->db->map_variants_table => 't'],
-            'WHERE' => ['variant_map_id' => $map_id]
+            'WHERE' => $this->db->sql_in_set('variant_map_id', $map_ids, false, true),
         ]);
 
         return \array_map('\intval', \array_merge($variant_map_ids_1, $variant_map_ids_2));
@@ -379,6 +379,11 @@ SQL;
         $this->db->sql_query('UPDATE ' . $this->db->player_map_table . ' SET veto = 0 WHERE map_id = ' . $map_id);
     }
 
+    public function delete_all_vetos(): void
+    {
+        $this->db->sql_query('update '. $this->db->player_map_table .' set veto = 0');
+    }
+
     public function check_vetos_allowed(array $map_ids): bool
     {
         $available_vetos = (int) $this->config->get(config::number_map_vetos);
@@ -391,14 +396,9 @@ SQL;
                 if ($counted_vetos > $available_vetos) {
                     return false;
                 }
-                $free_veto_pool = \array_merge($free_veto_pool, $this->get_map_variants($map_id));
+                $free_veto_pool = \array_merge($free_veto_pool, $this->get_maps_variants($map_id));
             }
         }
         return true;
-    }
-
-    public function delete_all_vetos(): void
-    {
-        $this->db->sql_query('update '. $this->db->player_map_table .' set veto = 0');
     }
 }

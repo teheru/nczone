@@ -47,7 +47,7 @@
 
         text-align: center;
 
-        .zone-map-veto-enabled, .zone-map-veto-disabled {
+        .zone-map-veto-enabled, .zone-map-veto-free, .zone-map-veto-disabled {
           padding: 4px;
           border-style: solid;
           border-width: 1px;
@@ -56,6 +56,11 @@
         .zone-map-veto-enabled {
           color: $negative_color;
           border-color: $negative_color;
+        }
+
+        .zone-map-veto-free {
+          color: $neutral_color;
+          border-color: $neutral_color;
         }
 
         .zone-map-veto-disabled {

@@ -742,15 +742,20 @@ class api
             if (!$can_veto)
             {
                 return [
-                    'available_vetos' => 0,
+                    'vetos_available' => false,
                     'vetos' => [],
+                    'free_vetos' => [],
                 ];
             }
             else
             {
+                $vetos = zone_util::players()->get_vetos($this->get_user_id());
+                $free_vetos = zone_util::maps()->get_maps_variants(...$vetos);
+
                 return [
-                    'available_vetos' => (int) $this->config->get(config::number_map_vetos),
-                    'vetos' => zone_util::players()->get_vetos($this->get_user_id()),
+                    'vetos_available' => (int) $this->config->get(config::number_map_vetos) > 0,
+                    'vetos' => $vetos,
+                    'free_vetos' => $free_vetos,
                 ];
             }
         });

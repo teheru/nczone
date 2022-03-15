@@ -343,7 +343,7 @@ class main_module
             $template->assign_var('S_DRAW_FOR_3VS3', $match_sizes[3]);
             $template->assign_var('S_DRAW_FOR_4VS4', $match_sizes[4]);
 
-            $variant_map_ids = $maps->get_map_variants($map_id);
+            $variant_map_ids = $maps->get_maps_variants($map_id);
 
             foreach ($maps->get_maps(false) as $map) {
                 $variant_map_id = $map->get_id();
