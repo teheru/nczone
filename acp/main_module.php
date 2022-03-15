@@ -163,7 +163,7 @@ class main_module
             $config->set(config::free_points_regular, $request->variable('nczone_free_points_regular', 'off') === 'on');
             $config->set(config::free_points_unrated, $request->variable('nczone_free_points_unrated', 'off') === 'on');
             $config->set(config::free_points_difference, $request->variable('nczone_free_points_difference', 'off') === 'on');
-            $config->set(config::info_posts, implode(',', array_map('\intval', preg_split('/$\R?^/m', $request->variable('nczone_info_posts', '')))));
+            $config->set(config::info_posts, \implode(',', \array_map('\intval', \preg_split('/$\R^/m', $request->variable('nczone_info_posts', ''), -1, PREG_SPLIT_NO_EMPTY))));
             $config->set(config::free_pick_civ_id, (int)$request->variable('nczone_free_pick_civ_id', config::default(config::free_pick_civ_id)));
 
             $new_number_of_vetos = (int)$request->variable('nczone_number_map_vetos', config::default(config::number_map_vetos));
