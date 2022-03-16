@@ -11,7 +11,7 @@
           </div>
           <div class="zone-map-name zone-clickable" v-html="map.name" @click="toggleMap(map.id)"></div>
           <div class="zone-map-weight">{{ map.weight }}</div>
-          <div class="zone-map-weighted-veto" v-if="'weighted_veto' in map">{{ Math.round(map.weighted_veto * 100) / 10 }}%</div>
+          <div class="zone-map-weighted-veto" v-if="'weighted_veto' in map">{{ Math.round(map.weighted_veto * 1000) / 10 }}%</div>
           <div class="zone-map-veto" v-if="mapVetos.vetos_available">
             <span v-if="mapVetoLoading == map.id" class="zone-map-veto-loading fa fa-spinner fa-spin"></span>
             <span v-else-if="mapVetos.vetos.includes(map.id)" class="zone-map-veto-enabled zone-clickable fa fa-ban" @click="removeVeto(map.id)"></span>
