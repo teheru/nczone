@@ -11,15 +11,16 @@
           </div>
           <div class="zone-map-name zone-clickable" v-html="map.name" @click="toggleMap(map.id)"></div>
           <div class="zone-map-weight">{{ map.weight }}</div>
-          <div class="zone-map-weighted-veto" v-if="'weighted_veto' in map">{{ Math.round(map.weighted_veto * 10000) / 100 }}%</div>
+          <div class="zone-map-weighted-veto" v-if="'weighted_veto' in map">{{ Math.round(map.weighted_veto * 100) / 10 }}%</div>
           <div class="zone-map-veto" v-if="mapVetos.vetos_available">
-            <span v-if="mapVetos.vetos.includes(map.id)" class="zone-map-veto-enabled zone-clickable fa fa-ban" @click="removeVeto(map.id)"></span>
+            <span v-if="mapVetoLoading == map.id" class="zone-map-veto-loading fa fa-spinner fa-spin"></span>
+            <span v-else-if="mapVetos.vetos.includes(map.id)" class="zone-map-veto-enabled zone-clickable fa fa-ban" @click="removeVeto(map.id)"></span>
             <span v-else :class="mapVetos.free_vetos.includes(map.id) ? 'zone-map-veto-free' : 'zone-map-veto-disabled'" class="zone-clickable fa fa-ban" @click="setVeto(map.id)"></span>
           </div>
         </div>
         <div class="zone-map-civs-info" v-if="showMapId === map.id">
           <nczone-map-description v-if="!mapLoading" :map="map" :viewTable="true" />
-          <div v-else class="zone-map-civs-table-loading fa fa-spinner"></div>
+          <div v-else class="zone-map-civs-table-loading fa fa-spinner fa-spin"></div>
         </div>
       </div>
     </div>
@@ -58,10 +59,14 @@ export default {
       }
     },
     async setVeto (mapId) {
+      this.mapVetoLoading = mapId
       await this.setMapVeto({ mapId })
+      this.mapVetoLoading = 0
     },
     async removeVeto (mapId) {
+      this.mapVetoLoading = mapId
       await this.removeMapVeto({ mapId })
+      this.mapVetoLoading = 0
     },
     ...mapActions([
       'getMaps',
@@ -88,7 +93,8 @@ export default {
       loading: true,
       error: false,
       showMapId: 0,
-      mapLoading: false
+      mapLoading: false,
+      mapVetoLoading: 0
     }
   }
 }
