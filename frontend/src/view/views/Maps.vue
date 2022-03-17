@@ -32,7 +32,7 @@
             <div v-else class="zone-map-civs-table-loading fa fa-spinner fa-spin"></div>
           </div>
         </div>
-      </template>>
+      </template>
     </div>
   </div>
 </template>
