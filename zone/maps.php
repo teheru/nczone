@@ -204,7 +204,7 @@ class maps
     private function get_image_path(int $map_id): string
     {
         return phpbb_util::nczone_path()
-            . $this->config->map_images_path
+            . config::map_images_path
             . "map_{$map_id}.png";
     }
 
