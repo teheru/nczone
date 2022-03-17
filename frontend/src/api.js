@@ -137,6 +137,7 @@ export const actively = {
   getMapVetos: () => doGet('/maps/vetos'),
   setMapVeto: (mapId) => post(`/maps/veto/set/${mapId}`),
   removeMapVeto: (mapId) => post(`/maps/veto/remove/${mapId}`),
+  clearMapVetos: () => post('/maps/veto/clear'),
   getMapCivs: (mapId) => doGet(`/map/${mapId}/civs`),
   setMapDescription: (mapId, description) => post(`/map/${mapId}/description`, { body: JSON.stringify({ description }) }),
   setMapImage: (mapId, image) => post(`/map/${mapId}/image`, { body: JSON.stringify({ image }) }),

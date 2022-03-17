@@ -384,7 +384,7 @@ SQL;
         $this->db->sql_query('update '. $this->db->player_map_table .' set veto = 0');
     }
 
-    public function check_vetos_allowed(array $map_ids): bool
+    public function vetos_left(array $map_ids): int
     {
         $available_vetos = (int) $this->config->get(config::number_map_vetos);
 
@@ -394,11 +394,11 @@ SQL;
             if (!\in_array($map_id, $free_veto_pool)) {
                 $counted_vetos++;
                 if ($counted_vetos > $available_vetos) {
-                    return false;
+                    return -1;
                 }
                 $free_veto_pool = \array_merge($free_veto_pool, $this->get_maps_variants($map_id));
             }
         }
-        return true;
+        return $available_vetos - $counted_vetos;
     }
 }

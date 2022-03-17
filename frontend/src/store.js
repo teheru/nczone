@@ -447,13 +447,18 @@ export default () => {
         commit('setMapVetos', await api.actively.getMapVetos())
       },
 
-      async setMapVeto ({ state, commit }, { mapId }) {
+      async setMapVeto ({ commit }, { mapId }) {
         await api.actively.setMapVeto(mapId)
         commit('setMapVetos', await api.actively.getMapVetos())
       },
 
-      async removeMapVeto ({ state, commit }, { mapId }) {
+      async removeMapVeto ({ commit }, { mapId }) {
         await api.actively.removeMapVeto(mapId)
+        commit('setMapVetos', await api.actively.getMapVetos())
+      },
+
+      async clearMapVeto ({ commit }) {
+        await api.actively.clearMapVetos()
         commit('setMapVetos', await api.actively.getMapVetos())
       },
 

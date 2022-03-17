@@ -742,20 +742,23 @@ class api
             if (!$can_veto)
             {
                 return [
-                    'vetos_available' => false,
                     'vetos' => [],
                     'free_vetos' => [],
+                    'vetos_available' => 0,
                 ];
             }
             else
             {
-                $vetos = zone_util::players()->get_vetos($this->get_user_id());
-                $free_vetos = zone_util::maps()->get_maps_variants(...$vetos);
+                $maps = zone_util::maps();
+                
+                $placed_vetos = zone_util::players()->get_vetos($this->get_user_id());
+                $free_vetos = $maps->get_maps_variants(...$placed_vetos);
+                $vetos_left = $maps->vetos_left($placed_vetos);
 
                 return [
-                    'vetos_available' => (int) $this->config->get(config::number_map_vetos) > 0,
-                    'vetos' => $vetos,
+                    'vetos' => $placed_vetos,
                     'free_vetos' => $free_vetos,
+                    'vetos_available' => $vetos_left,
                 ];
             }
         });
@@ -777,9 +780,9 @@ class api
             $placed_vetos = $players->get_vetos($user_id);
             $placed_vetos[] = $map_id;
 
-            $vetos_allowed = $maps->check_vetos_allowed($placed_vetos);
+            $vetos_allowed = $maps->vetos_left($placed_vetos);
 
-            if (!$vetos_allowed) {
+            if ($vetos_allowed < 0) {
                 throw new ForbiddenError('NCZONE_REASON_TOO_MANY_VETOS');
             }
 
@@ -799,7 +802,6 @@ class api
             $user_id = $this->get_user_id();
             $map_id = $args['map_id'];
 
-            $available_vetos = (int) $this->config->get(config::number_map_vetos);
             $placed_vetos = $players->get_vetos($user_id);
 
             if (!in_array($map_id, $placed_vetos)) {
@@ -808,13 +810,25 @@ class api
 
             unset($placed_vetos[\array_search($map_id, $placed_vetos)]);
 
-            $vetos_allowed = zone_util::maps()->check_vetos_allowed($placed_vetos);
+            $vetos_allowed = zone_util::maps()->vetos_left($placed_vetos);
 
-            if (!$vetos_allowed) {
+            if ($vetos_allowed < 0) {
                 throw new ForbiddenError('NCZONE_REASON_TOO_MANY_VETOS');
             }
 
             $players->set_veto($user_id, $map_id, false);
+        }, [
+            acl::u_zone_veto_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VETO',
+        ], [
+            'map_id' => $map_id
+        ]);
+    }
+
+    public function clear_vetos(): JsonResponse
+    {
+        return $this->respond(function () {
+            $user_id = $this->get_user_id();
+            $placed_vetos = zone_util::players()->clear_vetos($user_id);
         }, [
             acl::u_zone_veto_maps => 'NCZONE_REASON_NOT_ALLOWED_TO_VETO',
         ], [

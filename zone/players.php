@@ -876,4 +876,13 @@ SQL;
             ]
         );
     }
+
+    public function clear_vetos(int $user_id): void
+    {
+        $this->db->update(
+            $this->db->player_map_table,
+            ['veto' => 0],
+            ['user_id' => $user_id]
+        );
+    }
 }

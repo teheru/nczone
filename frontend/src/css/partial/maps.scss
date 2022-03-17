@@ -10,12 +10,21 @@
       display: grid;
       grid-template-columns: calc(10%) calc(35%) calc(12%) calc(13%) calc(30%);
 
-      height: 25px;
+      height: 21px;
 
       padding: 4px 0;
 
       background-color: $base_color;
       color: $input_fg;
+
+      .zone-map-clear-vetos, .zone-map-veto-counter {
+        margin: 0 4px;
+      }
+
+      .zone-map-veto-counter {
+        display: inline-block;
+        width: 12px;
+      }
 
       .zone-map-arrow {
         font-size: 1rem;
@@ -49,13 +58,13 @@
 
         text-align: center;
 
-        .zone-map-veto-enabled, .zone-map-veto-free, .zone-map-veto-disabled {
+        .zone-map-veto-enabled, .zone-map-veto-free, .zone-map-veto-disabled, .zone-map-clear-vetos, .zone-map-veto-counter {
           padding: 4px;
           border-style: solid;
           border-width: 1px;
         }
 
-        .zone-map-veto-enabled {
+        .zone-map-veto-enabled, .zone-map-clear-vetos {
           color: $negative_color;
           border-color: $negative_color;
         }

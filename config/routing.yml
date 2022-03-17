@@ -189,6 +189,10 @@ eru_nczone_controller__api__remove_veto:
     requirements:
         map_id: \d+
 
+eru_nczone_controller__api__clear_vetos:
+    path: /nczone/api/maps/veto/clear
+    defaults: { _controller: eru.nczone.controller.api:clear_vetos }
+
 eru_nczone_controller__api__map_civs:
     path: /nczone/api/map/{map_id}/civs
     defaults: { _controller: eru.nczone.controller.api:map_civs }
