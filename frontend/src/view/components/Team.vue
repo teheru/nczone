@@ -134,11 +134,11 @@ export default {
       }
 
       if (!this.match.bet_points) {
-        return null;
+        return null
       }
 
-      const value = this.team === 1 ? this.match.bet_points.team1 : this.match.bet_points.team2;
-      return value >= 0 ? ('+' + value) : value;
+      const value = this.team === 1 ? this.match.bet_points.team1 : this.match.bet_points.team2
+      return value >= 0 ? ('+' + value) : value
     },
     title () {
       return this.team === 1 ? 'NCZONE_MATCH_TEAM1' : 'NCZONE_MATCH_TEAM2'
