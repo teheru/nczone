@@ -29,9 +29,15 @@
 }
 
 .zone-match-civ-tooltip {
+  margin-top: -25px;
   padding-top: 2px;
   background-color: $tooltip_background_color;
   border: solid 1px lighten($input_bg, 25);
+}
+
+
+.zone-match-civ-tooltip::after {
+  border-top-color: $tooltip_background_color;
 }
 
 .zone-match-bets {
