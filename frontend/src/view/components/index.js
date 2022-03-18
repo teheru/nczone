@@ -1,3 +1,4 @@
+import Loading from './Loading'
 import Activity from './Activity'
 import CivList from './CivList'
 import Csv from './Csv'
@@ -25,6 +26,7 @@ import ReplacePreview from './overlay/ReplacePreview'
 import MapDescriptionOverlay from './overlay/MapDescriptionOverlay'
 
 export default {
+  Loading,
   Activity,
   CivList,
   Csv,

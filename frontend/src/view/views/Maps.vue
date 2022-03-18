@@ -2,7 +2,7 @@
   <div class="zone-maps">
     <div class="zone-title" v-t="'NCZONE_MAPS'"></div>
     <div class="zone-content">
-      <div class="loading" v-if="loading"><span v-t="'NCZONE_LOADING'"></span></div>
+      <nczone-loading v-if="loading"></nczone-loading>
       <div class="error" v-else-if="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
       <template v-else>
         <div class="zone-map-container" v-if="canVeto">

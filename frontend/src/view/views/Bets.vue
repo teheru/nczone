@@ -2,7 +2,7 @@
   <div v-if="canViewBets" class="zone-bets-table">
     <div class="zone-title" v-t="'NCZONE_BETS_TABLE'"></div>
     <div class="zone-content">
-      <div class="loading" v-if="loading"><span v-t="'NCZONE_LOADING'"></span></div>
+      <nczone-loading v-if="loading"></nczone-loading>
       <div class="error" v-else-if="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
       <div v-else-if="bets.length === 0"><span v-t="'NCZONE_NO_BETTING_PLAYERS'"></span></div>
       <div v-else class="zone-bets">

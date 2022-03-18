@@ -2,9 +2,9 @@
   <div v-if="canViewMatches" class="zone-running-matches">
     <div class="zone-title" v-t="'NCZONE_RMATCHES'"></div>
     <div class="zone-content">
-      <div class="loading" v-if="loading" v-t="'NCZONE_LOADING'"></div>
+      <nczone-loading v-if="loading"></nczone-loading>
       <div class="error" v-else-if="error" v-t="'NCZONE_ERROR_LOADING'"></div>
-      <template v-else="">
+      <template v-else>
         <div v-if="matches.length === 0" v-t="'NCZONE_NO_RMATCHES'"></div>
         <nczone-match v-for="match in matches" :key="match.id" :match="match" />
       </template>

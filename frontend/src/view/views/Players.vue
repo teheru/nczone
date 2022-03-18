@@ -2,7 +2,7 @@
   <div class="zone-players-table">
     <div class="zone-title" v-t="'NCZONE_PLAYERS_TABLE'"></div>
     <div class="zone-content">
-      <div v-if="loading" class="loading"><span v-t="'NCZONE_LOADING'"></span></div>
+      <nczone-loading v-if="loading"></nczone-loading>
       <div v-else-if="error" class="error"><span v-t="'NCZONE_ERROR_LOADING'"></span></div>
       <div v-else-if="players.length === 0"><span v-t="'NCZONE_NO_ACTIVE_PLAYERS'"></span></div>
       <div v-else class="zone-players" :class="{'zone-players-mod': canModLogin}">
