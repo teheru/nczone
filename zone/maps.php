@@ -374,14 +374,19 @@ SQL;
         );
     }
 
-    public function remove_all_vetos_for_map_id(int $map_id): void
+    public function delete_all_vetos(int $map_id = 0): void
     {
-        $this->db->sql_query('UPDATE ' . $this->db->player_map_table . ' SET veto = 0 WHERE map_id = ' . $map_id);
+        $where = '';
+        if ($map_id > 0) {
+            $where = ' where map_id = '. $map_id;
+        }
+        $this->db->sql_query('update '. $this->db->player_map_table .' set veto = 0' . $where);
     }
 
-    public function delete_all_vetos(): void
+    public function delete_variant_vetos(int $map_id): void
     {
-        $this->db->sql_query('update '. $this->db->player_map_table .' set veto = 0');
+        $variant_map_ids = $this->get_maps_variants($map_id);
+        $this->db->sql_query('update '. $this->db->player_map_table .' set veto = 0 where ' . $this->db->sql_in_set('map_id', $variant_map_ids));
     }
 
     public function vetos_left(array $map_ids): int

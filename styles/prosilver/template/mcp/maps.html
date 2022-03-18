@@ -93,6 +93,31 @@
             {% if S_EDIT_MAP %}
                 <dl>
                     <dt>
+                        <label>{{ lang('MCP_DELETE_MAP_VETOS') }}{{ lang('COLON') }}</label><br />
+                        <span>{{ lang('MCP_DELETE_MAP_VETOS_DESCR') }}</span>
+                    </dt>
+                    <dd>
+                        <input class="button1 button_subform" type="submit" id="delete_map_vetos" name="delete_map_vetos" value="{{ lang('MCP_DELETE_MAP_VETOS_NOW') }}" />
+                        <label>{{ lang('MCP_DELETE_MAP_VETOS_CONFIRM') }}{{ lang('COLON') }}</label>
+                        <label><input type="radio" name="delete_map_vetos_confirm" value="1" /> {{ lang('MCP_DELETE_MAP_VETOS_YES') }}</label>
+                        <label><input type="radio" name="delete_map_vetos_confirm" value="0" checked="checked" /> {{ lang('MCP_DELETE_MAP_VETOS_NO') }}</label>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt>
+                        <label>{{ lang('MCP_DELETE_VARIANT_VETOS') }}{{ lang('COLON') }}</label><br />
+                        <span>{{ lang('MCP_DELETE_VARIANT_VETOS_DESCR') }}</span>
+                    </dt>
+                    <dd>
+                        <input class="button1 button_subform" type="submit" id="delete_variant_vetos" name="delete_variant_vetos" value="{{ lang('MCP_DELETE_MAP_VETOS_NOW') }}" />
+                        <label>{{ lang('MCP_DELETE_MAP_VETOS_CONFIRM') }}{{ lang('COLON') }}</label>
+                        <label><input type="radio" name="delete_variant_vetos_confirm" value="1" /> {{ lang('MCP_DELETE_MAP_VETOS_YES') }}</label>
+                        <label><input type="radio" name="delete_variant_vetos_confirm" value="0" checked="checked" /> {{ lang('MCP_DELETE_MAP_VETOS_NO') }}</label>
+                    </dd>
+                </dl>
+
+                <dl>
+                    <dt>
                         <label for="map_civs">{{ lang('MCP_MAP_CIVS') }}{{ lang('COLON') }}</label><br/>
                         <span>{{ lang('MCP_MAP_CIVS_HINT') }}</span>
                     </dt>

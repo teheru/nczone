@@ -19,3 +19,12 @@ table.mcp_nczone {
 .mcp_map_active {
   font-weight: bold;
 }
+
+a.button_subform, input.button_subform {
+  font-weight: bold;
+  width: auto !important;
+  padding: 1px 3px 0 3px;
+  font-family: "Lucida Grande", Verdana, Helvetica, Arial, sans-serif;
+  font-size: 0.85em;
+  cursor: pointer;
+}

@@ -143,7 +143,7 @@ class main_module
 
         if($request->variable('nczone_delete_all_vetos', ''))
         {
-            if((bool) $request->variable('nczone_delete_all_vetos_yes', '0'))
+            if((bool) $request->variable('nczone_delete_all_vetos_confirm', '0'))
             {
                 zone_util::maps()->delete_all_vetos();
             }

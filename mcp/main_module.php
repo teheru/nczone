@@ -250,7 +250,21 @@ class main_module
 
         $map_id = $request->variable('map_id', '');
 
-        if ($request->variable('create_map', '') && phpbb_util::auth()->acl_get(acl::m_zone_create_maps)) {
+        if($request->variable('delete_map_vetos', ''))
+        {
+            if((bool) $request->variable('delete_map_vetos_confirm', '0'))
+            {
+                zone_util::maps()->delete_all_vetos($map_id);
+            }
+        }
+        elseif($request->variable('delete_variant_vetos', ''))
+        {
+            if((bool) $request->variable('delete_variant_vetos_confirm', '0'))
+            {
+                zone_util::maps()->delete_variant_vetos($map_id);
+            }
+        }
+        elseif ($request->variable('create_map', '') && phpbb_util::auth()->acl_get(acl::m_zone_create_maps)) {
             $match_sizes = [
                 1 => $request->variable('map_match_sizes_1vs1', '') === 'on',
                 2 => $request->variable('map_match_sizes_2vs2', '') === 'on',
@@ -260,19 +274,16 @@ class main_module
 
             $maps->create_map(
                 $request->variable('map_name', ''),
-                (float)$request->variable('map_weight', 1.0),
+                (float) $request->variable('map_weight', 1.0),
                 $match_sizes,
-                (int)$request->variable('copy_map_id', 0)
+                (int) $request->variable('copy_map_id', 0)
             );
         } elseif ($request->variable('edit_map', '')) {
-            $map_id = (int)$map_id;
+            $map_id = (int) $map_id;
 
-            $new_weight = (float)$request->variable('map_weight', 1.0);
+            $new_weight = (float) $request->variable('map_weight', 1.0);
             if ($new_weight < 0.0) {
                 $new_weight = 0.0;
-            }
-            if ($new_weight == 0.0) {
-                $maps->remove_all_vetos_for_map_id($map_id);
             }
 
             $variant_map_ids = \array_map('\intval', $request->variable('map_variants', array('')));

@@ -1,15 +1,1 @@
-table.mcp_nczone td {
-  padding: 2px;
-  border-width: 1px;
-  border-color: #B4BAC0;
-  border-style: solid;
-  text-align: center;
-}
-
-#mcp .half-inputbox {
-  width: calc(85% / 2 - 6px);
-}
-
-.mcp_map_active {
-  font-weight: bold;
-}
+table.mcp_nczone td{padding:2px;border-width:1px;border-color:#B4BAC0;border-style:solid;text-align:center}#mcp .half-inputbox{width:calc(85% / 2 - 6px)}.mcp_map_active{font-weight:bold}a.button_subform,input.button_subform{font-weight:bold;width:auto !important;padding:1px 3px 0 3px;font-family:"Lucida Grande", Verdana, Helvetica, Arial, sans-serif;font-size:0.85em;cursor:pointer}
