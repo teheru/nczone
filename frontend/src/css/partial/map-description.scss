@@ -7,6 +7,8 @@
 
   overflow-y: hidden;
 
+  text-align: center;
+
   pre {
     white-space: pre-wrap;
   }
@@ -23,11 +25,10 @@
     margin: 0.5em;
     font-style: italic;
   }
+}
 
-  .zone-map-upload-image-label {
-    float: right;
-    text-align: center;
-  }
+.zone-map-description-text {
+  text-align: left;
 }
 
 .zone-map-civs-table {

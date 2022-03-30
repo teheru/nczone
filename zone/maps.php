@@ -194,7 +194,7 @@ class maps
         }
 
         \imagesavealpha($image, TRUE);
-        if (\imagesx($image) > 800 || \imagesy($image) > 750) {
+        if (\imagesx($image) > 800 || \imagesy($image) > 700) {
             return false;
         }
 
