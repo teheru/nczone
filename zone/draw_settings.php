@@ -663,8 +663,10 @@ class draw_settings
             }
         }
 
+        $veto_power = $this->config->get(config::map_veto_power);
+
         foreach($veto_counter as $map_id => $counter) {
-            $maps_counter[$map_id] /= \pow(2.0, $counter);
+            $maps_counter[$map_id] /= \pow($veto_power, $counter);
         }
 
         \asort($maps_counter);
