@@ -91,7 +91,7 @@ export default {
   },
   computed: {
     weightedMaps () {
-      return this.maps.filter(m => m.weight > 0)
+      return this.maps.filter(m => m.weight > 0).sort((a, b) => a.weight < b.weight)
     },
     canVeto () {
       return this.mapVetos.vetos.length > 0 || this.mapVetos.vetos_available > 0
