@@ -15,11 +15,11 @@
     </div>
     <div class="zone-map-civs-table" v-if="viewTable">
       <div class="zone-table-row zone-table-head-row">
-        <nczone-table-header-col label="NCZONE_CIV" />
-        <nczone-table-header-col label="NCZONE_MULTIPLIER" />
-        <nczone-table-header-col label="NCZONE_FORCE_DRAW" />
-        <nczone-table-header-col label="NCZONE_PREVENT_DRAW" />
-        <nczone-table-header-col label="NCZONE_BOTH_TEAMS" />
+        <nczone-table-header-col label="NCZONE_CIV" sort-field="civname" />
+        <nczone-table-header-col label="NCZONE_MULTIPLIER" sort-field="multiplier" />
+        <nczone-table-header-col label="NCZONE_FORCE_DRAW" sort-field="force_draw" />
+        <nczone-table-header-col label="NCZONE_PREVENT_DRAW" sort-field="prevent_draw" />
+        <nczone-table-header-col label="NCZONE_BOTH_TEAMS" sort-field="both_teams" />
       </div>
       <div class="zone-table-row" v-for="(civ, idx) in currentCivInfos" :key="`row-${idx}`">
         <div>{{ $t(civ.civ_name) }}</div>
@@ -36,8 +36,13 @@ import VueMarkdown from 'vue-markdown'
 
 import { mapGetters, mapActions } from 'vuex'
 
+import { sort } from '@/functions'
+
 export default {
   name: 'nczone-map-description',
+  created () {
+    this.setSort({ field: 'civname', order: -1 })
+  },
   components: {
     VueMarkdown
   },
@@ -77,17 +82,19 @@ export default {
       reader.readAsDataURL(files[0])
     },
     ...mapActions([
+      'setSort',
       'saveMapDescription',
       'saveMapImage'
     ])
   },
   computed: {
     currentCivInfos () {
-      return this.map.civInfo.filter(c => c.multiplier > 0).sort((c1, c2) => c1.civ_name > c2.civ_name)
+      return sort(this.map.civInfo.filter(c => c.multiplier > 0), this.sort)
     },
 
     ...mapGetters([
-      'canEditMapDescription'
+      'canEditMapDescription',
+      'sort'
     ])
   },
   data () {
