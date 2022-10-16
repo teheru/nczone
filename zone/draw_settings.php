@@ -97,7 +97,7 @@ class draw_settings
             $player_civs = $this->draw_player_civs(
                 $map_id,
                 $draw_match,
-                $num_civs + $additional_civs
+                $num_civs
             );
 
             $already_drawn_civ_ids = [];
@@ -105,21 +105,29 @@ class draw_settings
                 $already_drawn_civ_ids[] = (int)$pc['id'];
             }
 
-            foreach ($player_civs as $user_id => $pc) {
-                $main_civ_id = (int)$pc['id'];
-                $player_civ_ids[$user_id] = [$main_civ_id];
+            $max_multiplier = $this->config->draw_player_additional_civs_max_multiplier();
 
-                if ($additional_civs > 0) {
-                    $main_civ_multiplier = (float)$pc['multiplier'];
-                    $max_multiplier = $this->config->draw_player_additional_civs_max_multiplier();
+            $teams = [$draw_match->get_team1()->items(), $draw_match->get_team2()->items()];
+            foreach ($teams as $team) {
+                $temp_already_drawn_civ_ids = $already_drawn_civ_ids;
 
-                    $free_pick_civ_id = (int) $this->config->get(config::free_pick_civ_id);
-                    if ($main_civ_id != $free_pick_civ_id) {
-                        $alternative_civ_ids = $this->civs->get_map_player_alternative_civ_ids($map_id, $user_id, $main_civ_multiplier - $max_multiplier, $already_drawn_civ_ids, $additional_civs);
-                        $player_civ_ids[$user_id] = \array_merge($player_civ_ids[$user_id], $alternative_civ_ids);
-                        $already_drawn_civ_ids = \array_merge($already_drawn_civ_ids, $alternative_civ_ids);
+                foreach ($team as $user) {
+                    $user_id = $user->get_id();
+                    $player_civ = $player_civs[$user_id];
+                    $main_civ_id = $player_civ['id'];
+
+                    $player_civ_ids[$user_id] = [$main_civ_id];
+                    if ($additional_civs > 0) {
+                        $main_civ_multiplier = $player_civ['multiplier'];
+
+                        $free_pick_civ_id = (int)$this->config->get(config::free_pick_civ_id);
+                        if ($main_civ_id != $free_pick_civ_id) {
+                            $temp_max_multiplier = $max_multiplier;
+                            $alternative_civ_ids = $this->civs->get_map_player_alternative_civ_ids($map_id, $user_id, $main_civ_multiplier - $max_multiplier, $temp_already_drawn_civ_ids, $additional_civs);
+                            $player_civ_ids[$user_id] = \array_merge($player_civ_ids[$user_id], $alternative_civ_ids);
+                            $temp_already_drawn_civ_ids = \array_merge($temp_already_drawn_civ_ids, $alternative_civ_ids);
+                        }
                     }
-                    
                 }
             }
         }
