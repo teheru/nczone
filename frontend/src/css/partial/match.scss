@@ -155,6 +155,7 @@
   .zone-match-team-2 & {
     grid-template-columns: auto auto auto;
     justify-items: end;
+    text-align: right;
 
     .zone-match-player-replace {
       grid-column: 3;
