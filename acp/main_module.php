@@ -73,6 +73,10 @@ class main_module
             $config->set(config::draw_team_extra_civs_2vs2, (int)$request->variable('nczone_draw_team_extra_civs_2vs2', config::default(config::draw_team_extra_civs_2vs2)));
             $config->set(config::draw_team_extra_civs_3vs3, (int)$request->variable('nczone_draw_team_extra_civs_3vs3', config::default(config::draw_team_extra_civs_3vs3)));
             $config->set(config::draw_team_extra_civs_4vs4, (int)$request->variable('nczone_draw_team_extra_civs_4vs4', config::default(config::draw_team_extra_civs_4vs4)));
+            $config->set(config::draw_match_additional_civs, (int)$request->variable('nczone_draw_match_additional_civs', config::default(config::draw_match_additional_civs)));
+            $config->set(config::draw_team_additional_civs, (int)$request->variable('nczone_draw_team_additional_civs', config::default(config::draw_team_additional_civs)));
+            $config->set(config::draw_player_additional_civs, (int)$request->variable('nczone_draw_player_additional_civs', config::default(config::draw_player_additional_civs)));
+            $config->set(config::draw_player_additional_civs_max_multiplier, (float)$request->variable('nczone_draw_player_additional_civs_max_multiplier', config::default(config::draw_player_additional_civs_max_multiplier)));
 
             $draw_factor = (float)$request->variable('nczone_draw_factor', config::default(config::draw_factor));
             if ($draw_factor >= 0 and $draw_factor <= 1) {
@@ -106,6 +110,26 @@ class main_module
                 $config->set(config::draw_player_num_civs_4vs4, $player_num_civs_4vs4);
             } // todo: else
 
+            $match_additional_civs = (int)$request->variable('nczone_draw_match_additional_civs', config::default(config::draw_match_additional_civs));
+            if ($draw_match_additional_civs >= 0) {
+                $config->set(config::draw_match_additional_civs, $match_additional_civs);
+            }
+
+            $team_additional_civs = (int)$request->variable('nczone_draw_team_additional_civs', config::default(config::draw_team_additional_civs));
+            if ($draw_team_additional_civs >= 0) {
+                $config->set(config::draw_team_additional_civs, $team_additional_civs);
+            }
+
+            $player_additional_civs = (int)$request->variable('nczone_draw_player_additional_civs', config::default(config::draw_player_additional_civs));
+            if ($draw_player_additional_civs >= 0) {
+                $config->set(config::draw_player_additional_civs, $player_additional_civs);
+            }
+
+            $player_additional_civs_max_multiplier = (float)$request->variable('nczone_draw_player_additional_civs_max_multiplier', config::default(config::draw_player_additional_civs_max_multiplier));
+            if ($draw_player_additional_civs_max_multiplier >= 0) {
+                $config->set(config::draw_player_additional_civs_max_multiplier, $player_additional_civs_max_multiplier);
+            }
+
             trigger_error($language->lang('ACP_NCZONE_SAVED') . adm_back_link($this->u_action));
         }
 
@@ -127,6 +151,10 @@ class main_module
             'nczone_draw_player_num_civs_2vs2' => $config->get(config::draw_player_num_civs_2vs2),
             'nczone_draw_player_num_civs_3vs3' => $config->get(config::draw_player_num_civs_3vs3),
             'nczone_draw_player_num_civs_4vs4' => $config->get(config::draw_player_num_civs_4vs4),
+            'nczone_draw_match_additional_civs' => $config->get(config::draw_match_additional_civs),
+            'nczone_draw_team_additional_civs' => $config->get(config::draw_team_additional_civs),
+            'nczone_draw_player_additional_civs' => $config->get(config::draw_player_additional_civs),
+            'nczone_draw_player_additional_civs_max_multiplier' => $config->get(config::draw_player_additional_civs_max_multiplier),
             'nczone_draw_factor' => $config->get(config::draw_factor),
             'nczone_draw_switch_1_player' => $config->get(config::draw_switch_1_player),
             'nczone_draw_switch_0_players' => $config->get(config::draw_switch_0_players),

@@ -46,6 +46,10 @@ final class config
     public const draw_player_num_civs_2vs2 = 'nczone_draw_player_num_civs_2vs2';
     public const draw_player_num_civs_3vs3 = 'nczone_draw_player_num_civs_3vs3';
     public const draw_player_num_civs_4vs4 = 'nczone_draw_player_num_civs_4vs4';
+    public const draw_match_additional_civs = 'nczone_draw_match_additional_civs';
+    public const draw_team_additional_civs = 'nczone_draw_team_additional_civs';
+    public const draw_player_additional_civs = 'nczone_draw_player_additional_civs';
+    public const draw_player_additional_civs_max_multiplier = 'nczone_draw_player_additional_civs_max_multiplier';
     public const draw_factor = 'nczone_draw_factor';
     public const draw_switch_1_player = 'nczone_draw_switch_1_player';
     public const draw_switch_0_players = 'nczone_draw_switch_0_players';
@@ -94,6 +98,10 @@ final class config
         self::draw_player_num_civs_2vs2,
         self::draw_player_num_civs_3vs3,
         self::draw_player_num_civs_4vs4,
+        self::draw_match_additional_civs,
+        self::draw_team_additional_civs,
+        self::draw_player_additional_civs,
+        self::draw_player_additional_civs_max_multiplier,
         self::draw_factor,
         self::draw_switch_1_player,
         self::draw_switch_0_players,
@@ -143,6 +151,10 @@ final class config
         self::draw_player_num_civs_2vs2 => 5,
         self::draw_player_num_civs_3vs3 => 4,
         self::draw_player_num_civs_4vs4 => 3,
+        self::draw_match_additional_civs => 1,
+        self::draw_team_additional_civs => 1,
+        self::draw_player_additional_civs => 0,
+        self::draw_player_additional_civs_max_multiplier => 2.0,
         self::draw_factor => 0.4,
         self::draw_switch_1_player => 4,
         self::draw_switch_0_players => 10,
@@ -215,6 +227,26 @@ final class config
             case 4: return (int) $this->get(self::draw_player_num_civs_4vs4);
         }
         return 0;
+    }
+
+    public function draw_match_additional_civs(): int
+    {
+        return (int) $this->get(self::draw_match_additional_civs);
+    }
+
+    public function draw_team_additional_civs(): int
+    {
+        return (int) $this->get(self::draw_team_additional_civs);
+    }
+
+    public function draw_player_additional_civs(): int
+    {
+        return (int) $this->get(self::draw_player_additional_civs);
+    }
+
+    public function draw_player_additional_civs_max_multiplier(): float
+    {
+        return (float) $this->get(self::draw_player_additional_civs_max_multiplier);
     }
 
     public function base_points_by_match_size(int $match_size): int

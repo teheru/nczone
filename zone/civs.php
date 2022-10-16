@@ -208,6 +208,21 @@ class civs
         ));
     }
 
+    public function get_map_player_alternative_civ_ids(
+        int $map_id,
+        int $user_id,
+        float $max_multiplier,
+        int $number = 1
+    ): array {
+        $sql_array = [
+            'SELECT' => 'p.civ_id',
+            'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
+            'WHERE' => 'c.map_id = ' . $map_id . ' AND p.user_id = ' . $user_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND NOT c.both_teams AND c.multiplier <= ' . $max_multiplier,
+            'ORDER_BY' => 'c.multiplier DESC, p.time ASC'
+        ];
+        return $this->db->get_col($sql_array, $number);
+    }
+
     private function get_map_players_civs_build_sql_array(
         int $map_id,
         array $user_ids,
@@ -218,7 +233,7 @@ class civs
     {
         $sql_array = [
             'SELECT' => 'p.user_id AS user_id, c.civ_id AS civ_id, c.multiplier AS multiplier, c.both_teams AS both_teams',
-            'FROM' => array($this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'),
+            'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
             'WHERE' => 'c.map_id = ' . $map_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND ' . $this->db->sql_in_set('p.user_id', $user_ids),
             'GROUP_BY' => 'p.user_id, c.civ_id',
             'ORDER_BY' => 'SUM(' . \time() . ' - p.time) DESC',

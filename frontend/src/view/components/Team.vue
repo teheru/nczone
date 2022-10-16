@@ -21,7 +21,7 @@
       <div v-if="canReplacePlayer" class="zone-match-team-header zone-match-player-replace"></div>
       <div class="zone-match-team-header zone-match-player-name zone-highlight-color" v-t="title"></div>
       <div class="zone-match-team-header zone-match-player-rating">({{ totalRating }})</div>
-      <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civ" v-t="'NCZONE_MATCH_CIVS'"></div>
+      <div v-if="havePlayerCivs" class="zone-match-team-header zone-match-player-civs" v-t="'NCZONE_MATCH_CIVS'"></div>
 
       <template v-for="(player, idx) in players">
         <div v-if="canReplacePlayer" class="zone-match-player-replace" :key="`replace-${idx}`">
@@ -29,11 +29,13 @@
         </div>
         <div class="zone-match-player-name zone-highlight-color" :key="`name-${idx}`"><span v-html="player.username"></span><span class="zone-match-player-rating-change" v-if="match.winner">({{ player.rating_change }})</span></div>
         <div class="zone-match-player-rating" :key="`rating-${idx}`">({{ player.rating }})</div>
-        <div v-if="havePlayerCivs" class="zone-match-player-civ" :key="`civ${idx}`">
-          <span class="zone-match-civ" v-if="player.civ">
-            <span v-t="player.civ.title"></span>
-            <span class="zone-match-civ-tooltip">{{ player.civ.multiplier }}</span>
-          </span>
+        <div v-if="havePlayerCivs" class="zone-match-player-civs" :key="`civs-${idx}`">
+          <div v-for="(civ, cid) in player.civs" class="zone-match-player-civ" :key="`civ-${cid}`">
+            <span class="zone-match-civ">
+              <span v-t="civ.title"></span>
+              <span class="zone-match-civ-tooltip">{{ civ.multiplier }}</span>
+            </span>
+          </div>
         </div>
       </template>
     </div>
@@ -144,7 +146,7 @@ export default {
       return this.team === 1 ? 'NCZONE_MATCH_TEAM1' : 'NCZONE_MATCH_TEAM2'
     },
     havePlayerCivs () {
-      return !!this.players.find(p => !!p.civ)
+      return !!this.players.find(p => p.civs.length > 0)
     },
     totalRating () {
       return this.players.reduce((total, player) => total + player.rating, 0)

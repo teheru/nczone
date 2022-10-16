@@ -65,21 +65,25 @@ class draw_settings
 
         $civ_kind = $this->decide_draw_civs_kind($draw_match);
         if ($civ_kind === self::MATCH_CIVS) {
-            $extra_civs = $this->config->draw_match_extra_civs($match_size);
+            $extra_algo_civs = $this->config->draw_match_extra_civs($match_size);
+            $additional_civs = $this->config->draw_match_additional_civs();
             $match_civs = $this->draw_match_civs(
                 $map_id,
                 $draw_match,
-                $extra_civs
+                $additional_civs,
+                $extra_algo_civs
             );
             foreach ($match_civs as $civ) {
                 $match_civ_ids[] = (int) $civ['id'];
             }
         } elseif ($civ_kind === self::TEAM_CIVS) {
-            $extra_civs = $this->config->draw_team_extra_civs($match_size);
+            $extra_algo_civs = $this->config->draw_team_extra_civs($match_size);
+            $additional_civs = $this->config->draw_team_additional_civs();
             [$team1_civs, $team2_civs] = $this->draw_teams_civs(
                 $map_id,
                 $draw_match,
-                $extra_civs
+                $additional_civs,
+                $extra_algo_civs
             );
             foreach ($team1_civs as $civ) {
                 $team1_civ_ids[] = (int) $civ['id'];
@@ -89,13 +93,26 @@ class draw_settings
             }
         } else {
             $num_civs = $this->config->draw_player_num_civs($match_size);
+            $additional_civs = $this->config->draw_player_additional_civs();
             $player_civs = $this->draw_player_civs(
                 $map_id,
                 $draw_match,
-                $num_civs
+                $num_civs + $additional_civs
             );
             foreach ($player_civs as $user_id => $pc) {
-                $player_civ_ids[$user_id] = $pc['id'];
+                $main_civ_id = (int)$pc['id'];
+                $player_civ_ids[$user_id] = [$main_civ_id];
+
+                if ($additional_civs > 0) {
+                    $main_civ_multiplier = (float)$pc['multiplier'];
+                    $max_multiplier = $this->config->draw_player_additional_civs_max_multiplier();
+
+                    $free_pick_civ_id = (int) $this->config->get(config::free_pick_civ_id);
+                    if ($main_civ_id != $free_pick_civ_id) {
+                        $alternative_civ_ids = $this->civs->get_map_player_alternative_civ_ids($map_id, $user_id, $main_civ_multiplier - $max_multiplier, $additional_civs);
+                        $player_civ_ids[$user_id] = \array_merge($player_civ_ids[$user_id], $alternative_civ_ids);
+                    }
+                }
             }
         }
 
@@ -129,7 +146,7 @@ class draw_settings
         int $map_id,
         array $user_ids,
         int $num_civs,
-        int $extra_civs,
+        int $extra_algo_civs,
         bool $ignore_force = false
     ): array {
         $now = \time();
@@ -161,9 +178,9 @@ class draw_settings
             'WHERE' => 'c.civ_id = p.civ_id AND NOT c.prevent_draw AND c.map_id = ' . $map_id . ' AND ' . $this->db->sql_in_set('p.user_id', $user_ids) . $sql_add,
             'GROUP_BY' => 'c.civ_id',
             'ORDER_BY' => "MIN({$now} - p.time) DESC",
-        ], $num_civs + $extra_civs);
+        ], $num_civs + $extra_algo_civs);
 
-        if ($extra_civs === 0) {
+        if ($extra_algo_civs === 0) {
             $best_civs = $draw_civs;
         } else {
             // if there is already a civ forced to be drawn, we can reduce the number of drawn civs by one
@@ -172,7 +189,7 @@ class draw_settings
             // we drawed some extra civs and now we drop some to reduce the difference of multipliers
             $best_civs = [];
             $best_value = -1;
-            for ($i = 0; $i < $extra_civs; $i++) {
+            for ($i = 0; $i < $extra_algo_civs; $i++) {
                 $test_civs = \array_slice($draw_civs, $i, $num_civs - $reduce_draw);
                 $test_civs_calc = $force_civ
                     ? \array_merge([$force_civ], $test_civs)
@@ -193,13 +210,14 @@ class draw_settings
     private function draw_match_civs(
         int $map_id,
         entity\draw_match $draw_match,
-        int $extra_civs = 4
+        int $additional_civs = 0,
+        int $extra_algo_civs = 4
     ): array {
         $players_civs = $this->draw_players_civs(
             $map_id,
             $draw_match->get_all_player_ids(),
-            $draw_match->get_match_size(),
-            $extra_civs
+            $draw_match->get_match_size() + $additional_civs,
+            $extra_algo_civs
         );
 
         $drawed_civs = $players_civs[0]
@@ -212,12 +230,13 @@ class draw_settings
     private function draw_teams_civs(
         int $map_id,
         entity\draw_match $draw_match,
-        int $extra_civs = 2
+        int $additional_civs = 0,
+        int $extra_algo_civs = 2
     ): array {
         $team1_users = $draw_match->get_team1();
         $team2_users = $draw_match->get_team2();
 
-        $num_civs = $draw_match->get_match_size();
+        $num_civs = $draw_match->get_match_size() +  $additional_civs;
 
         $team1_sum_rating = $team1_users->get_total_rating();
         $team2_sum_rating = $team2_users->get_total_rating();
@@ -229,7 +248,7 @@ class draw_settings
         [$team1_force_civ, $team1_civpool] = $this->draw_players_civs(
             $map_id,
             $team1_users->get_ids(),
-            $num_civs + $extra_civs,
+            $num_civs + $extra_algo_civs,
             0
         );
 
@@ -247,7 +266,7 @@ class draw_settings
         $team2_players_civs = $this->draw_players_civs(
             $map_id,
             $team2_users->get_ids(),
-            $num_civs + $extra_civs,
+            $num_civs + $additional_civs + $extra_algo_civs,
             0,
             $ignore_force
         );
@@ -274,11 +293,11 @@ class draw_settings
             }
         }
 
-        [$team1_civpool, $team2_civpool] = $this->remove_extra_civs_from_civpools($team1_civpool, $team2_civpool);
+        [$team1_civpool, $team2_civpool] = $this->remove_extra_algo_civs_from_civpools($team1_civpool, $team2_civpool);
 
         $unique_civpool_num = \count($team1_civpool);
 
-        $test_indices = $this->get_civpool_test_indices($num_civs, $extra_civs);
+        $test_indices = $this->get_civpool_test_indices($num_civs, $extra_algo_civs);
 
         $team1_best_indices = [];
         $team2_best_indices = [];
@@ -578,16 +597,16 @@ class draw_settings
     // get all index combinations with length $num_civs for our civpools
     private function get_civpool_test_indices(
         int $num_civs,
-        int $extra_civs
+        int $extra_algo_civs
     ): array {
         $test_indices = [];
-        for ($i = 0; $i < $extra_civs + 1; $i++) {
+        for ($i = 0; $i < $extra_algo_civs + 1; $i++) {
             $test_indices[] = [$i];
         }
         for ($i = 1; $i < $num_civs; $i++) {
             $temp = [];
             foreach ($test_indices as $lo) {
-                for ($j = \end($lo) + 1; $j < $num_civs + $extra_civs; $j++) {
+                for ($j = \end($lo) + 1; $j < $num_civs + $extra_algo_civs; $j++) {
                     $temp[] = \array_merge($lo, [$j]);
                 }
             }
@@ -597,7 +616,7 @@ class draw_settings
     }
 
     // remove extra civs from either team civpools
-    private function remove_extra_civs_from_civpools(
+    private function remove_extra_algo_civs_from_civpools(
         array $team1_civpool,
         array $team2_civpool
     ): array {

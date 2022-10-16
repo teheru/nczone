@@ -325,14 +325,19 @@ class matches {
                     }
                 }
 
-                $player_civ_ids = [];
                 $player_civ_rows = $this->db->get_rows([
                     'SELECT' => 't.civ_id, t.user_id',
                     'FROM' => [$this->db->match_player_civs_table => 't'],
                     'WHERE' => 't.match_id = ' . $match_id
                 ]);
+
+                $player_civ_ids = [];
                 foreach ($player_civ_rows as $r) {
-                    $player_civ_ids[(int)$r['user_id']] = (int)$r['civ_id'];
+                    $user_id = (int)$r['user_id'];
+                    if (!\array_key_exists($user_id, $player_civ_ids)) {
+                        $player_civ_ids[$user_id] = [];
+                    }
+                    $player_civ_ids[$user_id][] = (int)$r['civ_id'];
                 }
 
                 $teams = [
@@ -348,10 +353,10 @@ class matches {
                     $team_id = $is_team1 ? $team1_id : $team2_id;
                     $team_civ_ids = $is_team1 ? $team1_civ_ids : $team2_civ_ids;
                     foreach ($team_list->items() as $mp) {
-                        $civ_ids = array_merge(
+                        $civ_ids = \array_merge(
                             $match_civ_ids,
                             $team_civ_ids,
-                            array_key_exists($mp->get_id(), $player_civ_ids) ? [$player_civ_ids[$mp->get_id()]] : []
+                            \array_key_exists($mp->get_id(), $player_civ_ids) ? $player_civ_ids[$mp->get_id()] : []
                         );
                         if (!empty($civ_ids)) {
                             $this->db->update($this->db->player_civ_table, ['time' => $draw_time], $this->db->sql_in_set('civ_id', $civ_ids) . ' AND `user_id` = ' . $mp->get_id() . ' AND `time` < ' . $draw_time);
@@ -721,13 +726,16 @@ class matches {
         }
 
         $player_civ_data = [];
-        foreach($setting->get_player_civ_ids() as $user_id => $civ_id)
+        foreach($setting->get_player_civ_ids() as $user_id => $civ_ids)
         {
-            $player_civ_data[] = [
-                'match_id' => $match_id,
-                'user_id' => (int)$user_id,
-                'civ_id' => (int)$civ_id,
-            ];
+            foreach($civ_ids as $civ_id)
+            {
+                $player_civ_data[] = [
+                    'match_id' => $match_id,
+                    'user_id' => (int)$user_id,
+                    'civ_id' => (int)$civ_id,
+                ];
+            }
         }
         if(!empty($player_civ_data))
         {

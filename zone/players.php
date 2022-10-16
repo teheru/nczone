@@ -489,16 +489,10 @@ class players
                 mp.team_id,
                 u.username AS username,
                 mp.draw_rating AS rating,
-                mp.rating_change,
-                pc.civ_id,
-                c.civ_name,
-                mc.multiplier
+                mp.rating_change
             FROM
                 ' . $this->db->match_players_table . ' mp
                 INNER JOIN ' . $this->db->users_table . ' u ON u.user_id = mp.user_id
-                LEFT JOIN ' . $this->db->match_player_civs_table . ' pc ON pc.user_id = mp.user_id AND pc.match_id = ' . $match_id . '
-                LEFT JOIN ' . $this->db->civs_table . ' c ON c.civ_id = pc.civ_id
-                LEFT JOIN ' . $this->db->map_civs_table . ' mc ON mc.map_id = ' . $map_id . ' AND mc.civ_id = c.civ_id
             WHERE
                 mp.team_id IN (' . $team1_id . ', ' . $team2_id . ')
             ORDER BY
@@ -510,12 +504,19 @@ class players
         {
             $r['id'] = (int)$r['id'];
 
-            $civ_id = (int)$r['civ_id'];
-            $civ_name = $r['civ_name'];
-            unset($r['civ_id'], $r['civ_name']);
-            if($civ_id)
-            {
-                $r['civ'] = ['id' => $civ_id, 'title' => $civ_name, 'multiplier' => (float)$r['multiplier']];
+            $civs = $this->db->get_rows([
+                'SELECT' => 'pc.civ_id, c.civ_name, mc.multiplier',
+                'FROM' => [$this->db->match_player_civs_table => 'pc', $this->db->civs_table => 'c', $this->db->map_civs_table => 'mc'],
+                'WHERE' => 'c.civ_id = pc.civ_id AND ' . 
+                           'pc.user_id = ' . $r['id'] . ' AND pc.match_id = ' . $match_id . ' AND ' .
+                           'mc.map_id = ' . $map_id . ' AND mc.civ_id = pc.civ_id',
+                'ORDER_BY' => 'mc.multiplier DESC'
+            ]);
+
+            $r['civs'] = [];
+
+            foreach($civs as $civ) {
+                $r['civs'][] = ['id' => $civ['civ_id'], 'title' => $civ['civ_name'], 'multiplier' => (float)$civ['multiplier']];
             }
 
             $team_id = (int)$r['team_id'];

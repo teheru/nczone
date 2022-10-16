@@ -133,18 +133,23 @@
 
   .zone-match-player-replace {
     grid-column: 2;
+    margin: auto 0;
   }
 
   .zone-match-player-name {
     grid-column: 3;
+    margin: auto 0;
+    padding: 2px 0;
   }
 
   .zone-match-player-rating {
     grid-column: 1;
+    margin: auto 0;
   }
 
-  .zone-match-player-civ {
+  .zone-match-player-civs {
     grid-column: 4;
+    padding: 2px 0;
   }
 
   .zone-match-team-2 & {
@@ -163,7 +168,7 @@
       grid-column: 4;
     }
 
-    .zone-match-player-civ {
+    .zone-match-player-civs {
       grid-column: 1;
     }
   }
