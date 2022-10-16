@@ -212,12 +212,14 @@ class civs
         int $map_id,
         int $user_id,
         float $max_multiplier,
+        array $exclude_civs,
         int $number = 1
     ): array {
         $sql_array = [
             'SELECT' => 'p.civ_id',
             'FROM' => [$this->db->map_civs_table => 'c', $this->db->player_civ_table => 'p'],
-            'WHERE' => 'c.map_id = ' . $map_id . ' AND p.user_id = ' . $user_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND NOT c.both_teams AND c.multiplier <= ' . $max_multiplier,
+            'WHERE' => 'c.map_id = ' . $map_id . ' AND p.user_id = ' . $user_id . ' AND c.civ_id = p.civ_id AND NOT c.prevent_draw AND NOT c.both_teams AND
+                       ' . $this->db->sql_in_set('c.civ_id', $exclude_civs, true) . ' AND c.multiplier <= ' . $max_multiplier,
             'ORDER_BY' => 'c.multiplier DESC, p.time ASC'
         ];
         return $this->db->get_col($sql_array, $number);

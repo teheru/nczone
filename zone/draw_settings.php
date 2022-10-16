@@ -99,6 +99,12 @@ class draw_settings
                 $draw_match,
                 $num_civs + $additional_civs
             );
+
+            $already_drawn_civ_ids = [];
+            foreach ($player_civs as $user_id => $pc) {
+                $already_drawn_civ_ids[] = (int)$pc['id'];
+            }
+
             foreach ($player_civs as $user_id => $pc) {
                 $main_civ_id = (int)$pc['id'];
                 $player_civ_ids[$user_id] = [$main_civ_id];
@@ -109,9 +115,11 @@ class draw_settings
 
                     $free_pick_civ_id = (int) $this->config->get(config::free_pick_civ_id);
                     if ($main_civ_id != $free_pick_civ_id) {
-                        $alternative_civ_ids = $this->civs->get_map_player_alternative_civ_ids($map_id, $user_id, $main_civ_multiplier - $max_multiplier, $additional_civs);
+                        $alternative_civ_ids = $this->civs->get_map_player_alternative_civ_ids($map_id, $user_id, $main_civ_multiplier - $max_multiplier, $already_drawn_civ_ids, $additional_civs);
                         $player_civ_ids[$user_id] = \array_merge($player_civ_ids[$user_id], $alternative_civ_ids);
+                        $already_drawn_civ_ids = \array_merge($already_drawn_civ_ids, $alternative_civ_ids);
                     }
+                    
                 }
             }
         }
