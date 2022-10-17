@@ -100,10 +100,13 @@ class draw_settings
                 $num_civs
             );
 
+            $player_civ_ids = [];
             $already_drawn_civ_ids = [];
             $user_id_multiplier = [];
             foreach ($player_civs as $user_id => $pc) {
-                $already_drawn_civ_ids[] = (int)$pc['id'];
+                $civ_id = (int)$pc['id'];
+                $player_civ_ids[$user_id] = [$civ_id];
+                $already_drawn_civ_ids[] = $civ_id;
                 $user_id_multiplier[$user_id] = (float)$pc['multiplier'];
             }
             \asort($user_id_multiplier);
@@ -112,12 +115,10 @@ class draw_settings
                 $max_multiplier = $this->config->draw_player_additional_civs_max_multiplier();
                 $free_pick_civ_id = (int)$this->config->get(config::free_pick_civ_id);
 
-                $player_civ_ids = [];
                 foreach ($user_id_multiplier as $user_id => $main_civ_multiplier) {
                     $player_civ = $player_civs[$user_id];
                     $main_civ_id = (int)$player_civ['id'];
 
-                    $player_civ_ids[$user_id] = [$main_civ_id];
                     if ($main_civ_id != $free_pick_civ_id) {
                         $alternative_civ_ids = [];
                         foreach ([1.0, 0.5, 0.0] as $p) {
