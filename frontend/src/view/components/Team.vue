@@ -32,7 +32,7 @@
         <div v-if="havePlayerCivs" class="zone-match-player-civs" :key="`civs-${idx}`">
           <div v-for="(civ, cid) in player.civs" class="zone-match-player-civ" :key="`civ-${cid}`">
             <span class="zone-match-civ">
-              <span v-t="civ.title"></span>
+              <span :class="cid > 0 ? 'zone-match-civ-additional' : ''" v-t="civ.title"></span>
               <span class="zone-match-civ-tooltip">{{ civ.multiplier }}</span>
             </span>
           </div>
